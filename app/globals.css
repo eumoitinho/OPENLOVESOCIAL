@@ -1,0 +1,238 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Cores OpenLove */
+    --openlove-50: #fdf2f8;
+    --openlove-100: #fce7f3;
+    --openlove-200: #fbcfe8;
+    --openlove-300: #f9a8d4;
+    --openlove-400: #f472b6;
+    --openlove-500: #ec4899;
+    --openlove-600: #db2777;
+    --openlove-700: #be185d;
+    --openlove-800: #9d174d;
+    --openlove-900: #831843;
+    --openlove-950: #500724;
+
+    /* Tema OpenLove - CORES VIBRANTES */
+    --background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fbcfe8 100%);
+    --foreground: #831843;
+    --card: rgba(255, 255, 255, 0.9);
+    --card-foreground: #831843;
+    --popover: #ffffff;
+    --popover-foreground: #831843;
+    --primary: #ec4899;
+    --primary-foreground: #ffffff;
+    --secondary: #f9a8d4;
+    --secondary-foreground: #831843;
+    --muted: #fbcfe8;
+    --muted-foreground: #be185d;
+    --accent: #f472b6;
+    --accent-foreground: #ffffff;
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+    --border: #f9a8d4;
+    --input: #fce7f3;
+    --ring: #ec4899;
+    --radius: 1rem;
+  }
+
+  .dark {
+    --background: linear-gradient(135deg, #500724 0%, #831843 50%, #9d174d 100%);
+    --foreground: #fce7f3;
+    --card: rgba(131, 24, 67, 0.9);
+    --card-foreground: #fce7f3;
+    --popover: #831843;
+    --popover-foreground: #fce7f3;
+    --primary: #f472b6;
+    --primary-foreground: #500724;
+    --secondary: #db2777;
+    --secondary-foreground: #fce7f3;
+    --muted: #be185d;
+    --muted-foreground: #f9a8d4;
+    --accent: #ec4899;
+    --accent-foreground: #ffffff;
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+    --border: #be185d;
+    --input: #9d174d;
+    --ring: #f472b6;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+  }
+
+  /* Timeline Background */
+  .timeline-bg {
+    background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 25%, #fbcfe8 50%, #f9a8d4 75%, #f472b6 100%);
+    min-height: 100vh;
+  }
+
+  .dark .timeline-bg {
+    background: linear-gradient(135deg, #500724 0%, #831843 25%, #9d174d 50%, #be185d 75%, #db2777 100%);
+  }
+
+  /* Cards com tema OpenLove */
+  .openlove-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(236, 72, 153, 0.2);
+    box-shadow: 0 8px 32px rgba(236, 72, 153, 0.1);
+  }
+
+  .dark .openlove-card {
+    background: rgba(131, 24, 67, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(244, 114, 182, 0.3);
+    box-shadow: 0 8px 32px rgba(244, 114, 182, 0.2);
+  }
+
+  /* Sidebar com tema */
+  .openlove-sidebar {
+    background: rgba(252, 231, 243, 0.98);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(236, 72, 153, 0.3);
+  }
+
+  .dark .openlove-sidebar {
+    background: rgba(131, 24, 67, 0.98);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(244, 114, 182, 0.3);
+  }
+
+  /* Botões com gradiente */
+  .btn-openlove {
+    background: linear-gradient(135deg, #ec4899 0%, #db2777 50%, #be185d 100%);
+    color: white;
+    border: none;
+    transition: all 0.3s ease;
+  }
+
+  .btn-openlove:hover {
+    background: linear-gradient(135deg, #f472b6 0%, #ec4899 50%, #db2777 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(236, 72, 153, 0.3);
+  }
+}
+
+/* Animações */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hover effects */
+.hover-lift {
+  transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(236, 72, 153, 0.2);
+}
+
+/* Scrollbar personalizada */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(249, 168, 212, 0.3);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #ec4899, #db2777);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #f472b6, #ec4899);
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .mobile-hidden {
+    display: none !important;
+  }
+
+  .mobile-full {
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .mobile-padding {
+    padding: 1rem !important;
+  }
+
+  .mobile-text-sm {
+    font-size: 0.875rem !important;
+  }
+}
+
+/* Status indicators */
+.status-online {
+  width: 12px;
+  height: 12px;
+  background: #10b981;
+  border: 2px solid white;
+  border-radius: 50%;
+  position: absolute;
+  top: -2px;
+  right: -2px;
+}
+
+/* Notification styles */
+.notification-success {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+.notification-error {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+}
+
+.notification-info {
+  background: linear-gradient(135deg, #ec4899, #db2777);
+  color: white;
+}

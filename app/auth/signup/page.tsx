@@ -1,0 +1,891 @@
+"use client"
+
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Moon, Sun, MapPin, Camera, ArrowRight, ArrowLeft, Mail, Lock, User, AtSign, Calendar } from "lucide-react"
+import { useState, useEffect } from "react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+
+export default function OpenLoveRegister() {
+  const [isDarkMode, setIsDarkMode] = useState(false) // Tema claro padrão
+  const [step, setStep] = useState(1)
+  const [loading, setLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    username: "", // @usuario único
+    email: "",
+    password: "",
+    confirmPassword: "",
+    birthDate: "", // Data de nascimento
+    profileType: "single", // single or couple
+    seeking: [], // woman, man, couple
+    interests: [], // menage, swing, etc.
+    otherInterest: "",
+    profilePicture: null,
+    bio: "",
+    partner: {
+      nickname: "",
+      age: "",
+      height: "",
+      weight: "",
+      eyeColor: "",
+      hairColor: "",
+    },
+    city: "",
+    plan: "free", // free or premium
+  })
+  const [errors, setErrors] = useState({})
+  const [usernameAvailable, setUsernameAvailable] = useState(null)
+  const [checkingUsername, setCheckingUsername] = useState(false)
+
+  const router = useRouter()
+
+  // Check system preference on initial load
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsDarkMode(false) // Forçar tema claro como padrão
+      document.documentElement.classList.remove("dark")
+    }
+  }, [])
+
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode)
+    document.documentElement.classList.toggle("dark")
+  }
+
+  // Mock function for username availability check
+  const checkUsernameAvailability = async (username) => {
+    if (!username || username.length < 3) {
+      setUsernameAvailable(null)
+      return
+    }
+
+    setCheckingUsername(true)
+
+    // Simulate API call
+    setTimeout(() => {
+      // Mock logic - usernames starting with 'admin' are taken
+      const isTaken = username.toLowerCase().startsWith("admin") || username.toLowerCase() === "test"
+      setUsernameAvailable(!isTaken)
+      setCheckingUsername(false)
+    }, 1000)
+  }
+
+  // Handle input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target
+    if (name.includes("partner.")) {
+      const field = name.split(".")[1]
+      setFormData((prev) => ({
+        ...prev,
+        partner: { ...prev.partner, [field]: value },
+      }))
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }))
+
+      // Check username availability
+      if (name === "username") {
+        const cleanUsername = value.replace(/[^a-zA-Z0-9_]/g, "").toLowerCase()
+        setFormData((prev) => ({ ...prev, username: cleanUsername }))
+        if (cleanUsername !== value) return // Prevent checking invalid characters
+
+        clearTimeout(window.usernameTimeout)
+        window.usernameTimeout = setTimeout(() => {
+          checkUsernameAvailability(cleanUsername)
+        }, 500)
+      }
+    }
+  }
+
+  // Handle file upload
+  const handleFileChange = (e) => {
+    const file = e.target.files[0]
+    setFormData((prev) => ({ ...prev, profilePicture: file }))
+  }
+
+  // Handle checkbox changes
+  const handleCheckboxChange = (field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: prev[field].includes(value) ? prev[field].filter((item) => item !== value) : [...prev[field], value],
+    }))
+  }
+
+  // Calculate age from birth date
+  const calculateAge = (birthDate) => {
+    const today = new Date()
+    const birth = new Date(birthDate)
+    let age = today.getFullYear() - birth.getFullYear()
+    const monthDiff = today.getMonth() - birth.getMonth()
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--
+    }
+    return age
+  }
+
+  // Validate current step
+  const validateStep = () => {
+    const newErrors = {}
+
+    if (step === 1) {
+      if (!formData.firstName) newErrors.firstName = "Nome é obrigatório"
+      if (!formData.lastName) newErrors.lastName = "Sobrenome é obrigatório"
+      if (!formData.username) {
+        newErrors.username = "Nome de usuário é obrigatório"
+      } else if (formData.username.length < 3) {
+        newErrors.username = "Nome de usuário deve ter pelo menos 3 caracteres"
+      } else if (usernameAvailable === false) {
+        newErrors.username = "Este nome de usuário já está em uso"
+      } else if (usernameAvailable === null && !checkingUsername && formData.username.length >= 3) {
+        newErrors.username = "Verificando disponibilidade..."
+      }
+      if (!formData.email) newErrors.email = "E-mail é obrigatório"
+      else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "E-mail inválido"
+      if (!formData.password) newErrors.password = "Senha é obrigatória"
+      else if (formData.password.length < 6) newErrors.password = "Senha deve ter pelo menos 6 caracteres"
+      if (!formData.confirmPassword) newErrors.confirmPassword = "Confirmação de senha é obrigatória"
+      else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Senhas não coincidem"
+      if (!formData.birthDate) {
+        newErrors.birthDate = "Data de nascimento é obrigatória"
+      } else {
+        const age = calculateAge(formData.birthDate)
+        if (age < 18) {
+          newErrors.birthDate = "Você deve ter pelo menos 18 anos"
+        }
+      }
+    } else if (step === 2) {
+      if (formData.seeking.length === 0) newErrors.seeking = "Selecione pelo menos uma opção"
+      if (formData.interests.length === 0 && !formData.otherInterest)
+        newErrors.interests = "Selecione pelo menos um interesse ou especifique outro"
+    } else if (step === 3) {
+      if (!formData.profilePicture) newErrors.profilePicture = "Foto de perfil é obrigatória"
+      if (!formData.bio) newErrors.bio = "Bio é obrigatória"
+      if (formData.profileType === "couple") {
+        if (!formData.partner.nickname) newErrors.partnerNickname = "Apelido do parceiro é obrigatório"
+        if (!formData.partner.age) newErrors.partnerAge = "Idade do parceiro é obrigatória"
+        else if (isNaN(formData.partner.age) || formData.partner.age < 18)
+          newErrors.partnerAge = "Idade deve ser um número maior ou igual a 18"
+        if (!formData.partner.height) newErrors.partnerHeight = "Altura do parceiro é obrigatória"
+        if (!formData.partner.weight) newErrors.partnerWeight = "Peso do parceiro é obrigatório"
+        if (!formData.partner.eyeColor) newErrors.partnerEyeColor = "Cor dos olhos é obrigatória"
+        if (!formData.partner.hairColor) newErrors.partnerHairColor = "Cor do cabelo é obrigatória"
+      }
+    } else if (step === 4) {
+      if (!formData.city) newErrors.city = "Cidade é obrigatória"
+    } else if (step === 5) {
+      if (!formData.plan) newErrors.plan = "Selecione um plano"
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  // Handle navigation
+  const handleNext = () => {
+    if (validateStep()) {
+      setStep((prev) => Math.min(prev + 1, 5))
+    }
+  }
+
+  const handleBack = () => {
+    setStep((prev) => Math.max(prev - 1, 1))
+  }
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!validateStep()) return
+
+    setLoading(true)
+    try {
+      // Simulate registration process
+      console.log("Registration data:", formData)
+
+      // Mock success
+      setTimeout(() => {
+        alert("Conta criada com sucesso! (Demo)")
+        setLoading(false)
+        // In real app: router.push("/dashboard")
+      }, 2000)
+    } catch (error) {
+      console.error("Registration error:", error)
+      alert("Erro ao criar conta. Tente novamente.")
+      setErrors({ general: error.message })
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-slate-950 dark:via-gray-900 dark:to-slate-950 text-gray-900 dark:text-white overflow-hidden relative">
+      {/* Custom CSS */}
+      <style jsx global>{`
+        ::selection {
+          background: ${isDarkMode ? "rgba(219, 39, 119, 0.3)" : "rgba(190, 24, 93, 0.2)"};
+          color: ${isDarkMode ? "#ffffff" : "#1f2937"};
+        }
+        ::-webkit-scrollbar {
+          width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+          background: ${isDarkMode ? "rgba(15, 23, 42, 0.1)" : "rgba(243, 244, 246, 0.5)"};
+        }
+        ::-webkit-scrollbar-thumb {
+          background: ${isDarkMode ? "rgba(219, 39, 119, 0.3)" : "rgba(190, 24, 93, 0.3)"};
+          border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: ${isDarkMode ? "rgba(219, 39, 119, 0.5)" : "rgba(190, 24, 93, 0.5)"};
+        }
+        @keyframes subtle-breathe {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.01); }
+        }
+        .subtle-breathe {
+          animation: subtle-breathe 6s ease-in-out infinite;
+          will-change: transform;
+        }
+        .carousel {
+          display: flex;
+          transition: transform 0.5s ease-in-out;
+        }
+      `}</style>
+
+      {/* Artistic Background */}
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_center,rgba(190,24,93,0.05),rgba(255,255,255,0))] dark:bg-[radial-gradient(ellipse_at_center,rgba(219,39,119,0.15),rgba(0,0,0,0))]" />
+      <div className="fixed top-0 left-0 w-full h-full">
+        <div className="absolute top-[10%] left-[5%] w-32 sm:w-64 h-32 sm:h-64 rounded-full bg-gradient-to-r from-pink-500/5 to-purple-500/5 dark:from-pink-500/10 dark:to-purple-500/10 blur-3xl subtle-breathe" />
+        <div
+          className="absolute top-[40%] right-[10%] w-40 sm:w-80 h-40 sm:h-80 rounded-full bg-gradient-to-r from-red-500/5 to-rose-500/5 dark:from-red-500/10 dark:to-rose-500/10 blur-3xl subtle-breathe"
+          style={{ animationDelay: "1s" }}
+        />
+        <div
+          className="absolute bottom-[15%] left-[15%] w-36 sm:w-72 h-36 sm:h-72 rounded-full bg-gradient-to-r from-purple-500/5 to-violet-500/5 dark:from-purple-500/10 dark:to-violet-500/10 blur-3xl subtle-breathe"
+          style={{ animationDelay: "2s" }}
+        />
+      </div>
+
+      {/* Main Content - Centralizado */}
+      <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8">
+        <main className="relative z-10 w-full max-w-2xl">
+          {/* Theme Toggle */}
+          <nav className="absolute -top-4 right-0 z-50" role="navigation" aria-label="Theme navigation">
+            <Button
+              variant="ghost"
+              onClick={toggleTheme}
+              className="text-sm font-light text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100/50 dark:hover:bg-white/5 transition-all duration-300 px-3 py-2 rounded-full group"
+              aria-label="Toggle between light and dark theme"
+            >
+              <div className="group-hover:rotate-180 transition-transform duration-500">
+                {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </div>
+            </Button>
+          </nav>
+
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-2">
+              <span className="text-gray-900 dark:text-white">open</span>
+              <span className="bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 dark:from-pink-400 dark:via-rose-400 dark:to-purple-400 bg-clip-text text-transparent">
+                love
+              </span>
+            </h1>
+            <p className="text-base sm:text-lg text-gray-700 dark:text-white/70">
+              Crie sua conta e comece a se conectar
+            </p>
+          </div>
+
+          {/* Progress Indicator */}
+          <div className="flex justify-center mb-8">
+            {[1, 2, 3, 4, 5].map((s) => (
+              <div
+                key={s}
+                className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full mx-1 sm:mx-2 ${
+                  s <= step ? "bg-pink-600 dark:bg-pink-400" : "bg-gray-300 dark:bg-white/20"
+                } transition-colors duration-300`}
+              />
+            ))}
+          </div>
+
+          {/* Carousel */}
+          <div className="overflow-hidden">
+            <div className="carousel flex" style={{ transform: `translateX(-${(step - 1) * 100}%)` }}>
+              {/* Step 1: Basic Info */}
+              <div className="min-w-full">
+                <div className="bg-white/80 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10 p-6 sm:p-8 shadow-lg">
+                  <h2 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">
+                    Informações Básicas
+                  </h2>
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="firstName" className="text-sm font-medium text-gray-900 dark:text-white">
+                          Nome
+                        </Label>
+                        <div className="relative">
+                          <Input
+                            id="firstName"
+                            name="firstName"
+                            value={formData.firstName}
+                            onChange={handleInputChange}
+                            placeholder="Seu nome"
+                            className="pl-10 bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-600 dark:focus:ring-pink-400"
+                          />
+                          <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        </div>
+                        {errors.firstName && (
+                          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.firstName}</p>
+                        )}
+                      </div>
+                      <div>
+                        <Label htmlFor="lastName" className="text-sm font-medium text-gray-900 dark:text-white">
+                          Sobrenome
+                        </Label>
+                        <div className="relative">
+                          <Input
+                            id="lastName"
+                            name="lastName"
+                            value={formData.lastName}
+                            onChange={handleInputChange}
+                            placeholder="Seu sobrenome"
+                            className="pl-10 bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-600 dark:focus:ring-pink-400"
+                          />
+                          <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        </div>
+                        {errors.lastName && (
+                          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.lastName}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="username" className="text-sm font-medium text-gray-900 dark:text-white">
+                        Nome de usuário <span className="text-red-600">*</span>
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="username"
+                          name="username"
+                          value={formData.username}
+                          onChange={handleInputChange}
+                          placeholder="seuusername"
+                          className="pl-10 pr-10 bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-600 dark:focus:ring-pink-400"
+                        />
+                        <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        {checkingUsername && (
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-pink-600"></div>
+                          </div>
+                        )}
+                        {!checkingUsername && usernameAvailable === true && (
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-green-600 text-sm">✓</div>
+                        )}
+                        {!checkingUsername && usernameAvailable === false && (
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-red-600 text-sm">✗</div>
+                        )}
+                      </div>
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Apenas letras, números e _ são permitidos. Não pode ser alterado depois.
+                      </p>
+                      {errors.username && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.username}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <Label htmlFor="email" className="text-sm font-medium text-gray-900 dark:text-white">
+                        E-mail
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="email"
+                          name="email"
+                          type="email"
+                          value={formData.email}
+                          onChange={handleInputChange}
+                          placeholder="seu@email.com"
+                          className="pl-10 bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-600 dark:focus:ring-pink-400"
+                        />
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      </div>
+                      {errors.email && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email}</p>}
+                    </div>
+
+                    <div>
+                      <Label htmlFor="birthDate" className="text-sm font-medium text-gray-900 dark:text-white">
+                        Data de Nascimento <span className="text-red-600">*</span>
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="birthDate"
+                          name="birthDate"
+                          type="date"
+                          value={formData.birthDate}
+                          onChange={handleInputChange}
+                          max={
+                            new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split("T")[0]
+                          }
+                          className="pl-10 bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-600 dark:focus:ring-pink-400"
+                        />
+                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      </div>
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Você deve ter pelo menos 18 anos para se cadastrar.
+                      </p>
+                      {errors.birthDate && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.birthDate}</p>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="password" className="text-sm font-medium text-gray-900 dark:text-white">
+                          Senha
+                        </Label>
+                        <div className="relative">
+                          <Input
+                            id="password"
+                            name="password"
+                            type="password"
+                            value={formData.password}
+                            onChange={handleInputChange}
+                            placeholder="••••••••"
+                            className="pl-10 bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-600 dark:focus:ring-pink-400"
+                          />
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        </div>
+                        {errors.password && (
+                          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password}</p>
+                        )}
+                      </div>
+                      <div>
+                        <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-900 dark:text-white">
+                          Confirmar Senha
+                        </Label>
+                        <div className="relative">
+                          <Input
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            type="password"
+                            value={formData.confirmPassword}
+                            onChange={handleInputChange}
+                            placeholder="••••••••"
+                            className="pl-10 bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-600 dark:focus:ring-pink-400"
+                          />
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        </div>
+                        {errors.confirmPassword && (
+                          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.confirmPassword}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 2: Profile Type, Seeking, Interests */}
+              <div className="min-w-full">
+                <div className="bg-white/80 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10 p-6 sm:p-8 shadow-lg">
+                  <h2 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">Sobre o Perfil</h2>
+                  <div className="space-y-6">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-900 dark:text-white">Tipo de Perfil</Label>
+                      <Select
+                        value={formData.profileType}
+                        onValueChange={(value) => setFormData((prev) => ({ ...prev, profileType: value }))}
+                      >
+                        <SelectTrigger className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white">
+                          <SelectValue placeholder="Selecione o tipo de perfil" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="single">Solteiro(a)</SelectItem>
+                          <SelectItem value="couple">Casal</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label className="text-sm font-medium text-gray-900 dark:text-white">
+                        O que você(s) busca(m)? <span className="text-red-600">*</span>
+                      </Label>
+                      <div className="mt-2 space-y-2">
+                        {["Mulher", "Homem", "Casal"].map((option) => (
+                          <div key={option} className="flex items-center">
+                            <Checkbox
+                              id={`seeking-${option}`}
+                              checked={formData.seeking.includes(option)}
+                              onCheckedChange={() => handleCheckboxChange("seeking", option)}
+                            />
+                            <label htmlFor={`seeking-${option}`} className="ml-2 text-sm text-gray-900 dark:text-white">
+                              {option}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                      {errors.seeking && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.seeking}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <Label className="text-sm font-medium text-gray-900 dark:text-white">
+                        Interesses <span className="text-red-600">*</span>
+                      </Label>
+                      <div className="mt-2 space-y-2">
+                        {["Ménage", "Swing", "Encontros Casuais", "Amizades", "Eventos Sociais"].map((option) => (
+                          <div key={option} className="flex items-center">
+                            <Checkbox
+                              id={`interest-${option}`}
+                              checked={formData.interests.includes(option)}
+                              onCheckedChange={() => handleCheckboxChange("interests", option)}
+                            />
+                            <label
+                              htmlFor={`interest-${option}`}
+                              className="ml-2 text-sm text-gray-900 dark:text-white"
+                            >
+                              {option}
+                            </label>
+                          </div>
+                        ))}
+                        <Input
+                          name="otherInterest"
+                          value={formData.otherInterest}
+                          onChange={handleInputChange}
+                          placeholder="Outro interesse (opcional)"
+                          className="mt-2 bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-600 dark:focus:ring-pink-400"
+                        />
+                      </div>
+                      {errors.interests && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.interests}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 3: Profile Picture, Bio, Partner Info */}
+              <div className="min-w-full">
+                <div className="bg-white/80 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10 p-6 sm:p-8 shadow-lg">
+                  <h2 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">
+                    Detalhes do Perfil
+                  </h2>
+                  <div className="space-y-6">
+                    <div>
+                      <Label htmlFor="profilePicture" className="text-sm font-medium text-gray-900 dark:text-white">
+                        Foto de Perfil <span className="text-red-600">*</span>
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="profilePicture"
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                          className="pl-10 bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-600 dark:focus:ring-pink-400"
+                        />
+                        <Camera className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      </div>
+                      {errors.profilePicture && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.profilePicture}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <Label htmlFor="bio" className="text-sm font-medium text-gray-900 dark:text-white">
+                        Bio <span className="text-red-600">*</span>
+                      </Label>
+                      <textarea
+                        id="bio"
+                        name="bio"
+                        value={formData.bio}
+                        onChange={handleInputChange}
+                        placeholder="Conte um pouco sobre você(s)"
+                        className="w-full h-24 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-white/20 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-600 dark:focus:ring-pink-400 rounded-md p-3 resize-none"
+                      />
+                      {errors.bio && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.bio}</p>}
+                    </div>
+
+                    {formData.profileType === "couple" && (
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Informações do Parceiro</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <Label
+                              htmlFor="partner.nickname"
+                              className="text-sm font-medium text-gray-900 dark:text-white"
+                            >
+                              Apelido
+                            </Label>
+                            <Input
+                              id="partner.nickname"
+                              name="partner.nickname"
+                              value={formData.partner.nickname}
+                              onChange={handleInputChange}
+                              placeholder="Apelido do parceiro"
+                              className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-600 dark:focus:ring-pink-400"
+                            />
+                            {errors.partnerNickname && (
+                              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.partnerNickname}</p>
+                            )}
+                          </div>
+                          <div>
+                            <Label htmlFor="partner.age" className="text-sm font-medium text-gray-900 dark:text-white">
+                              Idade
+                            </Label>
+                            <Input
+                              id="partner.age"
+                              name="partner.age"
+                              type="number"
+                              value={formData.partner.age}
+                              onChange={handleInputChange}
+                              placeholder="Idade"
+                              className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-600 dark:focus:ring-pink-400"
+                            />
+                            {errors.partnerAge && (
+                              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.partnerAge}</p>
+                            )}
+                          </div>
+                          <div>
+                            <Label
+                              htmlFor="partner.height"
+                              className="text-sm font-medium text-gray-900 dark:text-white"
+                            >
+                              Altura (cm)
+                            </Label>
+                            <Input
+                              id="partner.height"
+                              name="partner.height"
+                              type="number"
+                              value={formData.partner.height}
+                              onChange={handleInputChange}
+                              placeholder="Altura em cm"
+                              className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-600 dark:focus:ring-pink-400"
+                            />
+                            {errors.partnerHeight && (
+                              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.partnerHeight}</p>
+                            )}
+                          </div>
+                          <div>
+                            <Label
+                              htmlFor="partner.weight"
+                              className="text-sm font-medium text-gray-900 dark:text-white"
+                            >
+                              Peso (kg)
+                            </Label>
+                            <Input
+                              id="partner.weight"
+                              name="partner.weight"
+                              type="number"
+                              value={formData.partner.weight}
+                              onChange={handleInputChange}
+                              placeholder="Peso em kg"
+                              className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-600 dark:focus:ring-pink-400"
+                            />
+                            {errors.partnerWeight && (
+                              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.partnerWeight}</p>
+                            )}
+                          </div>
+                          <div>
+                            <Label
+                              htmlFor="partner.eyeColor"
+                              className="text-sm font-medium text-gray-900 dark:text-white"
+                            >
+                              Cor dos Olhos
+                            </Label>
+                            <Select
+                              value={formData.partner.eyeColor}
+                              onValueChange={(value) =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  partner: { ...prev.partner, eyeColor: value },
+                                }))
+                              }
+                            >
+                              <SelectTrigger className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white">
+                                <SelectValue placeholder="Selecione a cor dos olhos" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {["Castanho", "Azul", "Verde", "Cinza", "Outro"].map((color) => (
+                                  <SelectItem key={color} value={color}>
+                                    {color}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            {errors.partnerEyeColor && (
+                              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.partnerEyeColor}</p>
+                            )}
+                          </div>
+                          <div>
+                            <Label
+                              htmlFor="partner.hairColor"
+                              className="text-sm font-medium text-gray-900 dark:text-white"
+                            >
+                              Cor do Cabelo
+                            </Label>
+                            <Select
+                              value={formData.partner.hairColor}
+                              onValueChange={(value) =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  partner: { ...prev.partner, hairColor: value },
+                                }))
+                              }
+                            >
+                              <SelectTrigger className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white">
+                                <SelectValue placeholder="Selecione a cor do cabelo" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {["Preto", "Castanho", "Loiro", "Ruivo", "Outro"].map((color) => (
+                                  <SelectItem key={color} value={color}>
+                                    {color}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            {errors.partnerHairColor && (
+                              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.partnerHairColor}</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 4: City */}
+              <div className="min-w-full">
+                <div className="bg-white/80 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10 p-6 sm:p-8 shadow-lg">
+                  <h2 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">Localização</h2>
+                  <div className="space-y-6">
+                    <div>
+                      <Label htmlFor="city" className="text-sm font-medium text-gray-900 dark:text-white">
+                        Cidade <span className="text-red-600">*</span>
+                      </Label>
+                      <div className="relative">
+                        <Select
+                          value={formData.city}
+                          onValueChange={(value) => setFormData((prev) => ({ ...prev, city: value }))}
+                        >
+                          <SelectTrigger className="pl-10 bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white">
+                            <SelectValue placeholder="Selecione sua cidade" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {[
+                              "São Paulo, SP",
+                              "Rio de Janeiro, RJ",
+                              "Belo Horizonte, MG",
+                              "Porto Alegre, RS",
+                              "Curitiba, PR",
+                              "Brasília, DF",
+                              "Salvador, BA",
+                              "Fortaleza, CE",
+                              "Recife, PE",
+                              "Manaus, AM",
+                              "Outra",
+                            ].map((city) => (
+                              <SelectItem key={city} value={city}>
+                                {city}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      </div>
+                      {errors.city && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.city}</p>}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 5: Plan Selection */}
+              <div className="min-w-full">
+                <div className="bg-white/80 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10 p-6 sm:p-8 shadow-lg">
+                  <h2 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">
+                    Escolha seu Plano
+                  </h2>
+                  <div className="space-y-6">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-900 dark:text-white">
+                        Plano <span className="text-red-600">*</span>
+                      </Label>
+                      <Select
+                        value={formData.plan}
+                        onValueChange={(value) => setFormData((prev) => ({ ...prev, plan: value }))}
+                      >
+                        <SelectTrigger className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white">
+                          <SelectValue placeholder="Selecione um plano" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="free">Free - Acesso básico</SelectItem>
+                          <SelectItem value="premium-monthly">Premium - R$55/mês</SelectItem>
+                          <SelectItem value="premium-yearly">
+                            Premium - R$550/ano{" "}
+                            <span className="text-pink-600 dark:text-pink-400">(2 meses grátis!)</span>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {errors.plan && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.plan}</p>}
+                    </div>
+                    <div className="text-sm text-gray-700 dark:text-white/70 space-y-2">
+                      <p>
+                        <strong>Free:</strong> Acesso a conexões mútuas, eventos locais e posts de amigos.
+                      </p>
+                      <p>
+                        <strong>Premium:</strong> Converse com qualquer pessoa, veja quem visitou seu perfil, filtros
+                        avançados e muito mais.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation Buttons */}
+          <div className="mt-8 flex justify-between">
+            <Button
+              variant="ghost"
+              onClick={handleBack}
+              disabled={step === 1}
+              className="text-pink-600 dark:text-pink-400 hover:text-pink-700 dark:hover:text-pink-300 transition-colors duration-300 disabled:opacity-50"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Voltar
+            </Button>
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 dark:from-pink-500 dark:via-rose-500 dark:to-purple-500 p-[1px] rounded-full group hover:scale-105 transition-all duration-300 hover:shadow-xl">
+              <Button
+                onClick={step === 5 ? handleSubmit : handleNext}
+                disabled={loading}
+                className="rounded-full bg-white dark:bg-black text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-black/90 px-6 py-3 text-base group disabled:opacity-50"
+              >
+                {loading ? "Criando conta..." : step === 5 ? "Cadastrar" : "Próximo"}
+                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Login Link */}
+          <p className="mt-6 text-center text-sm text-gray-700 dark:text-white/70">
+            Já tem uma conta?{" "}
+            <Link
+              href="/auth/signin"
+              className="text-pink-600 dark:text-pink-400 hover:text-pink-700 dark:hover:text-pink-300 font-medium transition-colors duration-300"
+            >
+              Faça login
+            </Link>
+          </p>
+        </main>
+      </div>
+
+      {/* Footer */}
+      <footer className="absolute bottom-4 text-center w-full text-gray-500 dark:text-white/50 text-sm">
+        <p>© 2025 OpenLove. Todos os direitos reservados.</p>
+      </footer>
+    </div>
+  )
+}
