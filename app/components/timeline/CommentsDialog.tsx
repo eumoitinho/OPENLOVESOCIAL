@@ -1,16 +1,19 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
-import { Send, Heart, MoreHorizontal } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../../../components/ui/dialog"
+import { Button } from "../../../components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar"
+import { Textarea } from "../../../components/ui/textarea"
+import { Badge } from "../../../components/ui/badge"
+import {
+  Send,
+  Heart,
+  MoreHorizontal,
+  BadgeCheckIcon,
+  Flame,
+  Clock,
+} from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface Comment {
@@ -19,7 +22,8 @@ interface Comment {
     name: string
     username: string
     avatar: string
-    isPremium: boolean
+    verified: boolean
+    premium: boolean
   }
   content: string
   timestamp: string
@@ -29,153 +33,160 @@ interface Comment {
 
 interface CommentsDialogProps {
   isOpen: boolean
-  setIsOpen: (open: boolean) => void
+  onClose: () => void
+  postId: string
+  postContent: string
+  postAuthor: {
+    name: string
+    username: string
+    avatar: string
+    verified: boolean
+    premium: boolean
+  }
   comments: Comment[]
-  newComment: string
-  setNewComment: (comment: string) => void
-  handleSendComment: () => void
-  post?: any
+  onAddComment: (content: string) => void
+  onLikeComment: (commentId: string) => void
 }
 
 export function CommentsDialog({
   isOpen,
-  setIsOpen,
+  onClose,
+  postId,
+  postContent,
+  postAuthor,
   comments,
-  newComment,
-  setNewComment,
-  handleSendComment,
-  post,
+  onAddComment,
+  onLikeComment,
 }: CommentsDialogProps) {
-  const [likedComments, setLikedComments] = useState<Set<string>>(new Set())
+  const [newComment, setNewComment] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleLikeComment = (commentId: string) => {
-    setLikedComments((prev) => {
-      const newSet = new Set(prev)
-      if (newSet.has(commentId)) {
-        newSet.delete(commentId)
-      } else {
-        newSet.add(commentId)
-      }
-      return newSet
-    })
-  }
+  const handleSubmitComment = async () => {
+    if (!newComment.trim()) return
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (newComment.trim()) {
-      handleSendComment()
+    setIsSubmitting(true)
+    try {
+      await onAddComment(newComment)
+      setNewComment("")
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
-  return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="max-w-2xl max-h-[80vh] p-0 bg-card border-border">
-        <DialogHeader className="p-6 pb-4 border-b border-border">
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl font-bold text-foreground">Comentários</DialogTitle>
-            <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
-              <MoreHorizontal className="h-5 w-5" />
-            </Button>
-          </div>
+  const formatTimestamp = (timestamp: string) => {
+    // Implementar lógica de formatação de tempo
+    return timestamp
+  }
 
-          {/* Post Preview */}
-          {post && (
-            <div className="mt-4 p-4 bg-muted rounded-xl">
-              <div className="flex items-center gap-3 mb-2">
-                <Avatar className="w-8 h-8">
-                  <AvatarImage src={post.author.avatar || "/placeholder.svg"} />
-                  <AvatarFallback className="bg-primary/10 text-primary text-sm">
-                    {post.author.name.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-medium text-sm text-foreground">{post.author.name}</p>
-                  <p className="text-xs text-muted-foreground">@{post.author.username}</p>
-                </div>
-              </div>
-              <p className="text-sm text-foreground line-clamp-2">{post.content}</p>
-            </div>
-          )}
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden">
+        <DialogHeader className="border-b pb-4">
+          <DialogTitle className="text-lg font-semibold">Comentários</DialogTitle>
         </DialogHeader>
 
-        {/* Comments List */}
-        <ScrollArea className="flex-1 overflow-y-auto p-6 space-y-4 max-h-96">
-          {comments.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">Seja o primeiro a comentar!</p>
-            </div>
-          ) : (
-            comments.map((comment) => (
-              <div key={comment.id} className="flex gap-3">
-                <Avatar className="w-10 h-10 flex-shrink-0">
-                  <AvatarImage src={comment.author.avatar || "/placeholder.svg"} />
-                  <AvatarFallback className="bg-primary/10 text-primary">
-                    {comment.author.name.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-
-                <div className="flex-1 min-w-0">
-                  <div className="bg-muted rounded-xl p-3">
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="font-medium text-sm text-foreground">{comment.author.name}</p>
-                      {comment.author.isPremium && (
-                        <Badge className="text-xs bg-primary text-primary-foreground">Premium</Badge>
-                      )}
-                      <span className="text-xs text-muted-foreground">{comment.timestamp}</span>
-                    </div>
-                    <p className="text-sm text-foreground">{comment.content}</p>
-                  </div>
-
-                  <div className="flex items-center gap-2 mt-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleLikeComment(comment.id)}
-                      className="h-8 px-2 hover:bg-orange-50 text-muted-foreground hover:text-orange-600"
-                    >
-                      <Heart
-                        className={cn(
-                          "w-4 h-4 mr-1",
-                          likedComments.has(comment.id) && "fill-orange-500 text-orange-500",
-                        )}
-                      />
-                      {comment.likes + (likedComments.has(comment.id) && !comment.isLiked ? 1 : 0)}
-                    </Button>
-                    <Button variant="ghost" size="sm" className="h-8 px-2 text-muted-foreground hover:text-foreground">
-                      Responder
-                    </Button>
-                  </div>
+        <div className="flex flex-col h-full">
+          {/* Post Preview */}
+          <div className="border-b pb-4 mb-4">
+            <div className="flex items-start gap-3">
+              <Avatar className="w-10 h-10">
+                <AvatarImage src={postAuthor.avatar} alt={postAuthor.name} />
+                <AvatarFallback>{postAuthor.name.charAt(0)}</AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-semibold text-sm">{postAuthor.name}</span>
+                  {postAuthor.verified && (
+                    <BadgeCheckIcon className="w-4 h-4 fill-sky-500 text-white" />
+                  )}
+                  {postAuthor.premium && (
+                    <Badge variant="outline" className="text-xs border-pink-600 text-pink-600">
+                      Premium
+                    </Badge>
+                  )}
                 </div>
+                <p className="text-sm text-gray-600">{postContent}</p>
               </div>
-            ))
-          )}
-        </ScrollArea>
+            </div>
+          </div>
 
-        <Separator />
+          {/* Comments List */}
+          <div className="flex-1 overflow-y-auto space-y-4 max-h-96">
+            {comments.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <p>Nenhum comentário ainda. Seja o primeiro a comentar!</p>
+              </div>
+            ) : (
+              comments.map((comment) => (
+                <div key={comment.id} className="flex items-start gap-3">
+                  <Avatar className="w-8 h-8">
+                    <AvatarImage src={comment.author.avatar} alt={comment.author.name} />
+                    <AvatarFallback className="text-xs">{comment.author.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-semibold text-sm">{comment.author.name}</span>
+                      {comment.author.verified && (
+                        <BadgeCheckIcon className="w-3 h-3 fill-sky-500 text-white" />
+                      )}
+                      {comment.author.premium && (
+                        <Badge variant="outline" className="text-xs border-pink-600 text-pink-600">
+                          Premium
+                        </Badge>
+                      )}
+                      <span className="text-xs text-gray-500">•</span>
+                      <span className="text-xs text-gray-500">{formatTimestamp(comment.timestamp)}</span>
+                    </div>
+                    <p className="text-sm mb-2">{comment.content}</p>
+                    <div className="flex items-center gap-4">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onLikeComment(comment.id)}
+                        className={cn(
+                          "h-6 px-2 text-xs",
+                          comment.isLiked && "text-orange-500"
+                        )}
+                      >
+                        <Flame className={cn("w-3 h-3 mr-1", comment.isLiked && "fill-orange-500")} />
+                        {comment.likes}
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">
+                        Responder
+                      </Button>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                    <MoreHorizontal className="w-3 h-3" />
+                  </Button>
+                </div>
+              ))
+            )}
+          </div>
 
-        {/* Comment Input */}
-        <div className="p-6 pt-4 border-t border-border">
-          <form onSubmit={handleSubmit} className="flex gap-3">
-            <Avatar className="w-10 h-10 flex-shrink-0">
-              <AvatarImage src="/placeholder.svg" />
-              <AvatarFallback className="bg-primary text-primary-foreground">U</AvatarFallback>
-            </Avatar>
-            <div className="flex-1 flex gap-2">
+          {/* Add Comment */}
+          <div className="border-t pt-4 mt-4">
+            <div className="flex gap-2">
               <Textarea
-                placeholder="Escreva um comentário..."
+                placeholder="Adicione um comentário..."
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                className="flex-1 bg-muted border-border rounded-xl"
+                className="min-h-[60px] resize-none"
+                maxLength={500}
               />
               <Button
-                type="submit"
-                disabled={!newComment.trim()}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl"
+                onClick={handleSubmitComment}
+                disabled={!newComment.trim() || isSubmitting}
+                className="self-end"
+                size="sm"
               >
-                <Send className="h-4 w-4" />
+                <Send className="w-4 h-4" />
               </Button>
             </div>
-          </form>
+            <div className="text-xs text-gray-500 mt-1 text-right">
+              {newComment.length}/500
+            </div>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

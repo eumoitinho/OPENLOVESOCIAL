@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowRight, Heart, Moon, Sun, MessageSquare, Calendar, Lock, Search, Star } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
+import Logo from "./components/Logo"
 
 export default function OpenLoveLanding() {
   const [isDarkMode, setIsDarkMode] = useState(true)
@@ -222,14 +223,7 @@ export default function OpenLoveLanding() {
               Conexões com Liberdade e Respeito
             </Badge>
 
-            <h1 className="text-[6rem] md:text-[10rem] lg:text-[12rem] font-bold leading-none tracking-tighter mb-8 md:mb-12 group cursor-default">
-              <span className="block text-gray-900 dark:text-white group-hover:tracking-wide transition-all duration-500">
-                open
-              </span>
-              <span className="block bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 dark:from-pink-400 dark:via-rose-400 dark:to-purple-400 bg-clip-text text-transparent group-hover:tracking-wide transition-all duration-500">
-                love
-              </span>
-            </h1>
+            <Logo />
 
             <p className="text-lg md:text-2xl lg:text-3xl text-gray-700 dark:text-white/80 mb-12 md:mb-16 max-w-3xl mx-auto leading-relaxed font-light">
               Viva novas conexões com casais e pessoas que compartilham sua visão de liberdade, respeito e

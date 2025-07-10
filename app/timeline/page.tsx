@@ -1,3 +1,5 @@
+"use client"
+
 import Timeline from "@/app/components/timeline/Timeline"
 
 export default function TimelinePage() {

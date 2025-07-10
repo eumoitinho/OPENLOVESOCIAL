@@ -10,13 +10,13 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import {
-  Calendar,
+  Users,
   MessageCircle,
   Plus,
   Search,
-  MapPin,
-  Clock,
-  Users,
+  Settings,
+  Lock,
+  Globe,
   Star,
   Heart,
   Share2,
@@ -35,6 +35,8 @@ import {
   Shield,
   Crown,
   TrendingUp,
+  Calendar,
+  MapPin,
   Send,
   Mic,
   Image as ImageIcon,
@@ -42,53 +44,48 @@ import {
   Paperclip,
   Check,
   CheckCheck,
+  Clock,
   X,
   AlertTriangle,
-  CheckCircle,
-  ExternalLink,
-  Video,
-  Play,
   Home,
   Bell,
   Mail,
   Bookmark,
   User,
   Sun,
-  Settings,
-  Lock,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-interface Event {
+interface Community {
   id: string
-  title: string
+  name: string
   description: string
   category: string
   image: string
-  date: string
-  time: string
-  location: string
-  maxAttendees: number
-  currentAttendees: number
-  price: number
+  members: number
   isPrivate: boolean
   isPremium: boolean
-  isVIP: boolean
   isJoined: boolean
   isLiked: boolean
+  isVIP: boolean
   tags: string[]
-  organizer: {
+  recentActivity: {
+    type: "post" | "event" | "member"
+    content: string
+    timestamp: string
+    user?: {
+      name: string
+      avatar: string
+      isVerified: boolean
+      isVIP: boolean
+    }
+  }[]
+  moderators: {
     name: string
     avatar: string
+    role: "admin" | "moderator"
     isVerified: boolean
     isVIP: boolean
-  }
-  attendees: {
-    name: string
-    avatar: string
-    isVerified: boolean
-    isVIP: boolean
-    status: "confirmed" | "pending" | "waitlist"
   }[]
   chatMessages: {
     id: string
@@ -109,59 +106,70 @@ interface User {
   isVIP: boolean
 }
 
-export default function EventsPage() {
-  const [events, setEvents] = useState<Event[]>([
+export default function CommunitiesPage() {
+  const [communities, setCommunities] = useState<Community[]>([
     {
       id: "1",
-      title: "Encontro Mensal Casais Livres SP",
-      description: "Um encontro descontraído para casais que vivem relacionamentos abertos. Networking, conversas interessantes e novas amizades em um ambiente seguro e respeitoso.",
+      name: "Casais Livres SP",
+      description: "Comunidade para casais que vivem relacionamentos abertos em São Paulo. Compartilhe experiências, organize encontros e conecte-se com pessoas que pensam como você.",
       category: "Social",
       image: "https://cdn.shadcnstudio.com/ss-assets/components/card/image-6.png?width=350&format=auto",
-      date: "15 de Dezembro, 2024",
-      time: "19:00 - 23:00",
-      location: "Bar Lounge, São Paulo - SP",
-      maxAttendees: 50,
-      currentAttendees: 34,
-      price: 0,
+      members: 1247,
       isPrivate: false,
       isPremium: false,
-      isVIP: false,
       isJoined: true,
       isLiked: true,
-      tags: ["casais", "networking", "são paulo"],
-      organizer: {
-        name: "Amanda & Carlos",
-        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png",
-        isVerified: true,
-        isVIP: true
-      },
-      attendees: [
+      isVIP: false,
+      tags: ["casais", "são paulo", "relacionamentos"],
+      recentActivity: [
         {
-          name: "Você",
+          type: "post",
+          content: "Novo post: Dicas para o primeiro encontro com outro casal",
+          timestamp: "2h",
+          user: {
+            name: "Amanda & Carlos",
+            avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png",
+            isVerified: true,
+            isVIP: true
+          }
+        },
+        {
+          type: "event",
+          content: "Evento criado: Encontro mensal no próximo sábado",
+          timestamp: "4h",
+          user: {
+            name: "Lisa & João",
+            avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-6.png",
+            isVerified: true,
+            isVIP: false
+          }
+        },
+        {
+          type: "member",
+          content: "15 novos membros se juntaram",
+          timestamp: "1 dia"
+        }
+      ],
+      moderators: [
+        {
+          name: "Amanda & Carlos",
+          avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png",
+          role: "admin",
+          isVerified: true,
+          isVIP: true
+        },
+        {
+          name: "Rafael Alves",
           avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-16.png",
+          role: "moderator",
           isVerified: true,
-          isVIP: false,
-          status: "confirmed"
-        },
-        {
-          name: "Lisa & João",
-          avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-6.png",
-          isVerified: true,
-          isVIP: false,
-          status: "confirmed"
-        },
-        {
-          name: "Sofia Mendes",
-          avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-3.png",
-          isVerified: true,
-          isVIP: false,
-          status: "pending"
+          isVIP: false
         }
       ],
       chatMessages: [
         {
           id: "1",
-          content: "Oi pessoal! Quem vai no evento de sábado?",
+          content: "Oi pessoal! Alguém vai no evento de sábado?",
           timestamp: "10:30",
           user: {
             name: "Amanda & Carlos",
@@ -199,39 +207,49 @@ export default function EventsPage() {
     },
     {
       id: "2",
-      title: "Workshop VIP de Fotografia Íntima",
-      description: "Workshop exclusivo para fotógrafos e modelos VIP. Aprenda técnicas avançadas de fotografia artística e íntima com profissionais experientes.",
+      name: "Fotografia Íntima VIP",
+      description: "Grupo exclusivo para fotógrafos e modelos VIP que trabalham com fotografia artística e íntima. Acesso restrito apenas para membros verificados e VIP.",
       category: "Arte",
       image: "https://cdn.shadcnstudio.com/ss-assets/components/card/image-2.png?height=280&format=auto",
-      date: "20 de Dezembro, 2024",
-      time: "14:00 - 18:00",
-      location: "Estúdio Privado, Cascais - Portugal",
-      maxAttendees: 20,
-      currentAttendees: 18,
-      price: 150,
+      members: 892,
       isPrivate: true,
       isPremium: true,
-      isVIP: true,
       isJoined: false,
       isLiked: false,
-      tags: ["fotografia", "arte", "vip", "workshop"],
-      organizer: {
-        name: "Lisa & João",
-        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-6.png",
-        isVerified: true,
-        isVIP: true
-      },
-      attendees: [],
+      isVIP: true,
+      tags: ["fotografia", "arte", "vip", "exclusivo"],
+      recentActivity: [
+        {
+          type: "post",
+          content: "Workshop VIP de fotografia em Cascais - vagas limitadas",
+          timestamp: "1h",
+          user: {
+            name: "Lisa & João",
+            avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-6.png",
+            isVerified: true,
+            isVIP: true
+          }
+        }
+      ],
+      moderators: [
+        {
+          name: "Lisa & João",
+          avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-6.png",
+          role: "admin",
+          isVerified: true,
+          isVIP: true
+        }
+      ],
       chatMessages: []
     }
   ])
 
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
+  const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null)
   const [activeTab, setActiveTab] = useState("discover")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
   const [newMessage, setNewMessage] = useState("")
-  const [createEventOpen, setCreateEventOpen] = useState(false)
+  const [createCommunityOpen, setCreateCommunityOpen] = useState(false)
 
   // Mock user - em produção viria do contexto de autenticação
   const currentUser: User = {
@@ -240,46 +258,47 @@ export default function EventsPage() {
   }
 
   const categories = [
-    { id: "all", name: "Todos", icon: GlobeIcon },
+    { id: "all", name: "Todas", icon: GlobeIcon },
     { id: "social", name: "Social", icon: Users },
     { id: "arte", name: "Arte", icon: Palette },
+    { id: "discussão", name: "Discussão", icon: MessageCircle },
     { id: "fitness", name: "Fitness", icon: Dumbbell },
     { id: "cultura", name: "Cultura", icon: BookOpen },
     { id: "musica", name: "Música", icon: Music },
     { id: "games", name: "Games", icon: Gamepad2 },
   ]
 
-  const handleJoin = (eventId: string) => {
+  const handleJoin = (communityId: string) => {
     if (!currentUser.isVerified) {
-      alert("Apenas perfis verificados podem participar de eventos")
+      alert("Apenas perfis verificados podem entrar em comunidades")
       return
     }
 
-    setEvents(prev =>
-      prev.map(event =>
-        event.id === eventId
+    setCommunities(prev =>
+      prev.map(community =>
+        community.id === communityId
           ? {
-              ...event,
-              isJoined: !event.isJoined,
-              currentAttendees: event.isJoined ? event.currentAttendees - 1 : event.currentAttendees + 1
+              ...community,
+              isJoined: !community.isJoined,
+              members: community.isJoined ? community.members - 1 : community.members + 1
             }
-          : event
+          : community
       )
     )
   }
 
-  const handleLike = (eventId: string) => {
-    setEvents(prev =>
-      prev.map(event =>
-        event.id === eventId
-          ? { ...event, isLiked: !event.isLiked }
-          : event
+  const handleLike = (communityId: string) => {
+    setCommunities(prev =>
+      prev.map(community =>
+        community.id === communityId
+          ? { ...community, isLiked: !community.isLiked }
+          : community
       )
     )
   }
 
   const sendMessage = () => {
-    if (!newMessage.trim() || !selectedEvent) return
+    if (!newMessage.trim() || !selectedCommunity) return
 
     if (!currentUser.isVerified) {
       alert("Apenas perfis verificados podem enviar mensagens")
@@ -299,31 +318,31 @@ export default function EventsPage() {
       isFromMe: true
     }
 
-    setEvents(prev =>
-      prev.map(event =>
-        event.id === selectedEvent.id
+    setCommunities(prev =>
+      prev.map(community =>
+        community.id === selectedCommunity.id
           ? {
-              ...event,
-              chatMessages: [...event.chatMessages, message]
+              ...community,
+              chatMessages: [...community.chatMessages, message]
             }
-          : event
+          : community
       )
     )
 
     setNewMessage("")
   }
 
-  const filteredEvents = events.filter(event => {
-    const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         event.description.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCategory = selectedCategory === "all" || event.category.toLowerCase() === selectedCategory
+  const filteredCommunities = communities.filter(community => {
+    const matchesSearch = community.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         community.description.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesCategory = selectedCategory === "all" || community.category.toLowerCase() === selectedCategory
     return matchesSearch && matchesCategory
   })
 
-  const joinedEvents = events.filter(e => e.isJoined)
-  const recommendedEvents = events.filter(e => !e.isJoined)
+  const joinedCommunities = communities.filter(c => c.isJoined)
+  const recommendedCommunities = communities.filter(c => !c.isJoined)
 
-  const canCreateEvent = currentUser.isVIP
+  const canCreateCommunity = currentUser.isVIP
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-slate-950 dark:via-gray-900 dark:to-slate-950">
@@ -436,17 +455,17 @@ export default function EventsPage() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
-                  <Calendar className="w-6 h-6 sm:w-8 sm:h-8" />
-                  Eventos
+                  <Users className="w-6 h-6 sm:w-8 sm:h-8" />
+                  Comunidades
                 </h1>
                 <p className="text-gray-600 dark:text-gray-400 mt-1">
-                  Descubra e participe de eventos incríveis
+                  Conecte-se com grupos que compartilham seus interesses
                 </p>
               </div>
-              {canCreateEvent ? (
-                <Button onClick={() => setCreateEventOpen(true)}>
+              {canCreateCommunity ? (
+                <Button onClick={() => setCreateCommunityOpen(true)}>
                   <Plus className="w-4 h-4 mr-2" />
-                  Criar Evento
+                  Criar Comunidade
                 </Button>
               ) : (
                 <div className="text-center">
@@ -454,19 +473,19 @@ export default function EventsPage() {
                     <Crown className="w-4 h-4 mr-1" />
                     Apenas VIP
                   </Badge>
-                  <p className="text-xs text-gray-500 mt-1">Criar eventos</p>
+                  <p className="text-xs text-gray-500 mt-1">Criar comunidades</p>
                 </div>
               )}
             </div>
 
             {/* Main Content */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Events List */}
+              {/* Communities List */}
               <div className="lg:col-span-2">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                   <TabsList className="grid w-full grid-cols-3 mb-4">
                     <TabsTrigger value="discover">Descobrir</TabsTrigger>
-                    <TabsTrigger value="joined">Meus Eventos</TabsTrigger>
+                    <TabsTrigger value="joined">Minhas</TabsTrigger>
                     <TabsTrigger value="trending">Trending</TabsTrigger>
                   </TabsList>
 
@@ -475,7 +494,7 @@ export default function EventsPage() {
                       <div className="relative">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <Input
-                          placeholder="Buscar eventos..."
+                          placeholder="Buscar comunidades..."
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           className="pl-10"
@@ -501,28 +520,28 @@ export default function EventsPage() {
 
                   <TabsContent value="discover" className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {filteredEvents.filter(e => !e.isJoined).map((event) => (
-                        <Card key={event.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setSelectedEvent(event)}>
+                      {filteredCommunities.filter(c => !c.isJoined).map((community) => (
+                        <Card key={community.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setSelectedCommunity(community)}>
                           <div className="relative">
                             <img
-                              src={event.image}
-                              alt={event.title}
+                              src={community.image}
+                              alt={community.name}
                               className="w-full h-48 object-cover"
                             />
                             <div className="absolute top-2 right-2 flex gap-1">
-                              {event.isPremium && (
+                              {community.isPremium && (
                                 <Badge variant="secondary" className="bg-yellow-500 text-white">
                                   <Star className="w-3 h-3 mr-1" />
                                   Premium
                                 </Badge>
                               )}
-                              {event.isPrivate && (
+                              {community.isPrivate && (
                                 <Badge variant="secondary" className="bg-gray-500 text-white">
                                   <Lock className="w-3 h-3 mr-1" />
-                                  Privado
+                                  Privada
                                 </Badge>
                               )}
-                              {event.isVIP && (
+                              {community.isVIP && (
                                 <Badge variant="secondary" className="bg-purple-500 text-white">
                                   <Crown className="w-3 h-3 mr-1" />
                                   VIP
@@ -532,37 +551,21 @@ export default function EventsPage() {
                           </div>
                           
                           <CardHeader>
-                            <CardTitle className="text-lg">{event.title}</CardTitle>
+                            <CardTitle className="text-lg">{community.name}</CardTitle>
                             <CardDescription className="line-clamp-2">
-                              {event.description}
+                              {community.description}
                             </CardDescription>
                           </CardHeader>
                           
                           <CardContent>
                             <div className="space-y-3">
-                              <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-                                <div className="flex items-center gap-1">
-                                  <Calendar className="w-4 h-4" />
-                                  <span>{event.date}</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <Clock className="w-4 h-4" />
-                                  <span>{event.time}</span>
-                                </div>
-                              </div>
-                              
-                              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                <MapPin className="w-4 h-4" />
-                                <span>{event.location}</span>
-                              </div>
-                              
                               <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                                 <Users className="w-4 h-4" />
-                                <span>{event.currentAttendees}/{event.maxAttendees} participantes</span>
+                                <span>{community.members.toLocaleString()} membros</span>
                               </div>
                               
                               <div className="flex flex-wrap gap-1">
-                                {event.tags.slice(0, 3).map((tag) => (
+                                {community.tags.slice(0, 3).map((tag) => (
                                   <Badge key={tag} variant="outline" className="text-xs">
                                     #{tag}
                                   </Badge>
@@ -575,23 +578,23 @@ export default function EventsPage() {
                                   size="sm"
                                   onClick={(e) => {
                                     e.stopPropagation()
-                                    handleJoin(event.id)
+                                    handleJoin(community.id)
                                   }}
                                   className="flex-1"
                                   disabled={!currentUser.isVerified}
                                 >
                                   <UserPlus className="w-4 h-4 mr-1" />
-                                  {!currentUser.isVerified ? "Verificação Necessária" : "Participar"}
+                                  {!currentUser.isVerified ? "Verificação Necessária" : "Entrar"}
                                 </Button>
                                 <Button
                                   variant="ghost"
                                   size="sm"
                                   onClick={(e) => {
                                     e.stopPropagation()
-                                    handleLike(event.id)
+                                    handleLike(community.id)
                                   }}
                                 >
-                                  <Heart className={cn("w-4 h-4", event.isLiked && "fill-red-500 text-red-500")} />
+                                  <Heart className={cn("w-4 h-4", community.isLiked && "fill-red-500 text-red-500")} />
                                 </Button>
                                 <Button variant="ghost" size="sm">
                                   <Share2 className="w-4 h-4" />
@@ -605,35 +608,35 @@ export default function EventsPage() {
                   </TabsContent>
 
                   <TabsContent value="joined" className="space-y-4">
-                    {joinedEvents.length === 0 ? (
+                    {joinedCommunities.length === 0 ? (
                       <div className="text-center py-8 text-gray-500">
-                        <Calendar className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                        <p>Você ainda não participa de eventos</p>
+                        <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                        <p>Você ainda não participa de comunidades</p>
                         <Button onClick={() => setActiveTab("discover")} className="mt-2">
-                          Descobrir Eventos
+                          Descobrir Comunidades
                         </Button>
                       </div>
                     ) : (
-                      joinedEvents.map((event) => (
-                        <Card key={event.id} className="overflow-hidden cursor-pointer" onClick={() => setSelectedEvent(event)}>
+                      joinedCommunities.map((community) => (
+                        <Card key={community.id} className="overflow-hidden cursor-pointer" onClick={() => setSelectedCommunity(community)}>
                           <div className="flex">
                             <img
-                              src={event.image}
-                              alt={event.title}
+                              src={community.image}
+                              alt={community.name}
                               className="w-32 h-32 object-cover"
                             />
                             <div className="flex-1 p-4">
                               <div className="flex items-start justify-between">
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 mb-2">
-                                    <h3 className="font-semibold text-lg">{event.title}</h3>
-                                    {event.isPremium && (
+                                    <h3 className="font-semibold text-lg">{community.name}</h3>
+                                    {community.isPremium && (
                                       <Badge variant="secondary" className="bg-yellow-500 text-white text-xs">
                                         <Star className="w-3 h-3 mr-1" />
                                         Premium
                                       </Badge>
                                     )}
-                                    {event.isVIP && (
+                                    {community.isVIP && (
                                       <Badge variant="secondary" className="bg-purple-500 text-white text-xs">
                                         <Crown className="w-3 h-3 mr-1" />
                                         VIP
@@ -641,18 +644,16 @@ export default function EventsPage() {
                                     )}
                                   </div>
                                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                                    {event.description}
+                                    {community.description}
                                   </p>
                                   <div className="flex items-center gap-4 text-sm text-gray-500">
-                                    <span>{event.date}</span>
+                                    <span>{community.members.toLocaleString()} membros</span>
                                     <span>•</span>
-                                    <span>{event.location}</span>
-                                    <span>•</span>
-                                    <span>{event.currentAttendees}/{event.maxAttendees} participantes</span>
+                                    <span>{community.recentActivity.length} atividades recentes</span>
                                   </div>
                                 </div>
                                 <Button variant="outline" size="sm">
-                                  Ver Evento
+                                  Ver Comunidade
                                 </Button>
                               </div>
                             </div>
@@ -665,32 +666,32 @@ export default function EventsPage() {
                   <TabsContent value="trending" className="space-y-4">
                     <div className="text-center py-8 text-gray-500">
                       <TrendingUp className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                      <p>Eventos em alta em breve</p>
+                      <p>Comunidades em alta em breve</p>
                     </div>
                   </TabsContent>
                 </Tabs>
               </div>
 
-              {/* Event Chat */}
+              {/* Community Chat */}
               <div className="lg:col-span-1">
-                {selectedEvent ? (
+                {selectedCommunity ? (
                   <Card className="h-[600px] flex flex-col">
                     <CardHeader className="border-b">
                       <div className="flex items-center justify-between">
                         <div>
-                          <CardTitle className="text-lg">{selectedEvent.title}</CardTitle>
+                          <CardTitle className="text-lg">{selectedCommunity.name}</CardTitle>
                           <CardDescription>
-                            {selectedEvent.currentAttendees}/{selectedEvent.maxAttendees} participantes
+                            {selectedCommunity.members} membros
                           </CardDescription>
                         </div>
-                        <Button variant="ghost" size="sm" onClick={() => setSelectedEvent(null)}>
+                        <Button variant="ghost" size="sm" onClick={() => setSelectedCommunity(null)}>
                           <X className="w-4 h-4" />
                         </Button>
                       </div>
                     </CardHeader>
 
                     <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                      {selectedEvent.chatMessages.map((message) => (
+                      {selectedCommunity.chatMessages.map((message) => (
                         <div
                           key={message.id}
                           className={cn(
@@ -787,8 +788,8 @@ export default function EventsPage() {
                   <Card className="h-[600px] flex items-center justify-center">
                     <div className="text-center text-gray-500">
                       <MessageCircle className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                      <p className="text-lg font-medium">Selecione um evento</p>
-                      <p className="text-sm">Escolha um evento para ver o chat</p>
+                      <p className="text-lg font-medium">Selecione uma comunidade</p>
+                      <p className="text-sm">Escolha uma comunidade para ver o chat</p>
                     </div>
                   </Card>
                 )}
@@ -951,4 +952,4 @@ export default function EventsPage() {
       </div>
     </div>
   )
-}
+} 

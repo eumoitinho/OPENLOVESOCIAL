@@ -1,295 +1,570 @@
 "use client"
 
 import { useState } from "react"
+import { Button } from "../../../components/ui/button"
+import { Badge } from "../../../components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../../components/ui/card"
 import {
-  Flame,
-  MessageCircle,
-  Share2,
-  UserPlus,
-  Calendar,
+  BadgeCheckIcon,
+  EllipsisIcon,
+  MessageCircleIcon,
+  SendIcon,
+  UserPlusIcon,
   MapPin,
-  Users,
-  MoreHorizontal,
+  Flame,
+  Save,
+  Clock,
+  CheckCircle,
   Play,
+  Share2,
+  Calendar,
+  Users,
   ImageIcon,
   Video,
 } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../../../components/ui/carousel"
+import { CommentsDialog } from "./CommentsDialog"
+import { MediaViewer } from "./MediaViewer"
+import { ShareDialog } from "./ShareDialog"
+import { ProfileViewer } from "./ProfileViewer"
+import { useRouter } from "next/navigation"
 
-interface PostCardProps {
-  post: any
-  onLike?: (postId: string) => void
-  onComment?: (postId: string) => void
-  onShare?: (postId: string) => void
-  onFollow?: (username: string) => void
-  onViewProfile?: (user: any) => void
+interface PostUser {
+  name: string
+  username: string
+  avatar: string
+  verified: boolean
+  premium: boolean
+  location: string
+  relationshipType: string
+  isPrivate: boolean
 }
 
-export function PostCard({ post, onLike, onComment, onShare, onFollow, onViewProfile }: PostCardProps) {
-  const [liked, setLiked] = useState<boolean>(post.isLiked || false)
+interface PostEvent {
+  title: string
+  date: string
+  location: string
+  attendees: number
+  image: string
+}
+
+interface Post {
+  id: number
+  user: PostUser
+  content: string
+  images: string[] | null
+  video: string | null
+  event: PostEvent | null
+  likes: number
+  comments: number
+  shares: number
+  reposts: number
+  liked: boolean
+  saved: boolean
+  timestamp: string
+}
+
+interface PostCardProps {
+  post: Post
+  onLike?: (postId: number) => void
+  onSave?: (postId: number) => void
+  onFollow?: (postId: number, isPrivate: boolean) => void
+  onComment?: (postId: number) => void
+  onShare?: (postId: number) => void
+  onViewMedia?: (postId: number, mediaIndex: number) => void
+  onViewEvent?: (eventId: string) => void
+  followState?: "follow" | "requested" | "following"
+  currentUser?: {
+    name: string
+    username: string
+    avatar: string
+  }
+}
+
+export default function PostCard({ 
+  post, 
+  onLike, 
+  onSave, 
+  onFollow, 
+  onComment,
+  onShare,
+  onViewMedia,
+  onViewEvent,
+  followState = "follow",
+  currentUser = { name: "Usuário", username: "@usuario", avatar: "/placeholder.svg" }
+}: PostCardProps) {
+  const [commentsOpen, setCommentsOpen] = useState(false)
+  const [mediaViewerOpen, setMediaViewerOpen] = useState(false)
+  const [shareDialogOpen, setShareDialogOpen] = useState(false)
+  const [profileViewerOpen, setProfileViewerOpen] = useState(false)
+  const [selectedMediaIndex, setSelectedMediaIndex] = useState(0)
+  const router = useRouter()
+  const getFollowButtonText = () => {
+    switch (followState) {
+      case "requested":
+        return "Solicitado"
+      case "following":
+        return "Seguindo"
+      default:
+        return "Seguir"
+    }
+  }
+
+  const getFollowButtonIcon = () => {
+    switch (followState) {
+      case "requested":
+        return <Clock className="w-4 h-4 mr-1" />
+      case "following":
+        return <CheckCircle className="w-4 h-4 mr-1" />
+      default:
+        return <UserPlusIcon className="w-4 h-4 mr-1" />
+    }
+  }
 
   const handleLike = () => {
-    setLiked(!liked)
     onLike?.(post.id)
   }
 
-  const formatNumber = (num: number) => {
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + "M"
-    }
-    if (num >= 1000) {
-      return (num / 1000).toFixed(1) + "K"
-    }
-    return num.toString()
+  const handleSave = () => {
+    onSave?.(post.id)
   }
 
-  return (
-    <Card className="openlove-card rounded-3xl overflow-hidden mb-6 hover-lift animate-fade-in">
-      <CardHeader className="flex flex-row items-center gap-4 p-6 pb-4">
-        <Avatar
-          className="w-12 h-12 border-3 border-pink-200 cursor-pointer hover:border-pink-400 transition-all duration-200 hover:scale-105"
-          onClick={() => onViewProfile?.(post.author)}
-        >
-          <AvatarImage src={post.author.avatar || "/placeholder.svg"} alt={post.author.name} />
-          <AvatarFallback className="bg-gradient-to-br from-pink-400 to-rose-400 text-white font-semibold">
-            {post.author.name.charAt(0)}
-          </AvatarFallback>
-        </Avatar>
+  const handleFollow = () => {
+    onFollow?.(post.id, post.user.isPrivate)
+  }
 
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <p
-              className="font-semibold text-pink-900 cursor-pointer hover:text-pink-600 transition-colors"
-              onClick={() => onViewProfile?.(post.author)}
+  const handleComment = () => {
+    setCommentsOpen(true)
+  }
+
+  const handleShare = () => {
+    setShareDialogOpen(true)
+  }
+
+  const handleViewMedia = (index: number) => {
+    setSelectedMediaIndex(index)
+    setMediaViewerOpen(true)
+  }
+
+  const handleViewImage = (index: number) => {
+    handleViewMedia(index)
+  }
+
+  const handleViewVideo = () => {
+    handleViewMedia(0)
+  }
+
+  const handleViewProfile = () => {
+    router.push(`/profile/${post.user.username.replace('@','')}`)
+  }
+
+  const handleViewEvent = () => {
+    if (post.event) {
+      // Gerar um ID único para o evento baseado no título e data
+      const eventId = `${post.event.title.toLowerCase().replace(/\s+/g, '-')}-${post.event.date.replace(/\s+/g, '-')}`
+      onViewEvent?.(eventId)
+    }
+  }
+
+  // Mock comments data
+  const comments = [
+    {
+      id: "1",
+      author: {
+        name: "Amanda & Carlos",
+        username: "@amandacarlos",
+        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png",
+        verified: true,
+        premium: true,
+      },
+      content: "Que momento incrível! Parabéns! 🎉",
+      timestamp: "1h",
+      likes: 12,
+      isLiked: false,
+    },
+    {
+      id: "2",
+      author: {
+        name: "Sofia Mendes",
+        username: "@sofia_livre",
+        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-3.png",
+        verified: false,
+        premium: false,
+      },
+      content: "Adorei! Muito inspirador ✨",
+      timestamp: "30m",
+      likes: 8,
+      isLiked: true,
+    },
+  ]
+
+  return (
+    <Card className="max-w-full border-gray-200 dark:border-white/10">
+      <CardHeader className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <Avatar 
+              className="ring-ring ring-2 cursor-pointer hover:ring-pink-500 transition-all duration-200"
+              onClick={handleViewProfile}
             >
-              {post.author.name}
-            </p>
-            {post.author.isPremium && (
-              <Badge className="text-xs bg-gradient-to-r from-pink-500 to-rose-500 text-white border-0">Premium</Badge>
-            )}
-            {post.visibility === "friends" && (
-              <Badge variant="outline" className="text-xs border-pink-300 text-pink-600 bg-pink-50">
-                Amigos
-              </Badge>
+              <AvatarImage src={post.user.avatar || "/placeholder.svg"} alt={post.user.name} />
+              <AvatarFallback className="text-xs">
+                {post.user.name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")}
+              </AvatarFallback>
+            </Avatar>
+            {post.user.verified && (
+              <span className="absolute -end-1.5 -top-1.5">
+                <BadgeCheckIcon className="text-background size-5 fill-sky-500" />
+              </span>
             )}
           </div>
-          <div className="flex items-center gap-2 text-xs text-pink-600">
-            <span>@{post.author.username}</span>
-            <span>•</span>
-            <span>
-              {post.createdAt} às {post.time}
-            </span>
-            {post.author.location && (
-              <>
-                <span>•</span>
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-3 h-3" />
-                  {post.author.location}
-                </span>
-              </>
-            )}
+          <div className="flex flex-col gap-0.5">
+            <CardTitle 
+              className="flex items-center gap-2 text-sm cursor-pointer hover:text-pink-600 transition-colors duration-200"
+              onClick={handleViewProfile}
+            >
+              {post.user.name}
+              {post.user.premium && (
+                <Badge
+                  variant="outline"
+                  className="border-pink-600 dark:border-pink-400 text-pink-600 dark:text-pink-400 text-xs"
+                >
+                  Premium
+                </Badge>
+              )}
+            </CardTitle>
+            <CardDescription className="flex items-center gap-1 text-xs">
+              <span>{post.user.username}</span>
+              <span>•</span>
+              <span>{post.timestamp}</span>
+              <span>•</span>
+              <MapPin className="w-3 h-3" />
+              <span>{post.user.location}</span>
+              <span>•</span>
+              <span className="text-purple-600 font-medium">{post.user.relationshipType}</span>
+            </CardDescription>
           </div>
         </div>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full h-8 w-8 text-pink-600 hover:text-pink-800 hover:bg-pink-100"
-            >
-              <MoreHorizontal className="h-4 w-4" />
-              <span className="sr-only">Mais opções</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="openlove-card rounded-2xl">
-            <DropdownMenuItem className="rounded-xl hover:bg-pink-50">Salvar Post</DropdownMenuItem>
-            <DropdownMenuItem className="rounded-xl hover:bg-pink-50">Adicionar aos Favoritos</DropdownMenuItem>
-            <DropdownMenuItem className="rounded-xl hover:bg-pink-50">Copiar Link</DropdownMenuItem>
-            <DropdownMenuItem className="text-red-600 rounded-xl hover:bg-red-50">Denunciar</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center gap-2">
+          <Button
+            variant={followState === "following" ? "secondary" : "outline"}
+            size="sm"
+            onClick={handleFollow}
+            className={cn(
+              "transition-all duration-200",
+              followState === "requested" && "bg-yellow-100 text-yellow-700 border-yellow-300",
+              followState === "following" && "bg-green-100 text-green-700 border-green-300",
+            )}
+          >
+            {getFollowButtonIcon()}
+            {getFollowButtonText()}
+          </Button>
+          <Button variant="ghost" size="icon" aria-label="Toggle menu">
+            <EllipsisIcon className="size-4" />
+          </Button>
+        </div>
       </CardHeader>
+      <CardContent className="space-y-4 text-sm">
+        <p className="leading-relaxed">{post.content}</p>
 
-      <CardContent className="px-6 pb-4">
-        <div className="space-y-4">
-          {/* Post Content */}
-          <div className="text-pink-900 leading-relaxed">
-            {post.content.split(" ").map((word: string, i: number) => {
-              if (word.startsWith("#")) {
-                return (
-                  <span key={i} className="text-pink-600 font-semibold hover:underline cursor-pointer">
-                    {word}{" "}
-                  </span>
-                )
-              }
-              if (word.startsWith("@")) {
-                return (
-                  <span key={i} className="text-pink-700 font-medium hover:underline cursor-pointer">
-                    {word}{" "}
-                  </span>
-                )
-              }
-              return word + " "
-            })}
-          </div>
-
-          {/* Images Gallery */}
-          {post.images && post.images.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-sm text-pink-600">
-                <ImageIcon className="w-4 h-4" />
-                <span>
-                  {post.images.length} foto{post.images.length > 1 ? "s" : ""}
-                </span>
-              </div>
+        {/* Images */}
+        {post.images && post.images.length > 0 && (
+          <div className="w-full">
+            {post.images.length === 1 ? (
               <div
-                className={cn(
-                  "grid gap-3 rounded-2xl overflow-hidden",
-                  post.images.length === 1
-                    ? "grid-cols-1"
-                    : post.images.length === 2
-                      ? "grid-cols-2"
-                      : post.images.length === 3
-                        ? "grid-cols-2"
-                        : "grid-cols-2",
-                )}
+                className="relative cursor-pointer"
+                onClick={() => handleViewImage(0)}
               >
-                {post.images.slice(0, 4).map((image: string, index: number) => (
-                  <div
-                    key={index}
-                    className={cn(
-                      "relative group cursor-pointer bg-pink-50 rounded-xl overflow-hidden",
-                      post.images.length === 3 && index === 0 ? "row-span-2" : "",
-                    )}
-                  >
-                    <img
-                      src={image || "/placeholder.svg"}
-                      alt={`Foto ${index + 1}`}
-                      className="w-full h-full object-cover aspect-square hover:scale-110 transition-transform duration-300"
-                    />
-                    {post.images.length > 4 && index === 3 && (
-                      <div className="absolute inset-0 bg-gradient-to-br from-pink-500/80 to-rose-500/80 flex items-center justify-center rounded-xl">
-                        <div className="text-center text-white">
-                          <ImageIcon className="h-8 w-8 mx-auto mb-2" />
-                          <span className="font-bold text-lg">+{post.images.length - 4}</span>
+                <img
+                  src={post.images[0] || "/placeholder.svg"}
+                  alt="Post content"
+                  className="aspect-video w-full rounded-md object-cover"
+                />
+                <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
+                  <ImageIcon className="w-3 h-3 inline mr-1" />
+                  Foto
+                </div>
+              </div>
+            ) : (
+              <Carousel className="w-full">
+                <CarouselContent>
+                  {post.images.map((image, index) => (
+                    <CarouselItem key={index}>
+                      <div
+                        className="relative cursor-pointer"
+                        onClick={() => handleViewImage(index)}
+                      >
+                        <img
+                          src={image || "/placeholder.svg"}
+                          alt={`Post content ${index + 1}`}
+                          className="aspect-video w-full rounded-md object-cover"
+                        />
+                        <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
+                          <ImageIcon className="w-3 h-3 inline mr-1" />
+                          Foto {index + 1}
                         </div>
                       </div>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-xl" />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Video */}
-          {post.video && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-sm text-pink-600">
-                <Video className="w-4 h-4" />
-                <span>Vídeo Premium</span>
-              </div>
-              <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-pink-100 to-rose-100 group">
-                <video
-                  src={post.video}
-                  className="w-full aspect-video object-cover"
-                  controls
-                  poster="/placeholder.svg?height=400&width=600"
-                />
-                <div className="absolute top-4 left-4">
-                  <Badge className="bg-gradient-to-r from-pink-500 to-rose-500 text-white border-0 shadow-lg">
-                    <Play className="w-3 h-3 mr-1" />
-                    Premium
-                  </Badge>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Event Details */}
-          {post.isEvent && post.eventDetails && (
-            <Card className="bg-gradient-to-br from-pink-50 to-rose-50 border-pink-200 p-4 rounded-2xl">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shadow-lg">
-                  <Calendar className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <p className="font-semibold text-pink-900">Evento Premium</p>
-                  <p className="text-sm text-pink-600">
-                    {post.eventDetails.date} às {post.eventDetails.time}
-                  </p>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4 text-sm mb-3">
-                <div className="flex items-center gap-2 text-pink-600">
-                  <MapPin className="w-4 h-4" />
-                  <span>{post.eventDetails.location}</span>
-                </div>
-                <div className="flex items-center gap-2 text-pink-600">
-                  <Users className="w-4 h-4" />
-                  <span>{post.eventDetails.participants} participantes</span>
-                </div>
-              </div>
-              <Button className="w-full btn-openlove rounded-xl">Participar do Evento</Button>
-            </Card>
-          )}
-        </div>
-      </CardContent>
-
-      <CardFooter className="flex items-center justify-between p-6 pt-0 border-t border-pink-100">
-        <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleLike}
-            className={cn(
-              "hover:bg-orange-50 rounded-xl transition-all duration-200 hover-lift",
-              liked ? "text-orange-500 bg-orange-50" : "text-pink-600 hover:text-orange-500",
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="left-2" />
+                <CarouselNext className="right-2" />
+              </Carousel>
             )}
-          >
-            <Flame className={cn("w-5 h-5 mr-2", liked && "fill-orange-500")} />
-            {formatNumber(post.stats.likes + (liked && !post.isLiked ? 1 : 0))}
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onComment?.(post.id)}
-            className="hover:bg-blue-50 text-pink-600 hover:text-blue-500 rounded-xl transition-all duration-200 hover-lift"
-          >
-            <MessageCircle className="w-5 h-5 mr-2" />
-            {formatNumber(post.stats.comments)}
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onShare?.(post.id)}
-            className="hover:bg-green-50 text-pink-600 hover:text-green-500 rounded-xl transition-all duration-200 hover-lift"
-          >
-            <Share2 className="w-5 h-5 mr-2" />
-            {formatNumber(post.stats.shares)}
-          </Button>
-        </div>
-
-        {!post.author.isFollowing && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onFollow?.(post.author.username)}
-            className="border-pink-300 text-pink-600 hover:bg-pink-500 hover:text-white hover:border-pink-500 rounded-xl transition-all duration-200 hover-lift"
-          >
-            <UserPlus className="w-4 h-4 mr-2" />
-            Seguir
-          </Button>
+          </div>
         )}
+
+        {/* Video */}
+        {post.video && (
+          <div 
+            className="relative w-full aspect-video rounded-md overflow-hidden bg-black cursor-pointer"
+            onClick={handleViewVideo}
+          >
+            <img
+              src={post.video || "/placeholder.svg"}
+              alt="Video thumbnail"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+              <Button size="lg" className="rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm">
+                <Play className="w-6 h-6 text-white" />
+              </Button>
+            </div>
+            <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
+              <Video className="w-3 h-3 inline mr-1" />
+              Vídeo
+            </div>
+          </div>
+        )}
+
+        {/* Event */}
+        {post.event && (
+          <Card 
+            className="border border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50 cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02]"
+            onClick={handleViewEvent}
+          >
+            <CardContent className="p-4">
+              <div className="flex gap-4">
+                <img
+                  src={post.event.image || "/placeholder.svg"}
+                  alt={post.event.title}
+                  className="w-16 h-16 rounded-lg object-cover"
+                />
+                <div className="flex-1">
+                  <h4 className="font-semibold text-purple-900">{post.event.title}</h4>
+                  <div className="flex items-center gap-2 text-sm text-purple-700 mt-1">
+                    <Calendar className="w-4 h-4" />
+                    <span>{post.event.date}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-purple-700">
+                    <MapPin className="w-4 h-4" />
+                    <span>{post.event.location}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-purple-700">
+                    <Users className="w-4 h-4" />
+                    <span>{post.event.attendees} participantes</span>
+                  </div>
+                </div>
+              </div>
+              <Button 
+                className="w-full mt-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleViewEvent()
+                }}
+              >
+                Participar do Evento
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+      </CardContent>
+      <CardFooter className="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleLike}
+          className={cn("transition-all duration-200 hover:scale-110", post.liked && "text-orange-500")}
+        >
+          <Flame className={cn("size-4", post.liked && "fill-orange-500 stroke-orange-500")} />
+          {post.likes}
+        </Button>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={handleComment}
+          className="transition-all duration-200 hover:scale-110 hover:text-blue-500"
+        >
+          <MessageCircleIcon className="size-4" />
+          {post.comments}
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleSave}
+          className={cn("transition-all duration-200 hover:scale-110", post.saved && "text-green-500")}
+          aria-label="Salvar post"
+        >
+          <Save
+            className={cn("size-4", post.saved && "stroke-green-500")}
+            fill={post.saved ? "none" : "currentColor"}
+            stroke={post.saved ? "#22c55e" : "currentColor"}
+          />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="transition-all duration-200 hover:scale-110 hover:text-purple-500"
+        >
+          <SendIcon className="size-4" />
+        </Button>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={handleShare}
+          className="ml-auto transition-all duration-200 hover:scale-110"
+        >
+          <Share2 className="size-4" />
+        </Button>
       </CardFooter>
+
+      {/* Dialogs */}
+      <CommentsDialog
+        isOpen={commentsOpen}
+        onClose={() => setCommentsOpen(false)}
+        postId={post.id.toString()}
+        postContent={post.content}
+        postAuthor={post.user}
+        comments={comments}
+        onAddComment={(content) => {
+          console.log("Novo comentário:", content)
+          // Implementar lógica de adicionar comentário
+        }}
+        onLikeComment={(commentId) => {
+          console.log("Curtir comentário:", commentId)
+          // Implementar lógica de curtir comentário
+        }}
+      />
+
+      <MediaViewer
+        isOpen={mediaViewerOpen}
+        onClose={() => setMediaViewerOpen(false)}
+        media={(() => {
+          const mediaArray = []
+          
+          // Adicionar imagens
+          if (post.images && post.images.length > 0) {
+            post.images.forEach((image, index) => {
+              mediaArray.push({
+                id: `image-${index}`,
+                type: "image" as const,
+                url: image,
+              })
+            })
+          }
+          
+          // Adicionar vídeo
+          if (post.video) {
+            mediaArray.push({
+              id: "video-0",
+              type: "video" as const,
+              url: post.video,
+              thumbnail: post.video,
+            })
+          }
+          
+          return mediaArray
+        })()}
+        initialIndex={selectedMediaIndex}
+        postAuthor={post.user}
+        postContent={post.content}
+        postTimestamp={post.timestamp}
+        currentUser={currentUser}
+        onLike={handleLike}
+        onComment={handleComment}
+        onShare={handleShare}
+        isLiked={post.liked}
+        likes={post.likes}
+        comments={post.comments}
+      />
+
+      <ShareDialog
+        isOpen={shareDialogOpen}
+        onClose={() => setShareDialogOpen(false)}
+        postId={post.id.toString()}
+        postContent={post.content}
+        postAuthor={post.user}
+        postImages={post.images || undefined}
+        postVideo={post.video || undefined}
+        currentUser={currentUser}
+        onShareToDirect={(userId, message) => {
+          console.log("Compartilhar no direct:", userId, message)
+          // Implementar lógica de compartilhar no direct
+        }}
+        onShareToTimeline={(message, isPublic) => {
+          console.log("Compartilhar na timeline:", message, isPublic)
+          // Implementar lógica de compartilhar na timeline
+        }}
+        onCopyLink={() => {
+          console.log("Copiar link do post")
+          // Implementar lógica de copiar link
+        }}
+      />
+
+      <ProfileViewer
+        isOpen={profileViewerOpen}
+        onClose={() => setProfileViewerOpen(false)}
+        profile={{
+          id: post.user.username,
+          name: post.user.name,
+          username: post.user.username,
+          avatar: post.user.avatar,
+          verified: post.user.verified,
+          premium: post.user.premium,
+          location: post.user.location,
+          relationshipType: post.user.relationshipType,
+          isPrivate: post.user.isPrivate,
+          bio: "Apaixonado por liberdade e conexões autênticas. Explorando o amor de forma aberta e respeitosa.",
+          followers: 1234,
+          following: 567,
+          postsCount: 89,
+          joinedDate: "2023-01-15",
+          interests: ["Liberdade", "Arte", "Viagens", "Música", "Fotografia"],
+          photos: [
+            "https://cdn.shadcnstudio.com/ss-assets/components/card/image-6.png?width=350&format=auto",
+            "https://cdn.shadcnstudio.com/ss-assets/components/card/image-2.png?height=280&format=auto",
+            "https://cdn.shadcnstudio.com/ss-assets/components/card/image-3.png",
+          ],
+          videos: [
+            "https://cdn.shadcnstudio.com/ss-assets/components/card/image-2.png?height=280&format=auto",
+          ],
+          userPosts: [post], // Mock posts do usuário
+          isFollowing: false,
+          followState: followState,
+        }}
+        currentUser={currentUser}
+        onFollow={(userId, isPrivate) => {
+          onFollow?.(post.id, isPrivate)
+        }}
+        onMessage={(userId) => {
+          console.log("Enviar mensagem para:", userId)
+          // Implementar lógica de mensagem
+        }}
+        onShare={(userId) => {
+          console.log("Compartilhar perfil:", userId)
+          // Implementar lógica de compartilhar perfil
+        }}
+        onLike={onLike}
+        onSave={onSave}
+        onComment={onComment}
+        onSharePost={onShare}
+        onViewMedia={onViewMedia}
+      />
     </Card>
   )
 }

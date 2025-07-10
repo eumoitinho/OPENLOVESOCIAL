@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import Logo from "../../Logo"
 
 // Tipos podem ser centralizados futuramente
 type UserProfile = {
@@ -55,11 +56,7 @@ export function LeftSidebar({ profile, activeView, onNavigate, onOpenChat }: Lef
   return (
     <div className="w-64 md:w-72 lg:w-80 border-r border-openlove-200 fixed h-full hidden md:flex flex-col bg-gradient-to-b from-white via-openlove-50 to-openlove-100 z-30">
       {/* Logo */}
-      <div className="p-6 border-b border-openlove-200">
-        <h1 className="text-3xl font-extrabold bg-gradient-to-r from-openlove-500 via-openlove-600 to-openlove-700 bg-clip-text text-transparent tracking-tight drop-shadow-sm">
-          OpenLove
-        </h1>
-      </div>
+      <Logo/>
 
       {/* User Profile Summary */}
       <div className="p-4 border-b border-openlove-200 bg-gradient-to-r from-openlove-50 to-white">
