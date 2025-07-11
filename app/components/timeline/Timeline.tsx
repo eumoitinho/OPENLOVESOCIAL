@@ -63,6 +63,31 @@ export default function Timeline() {
   const [postVisibility, setPostVisibility] = useState<"public" | "friends_only">("public")
   const [postLoading, setPostLoading] = useState(false)
 
+  // Timeline real
+  const [posts, setPosts] = useState<any[]>([])
+  const [loadingPosts, setLoadingPosts] = useState(true)
+  const [errorPosts, setErrorPosts] = useState<string | null>(null)
+
+  // Atualiza timeline
+  const fetchPosts = async () => {
+    setLoadingPosts(true)
+    setErrorPosts(null)
+    try {
+      const res = await fetch("/api/timeline")
+      if (!res.ok) throw new Error("Erro ao buscar timeline")
+      const json = await res.json()
+      setPosts(json.data || [])
+    } catch (err: any) {
+      setErrorPosts(err.message || "Erro desconhecido")
+    } finally {
+      setLoadingPosts(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchPosts()
+  }, [])
+
   // Ad tracking
   const handleAdClick = (adId: string) => {
     console.log("Ad clicked:", adId)
@@ -74,191 +99,6 @@ export default function Timeline() {
     // Aqui você pode implementar tracking de impressões
   }
 
-  const [posts, setPosts] = useState([
-    {
-      id: 1,
-      user: {
-        name: "Amanda & Carlos",
-        username: "@amandacarlos",
-        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png",
-        verified: true,
-        premium: true,
-        location: "São Paulo, SP",
-        relationshipType: "Casal (M&H)",
-        isPrivate: false,
-      },
-      content:
-        "Vivendo momentos incríveis juntos! 🌊✨ Nosso primeiro evento OpenLove foi incrível. Conhecemos pessoas maravilhosas que compartilham nossa visão de liberdade e respeito. #OpenLove #Casal #Liberdade",
-      images: [
-        "https://cdn.shadcnstudio.com/ss-assets/components/card/image-6.png?width=350&format=auto",
-        "https://cdn.shadcnstudio.com/ss-assets/components/card/image-2.png?height=280&format=auto",
-        "https://cdn.shadcnstudio.com/ss-assets/components/card/image-3.png",
-      ],
-      video: null,
-      event: null,
-      likes: 2100,
-      comments: 340,
-      shares: 89,
-      reposts: 156,
-      liked: false,
-      saved: false,
-      timestamp: "2h",
-    },
-    {
-      id: 2,
-      user: {
-        name: "Sofia Mendes",
-        username: "@sofia_livre",
-        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-3.png",
-        verified: false,
-        premium: false,
-        location: "Rio de Janeiro, RJ",
-        relationshipType: "Solteira",
-        isPrivate: true,
-      },
-      content:
-        "Procurando novas amizades em São Paulo! Quem topa um café e uma conversa sobre liberdade, arte e conexões autênticas? 🎨☕ #SP #Amizades #Arte",
-      images: null,
-      video: "https://cdn.shadcnstudio.com/ss-assets/components/card/image-2.png?height=280&format=auto",
-      event: null,
-      likes: 89,
-      comments: 23,
-      shares: 12,
-      reposts: 8,
-      liked: true,
-      saved: false,
-      timestamp: "4h",
-    },
-    {
-      id: 3,
-      user: {
-        name: "Lisa & João",
-        username: "@lisajoao",
-        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-6.png",
-        verified: true,
-        premium: true,
-        location: "Cascais, Portugal",
-        relationshipType: "Casal (M&H)",
-        isPrivate: false,
-      },
-      content:
-        "Workshop de fotografia em Cascais neste sábado! 📸🌅 Vamos explorar a arte da fotografia íntima e artística. Vagas limitadas! #Fotografia #Cascais #Workshop",
-      images: null,
-      video: null,
-      event: {
-        title: "Workshop de Fotografia Íntima",
-        date: "Sábado, 15 de Dezembro",
-        location: "Cascais, Portugal",
-        attendees: 24,
-        image: "https://cdn.shadcnstudio.com/ss-assets/components/card/image-6.png?width=350&format=auto",
-      },
-      likes: 456,
-      comments: 67,
-      shares: 34,
-      reposts: 23,
-      liked: false,
-      saved: true,
-      timestamp: "6h",
-    },
-    {
-      id: 4,
-      user: {
-        name: "Miguel Santos",
-        username: "@miguel_open",
-        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-16.png",
-        verified: false,
-        premium: true,
-        location: "Lisboa, Portugal",
-        relationshipType: "Solteiro",
-        isPrivate: false,
-      },
-      content:
-        "Reflexão do dia: A verdadeira liberdade está em ser autêntico consigo mesmo e respeitar a autenticidade dos outros. 🌟 #Reflexão #Autenticidade #OpenLove",
-      images: null,
-      video: null,
-      event: null,
-      likes: 234,
-      comments: 45,
-      shares: 18,
-      reposts: 12,
-      liked: true,
-      saved: false,
-      timestamp: "8h",
-    },
-  ])
-
-  interface ProfileData {
-    id: string | number
-    name: string
-    username: string
-    description: string
-    backgroundImage: string
-    profileImage?: string
-    verified: boolean
-    rating: number
-    followers: string
-    following: string
-    location?: string
-    joinedDate?: string
-    tags?: string[]
-    revenue?: string
-    rate?: string
-  }
-
-  const profileCards: ProfileData[] = [
-    {
-      id: 1,
-      name: "Amanda Johnson",
-      username: "@amandaj",
-      verified: true,
-      description: "Creative UI/UX Designer with 5+ years of experience of designing user interfaces.",
-      backgroundImage: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png",
-      profileImage: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png",
-      rating: 4.7,
-      followers: "1.2k",
-      following: "890",
-      location: "São Paulo, SP",
-      joinedDate: "2023",
-      tags: ["design", "ui/ux", "creative"],
-      revenue: "$125k+",
-      rate: "149$ / hr",
-    },
-    {
-      id: 2,
-      name: "Caleb Meredith",
-      username: "@calebm",
-      verified: true,
-      description: "Results-driven Full Stack Developer with 8+ years in React.js and Node.js.",
-      backgroundImage: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-6.png",
-      profileImage: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-6.png",
-      rating: 4.9,
-      followers: "2.1k",
-      following: "1.2k",
-      location: "Rio de Janeiro, RJ",
-      joinedDate: "2022",
-      tags: ["developer", "react", "node"],
-      revenue: "$225k+",
-      rate: "215$/hr",
-    },
-    {
-      id: 3,
-      name: "Sofia Martinez",
-      username: "@sofiam",
-      verified: true,
-      description: "Digital Marketing Specialist helping brands grow their online presence.",
-      backgroundImage: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-3.png",
-      profileImage: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-3.png",
-      rating: 4.8,
-      followers: "1.8k",
-      following: "950",
-      location: "Lisboa, Portugal",
-      joinedDate: "2023",
-      tags: ["marketing", "digital", "brands"],
-      revenue: "$180k+",
-      rate: "175$/hr",
-    },
-  ]
-  const [followStates, setFollowStates] = useState<Record<number, "follow" | "requested" | "following">>({})
   const [profileSearchOpen, setProfileSearchOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [messagesOpen, setMessagesOpen] = useState(false)
@@ -314,14 +154,7 @@ export default function Timeline() {
   }
 
   const handleFollow = (postId: number, isPrivate: boolean) => {
-    const currentState = followStates[postId] || "follow"
-
-    if (currentState === "follow") {
-      const newState = isPrivate ? "requested" : "following"
-      setFollowStates((prev) => ({ ...prev, [postId]: newState }))
-    } else if (currentState === "following") {
-      setFollowStates((prev) => ({ ...prev, [postId]: "follow" }))
-    }
+    // Remover vestígios de followStates
   }
 
   const handleComment = (postId: number) => {
@@ -339,43 +172,22 @@ export default function Timeline() {
     // Implementar lógica de visualizar mídia
   }
 
+  // Após criar post, recarregar timeline
   const handlePostSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!postContent.trim()) return
-
     setPostLoading(true)
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    const newPost = {
-      id: posts.length + 1,
-      user: {
-        name: "Você",
-        username: "@voce",
-        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-16.png",
-        verified: false,
-        premium: true,
-        location: "São Paulo, SP",
-        relationshipType: "Solteiro",
-        isPrivate: false,
-      },
-      content: postContent,
-      images: null,
-      video: null,
-      event: null,
-      likes: 0,
-      comments: 0,
-      shares: 0,
-      reposts: 0,
-      liked: false,
-      saved: false,
-      timestamp: "agora",
-    }
-
-    setPosts((prev) => [newPost, ...prev])
+    // Aqui você deve fazer POST para a API real de criação de post
+    // Exemplo:
+    await fetch("/api/timeline", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content: postContent, visibility: postVisibility })
+    })
     setPostContent("")
     setPostLoading(false)
     setPostModalOpen(false)
+    fetchPosts() // Atualiza timeline
   }
 
   const CreatePostModal = () => (
@@ -496,7 +308,7 @@ export default function Timeline() {
     </Dialog>
   )
 
-  const ProfileCard = ({ profile }: { profile: ProfileData }) => (
+  const ProfileCard = ({ profile }: { profile: any }) => (
     <Card className="relative w-full max-w-[320px] sm:max-w-sm overflow-hidden shadow-xl border-0">
       {/* Background Header */}
       <div className="relative h-24 sm:h-32">
@@ -515,7 +327,7 @@ export default function Timeline() {
             <AvatarFallback className="text-sm sm:text-lg font-semibold">
               {profile.name
                 .split(" ")
-                .map((n) => n[0])
+                .map((n: string) => n[0])
                 .join("")}
             </AvatarFallback>
           </Avatar>
@@ -533,7 +345,7 @@ export default function Timeline() {
           {/* Tags */}
           {profile.tags && (
             <div className="flex flex-wrap justify-center gap-1 mt-1 sm:mt-2">
-              {profile.tags.slice(0, 2).map((tag, index) => (
+              {profile.tags.slice(0, 2).map((tag: string, index: number) => (
                 <Badge key={index} variant="secondary" className="text-xs px-1.5 py-0.5">
                   {tag}
                 </Badge>
@@ -774,7 +586,8 @@ export default function Timeline() {
                 <Users className="w-5 h-5" />
                 Comunidades
               </Button>
-              <Button 
+
+              <Button
                 variant="ghost" 
                 className="w-full justify-start gap-3 text-left"
                 onClick={() => setSavedContentOpen(true)}
@@ -846,50 +659,61 @@ export default function Timeline() {
 
           {/* Feed */}
           <div className="p-4 space-y-6">
-            {posts.map((post, index) => (
-              <div key={post.id}>
-                <PostCard 
-                  post={post}
-                  onLike={handleLike}
-                  onSave={handleSave}
-                  onFollow={handleFollow}
-                  onComment={handleComment}
-                  onShare={handleShare}
-                  onViewMedia={handleViewMedia}
-                  onViewEvent={(eventId) => {
-                    console.log("Visualizando evento do post:", eventId)
-                    setEventsOpen(true)
-                  }}
-                  followState={followStates[post.id] || "follow"}
-                  currentUser={currentUser}
-                />
-                
-                {/* Insert ads after every 3 posts */}
-                {(index + 1) % 3 === 0 && (
-                  <div className="my-6">
-                    <Advertisement 
-                      type="timeline"
-                      onAdClick={handleAdClick}
-                      onAdImpression={handleAdImpression}
-                    />
-                  </div>
-                )}
-                
-                {/* Insert profile cards after every 2 posts */}
-                {(index + 1) % 2 === 0 && (
-                  <div className="my-6">
-                    <h3 className="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">
-                      Pessoas que você pode conhecer
-                    </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {profileCards.map((profile) => (
-                        <ProfileCard key={profile.id} profile={profile} />
-                      ))}
-                    </div>
-                  </div>
-                )}
+            {loadingPosts ? (
+              <div className="text-center py-8">
+                <p>Carregando posts...</p>
               </div>
-            ))}
+            ) : errorPosts ? (
+              <div className="text-center py-8 text-red-500">
+                Erro ao carregar posts: {errorPosts}
+              </div>
+            ) : posts.length === 0 ? (
+              <div className="text-center py-8">
+                <p>Nenhum post encontrado. Seja o primeiro a criar um!</p>
+              </div>
+            ) : (
+              posts.map((post, index) => (
+                <div key={post.id}>
+                  <PostCard 
+                    post={post}
+                    onLike={handleLike}
+                    onSave={handleSave}
+                    onFollow={handleFollow}
+                    onComment={handleComment}
+                    onShare={handleShare}
+                    onViewMedia={handleViewMedia}
+
+                    // Remover vestígios de followStates
+                    currentUser={currentUser}
+                  />
+                  
+                  {/* Insert ads after every 3 posts */}
+                  {(index + 1) % 3 === 0 && (
+                    <div className="my-6">
+                      <Advertisement 
+                        type="timeline"
+                        onAdClick={handleAdClick}
+                        onAdImpression={handleAdImpression}
+                      />
+                    </div>
+                  )}
+                  
+                  {/* Insert profile cards after every 2 posts */}
+                  {(index + 1) % 2 === 0 && (
+                    <div className="my-6">
+                      <h3 className="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">
+                        Pessoas que você pode conhecer
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {posts.map((profile) => (
+                          <ProfileCard key={profile.id} profile={profile} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
           </div>
         </main>
 

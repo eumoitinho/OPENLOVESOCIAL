@@ -1,0 +1,5 @@
+---
+description: Sempre que criar um novo componente em um projeto dinamico que usa algum banco de dados criar a implementacao para consumo dos dados
+globs:
+alwaysApply: false
+---

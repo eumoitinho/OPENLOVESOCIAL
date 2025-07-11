@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "../../../components/ui/button"
 import { Badge } from "../../../components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card"
@@ -36,54 +36,6 @@ const ORDER_OPTIONS = [
   "Mais recentes",
 ]
 
-// Mock de perfis
-const MOCK_PROFILES = [
-  {
-    id: 1,
-    name: "Amanda & Carlos",
-    type: "Casais",
-    city: "Curitiba",
-    uf: "PR",
-    distance: 3,
-    age: 32,
-    lastAccess: "Hoje",
-    avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png",
-  },
-  {
-    id: 2,
-    name: "Sofia Mendes",
-    type: "Mulheres",
-    city: "Ponta Grossa",
-    uf: "PR",
-    distance: 98,
-    age: 27,
-    lastAccess: "Nos últimos 7 dias",
-    avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-3.png",
-  },
-  {
-    id: 3,
-    name: "Lisa & João",
-    type: "Casais (2 mulheres)",
-    city: "Joinville",
-    uf: "SC",
-    distance: 130,
-    age: 29,
-    lastAccess: "Nos últimos 30 dias",
-    avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-6.png",
-  },
-  {
-    id: 4,
-    name: "Miguel Santos",
-    type: "Homens",
-    city: "Curitiba",
-    uf: "PR",
-    distance: 7,
-    age: 35,
-    lastAccess: "Online agora",
-    avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-16.png",
-  },
-]
-
 interface ProfileSearchProps {
   onProfileClick?: () => void
 }
@@ -100,15 +52,63 @@ export default function ProfileSearch({ onProfileClick }: ProfileSearchProps) {
   const [access, setAccess] = useState(ACCESS_OPTIONS[0])
   const [order, setOrder] = useState(ORDER_OPTIONS[0])
   const [showCityEdit, setShowCityEdit] = useState(false)
+  const [userLocation, setUserLocation] = useState<{lat: number, lon: number, city?: string, uf?: string} | null>(null)
 
-  // Filtro dos perfis
-  const filteredProfiles = MOCK_PROFILES.filter((p) => {
+  // Perfis reais
+  const [profiles, setProfiles] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // Detectar localização ao carregar
+  useEffect(() => {
+    if (typeof window !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const { latitude, longitude } = position.coords
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
+          const data = await res.json()
+          const city = data.address.city || data.address.town || data.address.village || ""
+          const uf = data.address.state || data.address.region || ""
+          setUserLocation({ lat: latitude, lon: longitude, city, uf })
+          setCity(city)
+          setUf(uf)
+        } catch (e) {
+          setUserLocation({ lat: latitude, lon: longitude })
+        }
+      })
+    }
+  }, [])
+
+  // Ao buscar perfis, enviar lat/lon se disponível
+  useEffect(() => {
+    const fetchProfiles = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        let url = `/api/search/users?city=${city}&uf=${uf}&type=${profileType}&ageMin=${ageMin}&ageMax=${ageMax}`
+        if (userLocation) {
+          url += `&lat=${userLocation.lat}&lon=${userLocation.lon}&distance=${distance}`
+        }
+        const res = await fetch(url)
+        if (!res.ok) throw new Error("Erro ao buscar perfis")
+        const json = await res.json()
+        setProfiles(json.data || [])
+      } catch (err: any) {
+        setError(err.message || "Erro desconhecido")
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProfiles()
+  }, [profileType, city, uf, ageMin, ageMax, userLocation, distance])
+
+  // Filtro dos perfis (aplicação local de filtros adicionais)
+  const filteredProfiles = profiles.filter((p) => {
     const typeOk = profileType === "Não importa / Todos" || p.type === profileType
     const distOk = p.distance <= distance
     const ageOk = p.age >= ageMin && p.age <= ageMax
-    const accessOk = access === "Nos últimos 30 dias" || p.lastAccess === access
-    const cityOk = p.city === city
-    return typeOk && distOk && ageOk && accessOk && cityOk
+    // access e city já são filtrados na API
+    return typeOk && distOk && ageOk
   })
 
   return (
@@ -218,14 +218,16 @@ export default function ProfileSearch({ onProfileClick }: ProfileSearchProps) {
       </Card>
 
       <div className="flex flex-col gap-2 min-w-0">
-        {filteredProfiles.length === 0 && (
+        {loading && <div className="text-center text-gray-400 py-8">Carregando perfis...</div>}
+        {error && <div className="text-center text-red-500 py-8">{error}</div>}
+        {!loading && !error && filteredProfiles.length === 0 && (
           <div className="text-center text-gray-400 py-8">Nenhum perfil encontrado.</div>
         )}
         {filteredProfiles.map((profile) => (
           <Card key={profile.id} className="flex items-center gap-2 p-2 sm:p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition w-full min-w-0">
             <Avatar className="w-12 h-12 sm:w-16 sm:h-16">
               <AvatarImage src={profile.avatar} alt={profile.name} />
-              <AvatarFallback>{profile.name.split(" ").map(n => n[0]).join("")}</AvatarFallback>
+              <AvatarFallback>{profile.name.split(" ").map((n: string) => n[0]).join("")}</AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1 flex-wrap min-w-0">
@@ -233,7 +235,7 @@ export default function ProfileSearch({ onProfileClick }: ProfileSearchProps) {
                 <Badge variant="secondary" className="text-xs">{profile.type}</Badge>
               </div>
               <div className="text-xs sm:text-sm text-gray-500 truncate">
-                {profile.city}/{profile.uf} • {profile.distance}km de distância
+                {profile.city}{profile.uf ? `/${profile.uf}` : ""} • {profile.distance}km de distância
               </div>
             </div>
             <div className="text-xs text-gray-400 hidden sm:block">Acesso: {profile.lastAccess}</div>

@@ -44,7 +44,11 @@ interface MediaUploadProps {
   maxFileSize?: number
   disabled?: boolean
   autoOptimize?: boolean // Nova prop para otimização automática
+  onUploadSuccess?: (newMedia: any) => void
+  onUploadError?: (error: string) => void
 }
+
+
 
 const MediaUpload: React.FC<MediaUploadProps> = ({
   onUpload,
@@ -122,13 +126,24 @@ const MediaUpload: React.FC<MediaUploadProps> = ({
       const result = await validateAndOptimizeFile(mediaFile.file)
       
              // Criar novo arquivo otimizado
-       const optimizedFile = new File([result.file], mediaFile.file.name, {
-         type: result.file instanceof Blob ? result.file.type : mediaFile.file.type
-       })
+       const optimizedFile = typeof window !== "undefined" && typeof window.File === "function"
+         ? new window.File([result.file], mediaFile.file.name, {
+             type: result.file instanceof Blob ? result.file.type : mediaFile.file.type
+           })
+         : result.file // fallback for environments without File constructor
 
       const updatedMediaFile: MediaFile = {
         ...mediaFile,
-        file: optimizedFile,
+        file: optimizedFile instanceof File
+          ? optimizedFile
+          : (optimizedFile instanceof Blob
+              ? (typeof window !== "undefined" && typeof window.File === "function"
+                  ? new window.File([optimizedFile], mediaFile.file.name, {
+                      type: optimizedFile.type || mediaFile.file.type,
+                      lastModified: mediaFile.file.lastModified ?? Date.now(),
+                    })
+                  : mediaFile.file)
+              : mediaFile.file),
         originalSize: result.originalSize,
         optimizedSize: result.optimizedSize,
         compressionRatio: result.compressionRatio,

@@ -5,16 +5,57 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Moon, Sun, MapPin, Camera, ArrowRight, ArrowLeft, Mail, Lock, User, AtSign, Calendar } from "lucide-react"
+import { Moon, Sun, MapPin, Camera, ArrowRight, ArrowLeft, Mail, Lock, User, AtSign, Calendar, StarIcon, GemIcon, CrownIcon, CheckIcon } from "lucide-react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { Badge } from "@/components/ui/badge"
+import CheckoutForm from "@/app/components/CheckoutForm"
+
+interface FormData {
+  firstName: string
+  lastName: string
+  username: string
+  email: string
+  password: string
+  confirmPassword: string
+  birthDate: string
+  profileType: "single" | "couple"
+  seeking: string[]
+  interests: string[]
+  otherInterest: string
+  profilePicture: File | null
+  bio: string
+  partner: {
+    nickname: string
+    age: string
+    height: string
+    weight: string
+    eyeColor: string
+    hairColor: string
+  }
+  city: string
+  plan: "free" | "gold" | "diamante" | "diamante_anual"
+  latitude: number | null
+  longitude: number | null
+  uf: string
+}
+
+interface FormErrors {
+  [key: string]: string
+}
+
+declare global {
+  interface Window {
+    usernameTimeout?: NodeJS.Timeout
+  }
+}
 
 export default function OpenLoveRegister() {
   const [isDarkMode, setIsDarkMode] = useState(false) // Tema claro padrão
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
     username: "", // @usuario único
@@ -38,10 +79,16 @@ export default function OpenLoveRegister() {
     },
     city: "",
     plan: "free", // free or premium
+    latitude: null,
+    longitude: null,
+    uf: "",
   })
-  const [errors, setErrors] = useState({})
-  const [usernameAvailable, setUsernameAvailable] = useState(null)
+  const [errors, setErrors] = useState<FormErrors>({})
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null)
   const [checkingUsername, setCheckingUsername] = useState(false)
+  const [showCheckout, setShowCheckout] = useState(false)
+  const [checkoutPlan, setCheckoutPlan] = useState<"gold" | "diamante" | "diamante_anual" | null>(null)
+  const [paymentData, setPaymentData] = useState<any>(null)
 
   const router = useRouter()
 
@@ -53,31 +100,49 @@ export default function OpenLoveRegister() {
     }
   }, [])
 
+  // Função para buscar localização ao focar no campo de cidade
+  const handleCityFocus = async () => {
+    if (typeof window !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const { latitude, longitude } = position.coords
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
+          const data = await res.json()
+          const city = data.address.city || data.address.town || data.address.village || ""
+          const state = data.address.state || data.address.region || ""
+          setFormData((prev) => ({ ...prev, city, uf: state, latitude, longitude }))
+        } catch (e) {
+          setFormData((prev) => ({ ...prev, latitude, longitude }))
+        }
+      })
+    }
+  }
+
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode)
     document.documentElement.classList.toggle("dark")
   }
 
   // Mock function for username availability check
-  const checkUsernameAvailability = async (username) => {
+  const checkUsernameAvailability = async (username: string) => {
     if (!username || username.length < 3) {
       setUsernameAvailable(null)
       return
     }
-
     setCheckingUsername(true)
-
-    // Simulate API call
-    setTimeout(() => {
-      // Mock logic - usernames starting with 'admin' are taken
-      const isTaken = username.toLowerCase().startsWith("admin") || username.toLowerCase() === "test"
-      setUsernameAvailable(!isTaken)
+    try {
+      const res = await fetch(`/api/check-username?username=${encodeURIComponent(username)}`)
+      const data = await res.json()
+      setUsernameAvailable(data.available)
+    } catch {
+      setUsernameAvailable(null)
+    } finally {
       setCheckingUsername(false)
-    }, 1000)
+    }
   }
 
   // Handle input changes
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     if (name.includes("partner.")) {
       const field = name.split(".")[1]
@@ -94,7 +159,9 @@ export default function OpenLoveRegister() {
         setFormData((prev) => ({ ...prev, username: cleanUsername }))
         if (cleanUsername !== value) return // Prevent checking invalid characters
 
-        clearTimeout(window.usernameTimeout)
+        if (window.usernameTimeout) {
+          clearTimeout(window.usernameTimeout)
+        }
         window.usernameTimeout = setTimeout(() => {
           checkUsernameAvailability(cleanUsername)
         }, 500)
@@ -103,21 +170,29 @@ export default function OpenLoveRegister() {
   }
 
   // Handle file upload
-  const handleFileChange = (e) => {
-    const file = e.target.files[0]
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null
     setFormData((prev) => ({ ...prev, profilePicture: file }))
   }
 
   // Handle checkbox changes
-  const handleCheckboxChange = (field, value) => {
+  const handleCheckboxChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({
       ...prev,
-      [field]: prev[field].includes(value) ? prev[field].filter((item) => item !== value) : [...prev[field], value],
+      [field]: (prev[field] as string[]).includes(value) 
+        ? (prev[field] as string[]).filter((item: string) => item !== value) 
+        : [...(prev[field] as string[]), value],
     }))
   }
 
+  // Handle textarea changes
+  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
   // Calculate age from birth date
-  const calculateAge = (birthDate) => {
+  const calculateAge = (birthDate: string): number => {
     const today = new Date()
     const birth = new Date(birthDate)
     let age = today.getFullYear() - birth.getFullYear()
@@ -129,8 +204,8 @@ export default function OpenLoveRegister() {
   }
 
   // Validate current step
-  const validateStep = () => {
-    const newErrors = {}
+  const validateStep = (): boolean => {
+    const newErrors: FormErrors = {}
 
     if (step === 1) {
       if (!formData.firstName) newErrors.firstName = "Nome é obrigatório"
@@ -141,7 +216,7 @@ export default function OpenLoveRegister() {
         newErrors.username = "Nome de usuário deve ter pelo menos 3 caracteres"
       } else if (usernameAvailable === false) {
         newErrors.username = "Este nome de usuário já está em uso"
-      } else if (usernameAvailable === null && !checkingUsername && formData.username.length >= 3) {
+      } else if (usernameAvailable === null && checkingUsername) {
         newErrors.username = "Verificando disponibilidade..."
       }
       if (!formData.email) newErrors.email = "E-mail é obrigatório"
@@ -168,10 +243,10 @@ export default function OpenLoveRegister() {
       if (formData.profileType === "couple") {
         if (!formData.partner.nickname) newErrors.partnerNickname = "Apelido do parceiro é obrigatório"
         if (!formData.partner.age) newErrors.partnerAge = "Idade do parceiro é obrigatória"
-        else if (isNaN(formData.partner.age) || formData.partner.age < 18)
+        else if (isNaN(Number(formData.partner.age)) || Number(formData.partner.age) < 18)
           newErrors.partnerAge = "Idade deve ser um número maior ou igual a 18"
         if (!formData.partner.height) newErrors.partnerHeight = "Altura do parceiro é obrigatória"
-        if (!formData.partner.weight) newErrors.partnerWeight = "Peso do parceiro é obrigatório"
+        if (!formData.partner.weight) newErrors.partnerWeight = "Peso do parceiro é obrigatória"
         if (!formData.partner.eyeColor) newErrors.partnerEyeColor = "Cor dos olhos é obrigatória"
         if (!formData.partner.hairColor) newErrors.partnerHairColor = "Cor do cabelo é obrigatória"
       }
@@ -196,10 +271,25 @@ export default function OpenLoveRegister() {
     setStep((prev) => Math.max(prev - 1, 1))
   }
 
+  // Ao selecionar plano pago, abrir CheckoutForm
+  const handlePlanSelect = (plan: "free" | "gold" | "diamante" | "diamante_anual") => {
+    setFormData((prev) => ({ ...prev, plan }))
+    if (plan === "gold" || plan === "diamante" || plan === "diamante_anual") {
+      setCheckoutPlan(plan)
+      setShowCheckout(true)
+    }
+  }
+
   // Handle form submission
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validateStep()) return
+
+    if ((formData.plan === "gold" || formData.plan === "diamante" || formData.plan === "diamante_anual") && !paymentData) {
+      setCheckoutPlan(formData.plan)
+      setShowCheckout(true)
+      return
+    }
 
     setLoading(true)
     try {
@@ -215,7 +305,7 @@ export default function OpenLoveRegister() {
     } catch (error) {
       console.error("Registration error:", error)
       alert("Erro ao criar conta. Tente novamente.")
-      setErrors({ general: error.message })
+      setErrors({ general: (error as Error).message })
       setLoading(false)
     }
   }
@@ -496,7 +586,7 @@ export default function OpenLoveRegister() {
                       <Label className="text-sm font-medium text-gray-900 dark:text-white">Tipo de Perfil</Label>
                       <Select
                         value={formData.profileType}
-                        onValueChange={(value) => setFormData((prev) => ({ ...prev, profileType: value }))}
+                        onValueChange={(value: "single" | "couple") => setFormData((prev) => ({ ...prev, profileType: value }))}
                       >
                         <SelectTrigger className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white">
                           <SelectValue placeholder="Selecione o tipo de perfil" />
@@ -601,7 +691,7 @@ export default function OpenLoveRegister() {
                         id="bio"
                         name="bio"
                         value={formData.bio}
-                        onChange={handleInputChange}
+                        onChange={handleTextareaChange}
                         placeholder="Conte um pouco sobre você(s)"
                         className="w-full h-24 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-white/20 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-600 dark:focus:ring-pink-400 rounded-md p-3 resize-none"
                       />
@@ -767,33 +857,15 @@ export default function OpenLoveRegister() {
                         Cidade <span className="text-red-600">*</span>
                       </Label>
                       <div className="relative">
-                        <Select
+                        <Input
+                          id="city"
+                          name="city"
                           value={formData.city}
-                          onValueChange={(value) => setFormData((prev) => ({ ...prev, city: value }))}
-                        >
-                          <SelectTrigger className="pl-10 bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white">
-                            <SelectValue placeholder="Selecione sua cidade" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {[
-                              "São Paulo, SP",
-                              "Rio de Janeiro, RJ",
-                              "Belo Horizonte, MG",
-                              "Porto Alegre, RS",
-                              "Curitiba, PR",
-                              "Brasília, DF",
-                              "Salvador, BA",
-                              "Fortaleza, CE",
-                              "Recife, PE",
-                              "Manaus, AM",
-                              "Outra",
-                            ].map((city) => (
-                              <SelectItem key={city} value={city}>
-                                {city}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          onChange={handleInputChange}
+                          onFocus={handleCityFocus}
+                          placeholder="Cidade"
+                          className="pl-10 bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-600 dark:focus:ring-pink-400"
+                        />
                         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                       </div>
                       {errors.city && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.city}</p>}
@@ -813,22 +885,92 @@ export default function OpenLoveRegister() {
                       <Label className="text-sm font-medium text-gray-900 dark:text-white">
                         Plano <span className="text-red-600">*</span>
                       </Label>
-                      <Select
-                        value={formData.plan}
-                        onValueChange={(value) => setFormData((prev) => ({ ...prev, plan: value }))}
-                      >
-                        <SelectTrigger className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white">
-                          <SelectValue placeholder="Selecione um plano" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="free">Free - Acesso básico</SelectItem>
-                          <SelectItem value="premium-monthly">Premium - R$55/mês</SelectItem>
-                          <SelectItem value="premium-yearly">
-                            Premium - R$550/ano{" "}
-                            <span className="text-pink-600 dark:text-pink-400">(2 meses grátis!)</span>
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-4">
+                        {/* Free */}
+                        <div
+                          className={`relative group rounded-2xl border-2 p-6 transition-all cursor-pointer ${formData.plan === "free" ? "border-pink-600 bg-pink-50/40 dark:bg-pink-900/20" : "border-gray-200 dark:border-white/10 bg-white/80 dark:bg-white/5"}`}
+                          onClick={() => handlePlanSelect("free")}
+                          tabIndex={0}
+                          role="button"
+                          aria-pressed={formData.plan === "free"}
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge variant="secondary" className="bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-200"><StarIcon className="size-4 mr-1" /> Free</Badge>
+                            {formData.plan === "free" && <CheckIcon className="text-pink-600 ml-1" />}
+                          </div>
+                          <div className="text-xl font-bold mb-1">Grátis</div>
+                          <div className="text-sm text-gray-700 dark:text-gray-300 mb-3">Acesso básico à plataforma</div>
+                          <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1 mb-4">
+                            <li>✔️ Conexões mútuas</li>
+                            <li>✔️ Eventos locais</li>
+                            <li>✔️ Posts de amigos</li>
+                          </ul>
+                          <Button size="sm" variant={formData.plan === "free" ? "default" : "outline"} className="w-full">{formData.plan === "free" ? "Selecionado" : "Selecionar"}</Button>
+                        </div>
+                        {/* Gold (Mensal) */}
+                        <div
+                          className={`relative group rounded-2xl border-2 p-6 transition-all cursor-pointer ${formData.plan === "gold" ? "border-yellow-500 bg-yellow-50/40 dark:bg-yellow-900/20" : "border-gray-200 dark:border-white/10 bg-white/80 dark:bg-white/5"}`}
+                          onClick={() => handlePlanSelect("gold")}
+                          tabIndex={0}
+                          role="button"
+                          aria-pressed={formData.plan === "gold"}
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge variant="secondary" className="bg-yellow-200 dark:bg-yellow-800 text-yellow-700 dark:text-yellow-200"><CrownIcon className="size-4 mr-1" /> Gold</Badge>
+                            {formData.plan === "gold" && <CheckIcon className="text-pink-600 ml-1" />}
+                          </div>
+                          <div className="text-xl font-bold mb-1">R$ 25,00/mês</div>
+                          <div className="text-sm text-gray-700 dark:text-gray-300 mb-3">Plano mensal premium</div>
+                          <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1 mb-4">
+                            <li>✔️ Converse com qualquer pessoa</li>
+                            <li>✔️ Veja quem visitou seu perfil</li>
+                            <li>✔️ Filtros avançados</li>
+                          </ul>
+                          <Button size="sm" variant={formData.plan === "gold" ? "default" : "outline"} className="w-full">{formData.plan === "gold" ? "Selecionado" : "Selecionar"}</Button>
+                        </div>
+                        {/* Diamante (Mensal) */}
+                        <div
+                          className={`relative group rounded-2xl border-2 p-6 transition-all cursor-pointer ${formData.plan === "diamante" ? "border-purple-600 bg-purple-50/40 dark:bg-purple-900/20" : "border-gray-200 dark:border-white/10 bg-white/80 dark:bg-white/5"}`}
+                          onClick={() => handlePlanSelect("diamante")}
+                          tabIndex={0}
+                          role="button"
+                          aria-pressed={formData.plan === "diamante"}
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge variant="secondary" className="bg-purple-200 dark:bg-purple-800 text-purple-700 dark:text-purple-200"><GemIcon className="size-4 mr-1" /> Diamante</Badge>
+                            {formData.plan === "diamante" && <CheckIcon className="text-pink-600 ml-1" />}
+                          </div>
+                          <div className="text-xl font-bold mb-1">R$ 45,90/mês</div>
+                          <div className="text-sm text-gray-700 dark:text-gray-300 mb-3">Plano mensal premium com benefícios exclusivos</div>
+                          <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1 mb-4">
+                            <li>✔️ Todos benefícios do Gold</li>
+                            <li>✔️ Destaque no ranking</li>
+                            <li>✔️ Suporte prioritário</li>
+                          </ul>
+                          <Button size="sm" variant={formData.plan === "diamante" ? "default" : "outline"} className="w-full">{formData.plan === "diamante" ? "Selecionado" : "Selecionar"}</Button>
+                        </div>
+                        {/* Diamante Anual */}
+                        <div
+                          className={`relative group rounded-2xl border-2 p-6 transition-all cursor-pointer ${formData.plan === "diamante_anual" ? "border-purple-800 bg-purple-100/40 dark:bg-purple-900/40" : "border-gray-200 dark:border-white/10 bg-white/80 dark:bg-white/5"}`}
+                          onClick={() => handlePlanSelect("diamante_anual")}
+                          tabIndex={0}
+                          role="button"
+                          aria-pressed={formData.plan === "diamante_anual"}
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge variant="secondary" className="bg-purple-300 dark:bg-purple-900 text-purple-900 dark:text-purple-200"><GemIcon className="size-4 mr-1" /> Diamante Anual</Badge>
+                            {formData.plan === "diamante_anual" && <CheckIcon className="text-pink-600 ml-1" />}
+                          </div>
+                          <div className="text-xl font-bold mb-1">R$ 459,00/ano <span className="text-xs text-pink-600">(2 meses grátis)</span></div>
+                          <div className="text-sm text-gray-700 dark:text-gray-300 mb-3">Plano anual premium com todos os benefícios Diamante</div>
+                          <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1 mb-4">
+                            <li>✔️ Todos benefícios do Diamante Mensal</li>
+                            <li>✔️ 2 meses grátis (equivalente a R$ 38,25/mês)</li>
+                            <li>✔️ Suporte prioritário e destaque máximo</li>
+                          </ul>
+                          <Button size="sm" variant={formData.plan === "diamante_anual" ? "default" : "outline"} className="w-full">{formData.plan === "diamante_anual" ? "Selecionado" : "Selecionar"}</Button>
+                        </div>
+                      </div>
                       {errors.plan && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.plan}</p>}
                     </div>
                     <div className="text-sm text-gray-700 dark:text-white/70 space-y-2">
@@ -886,6 +1028,24 @@ export default function OpenLoveRegister() {
       <footer className="absolute bottom-4 text-center w-full text-gray-500 dark:text-white/50 text-sm">
         <p>© 2025 OpenLove. Todos os direitos reservados.</p>
       </footer>
+
+      {/* Checkout Mercado Pago */}
+      {showCheckout && checkoutPlan && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl p-6 max-w-md w-full relative">
+            <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 dark:hover:text-white" onClick={() => setShowCheckout(false)}>&times;</button>
+            <CheckoutForm
+              user={{ email: formData.email }}
+              plano={checkoutPlan}
+              onSuccess={(data) => {
+                setPaymentData(data)
+                setShowCheckout(false)
+              }}
+              onError={() => setShowCheckout(false)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

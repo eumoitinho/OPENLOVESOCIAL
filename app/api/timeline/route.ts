@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
+import redis from "@/lib/redis"
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,9 +20,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    // CACHE KEY
+    const cacheKey = `timeline:${user.id}:page:${page}:limit:${limit}`
+    const cached = await redis.get(cacheKey)
+    if (cached) {
+      return NextResponse.json(JSON.parse(cached))
+    }
+
     // Get user profile to check if premium
     const { data: profile } = await supabase.from("profiles").select("is_premium, id").eq("id", user.id).single()
-
     const isPremium = profile?.is_premium || false
 
     // Step 1: Fetch posts based on user's subscription
@@ -58,11 +65,13 @@ export async function GET(request: NextRequest) {
     }
 
     if (!posts || posts.length === 0) {
-      return NextResponse.json({
+      const emptyResult = {
         data: [],
         hasMore: false,
         message: isPremium ? "Nenhum post encontrado" : "Adicione amigos para ver posts na timeline",
-      })
+      }
+      await redis.set(cacheKey, JSON.stringify(emptyResult), "EX", 30)
+      return NextResponse.json(emptyResult)
     }
 
     // Step 2: Get all unique author IDs
@@ -183,13 +192,15 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    return NextResponse.json({
+    const result = {
       data: timelinePosts,
       hasMore: posts.length === limit,
       isPremium,
       page,
       limit,
-    })
+    }
+    await redis.set(cacheKey, JSON.stringify(result), "EX", 30)
+    return NextResponse.json(result)
   } catch (error) {
     console.error("Timeline fetch error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })

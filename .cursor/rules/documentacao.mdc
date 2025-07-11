@@ -1,0 +1,5 @@
+---
+description: Sempre revisar o readme e atualizar após contruir novos componentes ou altera-los
+globs:
+alwaysApply: false
+---

@@ -3,8 +3,8 @@ import { createBrowserClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 import { type NextRequest, NextResponse } from "next/server"
 
-export function createServerSupabaseClient() {
-  const cookieStore = cookies()
+export async function createServerSupabaseClient() {
+  const cookieStore = await cookies()
 
   return createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
     cookies: {
@@ -38,7 +38,7 @@ export function createClientSupabaseClient() {
 }
 
 export async function getAuthenticatedUser() {
-  const supabase = createServerSupabaseClient()
+  const supabase = await createServerSupabaseClient()
 
   try {
     const {
@@ -59,7 +59,7 @@ export async function getAuthenticatedUser() {
 }
 
 export async function getUserProfile(userId: string) {
-  const supabase = createServerSupabaseClient()
+  const supabase = await createServerSupabaseClient()
 
   try {
     const { data: profile, error } = await supabase.from("profiles").select("*").eq("id", userId).single()

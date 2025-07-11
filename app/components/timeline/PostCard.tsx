@@ -74,7 +74,6 @@ interface PostCardProps {
   onComment?: (postId: number) => void
   onShare?: (postId: number) => void
   onViewMedia?: (postId: number, mediaIndex: number) => void
-  onViewEvent?: (eventId: string) => void
   followState?: "follow" | "requested" | "following"
   currentUser?: {
     name: string
@@ -91,7 +90,6 @@ export default function PostCard({
   onComment,
   onShare,
   onViewMedia,
-  onViewEvent,
   followState = "follow",
   currentUser = { name: "Usuário", username: "@usuario", avatar: "/placeholder.svg" }
 }: PostCardProps) {
@@ -160,45 +158,24 @@ export default function PostCard({
     router.push(`/profile/${post.user.username.replace('@','')}`)
   }
 
-  const handleViewEvent = () => {
-    if (post.event) {
-      // Gerar um ID único para o evento baseado no título e data
-      const eventId = `${post.event.title.toLowerCase().replace(/\s+/g, '-')}-${post.event.date.replace(/\s+/g, '-')}`
-      onViewEvent?.(eventId)
-    }
-  }
-
-  // Mock comments data
-  const comments = [
-    {
-      id: "1",
-      author: {
-        name: "Amanda & Carlos",
-        username: "@amandacarlos",
-        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png",
-        verified: true,
-        premium: true,
-      },
-      content: "Que momento incrível! Parabéns! 🎉",
-      timestamp: "1h",
-      likes: 12,
-      isLiked: false,
-    },
-    {
-      id: "2",
-      author: {
-        name: "Sofia Mendes",
-        username: "@sofia_livre",
-        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-3.png",
-        verified: false,
-        premium: false,
-      },
-      content: "Adorei! Muito inspirador ✨",
-      timestamp: "30m",
-      likes: 8,
-      isLiked: true,
-    },
-  ]
+  // Remover qualquer array de exemplo, valores fixos ou mocks de comentários, curtidas, etc.
+  // Garantir que todos os dados exibidos venham de props.post
+  const comments = Array.isArray(post.comments)
+    ? post.comments.map((comment: any) => ({
+        id: comment.id,
+        author: {
+          name: comment.author.name,
+          username: comment.author.username,
+          avatar: comment.author.avatar,
+          verified: comment.author.verified,
+          premium: comment.author.premium,
+        },
+        content: comment.content,
+        timestamp: comment.timestamp,
+        likes: comment.likes,
+        isLiked: comment.liked,
+      }))
+    : []
 
   return (
     <Card className="max-w-full border-gray-200 dark:border-white/10">
@@ -344,10 +321,7 @@ export default function PostCard({
 
         {/* Event */}
         {post.event && (
-          <Card 
-            className="border border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50 cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02]"
-            onClick={handleViewEvent}
-          >
+          <Card className="border border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50">
             <CardContent className="p-4">
               <div className="flex gap-4">
                 <img
@@ -371,13 +345,7 @@ export default function PostCard({
                   </div>
                 </div>
               </div>
-              <Button 
-                className="w-full mt-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleViewEvent()
-                }}
-              >
+              <Button className="w-full mt-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
                 Participar do Evento
               </Button>
             </CardContent>
@@ -408,13 +376,8 @@ export default function PostCard({
           size="sm"
           onClick={handleSave}
           className={cn("transition-all duration-200 hover:scale-110", post.saved && "text-green-500")}
-          aria-label="Salvar post"
         >
-          <Save
-            className={cn("size-4", post.saved && "stroke-green-500")}
-            fill={post.saved ? "none" : "currentColor"}
-            stroke={post.saved ? "#22c55e" : "currentColor"}
-          />
+          <Save className={cn("size-4", post.saved && "fill-green-500 stroke-green-500")} />
         </Button>
         <Button
           variant="ghost"

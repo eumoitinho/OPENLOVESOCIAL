@@ -1,10 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "../../../components/ui/button"
 import { Badge } from "../../../components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar"
-import { Card, CardContent } from "../../../components/ui/card"
+import { Card, CardContent, CardTitle, CardDescription } from "../../../components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../../../components/ui/dialog"
 import { Input } from "../../../components/ui/input"
 import { Textarea } from "../../../components/ui/textarea"
@@ -66,83 +66,30 @@ interface MessagesDialogProps {
   onOpenChange: (open: boolean) => void
 }
 
-export function MessagesDialog({ open, onOpenChange }: MessagesDialogProps) {
-  const [conversations, setConversations] = useState<Conversation[]>([
-    {
-      id: "1",
-      user: {
-        name: "Amanda & Carlos",
-        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png",
-        username: "@amandacarlos",
-        isOnline: true
-      },
-      lastMessage: {
-        content: "Oi! Vamos no evento de sábado?",
-        timestamp: "2 min",
-        isFromMe: false,
-        isRead: false
-      },
-      unreadCount: 2,
-      isPinned: true,
-      isArchived: false
-    },
-    {
-      id: "2",
-      user: {
-        name: "Sofia Mendes",
-        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-3.png",
-        username: "@sofia_livre",
-        isOnline: false,
-        lastSeen: "há 5 min"
-      },
-      lastMessage: {
-        content: "Que foto incrível! Adoraria participar do próximo evento!",
-        timestamp: "15 min",
-        isFromMe: false,
-        isRead: true
-      },
-      unreadCount: 0,
-      isPinned: false,
-      isArchived: false
-    },
-    {
-      id: "3",
-      user: {
-        name: "Rafael Alves",
-        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-16.png",
-        username: "@rafael_livre",
-        isOnline: true
-      },
-      lastMessage: {
-        content: "Obrigado por aceitar minha solicitação!",
-        timestamp: "1h",
-        isFromMe: false,
-        isRead: true
-      },
-      unreadCount: 0,
-      isPinned: false,
-      isArchived: false
-    },
-    {
-      id: "4",
-      user: {
-        name: "Lisa & João",
-        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-6.png",
-        username: "@lisajoao",
-        isOnline: false,
-        lastSeen: "há 2h"
-      },
-      lastMessage: {
-        content: "Vamos criar um grupo para o workshop?",
-        timestamp: "2h",
-        isFromMe: true,
-        isRead: true
-      },
-      unreadCount: 0,
-      isPinned: false,
-      isArchived: false
+export const MessagesDialog = function MessagesDialog({ open, onOpenChange }: MessagesDialogProps) {
+  // Remover MOCK_CONVERSATIONS
+  const [conversations, setConversations] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const fetchConversations = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const res = await fetch("/api/chat/conversations")
+        if (!res.ok) throw new Error("Erro ao buscar conversas")
+        const json = await res.json()
+        setConversations(json.data || [])
+      } catch (err: any) {
+        setError(err.message || "Erro desconhecido")
+      } finally {
+        setLoading(false)
+      }
     }
-  ])
+    fetchConversations()
+  }, [open])
 
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
   const [messages, setMessages] = useState<Record<string, Message[]>>({
@@ -300,8 +247,8 @@ export function MessagesDialog({ open, onOpenChange }: MessagesDialogProps) {
                             <div className="relative">
                               <Avatar className="w-10 h-10 sm:w-12 sm:h-12">
                                 <AvatarImage src={conversation.user.avatar} />
-                                <AvatarFallback className="text-xs sm:text-sm">
-                                  {conversation.user.name.split(" ").map(n => n[0]).join("")}
+                                <AvatarFallback className="text-sm font-semibold">
+                                  {conversation.user.name.split(" ").map((n: string) => n[0]).join("")}
                                 </AvatarFallback>
                               </Avatar>
                               {conversation.user.isOnline && (

@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { useWebRTC } from "./WebRTCContext"
+import CallModal from "./CallModal"
 
 interface Message {
   id: string
@@ -55,6 +57,8 @@ const Chat: React.FC<ChatProps> = ({
   const [isTyping, setIsTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  
+  const { startCall } = useWebRTC()
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -120,6 +124,15 @@ const Chat: React.FC<ChatProps> = ({
     return conversation?.participants.filter((p) => p.isOnline) || []
   }
 
+  const handleStartCall = (type: 'audio' | 'video') => {
+    if (conversation && conversation.type === 'direct') {
+      const otherParticipant = conversation.participants.find(p => p.id !== currentUserId)
+      if (otherParticipant) {
+        startCall(otherParticipant.id, otherParticipant.name, type)
+      }
+    }
+  }
+
   if (!conversation) {
     return (
       <div className="flex items-center justify-center h-full text-muted-foreground">
@@ -155,12 +168,26 @@ const Chat: React.FC<ChatProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm">
-            <Phone className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="sm">
-            <Video className="h-4 w-4" />
-          </Button>
+          {conversation.type === 'direct' && (
+            <>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => handleStartCall('audio')}
+                title="Chamada de voz"
+              >
+                <Phone className="h-4 w-4" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => handleStartCall('video')}
+                title="Chamada de vídeo"
+              >
+                <Video className="h-4 w-4" />
+              </Button>
+            </>
+          )}
           <Button variant="ghost" size="sm">
             <Info className="h-4 w-4" />
           </Button>
@@ -284,6 +311,9 @@ const Chat: React.FC<ChatProps> = ({
           </Button>
         </div>
       </div>
+      
+      {/* Call Modal */}
+      <CallModal />
     </div>
   )
 }

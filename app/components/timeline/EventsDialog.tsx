@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "../../../components/ui/button"
 import { Badge } from "../../../components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar"
@@ -67,77 +67,30 @@ interface EventsDialogProps {
   onOpenChange: (open: boolean) => void
 }
 
-export function EventsDialog({ open, onOpenChange }: EventsDialogProps) {
-  const [events, setEvents] = useState<Event[]>([
-    {
-      id: "1",
-      title: "Workshop de Fotografia Íntima",
-      description: "Aprenda técnicas de fotografia artística e íntima em um ambiente seguro e respeitoso. Workshop prático com modelo profissional.",
-      date: "15 de Dezembro",
-      time: "14:00 - 18:00",
-      location: "São Paulo, SP",
-      category: "Arte",
-      image: "https://cdn.shadcnstudio.com/ss-assets/components/card/image-6.png?width=350&format=auto",
-      attendees: 24,
-      maxAttendees: 30,
-      isPrivate: false,
-      isPremium: true,
-      organizer: {
-        name: "Lisa & João",
-        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-6.png",
-        username: "@lisajoao"
-      },
-      tags: ["fotografia", "arte", "workshop"],
-      isLiked: false,
-      isAttending: false,
-      price: "R$ 150"
-    },
-    {
-      id: "2",
-      title: "Encontro de Casais Livres",
-      description: "Um encontro descontraído para casais que vivem relacionamentos abertos. Networking, conversas e conexões autênticas.",
-      date: "20 de Dezembro",
-      time: "19:00 - 23:00",
-      location: "Rio de Janeiro, RJ",
-      category: "Social",
-      image: "https://cdn.shadcnstudio.com/ss-assets/components/card/image-2.png?height=280&format=auto",
-      attendees: 45,
-      maxAttendees: 50,
-      isPrivate: true,
-      isPremium: false,
-      organizer: {
-        name: "Amanda & Carlos",
-        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png",
-        username: "@amandacarlos"
-      },
-      tags: ["casais", "social", "networking"],
-      isLiked: true,
-      isAttending: true
-    },
-    {
-      id: "3",
-      title: "Jantar Temático: Liberdade e Respeito",
-      description: "Um jantar elegante com menu especial e conversas sobre liberdade, respeito e relacionamentos modernos.",
-      date: "22 de Dezembro",
-      time: "20:00 - 23:30",
-      location: "Lisboa, Portugal",
-      category: "Gastronomia",
-      image: "https://cdn.shadcnstudio.com/ss-assets/components/card/image-3.png",
-      attendees: 18,
-      maxAttendees: 25,
-      isPrivate: false,
-      isPremium: true,
-      organizer: {
-        name: "Miguel Santos",
-        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-16.png",
-        username: "@miguel_open"
-      },
-      tags: ["gastronomia", "jantar", "elegante"],
-      isLiked: false,
-      isAttending: false,
-      price: "R$ 200"
+export const EventsDialog = function EventsDialog({ open, onOpenChange }: EventsDialogProps) {
+  // Remover MOCK_EVENTS
+  const [events, setEvents] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const fetchEvents = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const res = await fetch("/api/events")
+        if (!res.ok) throw new Error("Erro ao buscar eventos")
+        const json = await res.json()
+        setEvents(json.data || [])
+      } catch (err: any) {
+        setError(err.message || "Erro desconhecido")
+      } finally {
+        setLoading(false)
+      }
     }
-  ])
+    fetchEvents()
+  }, [open])
 
   const [createEventOpen, setCreateEventOpen] = useState(false)
   const [activeTab, setActiveTab] = useState("upcoming")

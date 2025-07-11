@@ -6,11 +6,11 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { User, Mail, Calendar, MapPin, Globe, Camera, Upload } from "lucide-react"
-import SignOut from "@/components/auth/SignOut"
-import MediaUpload from "@/components/media/MediaUpload"
-import MediaGallery from "@/components/media/MediaGallery"
+import SignOut from "../components/auth/SignOut"
+import MediaUpload from "../components/media/MediaUpload"
+import MediaGallery from "../components/media/MediaGallery"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
-import type { Database } from "@/lib/database.types"
+import type { Database } from "../lib/database.types"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 type Media = Database["public"]["Tables"]["media"]["Row"]
@@ -264,9 +264,9 @@ const ProfileContent: React.FC<ProfileContentProps> = ({ user, profile, initialM
                 <MediaUpload
                   onUploadSuccess={handleUploadSuccess}
                   onUploadError={handleUploadError}
-                  allowProfilePicture={true}
-                  maxFiles={5}
-                />
+                  maxFiles={5} onUpload={function (files: File[]): Promise<void> {
+                    throw new Error("Function not implemented.")
+                  } }                />
               </div>
             </div>
           )}
@@ -287,10 +287,30 @@ const ProfileContent: React.FC<ProfileContentProps> = ({ user, profile, initialM
                 </button>
               </div>
               <MediaGallery
-                media={media}
+                items={media.map((item) => ({
+                  id: item.id,
+                  url: item.url,
+                  type: item.file_type,
+                  size: item.file_size,
+                  dimensions: { width: item.width ?? 0, height: item.height ?? 0 },
+                  createdAt: item.created_at,
+                  filename: item.filename,
+                  originalName: item.original_name,
+                  mimeType: item.mime_type,
+                  isProfilePicture: item.is_profile_picture,
+                  author: {
+                    id: profile?.id || "",
+                    name: profile?.full_name || user.email || "",
+                    avatar: profilePicture?.url || "",
+                  },
+                  stats: {
+                    likes: 0,
+                    downloads: 0,
+                    shares: 0,
+                    views: 0,
+                  },
+                }))}
                 onDelete={handleDeleteMedia}
-                onSetProfilePicture={handleSetProfilePicture}
-                showActions={true}
                 columns={4}
               />
             </div>

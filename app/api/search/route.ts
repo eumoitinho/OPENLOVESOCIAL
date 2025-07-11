@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 import type { Database } from "@/lib/database.types"
+import redis from "@/lib/redis"
 
 export const dynamic = 'force-dynamic'
 
@@ -17,6 +18,13 @@ export async function GET(request: NextRequest) {
     const offset = Number.parseInt(searchParams.get("offset") || "0")
     const type = searchParams.get("type") || "users" // users, communities, events
 
+    // CACHE KEY
+    const cacheKey = `search:${type}:q:${query}:i:${interests.join("_")}:l:${limit}:o:${offset}`
+    const cached = await redis.get(cacheKey)
+    if (cached) {
+      return NextResponse.json(JSON.parse(cached))
+    }
+
     if (type === "users") {
       const { data, error } = await supabase.rpc("search_users", {
         search_query: query,
@@ -30,7 +38,9 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: "Erro na busca" }, { status: 500 })
       }
 
-      return NextResponse.json({ data, type: "users" })
+      const result = { data, type: "users" }
+      await redis.set(cacheKey, JSON.stringify(result), "EX", 30)
+      return NextResponse.json(result)
     }
 
     if (type === "communities") {
@@ -64,7 +74,9 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: "Erro na busca" }, { status: 500 })
       }
 
-      return NextResponse.json({ data, type: "communities" })
+      const result = { data, type: "communities" }
+      await redis.set(cacheKey, JSON.stringify(result), "EX", 30)
+      return NextResponse.json(result)
     }
 
     if (type === "events") {
@@ -104,7 +116,9 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: "Erro na busca" }, { status: 500 })
       }
 
-      return NextResponse.json({ data, type: "events" })
+      const result = { data, type: "events" }
+      await redis.set(cacheKey, JSON.stringify(result), "EX", 30)
+      return NextResponse.json(result)
     }
 
     return NextResponse.json({ error: "Tipo de busca inválido" }, { status: 400 })
