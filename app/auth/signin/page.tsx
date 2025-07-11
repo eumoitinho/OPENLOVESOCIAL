@@ -5,7 +5,7 @@ import type React from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Moon, Sun, Lock, Mail, ArrowRight } from "lucide-react"
+import { Moon, Sun, Lock, Mail, ArrowRight, ArrowLeft, Shield, CheckCircle } from "lucide-react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -16,11 +16,33 @@ export default function SignInPage() {
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [errors, setErrors] = useState({ email: "", password: "" })
+  const [verificationCode, setVerificationCode] = useState("")
+  const [step, setStep] = useState<"login" | "verification">("login")
+  const [errors, setErrors] = useState({ email: "", password: "", code: "" })
   const [loading, setLoading] = useState(false)
+  const [countdown, setCountdown] = useState(0)
+  const [redirectUrl, setRedirectUrl] = useState("")
 
   const router = useRouter()
   const supabase = createClientComponentClient()
+
+  // Check for redirect parameter and email confirmation status
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search)
+      const redirect = urlParams.get("redirect")
+      const emailUnconfirmed = urlParams.get("email") === "unconfirmed"
+      
+      if (redirect) {
+        setRedirectUrl(redirect)
+      }
+      
+      if (emailUnconfirmed) {
+        setStep("verification")
+        toast.info("Por favor, confirme seu email para continuar")
+      }
+    }
+  }, [])
 
   // Check system preference on initial load
   useEffect(() => {
@@ -31,15 +53,23 @@ export default function SignInPage() {
     }
   }, [])
 
+  // Countdown timer for resend code
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [countdown])
+
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode)
     document.documentElement.classList.toggle("dark")
   }
 
-  // Handle form submission with Supabase auth
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Handle initial login
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    const newErrors = { email: "", password: "" }
+    const newErrors = { email: "", password: "", code: "" }
     let isValid = true
 
     if (!email) {
@@ -60,27 +90,113 @@ export default function SignInPage() {
     if (isValid) {
       setLoading(true)
       try {
+        // Primeiro, tentar fazer login normal
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         })
 
         if (error) {
-          setErrors({ email: "", password: error.message })
-          toast.error("Erro ao fazer login")
+          // Se o erro for de email não confirmado, enviar código de verificação
+          if (error.message.includes("Email not confirmed")) {
+            await sendVerificationCode()
+            setStep("verification")
+            setCountdown(60)
+            toast.info("Código de verificação enviado para seu email")
+          } else {
+            setErrors({ email: "", password: error.message, code: "" })
+            toast.error("Erro ao fazer login")
+          }
         } else {
+          // Login bem-sucedido, redirecionar
           toast.success("Login realizado com sucesso!")
-          router.push("/timeline")
+          const targetUrl = redirectUrl || "/timeline"
+          router.push(targetUrl)
           router.refresh()
         }
       } catch (error) {
         console.error("Sign in error:", error)
-        setErrors({ email: "", password: "Erro inesperado. Tente novamente." })
+        setErrors({ email: "", password: "Erro inesperado. Tente novamente.", code: "" })
         toast.error("Erro inesperado")
       } finally {
         setLoading(false)
       }
     }
+  }
+
+  // Enviar código de verificação
+  const sendVerificationCode = async () => {
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email,
+      })
+
+      if (error) {
+        console.error("Error sending verification code:", error)
+        toast.error("Erro ao enviar código de verificação")
+      }
+    } catch (error) {
+      console.error("Error sending verification code:", error)
+    }
+  }
+
+  // Verificar código
+  const handleVerification = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!verificationCode) {
+      setErrors({ email: "", password: "", code: "Código é obrigatório" })
+      return
+    }
+
+    setLoading(true)
+    try {
+      // Tentar fazer login novamente após verificação
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      if (error) {
+        setErrors({ email: "", password: "", code: "Código inválido ou expirado" })
+        toast.error("Código inválido")
+      } else {
+        toast.success("Verificação realizada com sucesso!")
+        const targetUrl = redirectUrl || "/timeline"
+        router.push(targetUrl)
+        router.refresh()
+      }
+    } catch (error) {
+      console.error("Verification error:", error)
+      setErrors({ email: "", password: "", code: "Erro inesperado" })
+      toast.error("Erro na verificação")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Reenviar código
+  const handleResendCode = async () => {
+    if (countdown > 0) return
+    
+    setLoading(true)
+    try {
+      await sendVerificationCode()
+      setCountdown(60)
+      toast.success("Código reenviado!")
+    } catch (error) {
+      toast.error("Erro ao reenviar código")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Voltar para o login
+  const handleBackToLogin = () => {
+    setStep("login")
+    setVerificationCode("")
+    setErrors({ email: "", password: "", code: "" })
   }
 
   return (
@@ -167,69 +283,139 @@ export default function SignInPage() {
               </span>
             </h1>
             <p className="text-base sm:text-lg text-gray-700 dark:text-white/70 mt-2">
-              Entre para se conectar com pessoas incríveis
+              {step === "login" ? "Entre para se conectar com pessoas incríveis" : "Verifique seu email para continuar"}
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <Label htmlFor="email" className="text-sm sm:text-base font-medium text-gray-900 dark:text-white">
-                E-mail
-              </Label>
-              <div className="mt-1 relative">
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="seu@email.com"
-                  className="pl-10 bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-600 dark:focus:ring-pink-400"
-                  aria-label="Digite seu e-mail"
-                />
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+          {step === "login" ? (
+            <form onSubmit={handleLogin} className="space-y-6">
+              <div>
+                <Label htmlFor="email" className="text-sm sm:text-base font-medium text-gray-900 dark:text-white">
+                  E-mail
+                </Label>
+                <div className="mt-1 relative">
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="seu@email.com"
+                    className="pl-10 bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-600 dark:focus:ring-pink-400"
+                    aria-label="Digite seu e-mail"
+                  />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                </div>
+                {errors.email && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email}</p>}
               </div>
-              {errors.email && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email}</p>}
-            </div>
 
-            <div>
-              <Label htmlFor="password" className="text-sm sm:text-base font-medium text-gray-900 dark:text-white">
-                Senha
-              </Label>
-              <div className="mt-1 relative">
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="pl-10 bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-600 dark:focus:ring-pink-400"
-                  aria-label="Digite sua senha"
-                />
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <div>
+                <Label htmlFor="password" className="text-sm sm:text-base font-medium text-gray-900 dark:text-white">
+                  Senha
+                </Label>
+                <div className="mt-1 relative">
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="pl-10 bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-600 dark:focus:ring-pink-400"
+                    aria-label="Digite sua senha"
+                  />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                </div>
+                {errors.password && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password}</p>}
               </div>
-              {errors.password && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password}</p>}
-            </div>
 
-            <div className="flex justify-between items-center">
-              <Link
-                href="/forgot-password"
-                className="text-sm text-pink-600 dark:text-pink-400 hover:text-pink-700 dark:hover:text-pink-300 transition-colors duration-300"
-              >
-                Esqueci minha senha
-              </Link>
-            </div>
+              <div className="flex justify-between items-center">
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-pink-600 dark:text-pink-400 hover:text-pink-700 dark:hover:text-pink-300 transition-colors duration-300"
+                >
+                  Esqueci minha senha
+                </Link>
+              </div>
 
-            <div className="inline-flex w-full justify-center items-center gap-2 bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 dark:from-pink-500 dark:via-rose-500 dark:to-purple-500 p-[1px] rounded-full group hover:scale-105 transition-all duration-300 hover:shadow-xl">
-              <Button
-                type="submit"
-                disabled={loading}
-                className="w-full rounded-full bg-white dark:bg-black text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-black/90 px-6 py-3 text-base sm:text-lg group"
-              >
-                {loading ? "Entrando..." : "Entrar"}
-                <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform duration-300" />
-              </Button>
-            </div>
-          </form>
+              <div className="inline-flex w-full justify-center items-center gap-2 bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 dark:from-pink-500 dark:via-rose-500 dark:to-purple-500 p-[1px] rounded-full group hover:scale-105 transition-all duration-300 hover:shadow-xl">
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full rounded-full bg-white dark:bg-black text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-black/90 px-6 py-3 text-base sm:text-lg group"
+                >
+                  {loading ? "Entrando..." : "Entrar"}
+                  <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform duration-300" />
+                </Button>
+              </div>
+            </form>
+          ) : (
+            <form onSubmit={handleVerification} className="space-y-6">
+              <div className="text-center mb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full mb-4">
+                  <Shield className="h-8 w-8 text-green-600 dark:text-green-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  Verificação de Segurança
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  Enviamos um código de verificação para <strong>{email}</strong>
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="code" className="text-sm sm:text-base font-medium text-gray-900 dark:text-white">
+                  Código de Verificação
+                </Label>
+                <div className="mt-1 relative">
+                  <Input
+                    id="code"
+                    type="text"
+                    value={verificationCode}
+                    onChange={(e) => setVerificationCode(e.target.value)}
+                    placeholder="Digite o código"
+                    className="pl-10 bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-600 dark:focus:ring-pink-400 text-center text-lg tracking-widest"
+                    aria-label="Digite o código de verificação"
+                    maxLength={6}
+                  />
+                  <CheckCircle className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                </div>
+                {errors.code && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.code}</p>}
+              </div>
+
+              <div className="space-y-4">
+                <div className="inline-flex w-full justify-center items-center gap-2 bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 dark:from-pink-500 dark:via-rose-500 dark:to-purple-500 p-[1px] rounded-full group hover:scale-105 transition-all duration-300 hover:shadow-xl">
+                  <Button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full rounded-full bg-white dark:bg-black text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-black/90 px-6 py-3 text-base sm:text-lg group"
+                  >
+                    {loading ? "Verificando..." : "Verificar"}
+                    <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform duration-300" />
+                  </Button>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleBackToLogin}
+                  className="w-full rounded-full border-gray-300 dark:border-white/20 text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-white/5"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Voltar
+                </Button>
+
+                <div className="text-center">
+                  <button
+                    type="button"
+                    onClick={handleResendCode}
+                    disabled={countdown > 0 || loading}
+                    className="text-sm text-pink-600 dark:text-pink-400 hover:text-pink-700 dark:hover:text-pink-300 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {countdown > 0 ? `Reenviar em ${countdown}s` : "Reenviar código"}
+                  </button>
+                </div>
+              </div>
+            </form>
+          )}
 
           <p className="mt-6 text-center text-sm sm:text-base text-gray-700 dark:text-white/70">
             Não tem uma conta?{" "}

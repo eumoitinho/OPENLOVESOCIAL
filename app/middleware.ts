@@ -10,19 +10,33 @@ export async function middleware(req: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession()
 
-  // If user is signed in and the current path is /auth redirect the user to /timeline
+  // Se o usuário está logado e está em uma rota de auth, redirecionar para timeline
   if (session && req.nextUrl.pathname.startsWith("/auth")) {
     return NextResponse.redirect(new URL("/timeline", req.url))
   }
 
-  // If user is not signed in and the current path is not /auth redirect the user to /auth/signin
+  // Se o usuário não está logado e está tentando acessar uma rota protegida
   if (!session && !req.nextUrl.pathname.startsWith("/auth") && req.nextUrl.pathname !== "/") {
-    return NextResponse.redirect(new URL("/auth/signin", req.url))
+    // Salvar a URL original para redirecionar após o login
+    const redirectUrl = req.nextUrl.pathname + req.nextUrl.search
+    const signinUrl = new URL("/auth/signin", req.url)
+    signinUrl.searchParams.set("redirect", redirectUrl)
+    return NextResponse.redirect(signinUrl)
+  }
+
+  // Se o usuário está logado mas o email não foi confirmado, permitir acesso apenas a rotas específicas
+  if (session && !session.user.email_confirmed_at) {
+    const allowedRoutes = ["/auth/signin", "/auth/signup", "/", "/api"]
+    const isAllowedRoute = allowedRoutes.some(route => req.nextUrl.pathname.startsWith(route))
+    
+    if (!isAllowedRoute) {
+      return NextResponse.redirect(new URL("/auth/signin?email=unconfirmed", req.url))
+    }
   }
 
   return res
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 }
