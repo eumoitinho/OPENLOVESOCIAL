@@ -4,6 +4,7 @@ import { cookies } from "next/headers"
 
 export async function POST(request: NextRequest) {
   try {
+    console.log("Iniciando criação de post...")
     const supabase = createRouteHandlerClient({ cookies })
 
     // Get current user
@@ -11,34 +12,48 @@ export async function POST(request: NextRequest) {
       data: { user },
       error: userError,
     } = await supabase.auth.getUser()
+    
+    console.log("Usuário atual:", user?.id, "Erro:", userError)
+    
     if (userError || !user) {
+      console.log("Usuário não autenticado")
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const body = await request.json()
     const { content, mediaUrl, mediaType, visibility = "public" } = body
+    
+    console.log("Dados do post:", { content, mediaUrl, mediaType, visibility })
 
     if (!content?.trim()) {
+      console.log("Conteúdo vazio")
       return NextResponse.json({ error: "Content is required" }, { status: 400 })
     }
 
     // Create post
+    console.log("Criando post no banco...")
+    const postData = {
+      user_id: user.id,
+      content: content.trim(),
+      media_urls: mediaUrl ? [mediaUrl] : [],
+      media_types: mediaType ? [mediaType] : [],
+      visibility,
+    }
+    
+    console.log("Dados para inserção:", postData)
+    
     const { data: post, error: postError } = await supabase
       .from("posts")
-      .insert({
-        user_id: user.id, // Corrigido para user_id
-        content: content.trim(),
-        media_url: mediaUrl,
-        media_type: mediaType,
-        visibility,
-      })
+      .insert(postData)
       .select()
       .single()
 
     if (postError) {
       console.error("Post creation error:", postError)
-      return NextResponse.json({ error: "Failed to create post" }, { status: 500 })
+      return NextResponse.json({ error: "Failed to create post", details: postError }, { status: 500 })
     }
+    
+    console.log("Post criado com sucesso:", post)
 
     // Get author profile
     const { data: profile } = await supabase
@@ -51,8 +66,8 @@ export async function POST(request: NextRequest) {
     const formattedPost = {
       id: post.id,
       content: post.content,
-      mediaUrl: post.media_url,
-      mediaType: post.media_type,
+      mediaUrl: post.media_urls?.[0] || null,
+      mediaType: post.media_types?.[0] || null,
       visibility: post.visibility,
       createdAt: post.created_at,
       author: {

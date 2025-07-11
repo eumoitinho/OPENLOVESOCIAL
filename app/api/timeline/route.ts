@@ -1,9 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
-import redis from "@/lib/redis"
 
 export async function GET(request: NextRequest) {
   try {
+    console.log("Iniciando busca de timeline...")
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -13,14 +13,10 @@ export async function GET(request: NextRequest) {
     const limit = Number.parseInt(searchParams.get("limit") || "10")
     const offset = (page - 1) * limit
 
-    // CACHE KEY
-    const cacheKey = `timeline:page:${page}:limit:${limit}`
-    const cached = await redis.get(cacheKey)
-    if (cached) {
-      return NextResponse.json(JSON.parse(cached))
-    }
+
 
     // Step 1: Fetch all posts (simplified for now)
+    console.log("Buscando posts...")
     const { data: posts, error: postsError } = await supabase
       .from("posts")
       .select("*")
@@ -29,8 +25,10 @@ export async function GET(request: NextRequest) {
 
     if (postsError) {
       console.error("Posts fetch error:", postsError)
-      return NextResponse.json({ error: "Failed to fetch posts" }, { status: 500 })
+      return NextResponse.json({ error: "Failed to fetch posts", details: postsError }, { status: 500 })
     }
+    
+    console.log("Posts encontrados:", posts?.length || 0)
 
     if (!posts || posts.length === 0) {
       const emptyResult = {
@@ -38,7 +36,6 @@ export async function GET(request: NextRequest) {
         hasMore: false,
         message: "Nenhum post encontrado",
       }
-      await redis.set(cacheKey, JSON.stringify(emptyResult), "EX", 30)
       return NextResponse.json(emptyResult)
     }
 
@@ -166,7 +163,6 @@ export async function GET(request: NextRequest) {
       page,
       limit,
     }
-    await redis.set(cacheKey, JSON.stringify(result), "EX", 30)
     return NextResponse.json(result)
   } catch (error) {
     console.error("Timeline fetch error:", error)
