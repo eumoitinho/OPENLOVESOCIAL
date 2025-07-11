@@ -89,6 +89,7 @@ export default function OpenLoveRegister() {
   const [showCheckout, setShowCheckout] = useState(false)
   const [checkoutPlan, setCheckoutPlan] = useState<"gold" | "diamante" | "diamante_anual" | null>(null)
   const [paymentData, setPaymentData] = useState<any>(null)
+  const [checkoutError, setCheckoutError] = useState<string | null>(null)
 
   const router = useRouter()
 
@@ -100,21 +101,47 @@ export default function OpenLoveRegister() {
     }
   }, [])
 
+  // Prevenir scroll do body quando modal estiver aberto
+  useEffect(() => {
+    if (showCheckout) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [showCheckout])
+
   // Função para buscar localização ao focar no campo de cidade
   const handleCityFocus = async () => {
     if (typeof window !== "undefined" && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(async (position) => {
+      // Primeiro, solicitar permissão explicitamente
+      try {
+        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 60000
+          })
+        })
+        
         const { latitude, longitude } = position.coords
         try {
-          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`)
           const data = await res.json()
-          const city = data.address.city || data.address.town || data.address.village || ""
+          const city = data.address.city || data.address.town || data.address.village || data.address.county || ""
           const state = data.address.state || data.address.region || ""
           setFormData((prev) => ({ ...prev, city, uf: state, latitude, longitude }))
         } catch (e) {
+          console.error("Erro ao buscar cidade:", e)
           setFormData((prev) => ({ ...prev, latitude, longitude }))
         }
-      })
+      } catch (error) {
+        console.error("Erro ao obter localização:", error)
+        // Se não conseguir localização automática, não fazer nada
+      }
     }
   }
 
@@ -277,6 +304,10 @@ export default function OpenLoveRegister() {
     if (plan === "gold" || plan === "diamante" || plan === "diamante_anual") {
       setCheckoutPlan(plan)
       setShowCheckout(true)
+    } else {
+      // Se selecionar plano free, garantir que o checkout esteja fechado
+      setShowCheckout(false)
+      setCheckoutPlan(null)
     }
   }
 
@@ -293,19 +324,58 @@ export default function OpenLoveRegister() {
 
     setLoading(true)
     try {
-      // Simulate registration process
-      console.log("Registration data:", formData)
+      // Chamar API de registro
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      })
 
-      // Mock success
-      setTimeout(() => {
-        alert("Conta criada com sucesso! (Demo)")
-        setLoading(false)
-        // In real app: router.push("/dashboard")
-      }, 2000)
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || "Erro ao criar conta")
+      }
+
+      if (result.success) {
+        // Upload da foto de perfil se existir
+        if (formData.profilePicture) {
+          const supabase = (await import("@/app/lib/supabase")).supabase
+          const fileExt = formData.profilePicture.name.split('.').pop()
+          const fileName = `${result.user.id}-${Date.now()}.${fileExt}`
+          
+          const { error: uploadError } = await supabase.storage
+            .from('profile-pictures')
+            .upload(fileName, formData.profilePicture)
+
+          if (!uploadError) {
+            const { data: { publicUrl } } = supabase.storage
+              .from('profile-pictures')
+              .getPublicUrl(fileName)
+
+            await supabase
+              .from("users")
+              .update({ profile_picture: publicUrl })
+              .eq("id", result.user.id)
+          }
+        }
+
+        // Redirecionar baseado no plano
+        if (formData.plan === "free") {
+          alert("Conta criada com sucesso! Bem-vindo ao OpenLove!")
+          router.push("/dashboard")
+        } else {
+          alert("Conta criada com sucesso! Agora complete o pagamento para ativar seu plano premium.")
+          // O checkout já está sendo mostrado
+        }
+      }
     } catch (error) {
       console.error("Registration error:", error)
       alert("Erro ao criar conta. Tente novamente.")
       setErrors({ general: (error as Error).message })
+    } finally {
       setLoading(false)
     }
   }
@@ -574,6 +644,29 @@ export default function OpenLoveRegister() {
                       </div>
                     </div>
                   </div>
+                  
+                  {/* Navigation Buttons for Step 1 */}
+                  <div className="mt-6 flex justify-between items-center">
+                    <Button
+                      variant="ghost"
+                      onClick={handleBack}
+                      disabled={step === 1}
+                      className="text-pink-600 dark:text-pink-400 hover:text-pink-700 dark:hover:text-pink-300 transition-colors duration-300 disabled:opacity-50 px-3 py-2 sm:px-4 sm:py-2"
+                    >
+                      <ArrowLeft className="mr-1 sm:mr-2 h-4 w-4" />
+                      <span className="hidden sm:inline">Voltar</span>
+                    </Button>
+                    <div className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 dark:from-pink-500 dark:via-rose-500 dark:to-purple-500 p-[1px] rounded-full group hover:scale-105 transition-all duration-300 hover:shadow-xl">
+                      <Button
+                        onClick={step === 5 ? handleSubmit : handleNext}
+                        disabled={loading}
+                        className="rounded-full bg-white dark:bg-black text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-black/90 px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base group disabled:opacity-50"
+                      >
+                        {loading ? "Criando conta..." : step === 5 ? "Cadastrar" : "Próximo"}
+                        <ArrowRight className="ml-1 sm:ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -652,6 +745,29 @@ export default function OpenLoveRegister() {
                       {errors.interests && (
                         <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.interests}</p>
                       )}
+                    </div>
+                  </div>
+                  
+                  {/* Navigation Buttons for Step 2 */}
+                  <div className="mt-6 flex justify-between items-center">
+                    <Button
+                      variant="ghost"
+                      onClick={handleBack}
+                      disabled={step === 1}
+                      className="text-pink-600 dark:text-pink-400 hover:text-pink-700 dark:hover:text-pink-300 transition-colors duration-300 disabled:opacity-50 px-3 py-2 sm:px-4 sm:py-2"
+                    >
+                      <ArrowLeft className="mr-1 sm:mr-2 h-4 w-4" />
+                      <span className="hidden sm:inline">Voltar</span>
+                    </Button>
+                    <div className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 dark:from-pink-500 dark:via-rose-500 dark:to-purple-500 p-[1px] rounded-full group hover:scale-105 transition-all duration-300 hover:shadow-xl">
+                      <Button
+                        onClick={step === 5 ? handleSubmit : handleNext}
+                        disabled={loading}
+                        className="rounded-full bg-white dark:bg-black text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-black/90 px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base group disabled:opacity-50"
+                      >
+                        {loading ? "Criando conta..." : step === 5 ? "Cadastrar" : "Próximo"}
+                        <ArrowRight className="ml-1 sm:ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -844,6 +960,29 @@ export default function OpenLoveRegister() {
                       </div>
                     )}
                   </div>
+                  
+                  {/* Navigation Buttons for Step 3 */}
+                  <div className="mt-6 flex justify-between items-center">
+                    <Button
+                      variant="ghost"
+                      onClick={handleBack}
+                      disabled={step === 1}
+                      className="text-pink-600 dark:text-pink-400 hover:text-pink-700 dark:hover:text-pink-300 transition-colors duration-300 disabled:opacity-50 px-3 py-2 sm:px-4 sm:py-2"
+                    >
+                      <ArrowLeft className="mr-1 sm:mr-2 h-4 w-4" />
+                      <span className="hidden sm:inline">Voltar</span>
+                    </Button>
+                    <div className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 dark:from-pink-500 dark:via-rose-500 dark:to-purple-500 p-[1px] rounded-full group hover:scale-105 transition-all duration-300 hover:shadow-xl">
+                      <Button
+                        onClick={step === 5 ? handleSubmit : handleNext}
+                        disabled={loading}
+                        className="rounded-full bg-white dark:bg-black text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-black/90 px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base group disabled:opacity-50"
+                      >
+                        {loading ? "Criando conta..." : step === 5 ? "Cadastrar" : "Próximo"}
+                        <ArrowRight className="ml-1 sm:ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -863,12 +1002,38 @@ export default function OpenLoveRegister() {
                           value={formData.city}
                           onChange={handleInputChange}
                           onFocus={handleCityFocus}
-                          placeholder="Cidade"
+                          placeholder="Digite sua cidade ou toque para detectar automaticamente"
                           className="pl-10 bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-600 dark:focus:ring-pink-400"
                         />
                         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                       </div>
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        Toque no campo para detectar sua localização automaticamente
+                      </p>
                       {errors.city && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.city}</p>}
+                    </div>
+                  </div>
+                  
+                  {/* Navigation Buttons for Step 4 */}
+                  <div className="mt-6 flex justify-between items-center">
+                    <Button
+                      variant="ghost"
+                      onClick={handleBack}
+                      disabled={step === 1}
+                      className="text-pink-600 dark:text-pink-400 hover:text-pink-700 dark:hover:text-pink-300 transition-colors duration-300 disabled:opacity-50 px-3 py-2 sm:px-4 sm:py-2"
+                    >
+                      <ArrowLeft className="mr-1 sm:mr-2 h-4 w-4" />
+                      <span className="hidden sm:inline">Voltar</span>
+                    </Button>
+                    <div className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 dark:from-pink-500 dark:via-rose-500 dark:to-purple-500 p-[1px] rounded-full group hover:scale-105 transition-all duration-300 hover:shadow-xl">
+                      <Button
+                        onClick={step === 5 ? handleSubmit : handleNext}
+                        disabled={loading}
+                        className="rounded-full bg-white dark:bg-black text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-black/90 px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base group disabled:opacity-50"
+                      >
+                        {loading ? "Criando conta..." : step === 5 ? "Cadastrar" : "Próximo"}
+                        <ArrowRight className="ml-1 sm:ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -885,90 +1050,90 @@ export default function OpenLoveRegister() {
                       <Label className="text-sm font-medium text-gray-900 dark:text-white">
                         Plano <span className="text-red-600">*</span>
                       </Label>
-                      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mt-4">
+                      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8 mt-6">
                         {/* Free */}
                         <div
-                          className={`relative group rounded-2xl border-2 p-6 transition-all cursor-pointer ${formData.plan === "free" ? "border-pink-600 bg-pink-50/40 dark:bg-pink-900/20" : "border-gray-200 dark:border-white/10 bg-white/80 dark:bg-white/5"}`}
+                          className={`relative group rounded-3xl border-2 p-6 lg:p-8 transition-all duration-300 cursor-pointer hover:shadow-lg hover:scale-105 ${formData.plan === "free" ? "border-pink-600 bg-pink-50/40 dark:bg-pink-900/20 shadow-pink-500/20" : "border-gray-200 dark:border-white/10 bg-white/80 dark:bg-white/5 hover:border-gray-300 dark:hover:border-white/20"}`}
                           onClick={() => handlePlanSelect("free")}
                           tabIndex={0}
                           role="button"
                           aria-pressed={formData.plan === "free"}
                         >
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="secondary" className="bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-200"><StarIcon className="size-4 mr-1" /> Free</Badge>
+                          <div className="flex items-center gap-2 mb-4">
+                            <Badge variant="secondary" className="bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-200 px-3 py-1"><StarIcon className="size-4 mr-1" /> Free</Badge>
                             {formData.plan === "free" && <CheckIcon className="text-pink-600 ml-1" />}
                           </div>
-                          <div className="text-xl font-bold mb-1">Grátis</div>
-                          <div className="text-sm text-gray-700 dark:text-gray-300 mb-3">Acesso básico à plataforma</div>
-                          <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1 mb-4">
-                            <li>✔️ Conexões mútuas</li>
-                            <li>✔️ Eventos locais</li>
-                            <li>✔️ Posts de amigos</li>
+                          <div className="text-2xl lg:text-3xl font-bold mb-2">Grátis</div>
+                          <div className="text-sm lg:text-base text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">Acesso básico à plataforma</div>
+                          <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-2 mb-6">
+                            <li className="flex items-start gap-2">✔️ Conexões mútuas</li>
+                            <li className="flex items-start gap-2">✔️ Eventos locais</li>
+                            <li className="flex items-start gap-2">✔️ Posts de amigos</li>
                           </ul>
-                          <Button size="sm" variant={formData.plan === "free" ? "default" : "outline"} className="w-full">{formData.plan === "free" ? "Selecionado" : "Selecionar"}</Button>
+                          <Button size="sm" variant={formData.plan === "free" ? "default" : "outline"} className="w-full py-3">{formData.plan === "free" ? "Selecionado" : "Selecionar"}</Button>
                         </div>
                         {/* Gold (Mensal) */}
                         <div
-                          className={`relative group rounded-2xl border-2 p-6 transition-all cursor-pointer ${formData.plan === "gold" ? "border-yellow-500 bg-yellow-50/40 dark:bg-yellow-900/20" : "border-gray-200 dark:border-white/10 bg-white/80 dark:bg-white/5"}`}
+                          className={`relative group rounded-3xl border-2 p-6 lg:p-8 transition-all duration-300 cursor-pointer hover:shadow-lg hover:scale-105 ${formData.plan === "gold" ? "border-yellow-500 bg-yellow-50/40 dark:bg-yellow-900/20 shadow-yellow-500/20" : "border-gray-200 dark:border-white/10 bg-white/80 dark:bg-white/5 hover:border-gray-300 dark:hover:border-white/20"}`}
                           onClick={() => handlePlanSelect("gold")}
                           tabIndex={0}
                           role="button"
                           aria-pressed={formData.plan === "gold"}
                         >
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="secondary" className="bg-yellow-200 dark:bg-yellow-800 text-yellow-700 dark:text-yellow-200"><CrownIcon className="size-4 mr-1" /> Gold</Badge>
+                          <div className="flex items-center gap-2 mb-4">
+                            <Badge variant="secondary" className="bg-yellow-200 dark:bg-yellow-800 text-yellow-700 dark:text-yellow-200 px-3 py-1"><CrownIcon className="size-4 mr-1" /> Gold</Badge>
                             {formData.plan === "gold" && <CheckIcon className="text-pink-600 ml-1" />}
                           </div>
-                          <div className="text-xl font-bold mb-1">R$ 25,00/mês</div>
-                          <div className="text-sm text-gray-700 dark:text-gray-300 mb-3">Plano mensal premium</div>
-                          <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1 mb-4">
-                            <li>✔️ Converse com qualquer pessoa</li>
-                            <li>✔️ Veja quem visitou seu perfil</li>
-                            <li>✔️ Filtros avançados</li>
+                          <div className="text-2xl lg:text-3xl font-bold mb-2">R$ 25,00/mês</div>
+                          <div className="text-sm lg:text-base text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">Plano mensal premium</div>
+                          <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-2 mb-6">
+                            <li className="flex items-start gap-2">✔️ Converse com qualquer pessoa</li>
+                            <li className="flex items-start gap-2">✔️ Veja quem visitou seu perfil</li>
+                            <li className="flex items-start gap-2">✔️ Filtros avançados</li>
                           </ul>
-                          <Button size="sm" variant={formData.plan === "gold" ? "default" : "outline"} className="w-full">{formData.plan === "gold" ? "Selecionado" : "Selecionar"}</Button>
+                          <Button size="sm" variant={formData.plan === "gold" ? "default" : "outline"} className="w-full py-3">{formData.plan === "gold" ? "Selecionado" : "Selecionar"}</Button>
                         </div>
                         {/* Diamante (Mensal) */}
                         <div
-                          className={`relative group rounded-2xl border-2 p-6 transition-all cursor-pointer ${formData.plan === "diamante" ? "border-purple-600 bg-purple-50/40 dark:bg-purple-900/20" : "border-gray-200 dark:border-white/10 bg-white/80 dark:bg-white/5"}`}
+                          className={`relative group rounded-3xl border-2 p-6 lg:p-8 transition-all duration-300 cursor-pointer hover:shadow-lg hover:scale-105 ${formData.plan === "diamante" ? "border-purple-600 bg-purple-50/40 dark:bg-purple-900/20 shadow-purple-500/20" : "border-gray-200 dark:border-white/10 bg-white/80 dark:bg-white/5 hover:border-gray-300 dark:hover:border-white/20"}`}
                           onClick={() => handlePlanSelect("diamante")}
                           tabIndex={0}
                           role="button"
                           aria-pressed={formData.plan === "diamante"}
                         >
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="secondary" className="bg-purple-200 dark:bg-purple-800 text-purple-700 dark:text-purple-200"><GemIcon className="size-4 mr-1" /> Diamante</Badge>
+                          <div className="flex items-center gap-2 mb-4">
+                            <Badge variant="secondary" className="bg-purple-200 dark:bg-purple-800 text-purple-700 dark:text-purple-200 px-3 py-1"><GemIcon className="size-4 mr-1" /> Diamante</Badge>
                             {formData.plan === "diamante" && <CheckIcon className="text-pink-600 ml-1" />}
                           </div>
-                          <div className="text-xl font-bold mb-1">R$ 45,90/mês</div>
-                          <div className="text-sm text-gray-700 dark:text-gray-300 mb-3">Plano mensal premium com benefícios exclusivos</div>
-                          <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1 mb-4">
-                            <li>✔️ Todos benefícios do Gold</li>
-                            <li>✔️ Destaque no ranking</li>
-                            <li>✔️ Suporte prioritário</li>
+                          <div className="text-2xl lg:text-3xl font-bold mb-2">R$ 45,90/mês</div>
+                          <div className="text-sm lg:text-base text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">Plano mensal premium com benefícios exclusivos</div>
+                          <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-2 mb-6">
+                            <li className="flex items-start gap-2">✔️ Todos benefícios do Gold</li>
+                            <li className="flex items-start gap-2">✔️ Destaque no ranking</li>
+                            <li className="flex items-start gap-2">✔️ Suporte prioritário</li>
                           </ul>
-                          <Button size="sm" variant={formData.plan === "diamante" ? "default" : "outline"} className="w-full">{formData.plan === "diamante" ? "Selecionado" : "Selecionar"}</Button>
+                          <Button size="sm" variant={formData.plan === "diamante" ? "default" : "outline"} className="w-full py-3">{formData.plan === "diamante" ? "Selecionado" : "Selecionar"}</Button>
                         </div>
                         {/* Diamante Anual */}
                         <div
-                          className={`relative group rounded-2xl border-2 p-6 transition-all cursor-pointer ${formData.plan === "diamante_anual" ? "border-purple-800 bg-purple-100/40 dark:bg-purple-900/40" : "border-gray-200 dark:border-white/10 bg-white/80 dark:bg-white/5"}`}
+                          className={`relative group rounded-3xl border-2 p-6 lg:p-8 transition-all duration-300 cursor-pointer hover:shadow-lg hover:scale-105 ${formData.plan === "diamante_anual" ? "border-purple-800 bg-purple-100/40 dark:bg-purple-900/40 shadow-purple-500/20" : "border-gray-200 dark:border-white/10 bg-white/80 dark:bg-white/5 hover:border-gray-300 dark:hover:border-white/20"}`}
                           onClick={() => handlePlanSelect("diamante_anual")}
                           tabIndex={0}
                           role="button"
                           aria-pressed={formData.plan === "diamante_anual"}
                         >
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="secondary" className="bg-purple-300 dark:bg-purple-900 text-purple-900 dark:text-purple-200"><GemIcon className="size-4 mr-1" /> Diamante Anual</Badge>
+                          <div className="flex items-center gap-2 mb-4">
+                            <Badge variant="secondary" className="bg-purple-300 dark:bg-purple-900 text-purple-900 dark:text-purple-200 px-3 py-1"><GemIcon className="size-4 mr-1" /> Diamante Anual</Badge>
                             {formData.plan === "diamante_anual" && <CheckIcon className="text-pink-600 ml-1" />}
                           </div>
-                          <div className="text-xl font-bold mb-1">R$ 459,00/ano <span className="text-xs text-pink-600">(2 meses grátis)</span></div>
-                          <div className="text-sm text-gray-700 dark:text-gray-300 mb-3">Plano anual premium com todos os benefícios Diamante</div>
-                          <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1 mb-4">
-                            <li>✔️ Todos benefícios do Diamante Mensal</li>
-                            <li>✔️ 2 meses grátis (equivalente a R$ 38,25/mês)</li>
-                            <li>✔️ Suporte prioritário e destaque máximo</li>
+                          <div className="text-2xl lg:text-3xl font-bold mb-2">R$ 459,00/ano <span className="text-sm text-pink-600">(2 meses grátis)</span></div>
+                          <div className="text-sm lg:text-base text-gray-700 dark:text-gray-300 mb-4 leading-relaxed">Plano anual premium com todos os benefícios Diamante</div>
+                          <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-2 mb-6">
+                            <li className="flex items-start gap-2">✔️ Todos benefícios do Diamante Mensal</li>
+                            <li className="flex items-start gap-2">✔️ 2 meses grátis (equivalente a R$ 38,25/mês)</li>
+                            <li className="flex items-start gap-2">✔️ Suporte prioritário e destaque máximo</li>
                           </ul>
-                          <Button size="sm" variant={formData.plan === "diamante_anual" ? "default" : "outline"} className="w-full">{formData.plan === "diamante_anual" ? "Selecionado" : "Selecionar"}</Button>
+                          <Button size="sm" variant={formData.plan === "diamante_anual" ? "default" : "outline"} className="w-full py-3">{formData.plan === "diamante_anual" ? "Selecionado" : "Selecionar"}</Button>
                         </div>
                       </div>
                       {errors.plan && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.plan}</p>}
@@ -983,36 +1148,38 @@ export default function OpenLoveRegister() {
                       </p>
                     </div>
                   </div>
+                  
+                  {/* Navigation Buttons for Step 5 */}
+                  <div className="mt-6 flex justify-between items-center">
+                    <Button
+                      variant="ghost"
+                      onClick={handleBack}
+                      disabled={step === 1}
+                      className="text-pink-600 dark:text-pink-400 hover:text-pink-700 dark:hover:text-pink-300 transition-colors duration-300 disabled:opacity-50 px-3 py-2 sm:px-4 sm:py-2"
+                    >
+                      <ArrowLeft className="mr-1 sm:mr-2 h-4 w-4" />
+                      <span className="hidden sm:inline">Voltar</span>
+                    </Button>
+                    <div className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 dark:from-pink-500 dark:via-rose-500 dark:to-purple-500 p-[1px] rounded-full group hover:scale-105 transition-all duration-300 hover:shadow-xl">
+                      <Button
+                        onClick={step === 5 ? handleSubmit : handleNext}
+                        disabled={loading}
+                        className="rounded-full bg-white dark:bg-black text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-black/90 px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base group disabled:opacity-50"
+                      >
+                        {loading ? "Criando conta..." : step === 5 ? "Cadastrar" : "Próximo"}
+                        <ArrowRight className="ml-1 sm:ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Navigation Buttons */}
-          <div className="mt-8 flex justify-between">
-            <Button
-              variant="ghost"
-              onClick={handleBack}
-              disabled={step === 1}
-              className="text-pink-600 dark:text-pink-400 hover:text-pink-700 dark:hover:text-pink-300 transition-colors duration-300 disabled:opacity-50"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Voltar
-            </Button>
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 dark:from-pink-500 dark:via-rose-500 dark:to-purple-500 p-[1px] rounded-full group hover:scale-105 transition-all duration-300 hover:shadow-xl">
-              <Button
-                onClick={step === 5 ? handleSubmit : handleNext}
-                disabled={loading}
-                className="rounded-full bg-white dark:bg-black text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-black/90 px-6 py-3 text-base group disabled:opacity-50"
-              >
-                {loading ? "Criando conta..." : step === 5 ? "Cadastrar" : "Próximo"}
-                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
-              </Button>
-            </div>
-          </div>
+
 
           {/* Login Link */}
-          <p className="mt-6 text-center text-sm text-gray-700 dark:text-white/70">
+          <p className="mt-4 sm:mt-6 text-center text-sm text-gray-700 dark:text-white/70">
             Já tem uma conta?{" "}
             <Link
               href="/auth/signin"
@@ -1031,17 +1198,56 @@ export default function OpenLoveRegister() {
 
       {/* Checkout Mercado Pago */}
       {showCheckout && checkoutPlan && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl p-6 max-w-md w-full relative">
-            <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 dark:hover:text-white" onClick={() => setShowCheckout(false)}>&times;</button>
+        <div 
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
+          onClick={(e) => {
+            // Só fecha se clicar no backdrop, não no modal
+            if (e.target === e.currentTarget) {
+              setShowCheckout(false)
+            }
+          }}
+        >
+          <div 
+            className="bg-white dark:bg-slate-900 rounded-xl shadow-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button 
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 dark:hover:text-white z-10 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" 
+              onClick={(e) => {
+                e.stopPropagation()
+                setShowCheckout(false)
+                setCheckoutError(null)
+              }}
+            >
+              &times;
+            </button>
+            
+            {checkoutError && (
+              <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                <p className="text-red-700 dark:text-red-300 text-sm">
+                  {checkoutError}
+                </p>
+              </div>
+            )}
+            
             <CheckoutForm
               user={{ email: formData.email }}
               plano={checkoutPlan}
               onSuccess={(data) => {
                 setPaymentData(data)
                 setShowCheckout(false)
+                setCheckoutError(null)
               }}
-              onError={() => setShowCheckout(false)}
+              onError={(error) => {
+                console.log("Erro no checkout:", error)
+                setCheckoutError(error)
+                // Só fecha o modal se for um erro crítico de conexão
+                if (error && error.includes("Erro de conexão")) {
+                  setShowCheckout(false)
+                  setCheckoutError(null)
+                }
+                // Para outros erros, mantém o modal aberto para o usuário tentar novamente
+              }}
             />
           </div>
         </div>

@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     const { data: post, error: postError } = await supabase
       .from("posts")
       .insert({
-        author_id: user.id,
+        user_id: user.id, // Corrigido para user_id
         content: content.trim(),
         media_url: mediaUrl,
         media_type: mediaType,
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
 
     // Get author profile
     const { data: profile } = await supabase
-      .from("profiles")
+      .from("users")
       .select("username, full_name, avatar_url, is_verified, profile_type")
       .eq("id", user.id)
       .single()
@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
       .range(offset, offset + limit - 1)
 
     if (userId) {
-      query = query.eq("author_id", userId)
+      query = query.eq("user_id", userId)
     }
 
     const { data: posts, error: postsError } = await query

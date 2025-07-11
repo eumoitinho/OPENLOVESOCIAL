@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
 
       // Get author profile
       const { data: profile } = await supabase
-        .from("profiles")
+        .from("users")
         .select("username, full_name, avatar_url")
         .eq("id", user.id)
         .single()

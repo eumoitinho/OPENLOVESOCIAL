@@ -62,7 +62,7 @@ export async function getUserProfile(userId: string) {
   const supabase = await createServerSupabaseClient()
 
   try {
-    const { data: profile, error } = await supabase.from("profiles").select("*").eq("id", userId).single()
+    const { data: profile, error } = await supabase.from("users").select("*").eq("id", userId).single()
 
     if (error) {
       console.error("Error getting user profile:", error)

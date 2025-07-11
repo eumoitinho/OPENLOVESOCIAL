@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { BadgeCheck, UserPlus, Bookmark, Star, Calendar, MapPin } from "lucide-react"
+import { BadgeCheck, UserPlus, Bookmark, Star, Calendar, MapPin, Gift } from "lucide-react"
+import { useState } from "react"
 
 interface ProfileCardProps {
   profile: {
@@ -23,12 +24,15 @@ interface ProfileCardProps {
     joinedDate?: string
     location?: string
     is_following?: boolean
+    tokens?: number
+    tokens_received?: number
   }
   onFollow?: (userId: string) => void
   onSave?: (userId: string) => void
 }
 
 export default function ProfileCard({ profile, onFollow, onSave }: ProfileCardProps) {
+  const [showGiftModal, setShowGiftModal] = useState(false)
   return (
     <Card className="relative w-full max-w-[320px] sm:max-w-sm overflow-hidden shadow-xl border-0">
       {/* Background Header */}
@@ -105,7 +109,7 @@ export default function ProfileCard({ profile, onFollow, onSave }: ProfileCardPr
         <Separator className="my-3 sm:my-4" />
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-4 sm:mb-6">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-2 sm:mb-3">
           <div className="text-center">
             <div className="flex items-center justify-center gap-1 text-sm sm:text-lg font-bold text-gray-900 dark:text-white">
               <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-yellow-400 text-yellow-400" />
@@ -126,7 +130,12 @@ export default function ProfileCard({ profile, onFollow, onSave }: ProfileCardPr
             <div className="text-xs text-muted-foreground">Seguindo</div>
           </div>
         </div>
-
+        {/* Tokenômetro */}
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <Gift className="w-4 h-4 text-pink-500" />
+          <span className="text-xs font-semibold text-pink-600">Tokenômetro:</span>
+          <span className="text-xs font-bold text-pink-700">{profile.tokens || profile.tokens_received || 0} tokens</span>
+        </div>
         {/* Action Buttons */}
         <div className="flex gap-2 sm:gap-3">
           <Button 
@@ -148,7 +157,26 @@ export default function ProfileCard({ profile, onFollow, onSave }: ProfileCardPr
             <Bookmark className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
             <span className="text-xs sm:text-sm">Salvar</span>
           </Button>
+          <Button 
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowGiftModal(true)}
+            title="Enviar Love Gift"
+          >
+            <Gift className="w-4 h-4 text-pink-500" />
+          </Button>
         </div>
+        {/* Modal de Love Gift (placeholder) */}
+        {showGiftModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-white dark:bg-gray-900 rounded-lg p-6 shadow-xl w-full max-w-xs flex flex-col items-center">
+              <Gift className="w-8 h-8 text-pink-500 mb-2" />
+              <h2 className="text-lg font-bold mb-2">Enviar Love Gift</h2>
+              <p className="text-sm text-muted-foreground mb-4">Em breve: envie tokens para {profile.name}!</p>
+              <Button onClick={() => setShowGiftModal(false)} size="sm">Fechar</Button>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   )

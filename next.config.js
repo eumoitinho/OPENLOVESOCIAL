@@ -17,7 +17,7 @@ const nextConfig = {
 
   // Configurações experimentais
   experimental: {
-    serverComponentsExternalPackages: ["@supabase/supabase-js"],
+    serverExternalPackages: ["@supabase/supabase-js"],
   },
 
   // Headers de segurança

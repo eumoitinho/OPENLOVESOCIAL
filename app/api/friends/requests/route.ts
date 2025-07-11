@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user's profile_id
-    const { data: profile } = await supabase.from("profiles").select("id").eq("user_id", user.id).single()
+    const { data: profile } = await supabase.from("users").select("id").eq("user_id", user.id).single()
 
     if (!profile) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 })

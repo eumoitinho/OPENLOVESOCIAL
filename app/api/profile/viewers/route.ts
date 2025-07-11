@@ -13,7 +13,7 @@ export async function GET() {
     return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 })
   }
 
-  const { data: profile } = await supabase.from("profiles").select("is_premium").eq("id", user.id).single()
+      const { data: profile } = await supabase.from("users").select("is_premium").eq("id", user.id).single()
 
   if (!profile || !profile.is_premium) {
     return new NextResponse(JSON.stringify({ error: "Only premium users can view profile viewers" }), {

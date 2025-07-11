@@ -12,9 +12,13 @@ export async function GET(request: NextRequest) {
     const lat = searchParams.get("lat")
     const lon = searchParams.get("lon")
 
+    // Buscar usuário autenticado
+    const { data: authUser } = await supabase.auth.getUser()
+    const userId = authUser?.user?.id
+
     // Se for busca de sugestões, retornar usuários recomendados
     if (suggested) {
-      const { data: users, error } = await supabase
+      const queryBuilder = supabase
         .from("users")
         .select(`
           id,
@@ -32,12 +36,15 @@ export async function GET(request: NextRequest) {
           is_premium,
           is_verified,
           stats,
-          created_at
+          created_at,
+          tokens,
+          tokens_received
         `)
-        .neq("id", user.id)
         .eq("is_active", true)
         .order("created_at", { ascending: false })
         .limit(20)
+      if (userId) queryBuilder.neq("id", userId)
+      const { data: users, error } = await queryBuilder
 
       if (error) {
         console.error("Error searching suggested users:", error)
@@ -46,11 +53,13 @@ export async function GET(request: NextRequest) {
 
       // Verificar se já segue cada usuário
       const userIds = users?.map((u) => u.id) || []
-      const { data: follows } = await supabase
-        .from("follows")
-        .select("following_id")
-        .eq("follower_id", user.id)
-        .in("following_id", userIds)
+      const { data: follows } = userId
+        ? await supabase
+            .from("follows")
+            .select("following_id")
+            .eq("follower_id", userId)
+            .in("following_id", userIds)
+        : { data: [] }
 
       const followingIds = new Set(follows?.map(f => f.following_id) || [])
 
@@ -66,7 +75,9 @@ export async function GET(request: NextRequest) {
         followers: u.stats?.followers || 0,
         following: u.stats?.following || 0,
         description: u.bio || "Usuário do OpenLove",
-        joinedDate: new Date(u.created_at).toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })
+        joinedDate: new Date(u.created_at).toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' }),
+        tokens: u.tokens || u.tokens_received || 0,
+        tokens_received: u.tokens_received || u.tokens || 0
       })) || []
 
       return NextResponse.json({ data: results })
@@ -77,7 +88,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ data: [] })
     }
 
-    const { data: users, error } = await supabase
+    const queryBuilder2 = supabase
       .from("users")
       .select(`
         id,
@@ -95,12 +106,15 @@ export async function GET(request: NextRequest) {
         is_premium,
         is_verified,
         stats,
-        created_at
+        created_at,
+        tokens,
+        tokens_received
       `)
       .or(`name.ilike.%${query}%,username.ilike.%${query}%`)
-      .neq("id", user.id)
       .eq("is_active", true)
       .limit(20)
+    if (userId) queryBuilder2.neq("id", userId)
+    const { data: users, error } = await queryBuilder2
 
     if (error) {
       console.error("Error searching users:", error)
@@ -109,11 +123,13 @@ export async function GET(request: NextRequest) {
 
     // Verificar se já segue cada usuário
     const userIds = users?.map((u) => u.id) || []
-    const { data: follows } = await supabase
-      .from("follows")
-      .select("following_id")
-      .eq("follower_id", user.id)
-      .in("following_id", userIds)
+    const { data: follows } = userId
+      ? await supabase
+          .from("follows")
+          .select("following_id")
+          .eq("follower_id", userId)
+          .in("following_id", userIds)
+      : { data: [] }
 
     const followingIds = new Set(follows?.map(f => f.following_id) || [])
 

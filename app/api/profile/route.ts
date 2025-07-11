@@ -13,7 +13,7 @@ export async function GET() {
     return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 })
   }
 
-  const { data, error } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+      const { data, error } = await supabase.from("users").select("*").eq("id", user.id).single()
 
   if (error) {
     return new NextResponse(JSON.stringify({ error: error.message }), { status: 500 })
@@ -40,7 +40,7 @@ export async function PUT(request: Request) {
   delete profileData.updated_at
 
   const { data, error } = await supabase
-    .from("profiles")
+          .from("users")
     .update(profileData)
     .eq("id", user.id)
     .select()

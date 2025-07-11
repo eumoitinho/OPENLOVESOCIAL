@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar saldo do usuário (simulado)
-    const { data: profile } = await supabase.from("profiles").select("wallet_balance").eq("id", user.id).single()
+    const { data: profile } = await supabase.from("users").select("wallet_balance").eq("id", user.id).single()
 
     if (!profile || (profile.wallet_balance || 0) < price) {
       return NextResponse.json({ error: "Saldo insuficiente" }, { status: 400 })
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
 
     // Atualizar saldo do comprador
     await supabase
-      .from("profiles")
+      .from("users")
       .update({
         wallet_balance: (profile.wallet_balance || 0) - price,
       })

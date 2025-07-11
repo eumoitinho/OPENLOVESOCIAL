@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     const supabase = createServerComponentClient<Database>({ cookies })
 
     // Verificar se o usuário existe
-    const { data: profile, error: profileError } = await supabase.from("profiles").select("*").eq("id", userId).single()
+    const { data: profile, error: profileError } = await supabase.from("users").select("*").eq("id", userId).single()
 
     if (profileError || !profile) {
       return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 })
