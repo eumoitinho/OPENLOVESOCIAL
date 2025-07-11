@@ -295,10 +295,10 @@ export default function Timeline() {
                   <span className="text-xs text-gray-500">{postContent.length}/2000</span>
                   <Button 
                     type="submit" 
-                    disabled={postLoading || !postContent.trim() || !user} 
+                    disabled={postLoading || !postContent.trim() || !user || authLoading} 
                     size="sm"
                   >
-                    {postLoading ? "Postando..." : !user ? "Faça login" : "Postar"}
+                    {postLoading ? "Postando..." : authLoading ? "Verificando..." : !user ? "Faça login" : "Postar"}
                   </Button>
                 </div>
               </div>
@@ -794,13 +794,18 @@ export default function Timeline() {
           className="rounded-full w-14 h-14 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300"
           aria-label="Criar novo post"
           onClick={() => {
+            console.log("Botão flutuante clicado - User:", user?.id, "Loading:", authLoading)
+            if (authLoading) {
+              alert("Aguarde, verificando autenticação...")
+              return
+            }
             if (!user) {
               alert("Você precisa estar logado para criar posts")
               return
             }
             setPostModalOpen(true)
           }}
-          disabled={!user}
+          disabled={!user || authLoading}
         >
           <Plus className="w-6 h-6" />
         </Button>
