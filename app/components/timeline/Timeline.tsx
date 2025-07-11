@@ -177,17 +177,35 @@ export default function Timeline() {
     e.preventDefault()
     if (!postContent.trim()) return
     setPostLoading(true)
-    // Aqui você deve fazer POST para a API real de criação de post
-    // Exemplo:
-    await fetch("/api/timeline", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: postContent, visibility: postVisibility })
-    })
-    setPostContent("")
-    setPostLoading(false)
-    setPostModalOpen(false)
-    fetchPosts() // Atualiza timeline
+    
+    try {
+      const response = await fetch("/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          content: postContent, 
+          visibility: postVisibility 
+        })
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error("Erro ao criar post:", errorData)
+        throw new Error(errorData.error || "Erro ao criar post")
+      }
+      
+      const result = await response.json()
+      console.log("Post criado com sucesso:", result)
+      
+      setPostContent("")
+      setPostLoading(false)
+      setPostModalOpen(false)
+      fetchPosts() // Atualiza timeline
+    } catch (error) {
+      console.error("Erro ao criar post:", error)
+      setPostLoading(false)
+      // Aqui você pode adicionar um toast de erro se quiser
+    }
   }
 
   const CreatePostModal = () => (
