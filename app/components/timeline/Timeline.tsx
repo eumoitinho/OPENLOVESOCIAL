@@ -294,8 +294,12 @@ export default function Timeline() {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-gray-500">{postContent.length}/2000</span>
-                  <Button type="submit" disabled={postLoading || !postContent.trim()} size="sm">
-                    {postLoading ? "Postando..." : "Postar"}
+                  <Button 
+                    type="submit" 
+                    disabled={postLoading || !postContent.trim() || !user} 
+                    size="sm"
+                  >
+                    {postLoading ? "Postando..." : !user ? "Faça login" : "Postar"}
                   </Button>
                 </div>
               </div>
