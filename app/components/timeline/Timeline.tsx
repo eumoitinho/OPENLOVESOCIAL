@@ -56,6 +56,9 @@ import Advertisement from "../ads/Advertisement"
 
 export default function Timeline() {
   const { user, loading: authLoading } = useAuth()
+  
+  // Debug logs
+  console.log("Timeline - Auth state:", { user: user?.id, loading: authLoading })
   const [isDarkMode, setIsDarkMode] = useState(true)
   const [postModalOpen, setPostModalOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -179,6 +182,8 @@ export default function Timeline() {
     e.preventDefault()
     if (!postContent.trim()) return
     
+    console.log("Tentando criar post - User:", user?.id, "Loading:", authLoading)
+    
     if (!user) {
       console.error("Usuário não autenticado")
       alert("Você precisa estar logado para criar posts")
@@ -224,7 +229,7 @@ export default function Timeline() {
       >
         <DialogTitle>Criar Post</DialogTitle>
         <DialogDescription className="sr-only">Crie um novo post para compartilhar com a comunidade</DialogDescription>
-        {!user && (
+        {!user && !authLoading && (
           <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg mb-4">
             <p className="text-yellow-800 text-sm">
               Você precisa estar logado para criar posts. 
@@ -236,6 +241,11 @@ export default function Timeline() {
                 Fazer login
               </Button>
             </p>
+          </div>
+        )}
+        {authLoading && (
+          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-4">
+            <p className="text-blue-800 text-sm">Verificando autenticação...</p>
           </div>
         )}
         <Card className="border-0 shadow-none">
