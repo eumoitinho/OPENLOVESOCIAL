@@ -15,10 +15,7 @@ const nextConfig = {
     unoptimized: true, // Novo campo adicionado
   },
 
-  // Configurações experimentais
-  experimental: {
-    serverExternalPackages: ["@supabase/supabase-js"],
-  },
+
 
   // Headers de segurança
   async headers() {
