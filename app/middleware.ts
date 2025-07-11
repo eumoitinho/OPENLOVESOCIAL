@@ -26,7 +26,7 @@ export async function middleware(req: NextRequest) {
 
   // Se o usuário está logado mas o email não foi confirmado, permitir acesso apenas a rotas específicas
   if (session && !session.user.email_confirmed_at) {
-    const allowedRoutes = ["/auth/signin", "/auth/signup", "/", "/api"]
+    const allowedRoutes = ["/auth/signin", "/auth/signup", "/auth/confirm-email", "/", "/api"]
     const isAllowedRoute = allowedRoutes.some(route => req.nextUrl.pathname.startsWith(route))
     
     if (!isAllowedRoute) {

@@ -40,6 +40,11 @@ export default function SignInPage() {
       if (emailUnconfirmed) {
         setStep("verification")
         toast.info("Por favor, confirme seu email para continuar")
+        // Tentar obter o email da sessão atual
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user?.email) {
+          setEmail(session.user.email)
+        }
       }
     }
   }, [])
