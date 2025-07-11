@@ -8,9 +8,15 @@ import AuthDebug from "@/app/components/debug/AuthDebug"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "ConnectHub - Conecte-se com pessoas próximas",
-  description: "Uma rede social segura para conectar pessoas com base em interesses compartilhados",
-    generator: 'v0.dev'
+  title: "OpenLove",
+  description: "Rede social OpenLove",
+  icons: {
+    icon: "/logo.svg",
+    shortcut: "/logo.svg",
+    apple: "/logo.svg",
+  },
+  manifest: "/manifest.json",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
 }
 
 export default function RootLayout({
@@ -20,6 +26,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
+      <head>
+        
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/logo.svg" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+        
+      </head>
       <body className={inter.className}>
         <AuthProvider>
           <AuthDebug />

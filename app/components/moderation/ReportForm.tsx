@@ -5,7 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import { AlertTriangle, X } from "lucide-react"
 import { createClientSupabaseClient } from "@/lib/auth-client"
-import { useAuth } from "@/components/auth/AuthProvider"
+import { useAuth } from "@/app/components/auth/AuthProvider"
 
 interface ReportFormProps {
   targetType: "user" | "post" | "comment"

@@ -22,11 +22,12 @@ import {
   Users,
   ImageIcon,
   Video,
+  Heart,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../../../components/ui/carousel"
 import { CommentsDialog } from "./CommentsDialog"
-import { MediaViewer } from "./MediaViewer"
+import { MediaViewer, MediaItem } from "./MediaViewer" // Importar MediaItem
 import { ShareDialog } from "./ShareDialog"
 import { ProfileViewer } from "./ProfileViewer"
 import { useRouter } from "next/navigation"
@@ -178,52 +179,46 @@ export default function PostCard({
     : []
 
   return (
-    <Card className="max-w-full border-gray-200 dark:border-white/10">
-      <CardHeader className="flex items-center justify-between gap-3">
+    <Card className="max-w-full bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 shadow-sm transition-colors">
+      <CardHeader className="flex flex-row items-center justify-between gap-3 p-4">
         <div className="flex items-center gap-3">
-          <div className="relative">
-            <Avatar 
-              className="ring-ring ring-2 cursor-pointer hover:ring-pink-500 transition-all duration-200"
-              onClick={handleViewProfile}
-            >
+          <div className="relative cursor-pointer" onClick={handleViewProfile}>
+            <Avatar className="ring-2 ring-transparent group-hover:ring-pink-500 transition-all duration-200">
               <AvatarImage src={post.user.avatar || "/placeholder.svg"} alt={post.user.name} />
-              <AvatarFallback className="text-xs">
-                {post.user.name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")}
+              <AvatarFallback className="text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+                {post.user.name.split(" ").map((n) => n[0]).join("")}
               </AvatarFallback>
             </Avatar>
             {post.user.verified && (
               <span className="absolute -end-1.5 -top-1.5">
-                <BadgeCheckIcon className="text-background size-5 fill-sky-500" />
+                <BadgeCheckIcon className="size-5 fill-sky-500 text-white dark:text-gray-900" />
               </span>
             )}
           </div>
           <div className="flex flex-col gap-0.5">
             <CardTitle 
-              className="flex items-center gap-2 text-sm cursor-pointer hover:text-pink-600 transition-colors duration-200"
+              className="flex items-center gap-2 text-sm font-semibold text-gray-800 dark:text-gray-100 cursor-pointer hover:text-pink-600 dark:hover:text-pink-400 transition-colors duration-200"
               onClick={handleViewProfile}
             >
               {post.user.name}
               {post.user.premium && (
                 <Badge
                   variant="outline"
-                  className="border-pink-600 dark:border-pink-400 text-pink-600 dark:text-pink-400 text-xs"
+                  className="border-pink-500 text-pink-600 dark:border-pink-400 dark:text-pink-400 text-xs font-bold"
                 >
                   Premium
                 </Badge>
               )}
             </CardTitle>
-            <CardDescription className="flex items-center gap-1 text-xs">
+            <CardDescription className="flex flex-wrap items-center gap-x-1.5 text-xs text-gray-500 dark:text-gray-400">
               <span>{post.user.username}</span>
-              <span>•</span>
-              <span>{post.timestamp}</span>
-              <span>•</span>
-              <MapPin className="w-3 h-3" />
-              <span>{post.user.location}</span>
-              <span>•</span>
-              <span className="text-purple-600 font-medium">{post.user.relationshipType}</span>
+              <span className="hidden sm:inline">•</span>
+              <span className="hidden sm:inline">{post.timestamp}</span>
+              <span className="hidden md:inline">•</span>
+              <span className="flex items-center gap-1">
+                <MapPin className="w-3 h-3" />
+                {post.user.location}
+              </span>
             </CardDescription>
           </div>
         </div>
@@ -233,301 +228,111 @@ export default function PostCard({
             size="sm"
             onClick={handleFollow}
             className={cn(
-              "transition-all duration-200",
-              followState === "requested" && "bg-yellow-100 text-yellow-700 border-yellow-300",
-              followState === "following" && "bg-green-100 text-green-700 border-green-300",
+              "transition-all duration-200 text-xs sm:text-sm",
+              "border-gray-300 dark:border-gray-600 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200",
+              followState === "requested" && "bg-yellow-100/10 text-yellow-600 dark:text-yellow-400 border-yellow-300/50 dark:border-yellow-400/30 hover:bg-yellow-100/20",
+              followState === "following" && "bg-green-100/10 text-green-600 dark:text-green-400 border-green-300/50 dark:border-green-400/30 hover:bg-green-100/20",
             )}
           >
             {getFollowButtonIcon()}
             {getFollowButtonText()}
           </Button>
-          <Button variant="ghost" size="icon" aria-label="Toggle menu">
+          <Button variant="ghost" size="icon" aria-label="Toggle menu" className="text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800">
             <EllipsisIcon className="size-4" />
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4 text-sm">
-        <p className="leading-relaxed">{post.content}</p>
-
-        {/* Images */}
+      <CardContent className="px-4 pb-4 space-y-4 text-sm">
+        <p className="leading-relaxed text-gray-800 dark:text-gray-300">{post.content}</p>
+        
+        {/* Mídia */}
         {post.images && post.images.length > 0 && (
-          <div className="w-full">
-            {post.images.length === 1 ? (
-              <div
-                className="relative cursor-pointer"
-                onClick={() => handleViewImage(0)}
-              >
-                <img
-                  src={post.images[0] || "/placeholder.svg"}
-                  alt="Post content"
-                  className="aspect-video w-full rounded-md object-cover"
-                />
-                <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
-                  <ImageIcon className="w-3 h-3 inline mr-1" />
-                  Foto
-                </div>
-              </div>
-            ) : (
-              <Carousel className="w-full">
-                <CarouselContent>
-                  {post.images.map((image, index) => (
-                    <CarouselItem key={index}>
-                      <div
-                        className="relative cursor-pointer"
-                        onClick={() => handleViewImage(index)}
-                      >
-                        <img
-                          src={image || "/placeholder.svg"}
-                          alt={`Post content ${index + 1}`}
-                          className="aspect-video w-full rounded-md object-cover"
-                        />
-                        <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
-                          <ImageIcon className="w-3 h-3 inline mr-1" />
-                          Foto {index + 1}
-                        </div>
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="left-2" />
-                <CarouselNext className="right-2" />
-              </Carousel>
+          <Carousel className="w-full rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+            <CarouselContent>
+              {post.images.map((img, index) => (
+                <CarouselItem key={index} onClick={() => handleViewImage(index)} className="cursor-pointer">
+                  <img src={img} alt={`Post media ${index + 1}`} className="w-full h-auto object-cover max-h-96" />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            {post.images.length > 1 && (
+              <>
+                <CarouselPrevious className="left-2 bg-black/30 text-white hover:bg-black/50 border-none" />
+                <CarouselNext className="right-2 bg-black/30 text-white hover:bg-black/50 border-none" />
+              </>
             )}
-          </div>
+          </Carousel>
         )}
-
-        {/* Video */}
         {post.video && (
-          <div 
-            className="relative w-full aspect-video rounded-md overflow-hidden bg-black cursor-pointer"
-            onClick={handleViewVideo}
-          >
-            <img
-              src={post.video || "/placeholder.svg"}
-              alt="Video thumbnail"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-              <Button size="lg" className="rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm">
-                <Play className="w-6 h-6 text-white" />
-              </Button>
-            </div>
-            <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
-              <Video className="w-3 h-3 inline mr-1" />
-              Vídeo
+          <div className="relative rounded-lg overflow-hidden cursor-pointer border border-gray-200 dark:border-gray-700" onClick={handleViewVideo}>
+            <img src={post.video.replace('.mp4', '.jpg')} alt="Video thumbnail" className="w-full h-auto object-cover" />
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+              <Play className="w-12 h-12 text-white/80" />
             </div>
           </div>
-        )}
-
-        {/* Event */}
-        {post.event && (
-          <Card className="border border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50">
-            <CardContent className="p-4">
-              <div className="flex gap-4">
-                <img
-                  src={post.event.image || "/placeholder.svg"}
-                  alt={post.event.title}
-                  className="w-16 h-16 rounded-lg object-cover"
-                />
-                <div className="flex-1">
-                  <h4 className="font-semibold text-purple-900">{post.event.title}</h4>
-                  <div className="flex items-center gap-2 text-sm text-purple-700 mt-1">
-                    <Calendar className="w-4 h-4" />
-                    <span>{post.event.date}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-purple-700">
-                    <MapPin className="w-4 h-4" />
-                    <span>{post.event.location}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-purple-700">
-                    <Users className="w-4 h-4" />
-                    <span>{post.event.attendees} participantes</span>
-                  </div>
-                </div>
-              </div>
-              <Button className="w-full mt-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">
-                Participar do Evento
-              </Button>
-            </CardContent>
-          </Card>
         )}
       </CardContent>
-      <CardFooter className="flex items-center gap-1">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleLike}
-          className={cn("transition-all duration-200 hover:scale-110", post.liked && "text-orange-500")}
-        >
-          <Flame className={cn("size-4", post.liked && "fill-orange-500 stroke-orange-500")} />
-          {post.likes}
-        </Button>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={handleComment}
-          className="transition-all duration-200 hover:scale-110 hover:text-blue-500"
-        >
-          <MessageCircleIcon className="size-4" />
-          {post.comments}
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleSave}
-          className={cn("transition-all duration-200 hover:scale-110", post.saved && "text-green-500")}
-        >
-          <Save className={cn("size-4", post.saved && "fill-green-500 stroke-green-500")} />
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="transition-all duration-200 hover:scale-110 hover:text-purple-500"
-        >
-          <SendIcon className="size-4" />
-        </Button>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={handleShare}
-          className="ml-auto transition-all duration-200 hover:scale-110"
-        >
-          <Share2 className="size-4" />
+      <CardFooter className="flex justify-between items-center p-4 border-t border-gray-100 dark:border-gray-800">
+        <div className="flex items-center gap-1 sm:gap-2">
+          <Button variant="ghost" size="sm" onClick={handleLike} className="text-gray-500 dark:text-gray-400 hover:bg-red-100/50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400">
+            <Heart className={cn("w-4 h-4 mr-1.5", post.liked && "fill-red-500 text-red-500")} />
+            <span className="text-xs sm:text-sm">{post.likes}</span>
+          </Button>
+          <Button variant="ghost" size="sm" onClick={handleComment} className="text-gray-500 dark:text-gray-400 hover:bg-sky-100/50 dark:hover:bg-sky-900/20 hover:text-sky-600 dark:hover:text-sky-400">
+            <MessageCircleIcon className="w-4 h-4 mr-1.5" />
+            <span className="text-xs sm:text-sm">{post.comments}</span>
+          </Button>
+          <Button variant="ghost" size="sm" onClick={handleShare} className="text-gray-500 dark:text-gray-400 hover:bg-emerald-100/50 dark:hover:bg-emerald-900/20 hover:text-emerald-600 dark:hover:text-emerald-400">
+            <Share2 className="w-4 h-4 mr-1.5" />
+            <span className="hidden sm:inline text-xs sm:text-sm">Compartilhar</span>
+          </Button>
+        </div>
+        <Button variant="ghost" size="sm" onClick={handleSave} className="text-gray-500 dark:text-gray-400 hover:bg-amber-100/50 dark:hover:bg-amber-900/20 hover:text-amber-600 dark:hover:text-amber-400">
+          <Save className={cn("w-4 h-4", post.saved && "fill-amber-400 text-amber-500")} />
+          <span className="hidden sm:inline text-xs sm:text-sm ml-1.5">Salvar</span>
         </Button>
       </CardFooter>
 
-      {/* Dialogs */}
-      <CommentsDialog
-        isOpen={commentsOpen}
-        onClose={() => setCommentsOpen(false)}
-        postId={post.id.toString()}
-        postContent={post.content}
+      {/* Dialogs Corrigidos */}
+      {commentsOpen && <CommentsDialog 
+        isOpen={commentsOpen} 
+        onClose={() => setCommentsOpen(false)} 
+        postId={post.id.toString()} 
         postAuthor={post.user}
-        comments={comments}
-        onAddComment={(content) => {
-          console.log("Novo comentário:", content)
-          // Implementar lógica de adicionar comentário
-        }}
-        onLikeComment={(commentId) => {
-          console.log("Curtir comentário:", commentId)
-          // Implementar lógica de curtir comentário
-        }}
-      />
-
-      <MediaViewer
-        isOpen={mediaViewerOpen}
+        postContent={post.content}
+        comments={comments} 
+        onAddComment={(content) => console.log("Add comment:", content)}
+        onLikeComment={(commentId) => console.log("Like comment:", commentId)}
+      />}
+      
+      {mediaViewerOpen && <MediaViewer 
+        isOpen={mediaViewerOpen} 
         onClose={() => setMediaViewerOpen(false)}
-        media={(() => {
-          const mediaArray = []
-          
-          // Adicionar imagens
-          if (post.images && post.images.length > 0) {
-            post.images.forEach((image, index) => {
-              mediaArray.push({
-                id: `image-${index}`,
-                type: "image" as const,
-                url: image,
-              })
-            })
-          }
-          
-          // Adicionar vídeo
-          if (post.video) {
-            mediaArray.push({
-              id: "video-0",
-              type: "video" as const,
-              url: post.video,
-              thumbnail: post.video,
-            })
-          }
-          
-          return mediaArray
-        })()}
-        initialIndex={selectedMediaIndex}
+        media={(post.images || (post.video ? [post.video] : [])).map((url, index) => ({ id: `${post.id}-${index}`, type: url.endsWith('.mp4') ? 'video' : 'image', url }))}
+        initialIndex={selectedMediaIndex} 
         postAuthor={post.user}
         postContent={post.content}
         postTimestamp={post.timestamp}
         currentUser={currentUser}
-        onLike={handleLike}
-        onComment={handleComment}
-        onShare={handleShare}
+        onLike={() => onLike?.(post.id)}
+        onComment={() => onComment?.(post.id)}
+        onShare={() => onShare?.(post.id)}
         isLiked={post.liked}
         likes={post.likes}
         comments={post.comments}
-      />
-
-      <ShareDialog
-        isOpen={shareDialogOpen}
-        onClose={() => setShareDialogOpen(false)}
+      />}
+      
+      {shareDialogOpen && <ShareDialog 
+        isOpen={shareDialogOpen} 
+        onClose={() => setShareDialogOpen(false)} 
         postId={post.id.toString()}
         postContent={post.content}
         postAuthor={post.user}
         postImages={post.images || undefined}
         postVideo={post.video || undefined}
         currentUser={currentUser}
-        onShareToDirect={(userId, message) => {
-          console.log("Compartilhar no direct:", userId, message)
-          // Implementar lógica de compartilhar no direct
-        }}
-        onShareToTimeline={(message, isPublic) => {
-          console.log("Compartilhar na timeline:", message, isPublic)
-          // Implementar lógica de compartilhar na timeline
-        }}
-        onCopyLink={() => {
-          console.log("Copiar link do post")
-          // Implementar lógica de copiar link
-        }}
-      />
-
-      <ProfileViewer
-        isOpen={profileViewerOpen}
-        onClose={() => setProfileViewerOpen(false)}
-        profile={{
-          id: post.user.username,
-          name: post.user.name,
-          username: post.user.username,
-          avatar: post.user.avatar,
-          verified: post.user.verified,
-          premium: post.user.premium,
-          location: post.user.location,
-          relationshipType: post.user.relationshipType,
-          isPrivate: post.user.isPrivate,
-          bio: "Apaixonado por liberdade e conexões autênticas. Explorando o amor de forma aberta e respeitosa.",
-          followers: 1234,
-          following: 567,
-          postsCount: 89,
-          joinedDate: "2023-01-15",
-          interests: ["Liberdade", "Arte", "Viagens", "Música", "Fotografia"],
-          photos: [
-            "https://cdn.shadcnstudio.com/ss-assets/components/card/image-6.png?width=350&format=auto",
-            "https://cdn.shadcnstudio.com/ss-assets/components/card/image-2.png?height=280&format=auto",
-            "https://cdn.shadcnstudio.com/ss-assets/components/card/image-3.png",
-          ],
-          videos: [
-            "https://cdn.shadcnstudio.com/ss-assets/components/card/image-2.png?height=280&format=auto",
-          ],
-          userPosts: [post], // Mock posts do usuário
-          isFollowing: false,
-          followState: followState,
-        }}
-        currentUser={currentUser}
-        onFollow={(userId, isPrivate) => {
-          onFollow?.(post.id, isPrivate)
-        }}
-        onMessage={(userId) => {
-          console.log("Enviar mensagem para:", userId)
-          // Implementar lógica de mensagem
-        }}
-        onShare={(userId) => {
-          console.log("Compartilhar perfil:", userId)
-          // Implementar lógica de compartilhar perfil
-        }}
-        onLike={onLike}
-        onSave={onSave}
-        onComment={onComment}
-        onSharePost={onShare}
-        onViewMedia={onViewMedia}
-      />
+        onCopyLink={() => navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`)}
+      />}
     </Card>
   )
 }

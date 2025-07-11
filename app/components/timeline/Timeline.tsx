@@ -34,6 +34,12 @@ import {
   Lock,
   UserPlus,
   BadgeCheck,
+  Wallet,
+  Store,
+  ShoppingBag,
+  Clapperboard,
+  Flag,
+  HelpCircle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../../../components/ui/carousel"
@@ -53,6 +59,58 @@ import { Separator } from "@/components/ui/separator"
 import { MobileNav } from "./layout/MobileNav"
 import { TimelineRightSidebar } from "./TimelineRightSidebar"
 import Advertisement from "../ads/Advertisement"
+import Logo from "../Logo" // Certifique-se que o caminho está correto
+import { TimelineSidebar } from "./TimelineSidebar"
+
+// --- Tipos e Dados para a Nova Sidebar ---
+
+type NavigationItem = {
+  id: string
+  label: string
+  icon: React.ElementType
+  href?: string
+  count?: number
+  action?: () => void
+}
+
+const NavLink = ({ item, isActive, onClick }: { item: NavigationItem; isActive: boolean; onClick: (item: NavigationItem) => void }) => (
+  <li>
+    <a
+      href={item.href || "#"}
+      onClick={(e) => {
+        e.preventDefault()
+        onClick(item)
+      }}
+      className={cn(
+        "flex items-center p-3 rounded-lg transition-all duration-300 ease-in-out group",
+        isActive
+          ? "bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg scale-105"
+          : "text-gray-600 hover:bg-gray-200/50 dark:text-gray-300 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-white"
+      )}
+    >
+      <item.icon className={cn("w-5 h-5 mr-4 transition-transform duration-300 group-hover:scale-110", isActive && "text-white")} />
+      <span className="font-medium">{item.label}</span>
+      {item.count && (
+        <span
+          className={cn(
+            "ml-auto text-xs font-semibold px-2 py-0.5 rounded-full",
+            isActive ? "bg-white/20 text-white" : "bg-pink-100 text-pink-600 dark:bg-pink-900/50 dark:text-pink-300"
+          )}
+        >
+          {item.count}
+        </span>
+      )}
+    </a>
+  </li>
+)
+
+const NavHeader = ({ title }: { title: string }) => (
+  <li className="px-3 py-2 text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+    {title}
+  </li>
+)
+
+// --- Componente Principal da Timeline ---
 
 export default function Timeline() {
   const { user, loading: authLoading } = useAuth()
@@ -112,6 +170,40 @@ export default function Timeline() {
   const [eventsOpen, setEventsOpen] = useState(false)
   const [communitiesOpen, setCommunitiesOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
+  const [activeView, setActiveView] = useState("home")
+
+  // Função para lidar com a navegação da sidebar
+  const handleNavigation = (item: NavigationItem) => {
+    setActiveView(item.id)
+    if (item.action) {
+      item.action()
+    } else if (item.href) {
+      // Idealmente, usar o router do Next.js aqui
+      window.location.href = item.href
+    }
+  }
+
+  const accountNavItems: NavigationItem[] = [
+    { id: "home", label: "Home", icon: Home, href: "/timeline" },
+    { id: "profile", label: "Profile", icon: User, action: () => setProfileOpen(true) },
+    { id: "favourites", label: "Favourites", icon: Star, action: () => setSavedContentOpen(true), count: 15 },
+    { id: "messages", label: "Chats", icon: Mail, action: () => setMessagesOpen(true) },
+    { id: "friends", label: "Friends", icon: Users, href: "/friends" },
+    { id: "wallet", label: "Wallet", icon: Wallet, href: "/wallet" },
+  ]
+
+  const mainNavItems: NavigationItem[] = [
+    { id: "explore", label: "Store", icon: Store, href: "/store" },
+    { id: "events", label: "Market", icon: ShoppingBag, href: "/market" },
+    { id: "streams", label: "Streams", icon: Clapperboard, href: "/streams" },
+    { id: "community", label: "Community", icon: Users, action: () => setCommunitiesOpen(true) },
+  ]
+
+  const supportNavItems: NavigationItem[] = [
+    { id: "report", label: "Report", icon: Flag, href: "/report" },
+    { id: "help", label: "Help", icon: HelpCircle, href: "/help" },
+    { id: "settings", label: "Settings", icon: Settings, action: () => setSettingsOpen(true) },
+  ]
 
   // Current user data
   const currentUser = {
@@ -556,8 +648,17 @@ export default function Timeline() {
     )
   }
 
+  // Sidebar antiga: Timeline, Explorar, Eventos, Perfil, Configurações
+  const sidebarNavItems: NavigationItem[] = [
+    { id: "home", label: "Timeline", icon: Home, href: "/timeline" },
+    { id: "explore", label: "Explorar", icon: Search, action: () => setProfileSearchOpen(true) },
+    { id: "events", label: "Eventos", icon: Calendar, action: () => setEventsOpen(true) },
+    { id: "profile", label: "Perfil", icon: User, action: () => setProfileOpen(true) },
+    { id: "settings", label: "Configurações", icon: Settings, action: () => setSettingsOpen(true) },
+  ]
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-slate-950 dark:via-gray-900 dark:to-slate-950 text-gray-900 dark:text-white transition-colors duration-500">
+    <div className={cn("min-h-screen transition-colors duration-300", isDarkMode ? "dark bg-gray-900 text-gray-50" : "bg-gray-50 text-gray-900")}>
       {/* Custom CSS */}
       <style jsx global>{`
         ::selection {
@@ -565,18 +666,14 @@ export default function Timeline() {
           color: ${isDarkMode ? "#ffffff" : "#1f2937"};
         }
         
+        /* Ocultar a barra de rolagem para todos os navegadores */
         ::-webkit-scrollbar {
-          width: 6px;
+          display: none;
         }
-        ::-webkit-scrollbar-track {
-          background: ${isDarkMode ? "rgba(15, 23, 42, 0.1)" : "rgba(243, 244, 246, 0.5)"};
-        }
-        ::-webkit-scrollbar-thumb {
-          background: ${isDarkMode ? "rgba(219, 39, 119, 0.3)" : "rgba(190, 24, 93, 0.3)"};
-          border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-          background: ${isDarkMode ? "rgba(219, 39, 119, 0.5)" : "rgba(190, 24, 93, 0.5)"};
+        
+        body, .sidebar-box {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
         }
       `}</style>
 
@@ -594,119 +691,20 @@ export default function Timeline() {
         />
       </div>
 
+     
+
       {/* Main Layout */}
-      <div className="relative z-10 max-w-7xl mx-auto flex">
-        {/* Left Sidebar */}
-        <aside className="hidden lg:block w-64 xl:w-80 p-6 sticky top-0 h-screen overflow-y-auto">
-          <div className="space-y-6">
-            {/* Logo */}
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-pink-600 to-purple-600 flex items-center justify-center">
-                <Heart className="w-4 h-4 text-white" />
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-                OpenLove
-              </span>
-            </div>
+      <div className="relative z-10 flex">
+        {/* Sidebar Esquerda */}
+        <TimelineSidebar
+          isDarkMode={isDarkMode}
+          onToggleTheme={toggleTheme}
+          activeView={activeView}
+          setActiveView={setActiveView}
+        />
 
-            {/* Navigation */}
-            <nav className="space-y-2">
-              <Button variant="ghost" className="w-full justify-start gap-3 text-left">
-                <Home className="w-5 h-5" />
-                Início
-              </Button>
-              <Button variant="ghost" className="w-full justify-start gap-3 text-left" onClick={() => setProfileSearchOpen(true)}>
-                <Search className="w-5 h-5" />
-                Explorar
-              </Button>
-              <Button variant="ghost" className="w-full justify-start gap-3 text-left" onClick={() => setNotificationsOpen(true)}>
-                <Bell className="w-5 h-5" />
-                Notificações
-              </Button>
-              <Button variant="ghost" className="w-full justify-start gap-3 text-left" onClick={() => setMessagesOpen(true)}>
-                <Mail className="w-5 h-5" />
-                Mensagens
-              </Button>
-              <Button variant="ghost" className="w-full justify-start gap-3 text-left" onClick={() => setEventsOpen(true)}>
-                <Calendar className="w-5 h-5" />
-                Eventos
-              </Button>
-              <Button variant="ghost" className="w-full justify-start gap-3 text-left" onClick={() => setCommunitiesOpen(true)}>
-                <Users className="w-5 h-5" />
-                Comunidades
-              </Button>
-
-              <Button
-                variant="ghost" 
-                className="w-full justify-start gap-3 text-left"
-                onClick={() => setSavedContentOpen(true)}
-              >
-                <Bookmark className="w-5 h-5" />
-                Salvos
-              </Button>
-              <Button variant="ghost" className="w-full justify-start gap-3 text-left" onClick={() => setProfileOpen(true)}>
-                <User className="w-5 h-5" />
-                Perfil
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start gap-3 text-left"
-                onClick={() => setSettingsOpen(true)}
-              >
-                <Settings className="w-5 h-5" />
-                Configurações
-              </Button>
-            </nav>
-
-            {/* Theme Toggle */}
-            <Button variant="ghost" onClick={toggleTheme} className="w-full justify-start gap-3 text-left">
-              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              {isDarkMode ? "Modo Claro" : "Modo Escuro"}
-            </Button>
-
-            {/* Ad Card */}
-            <div className="mt-8">
-              <AdCard2 />
-            </div>
-
-            {/* Advertiser Dashboard Link */}
-            <div className="mt-4">
-              <Button 
-                variant="outline" 
-                className="w-full justify-start gap-3 text-left"
-                onClick={() => window.open('/ads', '_blank')}
-              >
-                <TrendingUp className="w-5 h-5" />
-                Anunciar no OpenLove
-              </Button>
-            </div>
-          </div>
-        </aside>
-
-        {/* Main Content */}
-        <main className="flex-1 min-h-screen border-x border-gray-200 dark:border-white/10">
-                  {/* Header */}
-        <div className="sticky top-0 bg-white dark:bg-slate-950 border-b border-gray-200 dark:border-white/10 p-4 z-40">
-            <div className="flex items-center justify-between">
-              <h1 className="text-xl font-bold">Timeline</h1>
-              <Button variant="ghost" onClick={toggleTheme} className="lg:hidden" aria-label="Toggle theme">
-                {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </Button>
-            </div>
-
-            {/* Tabs */}
-            <div className="mt-4">
-              <Tabs defaultValue="home" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="home">Para Você</TabsTrigger>
-                  <TabsTrigger value="following">Seguindo</TabsTrigger>
-                  <TabsTrigger value="trending">Trending</TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </div>
-          </div>
-
-          {/* Feed */}
+        {/* Feed Central */}
+        <main className="flex-1">
           <div className="p-4 space-y-6">
             {loadingPosts ? (
               <div className="text-center py-8">
@@ -716,57 +714,102 @@ export default function Timeline() {
               <div className="text-center py-8 text-red-500">
                 Erro ao carregar posts: {errorPosts}
               </div>
-            ) : posts.length === 0 ? (
-              <div className="text-center py-8">
-                <p>Nenhum post encontrado. Seja o primeiro a criar um!</p>
-              </div>
             ) : (
-              posts.map((post, index) => (
-                <div key={post.id}>
-                  <PostCard 
-                    post={post}
-                    onLike={handleLike}
-                    onSave={handleSave}
-                    onFollow={handleFollow}
-                    onComment={handleComment}
-                    onShare={handleShare}
-                    onViewMedia={handleViewMedia}
-
-                    // Remover vestígios de followStates
-                    currentUser={currentUser}
-                  />
-                  
-                  {/* Insert ads after every 3 posts */}
-                  {(index + 1) % 3 === 0 && (
-                    <div className="my-6">
-                      <Advertisement 
-                        type="timeline"
-                        onAdClick={handleAdClick}
-                        onAdImpression={handleAdImpression}
-                      />
-                    </div>
-                  )}
-                  
-                  {/* Insert profile cards after every 2 posts */}
-                  {(index + 1) % 2 === 0 && (
-                    <div className="my-6">
-                      <h3 className="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">
-                        Pessoas que você pode conhecer
-                      </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {posts.map((profile) => (
-                          <ProfileCard key={profile.id} profile={profile} />
-                        ))}
+              (() => {
+                switch (activeView) {
+                  case "home":
+                    return posts.length === 0 ? (
+                      <div className="text-center py-8">
+                        <p>Nenhum post encontrado. Seja o primeiro a criar um!</p>
                       </div>
-                    </div>
-                  )}
-                </div>
-              ))
+                    ) : (
+                      posts.map((post, index) => (
+                        <div key={post.id}>
+                          <PostCard 
+                            post={post}
+                            onLike={handleLike}
+                            onSave={handleSave}
+                            onFollow={handleFollow}
+                            onComment={handleComment}
+                            onShare={handleShare}
+                            onViewMedia={handleViewMedia}
+                            currentUser={currentUser}
+                          />
+                          
+                          {/* Insert ads after every 3 posts */}
+                          {(index + 1) % 3 === 0 && (
+                            <div className="my-6">
+                              <Advertisement 
+                                type="timeline"
+                                onAdClick={handleAdClick}
+                                onAdImpression={handleAdImpression}
+                              />
+                            </div>
+                          )}
+                          
+                          {/* Insert profile cards after every 2 posts */}
+                          {(index + 1) % 2 === 0 && (
+                            <div className="my-6">
+                              <h3 className="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">
+                                Pessoas que você pode conhecer
+                              </h3>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {posts.map((profile) => (
+                                  <ProfileCard key={profile.id} profile={profile} />
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))
+                    )
+                  case "explore":
+                    return <ProfileSearch onProfileClick={() => setProfileSearchOpen(false)} />
+                  case "notifications":
+                    return <NotificationsDialog open={notificationsOpen} onOpenChange={setNotificationsOpen} />
+                  case "messages":
+                    return <MessagesDialog open={messagesOpen} onOpenChange={setMessagesOpen} />
+                  case "events":
+                    return <EventsDialog open={eventsOpen} onOpenChange={setEventsOpen} />
+                  case "communities":
+                    return <CommunitiesDialog open={communitiesOpen} onOpenChange={setCommunitiesOpen} />
+                  case "saved":
+                    return <SavedContent
+                      savedPosts={posts.filter(p => p.saved).map(p => ({
+                        id: p.id.toString(),
+                        user: p.user,
+                        content: p.content,
+                        images: p.images || undefined,
+                        video: p.video || undefined,
+                        event: p.event || undefined,
+                        likes: p.likes,
+                        comments: p.comments,
+                        shares: p.shares,
+                        timestamp: p.timestamp,
+                        savedAt: p.timestamp,
+                        category: p.event ? "events" : p.images || p.video ? "media" : "posts"
+                      }))}
+                      onRemoveFromSaved={(postId) => {
+                        setPosts(prev => prev.map(p => 
+                          p.id.toString() === postId ? { ...p, saved: false } : p
+                        ))
+                      }}
+                      onLike={(postId) => handleLike(parseInt(postId))}
+                      onComment={(postId) => handleComment(parseInt(postId))}
+                      onShare={(postId) => handleShare(parseInt(postId))}
+                      onViewMedia={(postId, mediaIndex) => handleViewMedia(parseInt(postId), mediaIndex)}
+                    />
+                  case "settings":
+                    return <ProfileDialog open={profileOpen} onOpenChange={setProfileOpen} />
+                  default:
+                    return <div className="text-center py-8">Seção em desenvolvimento.</div>
+                }
+              })()
             )}
           </div>
         </main>
 
-        {/* Right Sidebar */}
+        {/* Sidebar Direita */}
         <TimelineRightSidebar
           userLocation="São Paulo, SP"
           onFollowUser={(userId: string) => {
@@ -810,7 +853,7 @@ export default function Timeline() {
             console.log("Abrindo modal de criação de post")
             setPostModalOpen(true)
           }}
-          disabled={!user}
+          disabled={authLoading || !user}
         >
           <span className="sr-only">Criar novo post</span>
           <Plus className="w-6 h-6" />
@@ -831,6 +874,8 @@ export default function Timeline() {
         onSavedContentClick={() => setSavedContentOpen(true)}
         onProfileSearchClick={() => setProfileSearchOpen(true)}
         onCreatePostClick={() => setPostModalOpen(true)}
+        activeView={activeView}
+        setActiveView={setActiveView}
       />
 
       {/* Modals */}

@@ -7,7 +7,7 @@ import { Calendar, Grid, List, Plus, Filter, Search } from "lucide-react"
 import Link from "next/link"
 import EventCalendar from "@/components/events/EventCalendar"
 import EventCard from "@/components/events/EventCard"
-import { useAuth } from "@/components/auth/AuthProvider"
+import { useAuth } from "@/app/components/auth/AuthProvider"
 
 interface Event {
   id: string

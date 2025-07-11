@@ -22,7 +22,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-interface MediaItem {
+export interface MediaItem {
   id: string
   type: "image" | "video"
   url: string

@@ -3,8 +3,8 @@ import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 import { promises as fs } from "fs"
 import path from "path"
-import { validateMediaFile, generateFileName, getMediaUrl } from "@/lib/media-utils"
-import type { Database } from "@/lib/database.types"
+import { validateMediaFile, generateFileName, getMediaUrl } from "@/app/lib/media-utils"
+import type { Database } from "@/app/lib/database.types"
 
 export const dynamic = 'force-dynamic'
 
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Se for foto de perfil, deve ser imagem
-    if (isProfilePicture && validation.fileType !== "image") {
+    if (isProfilePicture && !file.type.startsWith("image/")) {
       return NextResponse.json({ error: "Foto de perfil deve ser uma imagem" }, { status: 400 })
     }
 
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     const height: number | null = null
     const duration: number | null = null
 
-    if (validation.fileType === "image") {
+    if (file.type.startsWith("image")) {
       try {
         // Para imagens, podemos usar uma biblioteca como sharp em produção
         // Por enquanto, vamos deixar null e obter via frontend
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
       url: getMediaUrl(fileName),
       filename: fileName,
       original_name: file.name,
-      file_type: validation.fileType,
+      file_type: file.type.startsWith("image/") ? "image" : file.type.startsWith("video/") ? "video" : "other",
       mime_type: file.type,
       file_size: file.size,
       width,

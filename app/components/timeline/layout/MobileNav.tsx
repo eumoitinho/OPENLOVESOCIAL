@@ -42,6 +42,8 @@ interface MobileNavProps {
   onSavedContentClick?: () => void
   onProfileSearchClick?: () => void
   onCreatePostClick?: () => void
+  activeView?: string
+  setActiveView?: (view: string) => void
 }
 
 export function MobileNav({ 
@@ -53,7 +55,9 @@ export function MobileNav({
   onCommunitiesClick,
   onSavedContentClick,
   onProfileSearchClick,
-  onCreatePostClick
+  onCreatePostClick,
+  activeView = "home",
+  setActiveView
 }: MobileNavProps) {
   const [popupOpen, setPopupOpen] = useState(false)
 
@@ -102,10 +106,10 @@ export function MobileNav({
   return (
     <>
       {/* Floating Action Button */}
-      <div className="fixed bottom-16 left-1/2 -translate-x-1/2 z-50 flex justify-center md:hidden">
+      <div className="fixed bottom-16 right-4 z-50 flex justify-center md:hidden">
         <Button
           size="icon"
-          className="w-14 h-14 rounded-full bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-lg hover:scale-105 transition-all duration-200 border-4 border-white dark:border-slate-950"
+          className="w-14 h-14 rounded-full bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-lg hover:scale-105 transition-all duration-200"
           onClick={() => setPopupOpen((v) => !v)}
           aria-label="Abrir menu rápido"
         >
@@ -137,14 +141,15 @@ export function MobileNav({
       )}
 
       {/* Bottom Navigation */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-gradient-to-r from-white via-openlove-50 to-openlove-100 border-t border-openlove-200 flex justify-around py-2 z-40">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-gradient-to-r from-white via-openlove-50 to-openlove-100 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 border-t border-openlove-200 dark:border-gray-800 flex justify-around py-2 z-40">
         {mainNavItems.map((item) => (
           <Button
             key={item.id}
             variant="ghost"
             size="icon"
             className={cn(
-              "text-gray-500 hover:bg-openlove-100",
+              "text-gray-500 hover:bg-openlove-100 dark:text-gray-300 dark:hover:bg-gray-800",
+              activeView === item.id && "text-pink-600 bg-pink-100 dark:text-pink-400 dark:bg-gray-800"
             )}
             onClick={() => handleMainNavClick(item.id)}
           >

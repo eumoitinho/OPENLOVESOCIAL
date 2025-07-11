@@ -248,8 +248,9 @@ export function TimelineRightSidebar({
   }
 
   const formatNumber = (num: number): string => {
-    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`
+    if (num >= 1000) {
+      return (num / 1000).toFixed(1) + "k"
+    }
     return num.toString()
   }
 
@@ -356,210 +357,129 @@ export function TimelineRightSidebar({
   }
 
   return (
-    <aside className="hidden xl:block w-80 p-6 sticky top-0 h-screen overflow-y-auto">
-      <div className="space-y-6">
-        {/* Search */}
-        <form onSubmit={handleSearch} className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+    <aside className="hidden lg:block w-80 xl:w-96 p-4 sticky top-0 h-screen overflow-y-auto space-y-6 bg-gray-50 dark:bg-gray-950 border-l border-gray-200 dark:border-gray-800">
+      {/* Search Bar */}
+      <form onSubmit={handleSearch}>
+        <div className="relative">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 dark:text-gray-400" />
           <input
             type="text"
             placeholder="Buscar no OpenLove"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-800 rounded-full border-0 focus:ring-2 focus:ring-pink-500 focus:outline-none"
+            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-full text-sm focus:ring-2 focus:ring-pink-500 dark:focus:ring-pink-400 focus:outline-none transition-colors"
           />
-        </form>
+        </div>
+      </form>
 
-        {/* Trending Topics */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <TrendingUp className="w-5 h-5" />
-              Trending Topics
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+      {/* Trending Topics */}
+      <Card className="bg-white dark:bg-gray-900/50 border-gray-200 dark:border-gray-800 shadow-sm">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-800 dark:text-gray-100">
+            <TrendingUp className="w-5 h-5 text-pink-500" />
+            <span>Trending</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className="space-y-4">
             {trendingTopics.map((topic, index) => (
-              <div key={topic.id} className="space-y-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 p-2 rounded-lg transition-colors">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-500">#{index + 1}</span>
-                    <Badge 
-                      variant={topic.isHot ? "destructive" : "secondary"}
-                      className="text-xs"
-                    >
-                      {topic.isHot ? "🔥 HOT" : topic.category}
-                    </Badge>
+              <li key={topic.id} className="group">
+                <a href="#" className="block">
+                  <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
+                    <span>{index + 1} · {topic.category}</span>
+                    {topic.isHot && <Badge variant="destructive" className="text-xs">Hot</Badge>}
                   </div>
-                  <span className="text-xs text-green-600 font-medium">
-                    +{topic.growth}%
-                  </span>
-                </div>
-                <p className="font-semibold text-base">#{topic.hashtag}</p>
-                <p className="text-sm text-gray-500">{formatNumber(topic.postCount)} posts</p>
-              </div>
+                  <h4 className="font-semibold text-sm text-gray-900 dark:text-gray-50 group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors">
+                    #{topic.hashtag}
+                  </h4>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{formatNumber(topic.postCount)} posts</p>
+                </a>
+              </li>
             ))}
-            <Button variant="ghost" className="w-full text-sm text-pink-600 hover:text-pink-700">
-              Ver mais trending topics
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Quem Seguir - Baseado em Localização */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Users className="w-5 h-5" />
-              Quem Seguir
-              <Badge variant="outline" className="text-xs">
-                <MapPin className="w-3 h-3 mr-1" />
-                {userLocation}
-              </Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {suggestedUsers.map((user) => (
-              <div key={user.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="relative">
-                    <Avatar className="w-10 h-10">
-                      <AvatarImage src={user.avatar} alt={user.name} />
-                      <AvatarFallback className="text-xs">
-                        {user.name.split(" ").map(n => n[0]).join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                    {user.verified && (
-                      <BadgeCheck className="absolute -top-1 -right-1 w-4 h-4 fill-blue-500 text-white" />
-                    )}
+          </ul>
+        </CardContent>
+      </Card>
+      
+      {/* Who to Follow */}
+      <Card className="bg-white dark:bg-gray-900/50 border-gray-200 dark:border-gray-800 shadow-sm">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-800 dark:text-gray-100">
+            <Users className="w-5 h-5 text-pink-500" />
+            <span>Quem Seguir</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {suggestedUsers.map(user => (
+              <div key={user.id} className="flex items-start gap-3">
+                <Avatar className="w-10 h-10 border-2 border-gray-100 dark:border-gray-700">
+                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <div className="flex items-center gap-1">
+                    <h4 className="font-semibold text-sm text-gray-900 dark:text-gray-50">{user.name}</h4>
+                    {user.verified && <BadgeCheck className="w-4 h-4 text-blue-500" />}
+                    {user.premium && <Star className="w-4 h-4 text-yellow-500" />}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1">
-                      <p className="font-semibold text-sm truncate">{user.name}</p>
-                      {user.premium && (
-                        <Badge variant="outline" className="text-xs border-pink-600 text-pink-600">
-                          Premium
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-xs text-gray-500 truncate">{user.username}</p>
-                    <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                      <MapPin className="w-3 h-3" />
-                      <span>{user.distance}</span>
-                      <span>•</span>
-                      <span>{formatNumber(user.followers)} seguidores</span>
-                      {user.mutualFriends && (
-                        <>
-                          <span>•</span>
-                          <span>{user.mutualFriends} amigos em comum</span>
-                        </>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {user.tags.slice(0, 2).map((tag, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs px-1 py-0">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">@{user.username}</p>
                 </div>
-                <Button
-                  size="sm"
-                  variant={getFollowButtonVariant(user.id)}
+                <Button 
+                  size="sm" 
+                  variant={getFollowButtonVariant(user.id)} 
+                  onClick={() => handleFollow(user.id)}
                   className={getFollowButtonClassName(user.id)}
-                  onClick={() => handleFollow(user.id, false)}
                 >
                   {getFollowButtonIcon(user.id)}
                   {getFollowButtonText(user.id)}
                 </Button>
               </div>
             ))}
-            <Button variant="ghost" className="w-full text-sm text-pink-600 hover:text-pink-700">
-              Ver mais sugestões
-            </Button>
-          </CardContent>
-        </Card>
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* Eventos Compartilhados */}
-        {sharedEvents.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Calendar className="w-5 h-5" />
-                Eventos Compartilhados
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {sharedEvents.map((event) => (
-                <div key={event.id} className="space-y-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer">
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
-                    <Avatar className="w-4 h-4">
-                      <AvatarImage src={event.sharedBy.avatar} />
-                      <AvatarFallback className="text-xs">
-                        {event.sharedBy.name.split(" ").map(n => n[0]).join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span>{event.sharedBy.name}</span>
-                    <span>•</span>
-                    <span>{event.sharedAt}</span>
-                  </div>
-                  
-                  <div className="flex gap-3">
-                    <img
-                      src={event.image}
-                      alt={event.title}
-                      className="w-16 h-16 rounded-lg object-cover"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-sm truncate">{event.title}</h4>
-                      <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                        <Calendar className="w-3 h-3" />
+      {/* Shared Events */}
+      <Card className="bg-white dark:bg-gray-900/50 border-gray-200 dark:border-gray-800 shadow-sm">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg font-bold text-gray-800 dark:text-gray-100">
+            <Calendar className="w-5 h-5 text-pink-500" />
+            <span>Eventos na sua Área</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {sharedEvents.map(event => (
+              <a href="#" key={event.id} className="block group">
+                <Card className="overflow-hidden border-gray-200 dark:border-gray-700 group-hover:border-pink-500 dark:group-hover:border-pink-400 transition-colors">
+                  <CardContent className="p-0">
+                    <img src={event.image} alt={event.title} className="w-full h-24 object-cover" />
+                    <div className="p-3">
+                      <p className="text-xs font-semibold uppercase text-pink-600 dark:text-pink-400">{event.category}</p>
+                      <h4 className="font-bold text-sm text-gray-900 dark:text-gray-50">{event.title}</h4>
+                      <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        <Calendar className="w-3 h-3 mr-1.5" />
                         <span>{event.date}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
-                        <MapPin className="w-3 h-3" />
-                        <span>{event.location}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
-                        <Users className="w-3 h-3" />
-                        <span>{event.attendees}/{event.maxAttendees} participantes</span>
-                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <Badge variant="outline" className="text-xs">
-                      {event.category}
-                    </Badge>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="text-xs"
-                      onClick={() => onViewEvent?.(event.id)}
-                    >
-                      <ExternalLink className="w-3 h-3 mr-1" />
-                      Ver Evento
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Community Stats */}
-        <AvatarGroup />
-
-        {/* Ad Card */}
-        <AdCard1 />
-
-        {/* Sponsored Ad */}
-        <Advertisement 
-          type="sidebar"
-          onAdClick={(adId) => console.log("Sidebar ad clicked:", adId)}
-          onAdImpression={(adId) => console.log("Sidebar ad impression:", adId)}
-        />
-      </div>
+                  </CardContent>
+                </Card>
+              </a>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+      
+      {/* Footer Links */}
+      <footer className="text-xs text-gray-500 dark:text-gray-400 space-x-2 text-center">
+        <a href="/terms" className="hover:underline">Termos</a>
+        <span>·</span>
+        <a href="/privacy" className="hover:underline">Privacidade</a>
+        <span>·</span>
+        <a href="/about" className="hover:underline">Sobre</a>
+        <span>·</span>
+        <span>© {new Date().getFullYear()} OpenLove</span>
+      </footer>
     </aside>
   )
 }

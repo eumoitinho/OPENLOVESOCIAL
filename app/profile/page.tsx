@@ -1,6 +1,7 @@
 import { createServerSupabaseClient, getAuthenticatedUser, getUserProfile } from "@/app/lib/auth-helpers"
 import ProfileContent from "./ProfileContent"
 import type { Metadata } from "next"
+import { redirect } from "next/navigation"
 
 export const metadata: Metadata = {
   title: "Perfil - ConnectHub",
@@ -9,8 +10,11 @@ export const metadata: Metadata = {
 
 export default async function ProfilePage() {
   const user = await getAuthenticatedUser()
+  if (!user) {
+    redirect("/auth/signin")
+  }
   const profile = await getUserProfile(user.id)
-  const supabase = createServerSupabaseClient()
+  const supabase = await createServerSupabaseClient()
 
   // Buscar mídia do usuário
   const { data: media, error: mediaError } = await supabase

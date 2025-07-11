@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Search, Users, Building, Calendar, Filter, X } from "lucide-react"
-import { useAuth } from "@/components/auth/AuthProvider"
+import { useAuth } from "@/app/components/auth/AuthProvider"
 
 interface SearchResult {
   id: string

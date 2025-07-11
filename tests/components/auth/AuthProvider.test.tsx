@@ -1,7 +1,7 @@
 "use client"
 
 import { render, screen, waitFor } from "@testing-library/react"
-import { AuthProvider, useAuth } from "@/components/auth/AuthProvider"
+import { AuthProvider, useAuth } from "@/app/components/auth/AuthProvider"
 import { createClientSupabaseClient } from "@/lib/auth-helpers"
 import jest from "jest" // Import jest to declare it
 

@@ -137,7 +137,11 @@ function PremiumUpgradeCard() {
 
 export function RightSidebar({ users, events, profile, onToggleFollow }: RightSidebarProps) {
   return (
-    <div className="w-80 border-l border-openlove-200 p-4 space-y-6 hidden lg:block bg-gradient-to-b from-white via-openlove-50 to-openlove-100 z-20">
+    <div className={
+      `w-80 border-l border-openlove-200 p-4 space-y-6 hidden lg:block
+      bg-gradient-to-b from-white via-openlove-50 to-openlove-100
+      dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 z-20`
+    }>
       <AdCard />
       <PeopleSuggestionCard users={users} onToggleFollow={onToggleFollow} />
       <UpcomingEventsCard events={events} />

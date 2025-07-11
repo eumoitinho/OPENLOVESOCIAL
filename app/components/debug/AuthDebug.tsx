@@ -15,9 +15,9 @@ export default function AuthDebug() {
     <div className="fixed top-4 left-4 z-50">
       <button
         onClick={() => setIsVisible(!isVisible)}
-        className="bg-red-500 text-white px-2 py-1 text-xs rounded"
+        className=""
       >
-        Debug Auth
+        
       </button>
       
       {isVisible && (
