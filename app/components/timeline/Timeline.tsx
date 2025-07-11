@@ -119,10 +119,8 @@ export default function Timeline() {
 
   // Check system preference on initial load
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
-      setIsDarkMode(prefersDark)
-    }
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
+    setIsDarkMode(prefersDark)
   }, [])
 
   const toggleTheme = () => {
@@ -223,15 +221,6 @@ export default function Timeline() {
     <Dialog open={postModalOpen} onOpenChange={setPostModalOpen}>
       <DialogContent
         className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto mt-2 mb-2 sm:mt-2 sm:mb-2"
-        style={{
-          marginTop: typeof window !== 'undefined' && window.innerWidth < 640 ? '0' : '10vh',
-          marginBottom: typeof window !== 'undefined' && window.innerWidth < 640 ? '0' : 'auto',
-          height: typeof window !== 'undefined' && window.innerWidth < 640 ? '100vh' : 'auto',
-          maxHeight: typeof window !== 'undefined' && window.innerWidth < 640 ? '100vh' : '90vh',
-          width: typeof window !== 'undefined' && window.innerWidth < 640 ? '100vw' : 'auto',
-          maxWidth: typeof window !== 'undefined' && window.innerWidth < 640 ? '100vw' : '500px',
-          borderRadius: typeof window !== 'undefined' && window.innerWidth < 640 ? '0' : '0.5rem'
-        }}
       >
         <DialogTitle>Criar Post</DialogTitle>
         <DialogDescription className="sr-only">Crie um novo post para compartilhar com a comunidade</DialogDescription>

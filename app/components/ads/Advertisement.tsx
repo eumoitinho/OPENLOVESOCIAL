@@ -21,6 +21,7 @@ import {
   MessageCircle
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useIsClient } from "@/app/hooks/useIsClient"
 
 interface AdMetrics {
   impressions: number
@@ -207,7 +208,19 @@ export default function Advertisement({
   onAdImpression
 }: AdProps) {
   const [dismissed, setDismissed] = useState(false)
-  const [ad] = useState(() => ADS_DATA[Math.floor(Math.random() * ADS_DATA.length)])
+  const isClient = useIsClient()
+  
+  // Usar um anúncio fixo baseado no tipo para evitar hydration mismatch
+  const [ad] = useState(() => {
+    // Selecionar anúncio baseado no tipo para consistência
+    const typeIndex = type === "sidebar" ? 0 : type === "timeline" ? 1 : 2
+    return ADS_DATA[typeIndex % ADS_DATA.length]
+  })
+  
+  // Não renderizar até estar no cliente para evitar hydration mismatch
+  if (!isClient) {
+    return <div className="h-32 bg-gray-100 animate-pulse rounded-lg" />
+  }
 
   useEffect(() => {
     // Track impression
