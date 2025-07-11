@@ -55,6 +55,7 @@ import { TimelineRightSidebar } from "./TimelineRightSidebar"
 import Advertisement from "../ads/Advertisement"
 
 export default function Timeline() {
+  const { user, loading: authLoading } = useAuth()
   const [isDarkMode, setIsDarkMode] = useState(true)
   const [postModalOpen, setPostModalOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -86,8 +87,10 @@ export default function Timeline() {
   }
 
   useEffect(() => {
-    fetchPosts()
-  }, [])
+    if (!authLoading) {
+      fetchPosts()
+    }
+  }, [authLoading])
 
   // Ad tracking
   const handleAdClick = (adId: string) => {
@@ -177,6 +180,13 @@ export default function Timeline() {
   const handlePostSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!postContent.trim()) return
+    
+    if (!user) {
+      console.error("Usuário não autenticado")
+      alert("Você precisa estar logado para criar posts")
+      return
+    }
+    
     setPostLoading(true)
     
     try {
@@ -205,7 +215,7 @@ export default function Timeline() {
     } catch (error) {
       console.error("Erro ao criar post:", error)
       setPostLoading(false)
-      // Aqui você pode adicionar um toast de erro se quiser
+      alert("Erro ao criar post. Tente novamente.")
     }
   }
 
@@ -225,6 +235,20 @@ export default function Timeline() {
       >
         <DialogTitle>Criar Post</DialogTitle>
         <DialogDescription className="sr-only">Crie um novo post para compartilhar com a comunidade</DialogDescription>
+        {!user && (
+          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg mb-4">
+            <p className="text-yellow-800 text-sm">
+              Você precisa estar logado para criar posts. 
+              <Button 
+                variant="link" 
+                className="p-0 h-auto text-yellow-800 underline"
+                onClick={() => window.location.href = '/auth/signin'}
+              >
+                Fazer login
+              </Button>
+            </p>
+          </div>
+        )}
         <Card className="border-0 shadow-none">
           <CardContent className="p-0">
             <form onSubmit={handlePostSubmit} className="space-y-4">
@@ -766,7 +790,14 @@ export default function Timeline() {
           size="lg"
           className="rounded-full w-14 h-14 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300"
           aria-label="Criar novo post"
-          onClick={() => setPostModalOpen(true)}
+          onClick={() => {
+            if (!user) {
+              alert("Você precisa estar logado para criar posts")
+              return
+            }
+            setPostModalOpen(true)
+          }}
+          disabled={!user}
         >
           <Plus className="w-6 h-6" />
         </Button>
