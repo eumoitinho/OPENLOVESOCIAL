@@ -12,8 +12,32 @@ import { Progress } from "@/components/ui/progress"
 import { ArrowLeft, ArrowRight, Check, Crown, Star, Zap } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { Database } from "@/app/lib/database.types"
+// Substituir o tipo User por um tipo manual baseado no schema SQL
 
-type Profile = Database["public"]["Tables"]["profiles"]["Insert"]
+type User = {
+  id: string
+  email: string
+  username: string
+  name: string
+  bio?: string | null
+  avatar_url?: string | null
+  cover_url?: string | null
+  location?: string | null
+  age?: number | null
+  gender?: string | null
+  interests?: string[]
+  relationship_status?: string | null
+  looking_for?: string[]
+  is_premium?: boolean
+  premium_expires_at?: string | null
+  is_verified?: boolean
+  is_active?: boolean
+  last_seen?: string
+  created_at?: string
+  updated_at?: string
+  privacy_settings?: any
+  stats?: any
+}
 
 const PROFILE_TYPES = [
   { value: "single_m", label: "Solteiro (Homem)", emoji: "👨" },
@@ -174,26 +198,23 @@ export default function SignUp() {
       if (authError) throw authError
 
       if (authData.user) {
-        // 2. Criar perfil na tabela profiles
-        const profileData: Profile = {
+        // 2. Criar perfil na tabela users
+        const userData: User = {
           id: authData.user.id,
           email: formData.email,
-          full_name: formData.fullName,
-          profile_type: formData.profileType,
+          username: authData.user.email?.split("@")[0] || "user_" + authData.user.id.substring(0, 8),
+          name: formData.fullName,
+          bio: formData.bio || null,
+          location: formData.location || null,
+          age: formData.age ? Number(formData.age) : null,
           interests: formData.interests,
-          bio: formData.bio,
-          age: Number.parseInt(formData.age),
-          location: formData.location,
-          can_sell_content: formData.canSellContent,
-          offers_programs: formData.offersPrograms,
-          subscription_plan: formData.selectedPlan,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         }
 
-        const { error: profileError } = await supabase.from("profiles").insert([profileData])
+        const { error: userError } = await supabase.from("users").insert([userData])
 
-        if (profileError) throw profileError
+        if (userError) throw userError
 
         // 3. Se não for plano gratuito, redirecionar para pagamento
         if (formData.selectedPlan !== "free") {
@@ -202,7 +223,7 @@ export default function SignUp() {
             pro: "price_pro_monthly",
           }
 
-          const response = await fetch("/api/stripe", {
+          const response = await fetch("/api/mercadopago/subscribe", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
