@@ -254,7 +254,10 @@ export default function Timeline() {
               <Textarea
                 placeholder="O que você está pensando?"
                 value={postContent}
-                onChange={(e) => setPostContent(e.target.value)}
+                onChange={(e) => {
+                  console.log("Texto digitado:", e.target.value)
+                  setPostContent(e.target.value)
+                }}
                 className="min-h-[100px] resize-none border-0 focus-visible:ring-0 text-base"
                 maxLength={2000}
               />
@@ -796,18 +799,24 @@ export default function Timeline() {
           onClick={() => {
             console.log("Botão flutuante clicado - User:", user?.id, "Loading:", authLoading)
             if (authLoading) {
-              alert("Aguarde, verificando autenticação...")
+              console.log("Ainda carregando autenticação...")
               return
             }
             if (!user) {
-              alert("Você precisa estar logado para criar posts")
+              console.log("Usuário não autenticado, redirecionando para login...")
+              window.location.href = "/auth/signin"
               return
             }
+            console.log("Abrindo modal de criação de post")
             setPostModalOpen(true)
           }}
-          disabled={!user || authLoading}
+          disabled={!user}
         >
+          <span className="sr-only">Criar novo post</span>
           <Plus className="w-6 h-6" />
+          <span className="absolute -top-8 left-1/2 -translate-x-1/2 text-xs bg-black/80 text-white px-2 py-1 rounded shadow-lg pointer-events-none select-none">
+            {`user: ${user ? user.id : 'null'} | loading: ${authLoading ? 'true' : 'false'}`}
+          </span>
         </Button>
       </div>
 

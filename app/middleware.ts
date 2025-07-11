@@ -12,6 +12,7 @@ export async function middleware(req: NextRequest) {
 
   // Se o usuário está logado e está em uma rota de auth, redirecionar para timeline
   if (session && req.nextUrl.pathname.startsWith("/auth")) {
+    console.log("Middleware: Usuário logado em rota de auth, redirecionando para timeline")
     return NextResponse.redirect(new URL("/timeline", req.url))
   }
 

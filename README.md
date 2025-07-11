@@ -987,3 +987,29 @@ NEXT_PUBLIC_TURN_CREDENTIAL=senha
 [⬆️ Voltar ao topo](#-connecthub-openlove---plataforma-social-para-conexões-autênticas)
 
 </div>
+
+
+Build Error
+
+
+Error:   × await isn't allowed in non-async function
+
+./app/auth/signin/page.tsx
+
+Error:   × await isn't allowed in non-async function
+    ╭─[D:\MSYNC PESSOAL\OPENLOVE\app\auth\signin\page.tsx:44:1]
+ 41 │         setStep("verification")
+ 42 │         toast.info("Por favor, confirme seu email para continuar")
+ 43 │         // Tentar obter o email da sessão atual
+ 44 │         const { data: { session } } = await supabase.auth.getSession()
+    ·                                             ────────
+ 45 │         if (session?.user?.email) {
+ 46 │           setEmail(session.user.email)
+ 46 │         }
+    ╰────
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/auth/signin/page.tsx

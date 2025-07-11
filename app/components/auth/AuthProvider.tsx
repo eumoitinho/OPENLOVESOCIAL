@@ -50,7 +50,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const fetchProfile = async (userId: string) => {
     try {
-      const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).single()
+      const { data, error } = await supabase.from("users").select("*").eq("id", userId).single()
 
       if (error) {
         console.error("Error fetching profile:", error)
@@ -103,22 +103,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         } = await supabase.auth.getSession()
 
         if (error) {
-          console.error("Error getting session:", error)
+          console.error("[AuthProvider] Error getting session:", error)
           setLoading(false)
           return
         }
 
         setSession(session)
         setUser(session?.user ?? null)
+        console.log("[AuthProvider] Sessão inicial:", session)
 
         if (session?.user) {
           const profileData = await fetchProfile(session.user.id)
           setProfile(profileData)
         }
       } catch (error) {
-        console.error("Error in getInitialSession:", error)
+        console.error("[AuthProvider] Error in getInitialSession (catch):", error)
+        setLoading(false)
       } finally {
         setLoading(false)
+        console.log("[AuthProvider] Loading finalizado (getInitialSession)")
       }
     }
 
@@ -127,7 +130,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed:", event, session?.user?.id)
+      console.log("[AuthProvider] Auth state changed:", event, session?.user?.id)
 
       setSession(session)
       setUser(session?.user ?? null)
@@ -140,6 +143,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       setLoading(false)
+      console.log("[AuthProvider] Loading finalizado (onAuthStateChange)")
     })
 
     return () => {

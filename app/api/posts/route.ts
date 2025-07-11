@@ -20,6 +20,31 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    // Garantir que o usuário existe na tabela users
+    const { data: userRow, error: userRowError } = await supabase
+      .from("users")
+      .select("id")
+      .eq("id", user.id)
+      .single()
+    if (!userRow) {
+      // Criar perfil mínimo
+      const { error: insertError } = await supabase
+        .from("users")
+        .insert({
+          id: user.id,
+          email: user.email,
+          username: user.user_metadata?.username || user.email?.split("@")[0] || "user_" + user.id.substring(0, 8),
+          full_name: user.user_metadata?.full_name || "Usuário",
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+      if (insertError) {
+        console.error("Erro ao criar perfil na tabela users:", insertError)
+        return NextResponse.json({ error: "Erro ao criar perfil de usuário", details: insertError }, { status: 500 })
+      }
+      console.log("Perfil criado automaticamente na tabela users para:", user.id)
+    }
+
     const body = await request.json()
     const { content, mediaUrl, mediaType, visibility = "public" } = body
     

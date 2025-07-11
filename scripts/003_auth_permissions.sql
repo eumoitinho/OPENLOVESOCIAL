@@ -2,20 +2,19 @@
 -- Este script configura as permissões necessárias para o sistema de 2FA
 
 -- Habilitar RLS (Row Level Security) nas tabelas
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE follows ENABLE ROW LEVEL SECURITY;
-ALTER TABLE friends ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 
--- Política para profiles: usuários podem ver todos os perfis, mas só editar o próprio
-CREATE POLICY "Users can view all profiles" ON profiles
+-- Política para users: usuários podem ver todos os perfis, mas só editar o próprio
+CREATE POLICY "Users can view all users" ON users
     FOR SELECT USING (true);
 
-CREATE POLICY "Users can update own profile" ON profiles
+CREATE POLICY "Users can update own profile" ON users
     FOR UPDATE USING (auth.uid() = id);
 
-CREATE POLICY "Users can insert own profile" ON profiles
+CREATE POLICY "Users can insert own profile" ON users
     FOR INSERT WITH CHECK (auth.uid() = id);
 
 -- Política para posts: usuários podem ver todos os posts, mas só criar/editar os próprios
@@ -38,13 +37,6 @@ CREATE POLICY "Users can view all follows" ON follows
 CREATE POLICY "Users can manage own follows" ON follows
     FOR ALL USING (auth.uid() = follower_id);
 
--- Política para friends: usuários podem ver todas as amizades, mas só gerenciar as próprias
-CREATE POLICY "Users can view all friendships" ON friends
-    FOR SELECT USING (true);
-
-CREATE POLICY "Users can manage own friendships" ON friends
-    FOR ALL USING (auth.uid() = user_id OR auth.uid() = friend_id);
-
 -- Política para notifications: usuários só podem ver suas próprias notificações
 CREATE POLICY "Users can view own notifications" ON notifications
     FOR SELECT USING (auth.uid() = user_id);
@@ -59,7 +51,7 @@ CREATE POLICY "Users can delete own notifications" ON notifications
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN
-  INSERT INTO public.profiles (id, email, username, full_name, created_at, updated_at)
+  INSERT INTO public.users (id, email, username, full_name, created_at, updated_at)
   VALUES (
     new.id,
     new.email,
@@ -105,17 +97,17 @@ RETURNS TABLE (
 BEGIN
   RETURN QUERY
   SELECT 
-    p.id,
-    p.email,
-    p.username,
-    p.full_name,
-    p.avatar_url,
-    p.bio,
-    p.interests,
-    p.created_at,
-    p.updated_at
-  FROM public.profiles p
-  WHERE p.id = auth.uid();
+    u.id,
+    u.email,
+    u.username,
+    u.full_name,
+    u.avatar_url,
+    u.bio,
+    u.interests,
+    u.created_at,
+    u.updated_at
+  FROM public.users u
+  WHERE u.id = auth.uid();
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
@@ -129,7 +121,5 @@ CREATE INDEX IF NOT EXISTS idx_posts_user_id ON posts(user_id);
 CREATE INDEX IF NOT EXISTS idx_posts_created_at ON posts(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_follows_follower_id ON follows(follower_id);
 CREATE INDEX IF NOT EXISTS idx_follows_following_id ON follows(following_id);
-CREATE INDEX IF NOT EXISTS idx_friends_user_id ON friends(user_id);
-CREATE INDEX IF NOT EXISTS idx_friends_friend_id ON friends(friend_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
 CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON notifications(created_at DESC); 

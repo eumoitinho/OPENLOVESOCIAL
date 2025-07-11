@@ -177,9 +177,8 @@ export default function SignUp() {
         // 2. Criar perfil na tabela profiles
         const profileData: Profile = {
           id: authData.user.id,
-          email: formData.email,
           full_name: formData.fullName,
-          profile_type: formData.profileType,
+          profile_type: formData.profileType as "single" | "trans" | "couple" | "other" | undefined,
           interests: formData.interests,
           bio: formData.bio,
           age: Number.parseInt(formData.age),
@@ -191,7 +190,7 @@ export default function SignUp() {
           updated_at: new Date().toISOString(),
         }
 
-        const { error: profileError } = await supabase.from("profiles").insert([profileData])
+        const { error: profileError } = await supabase.from("users").insert([profileData])
 
         if (profileError) throw profileError
 

@@ -40,11 +40,12 @@ export default function SignInPage() {
       if (emailUnconfirmed) {
         setStep("verification")
         toast.info("Por favor, confirme seu email para continuar")
-        // Tentar obter o email da sessão atual
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session?.user?.email) {
-          setEmail(session.user.email)
-        }
+        // Obter email da sessão de forma síncrona
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session?.user?.email) {
+            setEmail(session.user.email)
+          }
+        })
       }
     }
   }, [])
@@ -116,8 +117,12 @@ export default function SignInPage() {
           // Login bem-sucedido, redirecionar
           toast.success("Login realizado com sucesso!")
           const targetUrl = redirectUrl || "/timeline"
+          console.log("Redirecionando para:", targetUrl)
           router.push(targetUrl)
-          router.refresh()
+          // Forçar refresh após um pequeno delay
+          setTimeout(() => {
+            router.refresh()
+          }, 100)
         }
       } catch (error) {
         console.error("Sign in error:", error)
@@ -169,8 +174,12 @@ export default function SignInPage() {
       } else {
         toast.success("Verificação realizada com sucesso!")
         const targetUrl = redirectUrl || "/timeline"
+        console.log("Redirecionando após verificação para:", targetUrl)
         router.push(targetUrl)
-        router.refresh()
+        // Forçar refresh após um pequeno delay
+        setTimeout(() => {
+          router.refresh()
+        }, 100)
       }
     } catch (error) {
       console.error("Verification error:", error)
