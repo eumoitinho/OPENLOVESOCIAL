@@ -357,7 +357,7 @@ export function TimelineRightSidebar({
   }
 
   return (
-    <aside className="hidden lg:block w-80 xl:w-96 p-4 sticky top-0 h-screen overflow-y-auto space-y-6 bg-gray-50 dark:bg-gray-950 border-l border-gray-200 dark:border-gray-800">
+    <aside className="hidden lg:block p-3 xs:p-4 sticky top-0 h-screen overflow-y-auto space-y-4 xs:space-y-6">
       {/* Search Bar */}
       <form onSubmit={handleSearch}>
         <div className="relative">
@@ -367,7 +367,7 @@ export function TimelineRightSidebar({
             placeholder="Buscar no OpenLove"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-full text-sm focus:ring-2 focus:ring-pink-500 dark:focus:ring-pink-400 focus:outline-none transition-colors"
+            className="w-full pl-10 pr-4 py-2 xs:py-2.5 bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-full text-xs xs:text-sm focus:ring-2 focus:ring-pink-500 dark:focus:ring-pink-400 focus:outline-none transition-colors"
           />
         </div>
       </form>

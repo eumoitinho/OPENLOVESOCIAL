@@ -14,7 +14,10 @@ import {
   Bookmark,
   User,
   Settings,
+  Home,
+  Feather,
 } from "lucide-react"
+import { cn } from "@/lib/utils"
 import Logo from "../Logo"
 
 interface TimelineSidebarProps {
@@ -22,9 +25,12 @@ interface TimelineSidebarProps {
   onToggleTheme: () => void
   activeView: string
   setActiveView: (view: string) => void
+  onNavigateToSettings?: () => void
+  onNavigateToProfiles?: () => void
+  onCreatePost?: () => void
 }
 
-export function TimelineSidebar({ isDarkMode, onToggleTheme, activeView, setActiveView }: TimelineSidebarProps) {
+export function TimelineSidebar({ isDarkMode, onToggleTheme, activeView, setActiveView, onNavigateToSettings, onNavigateToProfiles, onCreatePost }: TimelineSidebarProps) {
   const AdCard2 = () => (
     <Card className="max-w-md pt-0">
       <CardContent className="px-0">
@@ -132,49 +138,197 @@ export function TimelineSidebar({ isDarkMode, onToggleTheme, activeView, setActi
     </Card>
   )
 
-  return (
-    <aside className={
-      `hidden lg:block w-64 xl:w-80 p-6 sticky top-0 h-screen overflow-y-auto
-      bg-gradient-to-b from-white via-openlove-50 to-openlove-100
-      dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 z-20`
-    }>
-      <div className="space-y-6">
+    return (
+    <aside className="hidden min-[360px]:block w-[72px] lg:w-[275px] p-3 xs:p-4 sticky top-0 h-screen overflow-y-auto">
+      <div className="space-y-6 xs:space-y-8">
         {/* Logo */}
-        <h1 className="text-3xl justify-center items-center sm:text-4xl font-bold tracking-tight">
+        <div className="px-2">
+          <h1 className="text-lg xs:text-xl font-bold tracking-tight">
             <span className="text-gray-900 dark:text-white">open</span>
             <span className="bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 dark:from-pink-400 dark:via-rose-400 dark:to-purple-400 bg-clip-text text-transparent">
               love
             </span>
           </h1>
-        {/* Navigation */}
-        <nav className="space-y-2">
-          <Button variant={activeView === "home" ? "default" : "ghost"} className="w-full justify-start gap-3 text-left" onClick={() => setActiveView("home")}> <User className="w-5 h-5" /> Início </Button>
-          <Button variant={activeView === "explore" ? "default" : "ghost"} className="w-full justify-start gap-3 text-left" onClick={() => setActiveView("explore")}> <Search className="w-5 h-5" /> Explorar </Button>
-          <Button variant={activeView === "notifications" ? "default" : "ghost"} className="w-full justify-start gap-3 text-left" onClick={() => setActiveView("notifications")}> <Bell className="w-5 h-5" /> Notificações </Button>
-          <Button variant={activeView === "messages" ? "default" : "ghost"} className="w-full justify-start gap-3 text-left" onClick={() => setActiveView("messages")}> <Mail className="w-5 h-5" /> Mensagens </Button>
-          <Button variant={activeView === "events" ? "default" : "ghost"} className="w-full justify-start gap-3 text-left" onClick={() => setActiveView("events")}> <Calendar className="w-5 h-5" /> Eventos </Button>
-          <Button variant={activeView === "communities" ? "default" : "ghost"} className="w-full justify-start gap-3 text-left" onClick={() => setActiveView("communities")}> <Users className="w-5 h-5" /> Comunidades </Button>
-          <Button variant={activeView === "saved" ? "default" : "ghost"} className="w-full justify-start gap-3 text-left" onClick={() => setActiveView("saved")}> <Bookmark className="w-5 h-5" /> Salvos </Button>
-          <Button variant={activeView === "settings" ? "default" : "ghost"} className="w-full justify-start gap-3 text-left" onClick={() => setActiveView("settings")}> <Settings className="w-5 h-5" /> Configurações </Button>
-        </nav>
-
-        {/* Cards extras */}
-        <div className="space-y-4">
-          <PlanoCard />
-          <ComunidadeSugeridaCard />
-          <NotificacoesCard />
-          <MensagensCard />
         </div>
 
-        {/* Theme Toggle */}
-        <Button variant="ghost" onClick={onToggleTheme} className="w-full justify-start gap-3 text-left">
-          {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-          {isDarkMode ? "Modo Claro" : "Modo Escuro"}
-        </Button>
+        {/* Navigation */}
+        <nav className="space-y-1.5 xs:space-y-2">
+          <Button 
+            variant="ghost" 
+            className={cn(
+              "w-full justify-start gap-3 xs:gap-4 text-left h-11 xs:h-12 px-3 xs:px-4 rounded-full transition-all duration-200",
+              activeView === "home" && "bg-transparent"
+            )}
+            onClick={() => {
+              console.log("TimelineSidebar - Home button clicked")
+              setActiveView("home")
+            }}
+          > 
+            <Home className={cn(
+              "w-5 h-5 xs:w-6 xs:h-6 transition-colors",
+              activeView === "home" ? "text-pink-600 dark:text-pink-400" : "text-gray-600 dark:text-gray-400"
+            )} /> 
+            <span className={cn(
+              "text-base xs:text-lg transition-all hidden lg:inline",
+              activeView === "home" ? "font-bold text-gray-900 dark:text-white" : "font-normal text-gray-600 dark:text-gray-400"
+            )}>Início</span> 
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            className={cn(
+              "w-full justify-start gap-3 xs:gap-4 text-left h-11 xs:h-12 px-3 xs:px-4 rounded-full transition-all duration-200",
+              activeView === "explore" && "bg-transparent"
+            )}
+            onClick={() => {
+              console.log("TimelineSidebar - Explore button clicked")
+              setActiveView("explore")
+            }}
+          > 
+            <Search className={cn(
+              "w-5 h-5 xs:w-6 xs:h-6 transition-colors",
+              activeView === "explore" ? "text-pink-600 dark:text-pink-400" : "text-gray-600 dark:text-gray-400"
+            )} /> 
+            <span className={cn(
+              "text-base xs:text-lg transition-all hidden lg:inline",
+              activeView === "explore" ? "font-bold text-gray-900 dark:text-white" : "font-normal text-gray-600 dark:text-gray-400"
+            )}>Explorar</span> 
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            className={cn(
+              "w-full justify-start gap-3 xs:gap-4 text-left h-11 xs:h-12 px-3 xs:px-4 rounded-full transition-all duration-200",
+              activeView === "notifications" && "bg-transparent"
+            )}
+            onClick={() => {
+              console.log("TimelineSidebar - Notifications button clicked")
+              setActiveView("notifications")
+            }}
+          > 
+            <Bell className={cn(
+              "w-5 h-5 xs:w-6 xs:h-6 transition-colors",
+              activeView === "notifications" ? "text-pink-600 dark:text-pink-400" : "text-gray-600 dark:text-gray-400"
+            )} /> 
+            <span className={cn(
+              "text-base xs:text-lg transition-all hidden lg:inline",
+              activeView === "notifications" ? "font-bold text-gray-900 dark:text-white" : "font-normal text-gray-600 dark:text-gray-400"
+            )}>Notificações</span> 
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            className={cn(
+              "w-full justify-start gap-3 xs:gap-4 text-left h-11 xs:h-12 px-3 xs:px-4 rounded-full transition-all duration-200",
+              activeView === "messages" && "bg-transparent"
+            )}
+            onClick={() => setActiveView("messages")}
+          > 
+            <Mail className={cn(
+              "w-5 h-5 xs:w-6 xs:h-6 transition-colors",
+              activeView === "messages" ? "text-pink-600 dark:text-pink-400" : "text-gray-600 dark:text-gray-400"
+            )} /> 
+            <span className={cn(
+              "text-base xs:text-lg transition-all hidden lg:inline",
+              activeView === "messages" ? "font-bold text-gray-900 dark:text-white" : "font-normal text-gray-600 dark:text-gray-400"
+            )}>Mensagens</span> 
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            className={cn(
+              "w-full justify-start gap-3 xs:gap-4 text-left h-11 xs:h-12 px-3 xs:px-4 rounded-full transition-all duration-200",
+              activeView === "events" && "bg-transparent"
+            )}
+            onClick={() => setActiveView("events")}
+          > 
+            <Calendar className={cn(
+              "w-5 h-5 xs:w-6 xs:h-6 transition-colors",
+              activeView === "events" ? "text-pink-600 dark:text-pink-400" : "text-gray-600 dark:text-gray-400"
+            )} /> 
+            <span className={cn(
+              "text-base xs:text-lg transition-all hidden lg:inline",
+              activeView === "events" ? "font-bold text-gray-900 dark:text-white" : "font-normal text-gray-600 dark:text-gray-400"
+            )}>Eventos</span> 
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            className={cn(
+              "w-full justify-start gap-3 xs:gap-4 text-left h-11 xs:h-12 px-3 xs:px-4 rounded-full transition-all duration-200",
+              activeView === "communities" && "bg-transparent"
+            )}
+            onClick={() => setActiveView("communities")}
+          > 
+            <Users className={cn(
+              "w-5 h-5 xs:w-6 xs:h-6 transition-colors",
+              activeView === "communities" ? "text-pink-600 dark:text-pink-400" : "text-gray-600 dark:text-gray-400"
+            )} /> 
+            <span className={cn(
+              "text-base xs:text-lg transition-all hidden lg:inline",
+              activeView === "communities" ? "font-bold text-gray-900 dark:text-white" : "font-normal text-gray-600 dark:text-gray-400"
+            )}>Comunidades</span> 
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            className={cn(
+              "w-full justify-start gap-3 xs:gap-4 text-left h-11 xs:h-12 px-3 xs:px-4 rounded-full transition-all duration-200",
+              activeView === "saved" && "bg-transparent"
+            )}
+            onClick={() => setActiveView("saved")}
+          > 
+            <Bookmark className={cn(
+              "w-5 h-5 xs:w-6 xs:h-6 transition-colors",
+              activeView === "saved" ? "text-pink-600 dark:text-pink-400" : "text-gray-600 dark:text-gray-400"
+            )} /> 
+            <span className={cn(
+              "text-base xs:text-lg transition-all hidden lg:inline",
+              activeView === "saved" ? "font-bold text-gray-900 dark:text-white" : "font-normal text-gray-600 dark:text-gray-400"
+            )}>Salvos</span> 
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start gap-3 xs:gap-4 text-left h-11 xs:h-12 px-3 xs:px-4 rounded-full transition-all duration-200" 
+            onClick={onNavigateToProfiles}
+          > 
+            <Users className="w-5 h-5 xs:w-6 xs:h-6 text-gray-600 dark:text-gray-400" /> 
+            <span className="text-base xs:text-lg font-normal text-gray-600 dark:text-gray-400 hidden lg:inline">Perfis</span> 
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start gap-3 xs:gap-4 text-left h-11 xs:h-12 px-3 xs:px-4 rounded-full transition-all duration-200" 
+            onClick={onNavigateToSettings}
+          > 
+            <Settings className="w-5 h-5 xs:w-6 xs:h-6 text-gray-600 dark:text-gray-400" /> 
+            <span className="text-base xs:text-lg font-normal text-gray-600 dark:text-gray-400 hidden lg:inline">Configurações</span> 
+          </Button>
 
-        {/* Ad Card */}
-        <div className="mt-8">
-          <AdCard2 />
+          {/* Botão Postar */}
+         
+          <div className="inline-flex w-full justify-center items-center gap-2 bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 dark:from-pink-500 dark:via-rose-500 dark:to-purple-500 p-[1px] rounded-full group hover:scale-105 transition-all duration-300 hover:shadow-xl">
+                <Button
+                  onClick={onCreatePost}
+                  className="w-full rounded-full bg-white dark:bg-gray-900/80 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-900 px-4 xs:px-6 py-2.5 xs:py-3 text-sm xs:text-base lg:text-lg group"
+                >
+                  <Feather className="w-4 h-4 xs:w-5 xs:h-5 lg:w-6 lg:h-6" />
+                  <span className="hidden lg:inline ml-2">Postar</span>
+                </Button>
+              </div>
+        </nav>
+
+        {/* Theme Toggle */}
+        <div className="px-2">
+          <Button 
+            variant="ghost" 
+            onClick={onToggleTheme} 
+            className="w-full justify-start gap-3 xs:gap-4 text-left h-11 xs:h-12 px-3 xs:px-4 rounded-full"
+          >
+            {isDarkMode ? <Sun className="w-5 h-5 xs:w-6 xs:h-6" /> : <Moon className="w-5 h-5 xs:w-6 xs:h-6" />}
+            <span className="text-base xs:text-lg hidden lg:inline">{isDarkMode ? "Modo Claro" : "Modo Escuro"}</span>
+          </Button>
         </div>
       </div>
     </aside>

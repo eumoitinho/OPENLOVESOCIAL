@@ -218,7 +218,7 @@ const config: Config = {
         openlove: "0 10px 25px -3px rgba(236, 72, 153, 0.1), 0 4px 6px -2px rgba(236, 72, 153, 0.05)",
       },
       screens: {
-        xs: "475px",
+        xs: "360px",
         "3xl": "1600px",
       },
       zIndex: {

@@ -180,8 +180,8 @@ export default function PostCard({
 
   return (
     <Card className="max-w-full bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 shadow-sm transition-colors">
-      <CardHeader className="flex flex-row items-center justify-between gap-3 p-4">
-        <div className="flex items-center gap-3">
+      <CardHeader className="flex flex-row items-center justify-between gap-2 xs:gap-3 p-3 xs:p-4">
+        <div className="flex items-center gap-2 xs:gap-3">
           <div className="relative cursor-pointer" onClick={handleViewProfile}>
             <Avatar className="ring-2 ring-transparent group-hover:ring-pink-500 transition-all duration-200">
               <AvatarImage src={post.user.avatar || "/placeholder.svg"} alt={post.user.name} />
@@ -197,7 +197,7 @@ export default function PostCard({
           </div>
           <div className="flex flex-col gap-0.5">
             <CardTitle 
-              className="flex items-center gap-2 text-sm font-semibold text-gray-800 dark:text-gray-100 cursor-pointer hover:text-pink-600 dark:hover:text-pink-400 transition-colors duration-200"
+              className="flex items-center gap-1.5 xs:gap-2 text-xs xs:text-sm font-semibold text-gray-800 dark:text-gray-100 cursor-pointer hover:text-pink-600 dark:hover:text-pink-400 transition-colors duration-200"
               onClick={handleViewProfile}
             >
               {post.user.name}
@@ -210,7 +210,7 @@ export default function PostCard({
                 </Badge>
               )}
             </CardTitle>
-            <CardDescription className="flex flex-wrap items-center gap-x-1.5 text-xs text-gray-500 dark:text-gray-400">
+            <CardDescription className="flex flex-wrap items-center gap-x-1 xs:gap-x-1.5 text-xs text-gray-500 dark:text-gray-400">
               <span>{post.user.username}</span>
               <span className="hidden sm:inline">•</span>
               <span className="hidden sm:inline">{post.timestamp}</span>
@@ -222,13 +222,13 @@ export default function PostCard({
             </CardDescription>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 xs:gap-2">
           <Button
             variant={followState === "following" ? "secondary" : "outline"}
             size="sm"
             onClick={handleFollow}
             className={cn(
-              "transition-all duration-200 text-xs sm:text-sm",
+              "transition-all duration-200 text-xs",
               "border-gray-300 dark:border-gray-600 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200",
               followState === "requested" && "bg-yellow-100/10 text-yellow-600 dark:text-yellow-400 border-yellow-300/50 dark:border-yellow-400/30 hover:bg-yellow-100/20",
               followState === "following" && "bg-green-100/10 text-green-600 dark:text-green-400 border-green-300/50 dark:border-green-400/30 hover:bg-green-100/20",
@@ -242,7 +242,7 @@ export default function PostCard({
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="px-4 pb-4 space-y-4 text-sm">
+      <CardContent className="px-3 xs:px-4 pb-3 xs:pb-4 space-y-3 xs:space-y-4 text-xs xs:text-sm">
         <p className="leading-relaxed text-gray-800 dark:text-gray-300">{post.content}</p>
         
         {/* Mídia */}
@@ -272,24 +272,24 @@ export default function PostCard({
           </div>
         )}
       </CardContent>
-      <CardFooter className="flex justify-between items-center p-4 border-t border-gray-100 dark:border-gray-800">
-        <div className="flex items-center gap-1 sm:gap-2">
+      <CardFooter className="flex justify-between items-center p-3 xs:p-4 border-t border-gray-100 dark:border-gray-800">
+        <div className="flex items-center gap-1 xs:gap-1.5 sm:gap-2">
           <Button variant="ghost" size="sm" onClick={handleLike} className="text-gray-500 dark:text-gray-400 hover:bg-red-100/50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400">
-            <Heart className={cn("w-4 h-4 mr-1.5", post.liked && "fill-red-500 text-red-500")} />
-            <span className="text-xs sm:text-sm">{post.likes}</span>
+            <Heart className={cn("w-4 h-4 mr-1 xs:mr-1.5", post.liked && "fill-red-500 text-red-500")} />
+            <span className="text-xs">{post.likes}</span>
           </Button>
           <Button variant="ghost" size="sm" onClick={handleComment} className="text-gray-500 dark:text-gray-400 hover:bg-sky-100/50 dark:hover:bg-sky-900/20 hover:text-sky-600 dark:hover:text-sky-400">
-            <MessageCircleIcon className="w-4 h-4 mr-1.5" />
-            <span className="text-xs sm:text-sm">{post.comments}</span>
+            <MessageCircleIcon className="w-4 h-4 mr-1 xs:mr-1.5" />
+            <span className="text-xs">{post.comments}</span>
           </Button>
           <Button variant="ghost" size="sm" onClick={handleShare} className="text-gray-500 dark:text-gray-400 hover:bg-emerald-100/50 dark:hover:bg-emerald-900/20 hover:text-emerald-600 dark:hover:text-emerald-400">
-            <Share2 className="w-4 h-4 mr-1.5" />
-            <span className="hidden sm:inline text-xs sm:text-sm">Compartilhar</span>
+            <Share2 className="w-4 h-4 mr-1 xs:mr-1.5" />
+            <span className="hidden sm:inline text-xs">Compartilhar</span>
           </Button>
         </div>
         <Button variant="ghost" size="sm" onClick={handleSave} className="text-gray-500 dark:text-gray-400 hover:bg-amber-100/50 dark:hover:bg-amber-900/20 hover:text-amber-600 dark:hover:text-amber-400">
           <Save className={cn("w-4 h-4", post.saved && "fill-amber-400 text-amber-500")} />
-          <span className="hidden sm:inline text-xs sm:text-sm ml-1.5">Salvar</span>
+          <span className="hidden sm:inline text-xs ml-1 xs:ml-1.5">Salvar</span>
         </Button>
       </CardFooter>
 

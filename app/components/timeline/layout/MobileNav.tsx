@@ -11,25 +11,21 @@ import {
   Calendar,
   Bookmark,
   Settings,
-  Plus,
+  Feather,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-const mainNavItems = [
+const navItems = [
   { id: "home", label: "Timeline", icon: Home },
   { id: "search", label: "Buscar", icon: SearchIcon },
-  { id: "messages", label: "Mensagens", icon: Mail },
-  { id: "profile", label: "Perfil", icon: User },
-]
-
-const popupNavItems = [
   { id: "notifications", label: "Notificações", icon: Bell },
-  { id: "communities", label: "Comunidades", icon: Users },
+  { id: "messages", label: "Mensagens", icon: Mail },
   { id: "events", label: "Eventos", icon: Calendar },
+  { id: "communities", label: "Comunidades", icon: Users },
   { id: "saved", label: "Salvos", icon: Bookmark },
+  { id: "profile", label: "Perfil", icon: User },
   { id: "settings", label: "Configurações", icon: Settings },
-  { id: "create-post", label: "Criar Post", icon: Plus, highlight: true },
 ]
 
 interface MobileNavProps {
@@ -42,6 +38,8 @@ interface MobileNavProps {
   onSavedContentClick?: () => void
   onProfileSearchClick?: () => void
   onCreatePostClick?: () => void
+  onNavigateToSettings?: () => void
+  onNavigateToProfiles?: () => void
   activeView?: string
   setActiveView?: (view: string) => void
 }
@@ -56,15 +54,27 @@ export function MobileNav({
   onSavedContentClick,
   onProfileSearchClick,
   onCreatePostClick,
+  onNavigateToSettings,
+  onNavigateToProfiles,
   activeView = "home",
   setActiveView
 }: MobileNavProps) {
-  const [popupOpen, setPopupOpen] = useState(false)
-
-  const handlePopupItemClick = (itemId: string) => {
-    setPopupOpen(false)
+  const handleItemClick = (itemId: string) => {
+    if (setActiveView) setActiveView(itemId)
     
     switch (itemId) {
+      case "home":
+        // Navegar para home/timeline (já estamos aqui)
+        break
+      case "search":
+        onProfileSearchClick?.()
+        break
+      case "messages":
+        onMessagesClick?.()
+        break
+      case "profile":
+        onNavigateToProfiles?.()
+        break
       case "notifications":
         onNotificationsClick?.()
         break
@@ -78,85 +88,38 @@ export function MobileNav({
         onSavedContentClick?.()
         break
       case "settings":
-        onSettingsClick?.()
-        break
-      case "create-post":
-        onCreatePostClick?.()
-        break
-    }
-  }
-
-  const handleMainNavClick = (itemId: string) => {
-    switch (itemId) {
-      case "home":
-        // Navegar para home/timeline (já estamos aqui)
-        break
-      case "search":
-        onProfileSearchClick?.()
-        break
-      case "messages":
-        onMessagesClick?.()
-        break
-      case "profile":
-        onProfileClick?.()
+        onNavigateToSettings?.()
         break
     }
   }
 
   return (
-    <>
-      {/* Floating Action Button */}
-      <div className="fixed bottom-16 right-4 z-50 flex justify-center md:hidden">
+    <aside className="md:hidden fixed left-0 top-0 bottom-0 w-[72px] bg-white dark:bg-gray-900 overflow-y-auto p-4 flex flex-col gap-4 z-50">
+      {navItems.map((item) => (
+        <Button
+          key={item.id}
+          variant="ghost"
+          size="icon"
+          className={cn(
+            "rounded-full",
+            activeView === item.id && "bg-pink-100 text-pink-600 dark:bg-gray-800 dark:text-pink-400"
+          )}
+          onClick={() => handleItemClick(item.id)}
+          aria-label={item.label}
+        >
+          <item.icon className="h-6 w-6" />
+        </Button>
+      ))}
+      <div className="mt-auto">
         <Button
           size="icon"
-          className="w-14 h-14 rounded-full bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-lg hover:scale-105 transition-all duration-200"
-          onClick={() => setPopupOpen((v) => !v)}
-          aria-label="Abrir menu rápido"
+          className="w-full rounded-full bg-gradient-to-r from-pink-600 to-purple-600 text-white hover:from-pink-700 hover:to-purple-700"
+          onClick={onCreatePostClick}
+          aria-label="Criar Post"
         >
-          <Plus className="h-7 w-7" />
+          <Feather className="h-6 w-6" />
         </Button>
       </div>
-
-      {/* Popup/Modal */}
-      {popupOpen && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center md:hidden">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setPopupOpen(false)} />
-          <div className="relative w-full max-w-sm mx-auto mb-24 rounded-2xl bg-white dark:bg-slate-900 p-4 flex flex-col gap-2 animate-fade-in-up shadow-xl">
-            {popupNavItems.map((item) => (
-              <Button
-                key={item.id}
-                variant={item.highlight ? "default" : "ghost"}
-                className={cn(
-                  "w-full flex items-center gap-3 justify-start text-base",
-                  item.highlight && "bg-gradient-to-r from-pink-600 to-purple-600 text-white hover:from-pink-700 hover:to-purple-700"
-                )}
-                onClick={() => handlePopupItemClick(item.id)}
-              >
-                <item.icon className="h-5 w-5" />
-                {item.label}
-              </Button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Bottom Navigation */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-gradient-to-r from-white via-openlove-50 to-openlove-100 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900 border-t border-openlove-200 dark:border-gray-800 flex justify-around py-2 z-40">
-        {mainNavItems.map((item) => (
-          <Button
-            key={item.id}
-            variant="ghost"
-            size="icon"
-            className={cn(
-              "text-gray-500 hover:bg-openlove-100 dark:text-gray-300 dark:hover:bg-gray-800",
-              activeView === item.id && "text-pink-600 bg-pink-100 dark:text-pink-400 dark:bg-gray-800"
-            )}
-            onClick={() => handleMainNavClick(item.id)}
-          >
-            <item.icon className="h-6 w-6" />
-          </Button>
-        ))}
-      </div>
-    </>
+    </aside>
   )
 }
