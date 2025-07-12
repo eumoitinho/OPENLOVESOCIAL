@@ -133,6 +133,13 @@ const Chat: React.FC<ChatProps> = ({
     }
   }
 
+  const handleViewProfile = () => {
+    if (conversation) {
+      // Redirecionar para o perfil do usuário
+      window.open(`/profile/${conversation.participants[0]?.id}`, '_blank')
+    }
+  }
+
   if (!conversation) {
     return (
       <div className="flex items-center justify-center h-full text-muted-foreground">
@@ -188,7 +195,7 @@ const Chat: React.FC<ChatProps> = ({
               </Button>
             </>
           )}
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" onClick={handleViewProfile} title="Ver perfil">
             <Info className="h-4 w-4" />
           </Button>
 
@@ -199,7 +206,7 @@ const Chat: React.FC<ChatProps> = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>Ver perfil</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleViewProfile}>Ver perfil</DropdownMenuItem>
               <DropdownMenuItem>Silenciar notificações</DropdownMenuItem>
               <DropdownMenuItem>Arquivar conversa</DropdownMenuItem>
               <DropdownMenuItem className="text-destructive">Excluir conversa</DropdownMenuItem>

@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     // Step 3: Fetch author profiles
     const { data: authors } = await supabase
       .from("users")
-      .select("id, username, full_name, avatar_url, is_verified, profile_type")
+      .select("id, username, name, avatar_url, is_verified")
       .in("id", authorIds)
 
     // Create author lookup map
@@ -53,11 +53,15 @@ export async function GET(request: NextRequest) {
     authors?.forEach((author) => {
       authorMap.set(author.id, {
         id: author.id,
-        name: author.full_name,
-        username: author.username,
+        name: author.name || "Usuário",
+        username: author.username || "unknown",
         avatar: author.avatar_url,
-        verified: author.is_verified,
-        type: author.profile_type,
+        verified: author.is_verified || false,
+        type: "single",
+        location: "Localização não informada",
+        premium: false,
+        relationshipType: "single",
+        isPrivate: false,
       })
     })
 
@@ -95,7 +99,7 @@ export async function GET(request: NextRequest) {
     // Fetch comment authors
     const { data: commentAuthors } = await supabase
       .from("users")
-      .select("id, username, full_name, avatar_url")
+      .select("id, username, name, avatar_url")
       .in("id", commentAuthorIds)
 
     // Create comment author lookup
@@ -103,8 +107,8 @@ export async function GET(request: NextRequest) {
     commentAuthors?.forEach((author) => {
       commentAuthorMap.set(author.id, {
         id: author.id,
-        name: author.full_name,
-        username: author.username,
+        name: author.name || "Usuário",
+        username: author.username || "unknown",
         avatar: author.avatar_url,
       })
     })
@@ -141,19 +145,30 @@ export async function GET(request: NextRequest) {
         mediaType: post.media_types?.[0] || null, // Usar media_types array
         visibility: post.visibility,
         createdAt: post.created_at,
-        author: author || {
+        user: author || {
           id: post.user_id,
           name: "Usuário",
           username: "unknown",
           avatar: null,
           verified: false,
           type: "single",
+          location: "Localização não informada",
+          premium: false,
+          relationshipType: "single",
+          isPrivate: false,
         },
         likes: postLikes,
         likesCount: postLikes.length,
         isLiked: false, // Simplified for now
         comments: postComments,
         commentsCount: postComments.length,
+        images: post.media_urls || null,
+        video: null,
+        event: null,
+        shares: 0,
+        reposts: 0,
+        saved: false,
+        timestamp: post.created_at,
       }
     })
 

@@ -12,6 +12,7 @@ import {
   Bookmark,
   Settings,
   Feather,
+  Heart,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -23,9 +24,11 @@ const navItems = [
   { id: "messages", label: "Mensagens", icon: Mail },
   { id: "events", label: "Eventos", icon: Calendar },
   { id: "communities", label: "Comunidades", icon: Users },
+  { id: "open-dates", label: "Open Dates", icon: Heart },
   { id: "saved", label: "Salvos", icon: Bookmark },
   { id: "profile", label: "Perfil", icon: User },
   { id: "settings", label: "Configurações", icon: Settings },
+  { id: "create-post", label: "Criar Post", icon: Feather }, // Botão de criar post após Configurações
 ]
 
 interface MobileNavProps {
@@ -44,7 +47,7 @@ interface MobileNavProps {
   setActiveView?: (view: string) => void
 }
 
-export function MobileNav({ 
+export function MobileNav({
   onProfileClick,
   onSettingsClick,
   onMessagesClick,
@@ -57,14 +60,13 @@ export function MobileNav({
   onNavigateToSettings,
   onNavigateToProfiles,
   activeView = "home",
-  setActiveView
+  setActiveView,
 }: MobileNavProps) {
   const handleItemClick = (itemId: string) => {
     if (setActiveView) setActiveView(itemId)
-    
+
     switch (itemId) {
       case "home":
-        // Navegar para home/timeline (já estamos aqui)
         break
       case "search":
         onProfileSearchClick?.()
@@ -81,6 +83,9 @@ export function MobileNav({
       case "communities":
         onCommunitiesClick?.()
         break
+      case "open-dates":
+        // Open Dates é renderizado na home, não precisa de redirecionamento
+        break
       case "events":
         onEventsClick?.()
         break
@@ -90,19 +95,27 @@ export function MobileNav({
       case "settings":
         onNavigateToSettings?.()
         break
+      case "create-post":
+        onCreatePostClick?.()
+        break
     }
   }
 
   return (
-    <aside className="md:hidden fixed left-0 top-0 bottom-0 w-[72px] bg-white dark:bg-gray-900 overflow-y-auto p-4 flex flex-col gap-4 z-50">
+    <aside
+      className={cn(
+        "xl:hidden fixed left-0 top-0 bottom-0 w-[72px] bg-white dark:bg-gray-900 overflow-y-auto p-4 flex flex-col gap-4 z-10 scrollbar-hide"
+      )}
+    >
       {navItems.map((item) => (
         <Button
           key={item.id}
           variant="ghost"
           size="icon"
           className={cn(
-            "rounded-full",
-            activeView === item.id && "bg-pink-100 text-pink-600 dark:bg-gray-800 dark:text-pink-400"
+            "rounded-full h-12 w-12",
+            activeView === item.id && item.id !== "create-post" && "bg-pink-100 text-pink-600 dark:bg-gray-800 dark:text-pink-400",
+            item.id === "create-post" && "bg-gradient-to-r from-pink-600 to-purple-600 text-white hover:from-pink-700 hover:to-purple-700"
           )}
           onClick={() => handleItemClick(item.id)}
           aria-label={item.label}
@@ -110,16 +123,6 @@ export function MobileNav({
           <item.icon className="h-6 w-6" />
         </Button>
       ))}
-      <div className="mt-auto">
-        <Button
-          size="icon"
-          className="w-full rounded-full bg-gradient-to-r from-pink-600 to-purple-600 text-white hover:from-pink-700 hover:to-purple-700"
-          onClick={onCreatePostClick}
-          aria-label="Criar Post"
-        >
-          <Feather className="h-6 w-6" />
-        </Button>
-      </div>
     </aside>
   )
 }

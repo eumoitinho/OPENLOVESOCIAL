@@ -357,7 +357,7 @@ export function TimelineRightSidebar({
   }
 
   return (
-    <aside className="hidden lg:block p-3 xs:p-4 sticky top-0 h-screen overflow-y-auto space-y-4 xs:space-y-6">
+    <aside className="hidden xl:block w-[350px] p-3 xs:p-4 sticky top-0 h-screen overflow-y-auto overflow-x-hidden scrollbar-hide space-y-4 xs:space-y-6">
       {/* Search Bar */}
       <form onSubmit={handleSearch}>
         <div className="relative">

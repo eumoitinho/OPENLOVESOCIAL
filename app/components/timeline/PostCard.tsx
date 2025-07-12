@@ -156,7 +156,8 @@ export default function PostCard({
   }
 
   const handleViewProfile = () => {
-    router.push(`/profile/${post.user.username.replace('@','')}`)
+    const username = post.user?.username?.replace('@','') || 'usuario'
+    router.push(`/profile/${username}`)
   }
 
   // Remover qualquer array de exemplo, valores fixos ou mocks de comentários, curtidas, etc.
@@ -165,16 +166,16 @@ export default function PostCard({
     ? post.comments.map((comment: any) => ({
         id: comment.id,
         author: {
-          name: comment.author.name,
-          username: comment.author.username,
-          avatar: comment.author.avatar,
-          verified: comment.author.verified,
-          premium: comment.author.premium,
+          name: comment.author?.name || "Usuário",
+          username: comment.author?.username || "@usuario",
+          avatar: comment.author?.avatar || "/placeholder.svg",
+          verified: comment.author?.verified || false,
+          premium: comment.author?.premium || false,
         },
         content: comment.content,
         timestamp: comment.timestamp,
-        likes: comment.likes,
-        isLiked: comment.liked,
+        likes: comment.likes || 0,
+        isLiked: comment.liked || false,
       }))
     : []
 
@@ -184,12 +185,12 @@ export default function PostCard({
         <div className="flex items-center gap-2 xs:gap-3">
           <div className="relative cursor-pointer" onClick={handleViewProfile}>
             <Avatar className="ring-2 ring-transparent group-hover:ring-pink-500 transition-all duration-200">
-              <AvatarImage src={post.user.avatar || "/placeholder.svg"} alt={post.user.name} />
+              <AvatarImage src={post.user?.avatar || "/placeholder.svg"} alt={post.user?.name || "Usuário"} />
               <AvatarFallback className="text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                {post.user.name.split(" ").map((n) => n[0]).join("")}
+                {(post.user?.name || "Usuário").split(" ").map((n) => n[0]).join("")}
               </AvatarFallback>
             </Avatar>
-            {post.user.verified && (
+            {post.user?.verified && (
               <span className="absolute -end-1.5 -top-1.5">
                 <BadgeCheckIcon className="size-5 fill-sky-500 text-white dark:text-gray-900" />
               </span>
@@ -200,8 +201,8 @@ export default function PostCard({
               className="flex items-center gap-1.5 xs:gap-2 text-xs xs:text-sm font-semibold text-gray-800 dark:text-gray-100 cursor-pointer hover:text-pink-600 dark:hover:text-pink-400 transition-colors duration-200"
               onClick={handleViewProfile}
             >
-              {post.user.name}
-              {post.user.premium && (
+              {post.user?.name || "Usuário"}
+              {post.user?.premium && (
                 <Badge
                   variant="outline"
                   className="border-pink-500 text-pink-600 dark:border-pink-400 dark:text-pink-400 text-xs font-bold"
@@ -211,13 +212,13 @@ export default function PostCard({
               )}
             </CardTitle>
             <CardDescription className="flex flex-wrap items-center gap-x-1 xs:gap-x-1.5 text-xs text-gray-500 dark:text-gray-400">
-              <span>{post.user.username}</span>
+              <span>{post.user?.username || "@usuario"}</span>
               <span className="hidden sm:inline">•</span>
               <span className="hidden sm:inline">{post.timestamp}</span>
               <span className="hidden md:inline">•</span>
               <span className="flex items-center gap-1">
                 <MapPin className="w-3 h-3" />
-                {post.user.location}
+                {post.user?.location || "Localização não informada"}
               </span>
             </CardDescription>
           </div>
@@ -298,7 +299,7 @@ export default function PostCard({
         isOpen={commentsOpen} 
         onClose={() => setCommentsOpen(false)} 
         postId={post.id.toString()} 
-        postAuthor={post.user}
+        postAuthor={post.user || { name: "Usuário", username: "@usuario", avatar: "/placeholder.svg" }}
         postContent={post.content}
         comments={comments} 
         onAddComment={(content) => console.log("Add comment:", content)}
@@ -310,7 +311,7 @@ export default function PostCard({
         onClose={() => setMediaViewerOpen(false)}
         media={(post.images || (post.video ? [post.video] : [])).map((url, index) => ({ id: `${post.id}-${index}`, type: url.endsWith('.mp4') ? 'video' : 'image', url }))}
         initialIndex={selectedMediaIndex} 
-        postAuthor={post.user}
+        postAuthor={post.user || { name: "Usuário", username: "@usuario", avatar: "/placeholder.svg" }}
         postContent={post.content}
         postTimestamp={post.timestamp}
         currentUser={currentUser}
@@ -327,7 +328,7 @@ export default function PostCard({
         onClose={() => setShareDialogOpen(false)} 
         postId={post.id.toString()}
         postContent={post.content}
-        postAuthor={post.user}
+        postAuthor={post.user || { name: "Usuário", username: "@usuario", avatar: "/placeholder.svg" }}
         postImages={post.images || undefined}
         postVideo={post.video || undefined}
         currentUser={currentUser}

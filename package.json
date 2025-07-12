@@ -1,12 +1,18 @@
 {
-  "name": "my-v0-project",
-  "version": "0.1.0",
+  "name": "openlove",
+  "version": "0.2.0-alpha.1",
   "private": true,
   "scripts": {
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "release:alpha": "node scripts/release.js alpha",
+    "release:beta": "node scripts/release.js beta",
+    "release:patch": "node scripts/release.js patch",
+    "release:minor": "node scripts/release.js minor",
+    "release:major": "node scripts/release.js major",
+    "changelog": "node scripts/generate-changelog.js"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "latest",

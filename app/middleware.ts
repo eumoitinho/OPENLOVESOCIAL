@@ -10,10 +10,16 @@ export async function middleware(req: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession()
 
-  // Se o usuário está logado e está em uma rota de auth, redirecionar para timeline
+  // Se o usuário está logado e está na página inicial, redirecionar para home
+  if (session && req.nextUrl.pathname === "/") {
+    console.log("Middleware: Usuário logado na página inicial, redirecionando para home")
+    return NextResponse.redirect(new URL("/home", req.url))
+  }
+
+  // Se o usuário está logado e está em uma rota de auth, redirecionar para home
   if (session && req.nextUrl.pathname.startsWith("/auth")) {
-    console.log("Middleware: Usuário logado em rota de auth, redirecionando para timeline")
-    return NextResponse.redirect(new URL("/timeline", req.url))
+    console.log("Middleware: Usuário logado em rota de auth, redirecionando para home")
+    return NextResponse.redirect(new URL("/home", req.url))
   }
 
   // Se o usuário não está logado e está tentando acessar uma rota protegida

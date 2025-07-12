@@ -116,7 +116,7 @@ export default function SignInPage() {
         } else {
           // Login bem-sucedido, redirecionar
           toast.success("Login realizado com sucesso!")
-          const targetUrl = redirectUrl || "/timeline"
+          const targetUrl = redirectUrl || "/home"
           console.log("Redirecionando para:", targetUrl)
           router.push(targetUrl)
           // Forçar refresh após um pequeno delay
@@ -173,7 +173,7 @@ export default function SignInPage() {
         toast.error("Código inválido")
       } else {
         toast.success("Verificação realizada com sucesso!")
-        const targetUrl = redirectUrl || "/timeline"
+        const targetUrl = redirectUrl || "/home"
         console.log("Redirecionando após verificação para:", targetUrl)
         router.push(targetUrl)
         // Forçar refresh após um pequeno delay

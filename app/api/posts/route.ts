@@ -26,6 +26,7 @@ export async function POST(request: NextRequest) {
       .select("id")
       .eq("id", user.id)
       .single()
+    
     if (!userRow) {
       // Criar perfil mínimo
       const { error: insertError } = await supabase
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
           id: user.id,
           email: user.email,
           username: user.user_metadata?.username || user.email?.split("@")[0] || "user_" + user.id.substring(0, 8),
-          full_name: user.user_metadata?.full_name || "Usuário",
+          name: user.user_metadata?.full_name || "Usuário",
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
@@ -83,7 +84,7 @@ export async function POST(request: NextRequest) {
     // Get author profile
     const { data: profile } = await supabase
       .from("users")
-      .select("username, full_name, avatar_url, is_verified, profile_type")
+      .select("username, name, avatar_url, is_verified")
       .eq("id", user.id)
       .single()
 
@@ -97,11 +98,11 @@ export async function POST(request: NextRequest) {
       createdAt: post.created_at,
       author: {
         id: user.id,
-        name: profile?.full_name || "Usuário",
+        name: profile?.name || "Usuário",
         username: profile?.username || "unknown",
         avatar: profile?.avatar_url,
         verified: profile?.is_verified || false,
-        type: profile?.profile_type || "single",
+        type: "single",
       },
       likes: [],
       likesCount: 0,

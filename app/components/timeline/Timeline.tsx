@@ -49,12 +49,6 @@ import { CommentsDialog } from "./CommentsDialog"
 import { MediaViewer } from "./MediaViewer"
 import { ShareDialog } from "./ShareDialog"
 import { SavedContent } from "./SavedContent"
-import { NotificationsContent } from "./NotificationsContent"
-import { MessagesContent } from "./MessagesContent"
-import { EventsContent } from "./EventsContent"
-import { CommunitiesContent } from "./CommunitiesContent"
-import { ProfileContent } from "./ProfileContent"
-import { SettingsContent } from "./SettingsContent"
 import SearchContent from "../../search/SearchContent"
 import { Separator } from "@/components/ui/separator"
 import { MobileNav } from "./layout/MobileNav"
@@ -63,6 +57,7 @@ import Advertisement from "../ads/Advertisement"
 import Logo from "../Logo" // Certifique-se que o caminho está correto
 import { TimelineSidebar } from "./TimelineSidebar"
 import ProfileSearch from "./ProfileSearch"
+import { MessagesContent } from "./MessagesContent"
 
 // --- Tipos e Dados para a Nova Sidebar ---
 
@@ -117,8 +112,7 @@ const NavHeader = ({ title }: { title: string }) => (
 export default function Timeline() {
   const { user, loading: authLoading } = useAuth()
   
-  // Debug logs
-  console.log("Timeline - Auth state:", { user: user?.id, loading: authLoading })
+
   const [isDarkMode, setIsDarkMode] = useState(true)
   const [postModalOpen, setPostModalOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -166,21 +160,9 @@ export default function Timeline() {
     // Aqui você pode implementar tracking de impressões
   }
 
-  const [profileSearchOpen, setProfileSearchOpen] = useState(false)
-  const [notificationsOpen, setNotificationsOpen] = useState(false)
-  const [messagesOpen, setMessagesOpen] = useState(false)
-  const [eventsOpen, setEventsOpen] = useState(false)
-  const [communitiesOpen, setCommunitiesOpen] = useState(false)
-  const [profileOpen, setProfileOpen] = useState(false)
   const [activeView, setActiveView] = useState("home")
 
-  // Debug log para activeView
-  useEffect(() => {
-    console.log("Timeline - Active view changed to:", activeView)
-  }, [activeView])
 
-  // Debug log para renderização
-  console.log("Timeline - Rendering with activeView:", activeView)
 
 
 
@@ -322,15 +304,14 @@ export default function Timeline() {
         <Card className="border-0 shadow-none">
           <CardContent className="p-0">
             <form onSubmit={handlePostSubmit} className="space-y-4">
-              <Textarea
+              <textarea
                 placeholder="O que você está pensando?"
                 value={postContent}
-                onChange={(e) => {
-                  console.log("Texto digitado:", e.target.value)
-                  setPostContent(e.target.value)
-                }}
-                className="min-h-[100px] resize-none border-0 focus-visible:ring-0 text-base"
+                onChange={(e) => setPostContent(e.target.value)}
+                className="min-h-[100px] w-full resize-none border-0 focus-visible:ring-0 text-base bg-transparent outline-none"
                 maxLength={2000}
+                dir="ltr"
+                style={{ direction: 'ltr', unicodeBidi: 'normal' }}
               />
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -632,7 +613,7 @@ export default function Timeline() {
      
 
       {/* Main Layout */}
-      <div className="relative z-10 flex">
+      <div className="relative z-20 flex">
         {/* Sidebar Esquerda */}
         <TimelineSidebar
           isDarkMode={isDarkMode}
@@ -645,12 +626,8 @@ export default function Timeline() {
         />
 
         {/* Feed Central */}
-        <main className="flex-1 md:pl-[275px] pl-[72px]">
+        <main className="flex-1 xl:pl-[275px] pl-[72px] relative z-10">
           <div className="p-4 space-y-6">
-            {/* Debug info */}
-            <div className="bg-yellow-100 p-2 rounded mb-4">
-              <p className="text-sm">Debug: Active View = {activeView}</p>
-            </div>
             
             {(() => {
               switch (activeView) {
@@ -721,14 +698,36 @@ export default function Timeline() {
                   )
                 case "notifications":
                   return (
-                    <NotificationsContent />
+                    <div className="p-4 bg-green-100 rounded">
+                      <h2 className="text-2xl font-bold mb-4">Notificações</h2>
+                      <p>Redirecionando para a página de notificações...</p>
+                      <Button onClick={() => window.location.href = '/notificacoes'}>
+                        Ir para Notificações
+                      </Button>
+                    </div>
                   )
                 case "messages":
                   return <MessagesContent />
                 case "events":
-                  return <EventsContent />
+                  return (
+                    <div className="p-4 bg-orange-100 rounded">
+                      <h2 className="text-2xl font-bold mb-4">Eventos</h2>
+                      <p>Redirecionando para a página de eventos...</p>
+                      <Button onClick={() => window.location.href = '/events'}>
+                        Ir para Eventos
+                      </Button>
+                    </div>
+                  )
                 case "communities":
-                  return <CommunitiesContent />
+                  return (
+                    <div className="p-4 bg-pink-100 rounded">
+                      <h2 className="text-2xl font-bold mb-4">Comunidades</h2>
+                      <p>Redirecionando para a página de comunidades...</p>
+                      <Button onClick={() => window.location.href = '/communities'}>
+                        Ir para Comunidades
+                      </Button>
+                    </div>
+                  )
                 case "saved":
                   return <SavedContent
                     savedPosts={posts.filter(p => p.saved).map(p => ({
@@ -755,10 +754,17 @@ export default function Timeline() {
                     onShare={(postId) => handleShare(parseInt(postId))}
                     onViewMedia={(postId, mediaIndex) => handleViewMedia(parseInt(postId), mediaIndex)}
                   />
-                case "profile":
-                  return <ProfileContent />
+              
                 case "settings":
-                  return <SettingsContent />
+                  return (
+                    <div className="p-4 bg-blue-100 rounded">
+                      <h2 className="text-2xl font-bold mb-4">Configurações</h2>
+                      <p>Redirecionando para a página de configurações...</p>
+                      <Button onClick={() => window.location.href = '/settings'}>
+                        Ir para Configurações
+                      </Button>
+                    </div>
+                  )
                 default:
                   return <div className="text-center py-8">Seção em desenvolvimento.</div>
               }
@@ -767,7 +773,8 @@ export default function Timeline() {
         </main>
 
         {/* Sidebar Direita */}
-        <TimelineRightSidebar
+        <div className="hidden xl:block">
+          <TimelineRightSidebar
           userLocation="São Paulo, SP"
           onFollowUser={(userId: string) => {
             console.log("Seguindo usuário:", userId)
@@ -779,19 +786,20 @@ export default function Timeline() {
           }}
           onViewEvent={(eventId: string) => {
             console.log("Visualizando evento:", eventId)
-            setEventsOpen(true)
+            window.location.href = `/events?id=${eventId}`
             // Aqui você pode implementar a navegação para o evento específico
           }}
           onSearch={(query: string) => {
             console.log("Buscando:", query)
-            setProfileSearchOpen(true)
+            window.location.href = `/search?q=${encodeURIComponent(query)}`
             // Aqui você pode implementar a busca
           }}
         />
+        </div>
       </div>
 
       {/* Desktop Floating Action Button */}
-      <div className="hidden lg:block fixed bottom-6 right-6 z-50">
+      <div className="hidden xl:block fixed bottom-6 right-6 z-50">
         <Button
           size="lg"
           className="rounded-full w-14 h-14 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300"
@@ -822,14 +830,14 @@ export default function Timeline() {
 
       {/* Mobile Navigation */}
       <MobileNav
-        onProfileClick={() => setActiveView("profile")}
-        onSettingsClick={() => setActiveView("settings")}
-        onMessagesClick={() => setActiveView("messages")}
-        onNotificationsClick={() => setActiveView("notifications")}
-        onEventsClick={() => setActiveView("events")}
-        onCommunitiesClick={() => setActiveView("communities")}
+        onProfileClick={() => window.location.href = '/profile'}
+        onSettingsClick={() => window.location.href = '/settings'}
+        onMessagesClick={() => window.location.href = '/messages'}
+        onNotificationsClick={() => window.location.href = '/notificacoes'}
+        onEventsClick={() => window.location.href = '/events'}
+        onCommunitiesClick={() => window.location.href = '/communities'}
         onSavedContentClick={() => setActiveView("saved")}
-        onProfileSearchClick={() => setActiveView("search")}
+        onProfileSearchClick={() => setActiveView("explore")}
         onCreatePostClick={() => setPostModalOpen(true)}
         onNavigateToSettings={navigateToSettings}
         onNavigateToProfiles={navigateToProfiles}

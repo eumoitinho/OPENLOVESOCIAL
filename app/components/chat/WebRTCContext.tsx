@@ -1,6 +1,6 @@
 "use client"
 
-import React, { createContext, useContext, useRef, useState, useEffect, useCallback } from 'react'
+import React, { createContext, useContext, useRef, useState, useCallback } from 'react'
 
 interface WebRTCContextType {
   localStream: MediaStream | null
@@ -47,24 +47,12 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children, curren
   const [isVideoEnabled, setIsVideoEnabled] = useState(true)
 
   const peerConnection = useRef<RTCPeerConnection | null>(null)
-  const localVideoRef = useRef<HTMLVideoElement | null>(null)
-  const remoteVideoRef = useRef<HTMLVideoElement | null>(null)
-  const wsRef = useRef<WebSocket | null>(null)
 
-  // Configuração ICE para produção
+  // Configuração ICE simplificada
   const iceServers = [
     { urls: 'stun:stun.l.google.com:19302' },
     { urls: 'stun:stun1.l.google.com:19302' },
-    // Adicione aqui seus TURN servers de produção:
-    // Exemplo comercial: https://www.twilio.com/docs/stun-turn
-    process.env.NEXT_PUBLIC_TURN_URL
-      ? {
-          urls: process.env.NEXT_PUBLIC_TURN_URL,
-          username: process.env.NEXT_PUBLIC_TURN_USERNAME,
-          credential: process.env.NEXT_PUBLIC_TURN_CREDENTIAL,
-        }
-      : undefined,
-  ].filter(Boolean) as RTCIceServer[]
+  ]
 
   const createPeerConnection = useCallback(() => {
     const pc = new RTCPeerConnection({
@@ -75,17 +63,6 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children, curren
       setRemoteStream(event.streams[0])
     }
 
-    pc.onicecandidate = (event) => {
-      if (event.candidate && wsRef.current?.readyState === WebSocket.OPEN) {
-        wsRef.current.send(JSON.stringify({
-          type: 'ice-candidate',
-          candidate: event.candidate,
-          to: remoteUser?.id,
-          from: currentUserId,
-        }))
-      }
-    }
-
     pc.onconnectionstatechange = () => {
       if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
         endCall()
@@ -93,61 +70,12 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children, curren
     }
 
     return pc
-  }, [currentUserId, remoteUser?.id, iceServers])
+  }, [])
 
-  // Conectar ao servidor de sinalização
-  const connectSignaling = useCallback(() => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) return
-
-    const SIGNALING_URL = process.env.NEXT_PUBLIC_SIGNALING_URL || 'wss://webrtc.openlove.com.br'
-    const ws = new WebSocket(SIGNALING_URL)
-    
-    ws.onopen = () => {
-      ws.send(JSON.stringify({
-        type: 'register',
-        userId: currentUserId,
-      }))
-    }
-
-    ws.onmessage = async (event) => {
-      const data = JSON.parse(event.data)
-      
-      switch (data.type) {
-        case 'call-offer':
-          handleIncomingCall(data)
-          break
-        case 'call-answer':
-          handleCallAnswer(data)
-          break
-        case 'ice-candidate':
-          handleIceCandidate(data)
-          break
-        case 'call-reject':
-          handleCallReject()
-          break
-        case 'call-end':
-          handleCallEnd()
-          break
-      }
-    }
-
-    ws.onerror = (error) => {
-      console.error('Erro na conexão WebSocket:', error)
-    }
-
-    ws.onclose = () => {
-      // Reconectar automaticamente em produção
-      setTimeout(connectSignaling, 2000)
-    }
-
-    wsRef.current = ws
-  }, [currentUserId])
-
-  // Iniciar chamada
+  // Iniciar chamada (simulado para demonstração)
   const startCall = useCallback(async (userId: string, userName: string, type: 'audio' | 'video') => {
     try {
-      connectSignaling()
-      
+      // Simular acesso à mídia
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: true,
         video: type === 'video',
@@ -158,34 +86,22 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children, curren
       setCallType(type)
       setIsOutgoingCall(true)
 
-      const pc = createPeerConnection()
-      peerConnection.current = pc
+      // Simular chamada ativa após 2 segundos
+      setTimeout(() => {
+        setIsOutgoingCall(false)
+        setIsCallActive(true)
+      }, 2000)
 
-      stream.getTracks().forEach(track => {
-        pc.addTrack(track, stream)
-      })
-
-      const offer = await pc.createOffer()
-      await pc.setLocalDescription(offer)
-
-      wsRef.current?.send(JSON.stringify({
-        type: 'call-offer',
-        offer,
-        to: userId,
-        from: currentUserId,
-        callType: type,
-      }))
+      console.log(`Iniciando chamada ${type} para ${userName}`)
 
     } catch (error) {
       console.error('Erro ao iniciar chamada:', error)
       alert('Erro ao acessar câmera/microfone. Verifique as permissões.')
     }
-  }, [connectSignaling, createPeerConnection, currentUserId])
+  }, [])
 
-  // Responder chamada
+  // Responder chamada (simulado)
   const answerCall = useCallback(async () => {
-    if (!peerConnection.current || !callType) return
-
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: true,
@@ -196,47 +112,29 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children, curren
       setIsIncomingCall(false)
       setIsCallActive(true)
 
-      stream.getTracks().forEach(track => {
-        peerConnection.current?.addTrack(track, stream)
-      })
-
-      const answer = await peerConnection.current.createAnswer()
-      await peerConnection.current.setLocalDescription(answer)
-
-      wsRef.current?.send(JSON.stringify({
-        type: 'call-answer',
-        answer,
-        to: remoteUser?.id,
-        from: currentUserId,
-      }))
+      console.log('Chamada atendida')
 
     } catch (error) {
-      console.error('Erro ao responder chamada:', error)
+      console.error('Erro ao atender chamada:', error)
       alert('Erro ao acessar câmera/microfone. Verifique as permissões.')
     }
-  }, [callType, currentUserId, remoteUser?.id])
+  }, [callType])
 
-  // Finalizar chamada
+  // Encerrar chamada
   const endCall = useCallback(() => {
+    if (localStream) {
+      localStream.getTracks().forEach(track => track.stop())
+      setLocalStream(null)
+    }
+    if (remoteStream) {
+      remoteStream.getTracks().forEach(track => track.stop())
+      setRemoteStream(null)
+    }
     if (peerConnection.current) {
       peerConnection.current.close()
       peerConnection.current = null
     }
 
-    if (localStream) {
-      localStream.getTracks().forEach(track => track.stop())
-      setLocalStream(null)
-    }
-
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({
-        type: 'call-end',
-        to: remoteUser?.id,
-        from: currentUserId,
-      }))
-    }
-
-    setRemoteStream(null)
     setIsCallActive(false)
     setIsIncomingCall(false)
     setIsOutgoingCall(false)
@@ -244,64 +142,19 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children, curren
     setRemoteUser(null)
     setIsMuted(false)
     setIsVideoEnabled(true)
-  }, [localStream, currentUserId, remoteUser?.id])
+
+    console.log('Chamada encerrada')
+  }, [localStream, remoteStream])
 
   // Rejeitar chamada
   const rejectCall = useCallback(() => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({
-        type: 'call-reject',
-        to: remoteUser?.id,
-        from: currentUserId,
-      }))
-    }
-
     setIsIncomingCall(false)
     setCallType(null)
     setRemoteUser(null)
-  }, [currentUserId, remoteUser?.id])
-
-  // Handlers para mensagens do servidor
-  const handleIncomingCall = useCallback((data: any) => {
-    setRemoteUser({ id: data.from, name: data.userName || 'Usuário' })
-    setCallType(data.callType)
-    setIsIncomingCall(true)
-
-    const pc = createPeerConnection()
-    peerConnection.current = pc
-
-    pc.setRemoteDescription(new RTCSessionDescription(data.offer))
-  }, [createPeerConnection])
-
-  const handleCallAnswer = useCallback((data: any) => {
-    if (peerConnection.current) {
-      peerConnection.current.setRemoteDescription(new RTCSessionDescription(data.answer))
-      setIsOutgoingCall(false)
-      setIsCallActive(true)
-    }
+    console.log('Chamada rejeitada')
   }, [])
 
-  const handleIceCandidate = useCallback((data: any) => {
-    if (peerConnection.current) {
-      peerConnection.current.addIceCandidate(new RTCIceCandidate(data.candidate))
-    }
-  }, [])
-
-  const handleCallReject = useCallback(() => {
-    setIsOutgoingCall(false)
-    setCallType(null)
-    setRemoteUser(null)
-    if (localStream) {
-      localStream.getTracks().forEach(track => track.stop())
-      setLocalStream(null)
-    }
-  }, [localStream])
-
-  const handleCallEnd = useCallback(() => {
-    endCall()
-  }, [endCall])
-
-  // Controles de áudio/vídeo
+  // Alternar mudo
   const toggleMute = useCallback(() => {
     if (localStream) {
       const audioTrack = localStream.getAudioTracks()[0]
@@ -312,6 +165,7 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children, curren
     }
   }, [localStream])
 
+  // Alternar vídeo
   const toggleVideo = useCallback(() => {
     if (localStream) {
       const videoTrack = localStream.getVideoTracks()[0]
@@ -321,16 +175,6 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children, curren
       }
     }
   }, [localStream])
-
-  // Cleanup ao desmontar
-  useEffect(() => {
-    return () => {
-      endCall()
-      if (wsRef.current) {
-        wsRef.current.close()
-      }
-    }
-  }, [endCall])
 
   const value: WebRTCContextType = {
     localStream,

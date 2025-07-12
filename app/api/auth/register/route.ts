@@ -31,10 +31,19 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const supabase = createClient(
-      process.env.SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    // Verificar se as variáveis de ambiente estão configuradas
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error("Variáveis de ambiente do Supabase não configuradas")
+      return NextResponse.json(
+        { error: "Configuração do servidor incompleta" },
+        { status: 500 }
+      )
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     // 1. Criar usuário no Supabase Auth
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
@@ -79,47 +88,64 @@ export async function POST(req: NextRequest) {
       return [];
     };
 
-    // 2. Criar perfil completo no banco de dados
-    const profileData: any = {
+    // 2. Criar perfil completo no banco de dados - inserção direta
+    const profileData = {
       id: authData.user.id,
-      username,
       email,
+      username,
       name: `${firstName} ${lastName}`,
       first_name: firstName,
       last_name: lastName,
-      birth_date: birthDate,
-      profile_type: profileType,
+      birth_date: birthDate || null,
+      profile_type: profileType || 'single',
       seeking: ensureArray(seeking),
       interests: ensureArray(interests),
-      other_interest: otherInterest,
-      bio,
-      location: city,
-      uf: uf ? uf.substring(0, 2).toUpperCase() : null, // Limitar a 2 caracteres e converter para maiúsculo
+      other_interest: otherInterest || null,
+      bio: bio || null,
+      location: city || null,
+      uf: uf ? uf.substring(0, 2).toUpperCase() : null,
       latitude: latitude ? parseFloat(latitude) : null,
       longitude: longitude ? parseFloat(longitude) : null,
-      plano: plan,
+      plano: plan || 'free',
       status_assinatura: plan === "free" ? "authorized" : "pending",
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-    }
-
-    // Se for casal, adicionar dados do parceiro
-    if (profileType === "couple" && partner) {
-      profileData.partner = partner
+      partner: profileType === "couple" && partner ? partner : null,
+      // Campos obrigatórios da tabela users
+      is_premium: false,
+      is_verified: false,
+      is_active: true,
+      last_seen: new Date().toISOString(),
+      privacy_settings: {
+        profile_visibility: "public",
+        show_age: true,
+        show_location: true,
+        allow_messages: "everyone",
+        show_online_status: true
+      },
+      stats: {
+        posts: 0,
+        followers: 0,
+        following: 0,
+        likes_received: 0,
+        comments_received: 0,
+        profile_views: 0,
+        earnings: 0
+      }
     }
 
     // Usar função com permissões adequadas para inserir usuário
     const { data: insertResult, error: profileError } = await supabase
-      .rpc('insert_user_with_auth', {
-        user_data: profileData
-      })
+      .from('users')
+      .insert([profileData])
+      .select()
 
     if (profileError) {
       console.error("Erro ao criar perfil:", profileError)
       // Se falhar ao criar perfil, deletar o usuário criado
       await supabase.auth.admin.deleteUser(authData.user.id)
       return NextResponse.json(
-        { error: "Erro ao criar perfil do usuário" },
+        { error: "Erro ao criar perfil do usuário: " + profileError.message },
         { status: 500 }
       )
     }
@@ -130,7 +156,7 @@ export async function POST(req: NextRequest) {
         id: authData.user.id,
         email: authData.user.email,
         username,
-        plan,
+        plan: plan || 'free',
         status_assinatura: plan === "free" ? "authorized" : "pending"
       }
     })

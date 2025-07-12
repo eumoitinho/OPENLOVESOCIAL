@@ -143,16 +143,16 @@ Após login → Redireciona para URL original
 # 1. Acesse /auth/signin
 # 2. Insira credenciais válidas
 # 3. Se email não confirmado, teste o fluxo de verificação
-# 4. Verifique se foi redirecionado para /timeline
+# 4. Verifique se foi redirecionado para /home
 ```
 
 ### 3. Teste de Proteção de Rotas
 ```bash
 # 1. Faça logout
-# 2. Tente acessar /timeline
+# 2. Tente acessar /home
 # 3. Verifique se foi redirecionado para /auth/signin
 # 4. Faça login
-# 5. Verifique se foi redirecionado para /timeline
+# 5. Verifique se foi redirecionado para /home
 ```
 
 ## 🐛 Solução de Problemas
