@@ -1,0 +1,382 @@
+[
+  {
+    "schemaname": "public",
+    "tablename": "comments",
+    "policyname": "Users can create comments",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(user_id = auth.uid())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "comments",
+    "policyname": "Users can delete own comments",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "DELETE",
+    "qual": "(user_id = auth.uid())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "comments",
+    "policyname": "Users can update own comments",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "UPDATE",
+    "qual": "(user_id = auth.uid())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "comments",
+    "policyname": "Users can view comments on visible posts",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(EXISTS ( SELECT 1\n   FROM posts p\n  WHERE ((p.id = comments.post_id) AND (((p.visibility)::text = 'public'::text) OR (p.user_id = auth.uid()) OR (((p.visibility)::text = 'friends'::text) AND (EXISTS ( SELECT 1\n           FROM follows f\n          WHERE ((f.follower_id = auth.uid()) AND (f.following_id = p.user_id)))))))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "follows",
+    "policyname": "Users can create follows",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(follower_id = auth.uid())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "follows",
+    "policyname": "Users can delete own follows",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "DELETE",
+    "qual": "(follower_id = auth.uid())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "follows",
+    "policyname": "Users can manage own follows",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "ALL",
+    "qual": "(auth.uid() = follower_id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "follows",
+    "policyname": "Users can view all follows",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "true",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "follows",
+    "policyname": "Users can view follows",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "true",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "likes",
+    "policyname": "Users can create likes",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(user_id = auth.uid())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "likes",
+    "policyname": "Users can delete own likes",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "DELETE",
+    "qual": "(user_id = auth.uid())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "likes",
+    "policyname": "Users can view likes",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "true",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "messages",
+    "policyname": "Users can send messages",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "((sender_id = auth.uid()) AND (EXISTS ( SELECT 1\n   FROM conversation_participants cp\n  WHERE ((cp.conversation_id = messages.conversation_id) AND (cp.user_id = auth.uid())))))"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "messages",
+    "policyname": "Users can view own messages",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "((sender_id = auth.uid()) OR (EXISTS ( SELECT 1\n   FROM conversation_participants cp\n  WHERE ((cp.conversation_id = messages.conversation_id) AND (cp.user_id = auth.uid())))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "notifications",
+    "policyname": "Users can update own notifications",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "UPDATE",
+    "qual": "(user_id = auth.uid())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "notifications",
+    "policyname": "Users can view own notifications",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(user_id = auth.uid())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "open_dates_cards",
+    "policyname": "Usuários podem atualizar seus próprios cards",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "UPDATE",
+    "qual": "(auth.uid() = user_id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "open_dates_cards",
+    "policyname": "Usuários podem criar seus próprios cards",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(auth.uid() = user_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "open_dates_cards",
+    "policyname": "Usuários podem deletar seus próprios cards",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "DELETE",
+    "qual": "(auth.uid() = user_id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "open_dates_cards",
+    "policyname": "Usuários podem ver cards ativos",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(is_active = true)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "open_dates_interactions",
+    "policyname": "Usuários podem criar interações",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(auth.uid() = viewer_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "open_dates_interactions",
+    "policyname": "Usuários podem ver suas próprias interações",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() = viewer_id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "open_dates_matches",
+    "policyname": "Usuários podem ver seus matches",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "((auth.uid() = user1_id) OR (auth.uid() = user2_id))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "open_dates_messages",
+    "policyname": "Usuários podem enviar mensagens em seus matches",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(auth.uid() = sender_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "open_dates_messages",
+    "policyname": "Usuários podem marcar mensagens como lidas",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "UPDATE",
+    "qual": "(EXISTS ( SELECT 1\n   FROM open_dates_matches m\n  WHERE ((m.id = open_dates_messages.match_id) AND ((m.user1_id = auth.uid()) OR (m.user2_id = auth.uid())))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "open_dates_messages",
+    "policyname": "Usuários podem ver mensagens de seus matches",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(EXISTS ( SELECT 1\n   FROM open_dates_matches m\n  WHERE ((m.id = open_dates_messages.match_id) AND ((m.user1_id = auth.uid()) OR (m.user2_id = auth.uid())))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "open_dates_preferences",
+    "policyname": "Usuários podem atualizar suas preferências",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "UPDATE",
+    "qual": "(auth.uid() = user_id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "open_dates_preferences",
+    "policyname": "Usuários podem criar suas preferências",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(auth.uid() = user_id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "open_dates_preferences",
+    "policyname": "Usuários podem ver suas próprias preferências",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(auth.uid() = user_id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "posts",
+    "policyname": "Users can create own posts",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(user_id = auth.uid())"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "posts",
+    "policyname": "Users can delete own posts",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "DELETE",
+    "qual": "(user_id = auth.uid())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "posts",
+    "policyname": "Users can update own posts",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "UPDATE",
+    "qual": "(user_id = auth.uid())",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "posts",
+    "policyname": "Users can view public posts",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(((visibility)::text = 'public'::text) OR (user_id = auth.uid()) OR (((visibility)::text = 'friends'::text) AND (EXISTS ( SELECT 1\n   FROM follows f\n  WHERE ((f.follower_id = auth.uid()) AND (f.following_id = posts.user_id))))))",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "users",
+    "policyname": "Sistema pode gerenciar assinaturas",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "UPDATE",
+    "qual": "true",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "users",
+    "policyname": "Users can insert own profile",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "INSERT",
+    "qual": null,
+    "with_check": "(auth.uid() = id)"
+  },
+  {
+    "schemaname": "public",
+    "tablename": "users",
+    "policyname": "Users can update own profile",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "UPDATE",
+    "qual": "(auth.uid() = id)",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "users",
+    "policyname": "Users can view all users",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "true",
+    "with_check": null
+  },
+  {
+    "schemaname": "public",
+    "tablename": "users",
+    "policyname": "Users can view public profiles",
+    "permissive": "PERMISSIVE",
+    "roles": "{public}",
+    "cmd": "SELECT",
+    "qual": "(((privacy_settings ->> 'profile_visibility'::text) = 'public'::text) OR (auth.uid() = id))",
+    "with_check": null
+  }
+]
