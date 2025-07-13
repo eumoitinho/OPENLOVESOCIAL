@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { supabase } from "@/app/lib/auth-client"
 import { Eye, EyeOff, Mail, Lock, Chrome } from "lucide-react"
+import { login } from "@/app/lib/actions"
 
 const SignIn: React.FC = () => {
   const [email, setEmail] = useState("")
@@ -32,7 +33,7 @@ const SignIn: React.FC = () => {
       }
 
       if (data.user) {
-        router.push("/dashboard")
+        router.push("/home")
         router.refresh()
       }
     } catch (err) {
@@ -80,7 +81,7 @@ const SignIn: React.FC = () => {
           </p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleEmailSignIn}>
+        <form className="mt-8 space-y-6" onSubmit={handleEmailSignIn} method="POST">
           {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">{error}</div>}
 
           <div className="space-y-4">

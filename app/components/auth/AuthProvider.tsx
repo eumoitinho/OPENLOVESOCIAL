@@ -55,10 +55,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
+  const projectRef = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).hostname.split('.')[0]
+  const cookieName = `sb-${projectRef}-auth-token`
+
+  const cookieStorage = {
+    getItem: (key: string) => {
+      if (typeof document === "undefined") return null;
+      const cookies = document.cookie.split("; ").reduce((acc: Record<string, string>, curr) => {
+        const [name, ...valueParts] = curr.split("=");
+        acc[name] = valueParts.join("=");
+        return acc;
+      }, {});
+      const value = cookies[key];
+      return value ? decodeURIComponent(value) : null;
+    },
+    setItem: (key: string, value: string) => {
+      if (typeof document === "undefined") return;
+      const encodedValue = encodeURIComponent(value);
+      document.cookie = `${key}=${encodedValue}; path=/; SameSite=Strict${location.protocol === "https:" ? "; Secure" : ""}`;
+    },
+    removeItem: (key: string) => {
+      if (typeof document === "undefined") return;
+      document.cookie = `${key}=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT`;
+    },
+  };
+
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      auth: {
+        storage: cookieStorage,
+        storageKey: cookieName,
+      },
+    }
+  );
 
   // Função para verificar timeout de sessão
   const checkSessionTimeout = (session: Session | null) => {
