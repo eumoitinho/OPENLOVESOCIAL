@@ -43,14 +43,19 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
 
-    // 1. Verificar se o username já existe (CORRIGIDO)
+    // 1. Verificar se o username já existe
     const { data: existingUser, error: checkError } = await supabase
       .from('users')
       .select('id')
       .eq('username', username)
-      .maybeSingle() // Mudado de single() para maybeSingle()
+      .maybeSingle()
 
     if (checkError) {
       console.error("Erro ao verificar username:", checkError)
@@ -67,12 +72,12 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // 2. Verificar se o email já existe (CORRIGIDO)
+    // 2. Verificar se o email já existe
     const { data: existingEmail, error: emailCheckError } = await supabase
       .from('users')
       .select('id')
       .eq('email', email)
-      .maybeSingle() // Mudado de single() para maybeSingle()
+      .maybeSingle()
 
     if (emailCheckError) {
       console.error("Erro ao verificar email:", emailCheckError)
@@ -89,36 +94,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // 3. Criar usuário no Supabase Auth
-    console.log("Criando usuário no Supabase Auth...")
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: {
-        username,
-        full_name: `${firstName} ${lastName}`,
-      }
-    })
-
-    if (authError) {
-      console.error("Erro ao criar usuário no Auth:", authError)
-      return NextResponse.json(
-        { error: "Erro ao criar usuário: " + authError.message },
-        { status: 400 }
-      )
-    }
-
-    if (!authData.user) {
-      return NextResponse.json(
-        { error: "Falha ao criar usuário" },
-        { status: 500 }
-      )
-    }
-
-    console.log("Usuário criado no Auth com sucesso:", authData.user.id)
-
-    // Função para garantir que arrays sejam válidos (MELHORADA)
+    // Função para garantir que arrays sejam válidos
     const ensureArray = (value: any): string[] => {
       if (!value) return [];
       if (Array.isArray(value)) return value.filter(item => item && typeof item === 'string');
@@ -136,15 +112,10 @@ export async function POST(req: NextRequest) {
     // Validar plano
     const validPlans = ['free', 'gold', 'diamante', 'diamante_anual'];
     const selectedPlan = plan && validPlans.includes(plan) ? plan : 'free';
-
-    // Validar status de assinatura
-    const validStatuses = ['inactive', 'pending', 'authorized', 'cancelled', 'suspended', 'active'];
     const subscriptionStatus = selectedPlan === 'free' ? 'authorized' : 'pending';
 
-    // 4. Criar perfil completo no banco de dados
-    console.log("Criando perfil na tabela users...")
+    // Preparar dados do perfil
     const profileData = {
-      id: authData.user.id,
       email,
       username,
       name: `${firstName} ${lastName}`,
@@ -163,7 +134,6 @@ export async function POST(req: NextRequest) {
       plano: selectedPlan,
       status_assinatura: subscriptionStatus,
       partner: profileType === "couple" && partner ? partner : null,
-      // Campos obrigatórios da tabela users
       is_premium: selectedPlan !== 'free',
       is_verified: false,
       is_active: true,
@@ -186,21 +156,74 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 5. Inserir perfil na tabela users usando service role
+    // 3. Criar usuário no Supabase Auth com metadados mínimos
+    console.log("Criando usuário no Supabase Auth...")
+    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: {
+        username,
+        full_name: `${firstName} ${lastName}`,
+        // Adicionar dados mínimos para evitar conflitos
+        profile_created: false
+      }
+    })
+
+    if (authError) {
+      console.error("Erro detalhado do Auth:", {
+        message: authError.message,
+        status: authError.status,
+        code: authError.code
+      })
+      
+      // Tentar diferentes abordagens baseadas no erro
+      if (authError.message.includes('duplicate') || authError.message.includes('already exists')) {
+        return NextResponse.json(
+          { error: "Email já está em uso" },
+          { status: 400 }
+        )
+      }
+      
+      return NextResponse.json(
+        { error: "Erro ao criar usuário: " + authError.message },
+        { status: 400 }
+      )
+    }
+
+    if (!authData.user) {
+      return NextResponse.json(
+        { error: "Falha ao criar usuário" },
+        { status: 500 }
+      )
+    }
+
+    console.log("Usuário criado no Auth com sucesso:", authData.user.id)
+
+    // 4. Inserir perfil na tabela users com o ID do usuário criado
+    const finalProfileData = {
+      id: authData.user.id,
+      ...profileData
+    }
+
+    console.log("Inserindo perfil na tabela users...")
     const { data: insertResult, error: profileError } = await supabase
       .from('users')
-      .insert([profileData])
+      .insert([finalProfileData])
       .select()
 
     if (profileError) {
       console.error("Erro ao criar perfil:", profileError)
-      // Se falhar ao criar perfil, deletar o usuário criado
+      
+      // Tentar deletar o usuário criado no Auth
       try {
+        console.log("Tentando deletar usuário do Auth devido ao erro...")
         await supabase.auth.admin.deleteUser(authData.user.id)
         console.log("Usuário deletado do Auth após falha na criação do perfil")
       } catch (deleteError) {
         console.error("Erro ao deletar usuário após falha:", deleteError)
       }
+      
       return NextResponse.json(
         { error: "Erro ao criar perfil do usuário: " + profileError.message },
         { status: 500 }
@@ -208,6 +231,15 @@ export async function POST(req: NextRequest) {
     }
 
     console.log("Perfil criado com sucesso:", insertResult)
+
+    // 5. Atualizar metadados do usuário para indicar que o perfil foi criado
+    await supabase.auth.admin.updateUserById(authData.user.id, {
+      user_metadata: {
+        username,
+        full_name: `${firstName} ${lastName}`,
+        profile_created: true
+      }
+    })
 
     // 6. Se for plano pago, criar registro de assinatura
     if (selectedPlan && selectedPlan !== "free") {
