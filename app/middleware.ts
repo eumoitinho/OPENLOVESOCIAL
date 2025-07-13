@@ -1,4 +1,5 @@
-import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs"
+// middleware.ts
+import { createServerClient } from "@supabase/ssr"
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
@@ -7,7 +8,30 @@ export async function middleware(req: NextRequest) {
   console.log("Middleware: Processando requisição para:", req.nextUrl.pathname)
   
   const res = NextResponse.next()
-  const supabase = createMiddlewareClient({ req, res })
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name) {
+          return req.cookies.get(name)?.value
+        },
+        set(name, value, options) {
+          res.cookies.set({
+            name,
+            value,
+            ...options,
+          })
+        },
+        remove(name, options) {
+          res.cookies.delete({
+            name,
+            ...options,
+          })
+        },
+      },
+    }
+  )
 
   // Tentar obter a sessão atual
   const {
@@ -25,9 +49,9 @@ export async function middleware(req: NextRequest) {
 
   // 1. VERIFICAR SE É ROTA PÚBLICA - permitir acesso direto
   if (publicRoutes.includes(currentPath)) {
-    // Se usuário está logado com email confirmado, redirecionar para home
-    if (session && session.user.email_confirmed_at) {
-      console.log("Middleware: Usuário logado acessando rota pública, redirecionando para /home")
+    // Só redirecionar para /home se estiver na landing page "/" 
+    if (currentPath === "/" && session && session.user.email_confirmed_at) {
+      console.log("Middleware: Usuário logado acessando landing page, redirecionando para /home")
       const homeUrl = new URL("/home", req.url)
       return NextResponse.redirect(homeUrl)
     }

@@ -1,8 +1,9 @@
+// app/components/auth/AuthProvider.tsx
 "use client"
 
 import type React from "react"
 import { createContext, useContext, useEffect, useState } from "react"
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import { createBrowserClient } from "@supabase/ssr"
 import type { User, Session } from "@supabase/supabase-js"
 import { useRouter } from "next/navigation"
 
@@ -43,13 +44,21 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      console.log("[AuthProvider] Cookies atuais:", document.cookie);
+    }
+  }, []);
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
-  const supabase = createClientComponentClient()
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
 
   // Função para verificar timeout de sessão
   const checkSessionTimeout = (session: Session | null) => {
@@ -131,13 +140,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setUser(null)
           setProfile(null)
           setSession(null)
-          return
-        }
-        if (checkSessionTimeout(session)) {
+        } else if (checkSessionTimeout(session)) {
           await signOut()
-          return
-        }
-        if (session?.user) {
+        } else if (session?.user) {
           setSession(session)
           setUser(session.user)
           await fetchProfile(session.user.id)
@@ -183,19 +188,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const profileData = await fetchProfile(session.user.id)
         setProfile(profileData)
         console.log("[AuthProvider] Perfil carregado:", profileData ? "Sim" : "Não")
-        
-        // Verificar se precisa redirecionar
-        if (typeof window !== "undefined") {
-          const currentPath = window.location.pathname
-          console.log("[AuthProvider] Verificando redirecionamento - Path atual:", currentPath)
-          
-          // Se está em uma rota que usuários logados não devem acessar
-          if (["/", "/auth/signin", "/auth/signup"].includes(currentPath)) {
-            console.log("[AuthProvider] Usuário logado em rota protegida, redirecionando para /home")
-            // Usar window.location.href para forçar o redirecionamento
-            window.location.href = "/home"
-          }
-        }
+        // Removido: redirecionamento para /home (agora feito em useEffect)
       } else {
         console.log("[AuthProvider] Nenhum usuário na sessão, limpando perfil")
         setProfile(null)
@@ -209,7 +202,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return () => {
       subscription.unsubscribe()
     }
-  }, [supabase.auth])
+  }, [supabase])
 
   // Verificar timeout periodicamente (a cada 5 minutos)
   useEffect(() => {
@@ -222,20 +215,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return () => clearInterval(interval)
   }, [session])
 
-  // Verificar redirecionamento quando o usuário é carregado
+  // Removido: redirecionamento duplicado após carregamento do usuário
+  // Redirecionar para /home quando usuário loga e está em /auth/signin ou /auth/signup
   useEffect(() => {
-    if (!loading && user && typeof window !== "undefined") {
+    if (user && typeof window !== "undefined") {
       const currentPath = window.location.pathname
-      console.log("[AuthProvider] Verificando redirecionamento após carregamento - Path:", currentPath)
-      
-      // Se está em uma rota que usuários logados não devem acessar
       if (["/", "/auth/signin", "/auth/signup"].includes(currentPath)) {
-        console.log("[AuthProvider] Usuário logado em rota protegida após carregamento, redirecionando para /home")
-        // Usar window.location.href para forçar o redirecionamento
-        window.location.href = "/home"
+        console.log("[AuthProvider] Redirecionando para /home após login (useEffect)")
+        router.push("/home")
       }
     }
-  }, [loading, user])
+  }, [user, router])
 
   const value: AuthContextType = {
     user,
