@@ -431,9 +431,9 @@ export default function Timeline() {
   }
 
   const goBack = () => {
-    if (viewHistory.length > 0) {
-      const previousView = viewHistory[viewHistory.length - 1]
-      setViewHistory(prev => prev.slice(0, -1))
+    if ((viewHistory || []).length > 0) {
+      const previousView = (viewHistory || [])[(viewHistory || []).length - 1]
+      setViewHistory(prev => (prev || []).slice(0, -1))
       setActiveView(previousView)
       setViewParams({})
     } else {
@@ -485,9 +485,9 @@ export default function Timeline() {
                   {tag}
                 </Badge>
               ))}
-              {profile.tags.length > 2 && (
+              {(profile.tags || []).length > 2 && (
                 <Badge variant="outline" className="text-xs px-1.5 py-0.5">
-                  +{profile.tags.length - 2}
+                  +{(profile.tags || []).length - 2}
                 </Badge>
               )}
             </div>
@@ -720,7 +720,7 @@ export default function Timeline() {
                       </div>
                     )
                   }
-                  if (posts.length === 0) {
+                  if ((posts || []).length === 0) {
                     return (
                       <div className="text-center py-8">
                         <p>Nenhum post encontrado. Seja o primeiro a criar um!</p>

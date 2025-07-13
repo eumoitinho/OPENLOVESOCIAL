@@ -27,7 +27,7 @@ export async function POST() {
 
     return NextResponse.json({ 
       success: true, 
-      message: `${data?.length || 0} notificações marcadas como lidas` 
+      message: `${(data || []).length || 0} notificações marcadas como lidas` 
     })
   } catch (error) {
     console.error("Erro na API de marcar todas notificações como lidas:", error)

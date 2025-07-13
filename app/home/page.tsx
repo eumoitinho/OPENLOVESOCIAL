@@ -432,7 +432,7 @@ export default function HomePage() {
     
     // Limites baseados no plano
     const maxImages = userPlan === 'gold' ? 5 : 10 // Gold: 5, Diamante: 10
-    if (postImages.length + imageFiles.length > maxImages) {
+    if ((postImages || []).length + (imageFiles || []).length > maxImages) {
       alert(`Máximo de ${maxImages} imagens permitido para seu plano`)
       return
     }
@@ -477,7 +477,7 @@ export default function HomePage() {
 
   const handlePostSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!postContent.trim() && postImages.length === 0 && !postVideo) return
+    if (!postContent.trim() && (postImages || []).length === 0 && !postVideo) return
     
     console.log("=== DEBUG POST SUBMIT ===")
     console.log("User:", user)
@@ -595,9 +595,9 @@ export default function HomePage() {
               />
               
               {/* Preview de mídia */}
-              {(postImages.length > 0 || postVideo) && (
+              {((postImages || []).length > 0 || postVideo) && (
                 <div className="space-y-2">
-                  {postImages.length > 0 && (
+                  {(postImages || []).length > 0 && (
                     <div className="grid grid-cols-2 gap-2">
                       {postImages.map((image, index) => (
                         <div key={index} className="relative">
@@ -695,14 +695,14 @@ export default function HomePage() {
                       onChange={handleVideoUpload}
                       className="hidden"
                       id="video-upload"
-                      disabled={postImages.length > 0 || (profile?.plano || 'free') === 'free'}
+                      disabled={(postImages || []).length > 0 || (profile?.plano || 'free') === 'free'}
                     />
                     <label htmlFor="video-upload">
                       <Button 
                         type="button" 
                         variant="ghost" 
                         size="sm" 
-                        disabled={postImages.length > 0 || (profile?.plano || 'free') === 'free'}
+                        disabled={(postImages || []).length > 0 || (profile?.plano || 'free') === 'free'}
                         className={cn(
                           "cursor-pointer",
                           (profile?.plano || 'free') === 'free' && "opacity-50 cursor-not-allowed"
@@ -718,7 +718,7 @@ export default function HomePage() {
                   <span className="text-xs text-gray-500">{postContent.length}/2000</span>
                   <Button 
                     type="submit" 
-                    disabled={postLoading || (!postContent.trim() && postImages.length === 0 && !postVideo) || !user || authLoading} 
+                    disabled={postLoading || (!postContent.trim() && (postImages || []).length === 0 && !postVideo) || !user || authLoading} 
                     size="sm"
                   >
                     {postLoading ? "Postando..." : authLoading ? "Verificando..." : !user ? "Faça login" : "Postar"}
@@ -766,9 +766,9 @@ export default function HomePage() {
                   {tag}
                 </Badge>
               ))}
-              {profile.tags.length > 1 && (
+              {(profile.tags || []).length > 1 && (
                 <Badge variant="outline" className="text-xs px-1 py-0.5">
-                  +{profile.tags.length - 1}
+                  +{(profile.tags || []).length - 1}
                 </Badge>
               )}
             </div>
@@ -900,7 +900,7 @@ export default function HomePage() {
                       <div className="text-center py-8 text-red-500">
                         Erro ao carregar posts: {errorPosts}
                       </div>
-                    ) : posts.length === 0 ? (
+                    ) : (posts || []).length === 0 ? (
                       <div className="text-center py-8">
                         <p>Nenhum post de amigos encontrado. Comece a seguir pessoas para ver seus posts!</p>
                       </div>

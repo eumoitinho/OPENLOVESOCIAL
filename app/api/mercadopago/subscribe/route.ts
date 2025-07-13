@@ -117,7 +117,7 @@ async function getOrCreateCustomer(email: string, name: string, identificationTy
 
   const searchResult = await searchResponse.json()
   
-  if (searchResult.results && searchResult.results.length > 0) {
+  if (searchResult.results && (searchResult.results || []).length > 0) {
     return searchResult.results[0].id
   }
 

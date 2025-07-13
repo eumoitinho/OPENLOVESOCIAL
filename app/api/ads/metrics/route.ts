@@ -138,10 +138,10 @@ export async function GET(request: NextRequest) {
 
     // Calcular totais
     const totals = {
-      impressions: groupedMetrics.impression?.length || 0,
-      clicks: groupedMetrics.click?.length || 0,
-      conversions: groupedMetrics.conversion?.length || 0,
-      totalEvents: metrics?.length || 0
+      impressions: (groupedMetrics.impression || []).length || 0,
+      clicks: (groupedMetrics.click || []).length || 0,
+      conversions: (groupedMetrics.conversion || []).length || 0,
+      totalEvents: (metrics || []).length || 0
     }
 
     return NextResponse.json({ 

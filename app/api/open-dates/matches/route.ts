@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ 
       matches: formattedMatches,
-      total: formattedMatches.length
+      total: (formattedMatches || []).length
     })
 
   } catch (error) {

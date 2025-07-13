@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     })) || []
 
     // Se não há cards suficientes, adicionar cards de exemplo
-    if (formattedCards.length < 5) {
+    if ((formattedCards || []).length < 5) {
       const sampleCards = [
         {
           id: "sample-1",
@@ -144,7 +144,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ 
       cards: formattedCards,
-      total: formattedCards.length
+      total: (formattedCards || []).length
     })
 
   } catch (error) {
