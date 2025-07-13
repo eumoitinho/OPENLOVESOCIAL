@@ -2,7 +2,8 @@ import { getCurrentUser } from "@/app/lib/auth-helpers"
 import AdminContent from "./AdminContent"
 import { redirect } from "next/navigation"
 import type { Metadata } from "next"
-import { createServerComponentClient } from "../lib/supabase-server"
+import { createRouteHandlerClient } from "../lib/supabase-server"
+
 
 
 export const metadata: Metadata = {
@@ -16,7 +17,7 @@ export default async function AdminPage() {
     redirect("/auth/signin")
   }
 
-  const supabase = await createServerComponentClient()
+  const supabase = await createRouteHandlerClient()
   // Buscar perfil do usuário na tabela profiles
   const { data: profile } = await supabase
     .from("profiles")
