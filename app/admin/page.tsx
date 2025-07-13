@@ -2,7 +2,7 @@ import { getCurrentUser } from "@/app/lib/auth-helpers"
 import AdminContent from "./AdminContent"
 import { redirect } from "next/navigation"
 import type { Metadata } from "next"
-import { createClient } from "../lib/supabase-browser"
+import { createServerComponentClient } from "../lib/supabase-server"
 
 
 export const metadata: Metadata = {
@@ -12,20 +12,22 @@ export const metadata: Metadata = {
 
 export default async function AdminPage() {
   const user = await getCurrentUser()
-  
-
   if (!user) {
     redirect("/auth/signin")
   }
 
- 
+  const supabase = await createServerComponentClient()
+  // Buscar perfil do usuário na tabela profiles
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single()
 
   // Verificar se usuário é admin
-  if (!user || !["admin", "moderator"].includes(user.role ?? "")) {
+  if (!profile || !["admin", "moderator"].includes(profile.role ?? "")) {
     redirect("/dashboard")
   }
-
-  const supabase = await createClient()
 
   // Buscar estatísticas básicas
   const [
@@ -47,7 +49,7 @@ export default async function AdminPage() {
   return (
     <AdminContent
       user={user}
-      profile={user}
+      profile={profile}
       stats={{
         totalUsers: totalUsers || 0,
         totalCommunities: totalCommunities || 0,

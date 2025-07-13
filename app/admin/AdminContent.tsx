@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import type { User } from "@supabase/supabase-js"
-import type { Database } from "@/lib/database.types"
+import type { Database } from "../lib/database.types"
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 
