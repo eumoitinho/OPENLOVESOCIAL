@@ -1,4 +1,5 @@
-import { createServerSupabaseClient, getAuthenticatedUser, getUserProfile } from "@/app/lib/auth-helpers"
+import { getCurrentUser } from "@/app/lib/auth-helpers"
+import { createServerComponentClient } from "@/app/lib/supabase-server"
 import ProfileContent from "./ProfileContent"
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
@@ -9,12 +10,17 @@ export const metadata: Metadata = {
 }
 
 export default async function ProfilePage() {
-  const user = await getAuthenticatedUser()
+  const user = await getCurrentUser()
   if (!user) {
     redirect("/auth/signin")
   }
-  const profile = await getUserProfile(user.id)
-  const supabase = await createServerSupabaseClient()
+  const supabase = await createServerComponentClient()
+  // Buscar perfil do usuário na tabela profiles
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .single()
 
   // Buscar mídia do usuário (se a tabela media existir)
   let media = []
