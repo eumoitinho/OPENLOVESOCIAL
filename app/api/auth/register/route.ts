@@ -114,59 +114,34 @@ export async function POST(req: NextRequest) {
     const selectedPlan = plan && validPlans.includes(plan) ? plan : 'free';
     const subscriptionStatus = selectedPlan === 'free' ? 'authorized' : 'pending';
 
-    // Preparar dados do perfil
-    const profileData = {
-      email,
-      username,
-      name: `${firstName} ${lastName}`,
-      first_name: firstName,
-      last_name: lastName,
-      birth_date: birthDate || null,
-      profile_type: profileType || 'single',
-      seeking: ensureArray(seeking),
-      interests: ensureArray(interests),
-      other_interest: otherInterest || null,
-      bio: bio || null,
-      location: city || null,
-      uf: uf ? uf.substring(0, 2).toUpperCase() : null,
-      latitude: latitude ? parseFloat(latitude) : null,
-      longitude: longitude ? parseFloat(longitude) : null,
-      plano: selectedPlan,
-      status_assinatura: subscriptionStatus,
-      partner: profileType === "couple" && partner ? partner : null,
-      is_premium: selectedPlan !== 'free',
-      is_verified: false,
-      is_active: true,
-      last_seen: new Date().toISOString(),
-      privacy_settings: {
-        profile_visibility: "public",
-        show_age: true,
-        show_location: true,
-        allow_messages: "everyone",
-        show_online_status: true
-      },
-      stats: {
-        posts: 0,
-        followers: 0,
-        following: 0,
-        likes_received: 0,
-        comments_received: 0,
-        profile_views: 0,
-        earnings: 0
-      }
-    }
-
-    // 3. Criar usuário no Supabase Auth com metadados mínimos
+    // 3. Criar usuário no Supabase Auth com TODOS os dados nos metadados
     console.log("Criando usuário no Supabase Auth...")
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email,
       password,
       email_confirm: true,
       user_metadata: {
+        // Dados básicos
         username,
         full_name: `${firstName} ${lastName}`,
-        // Adicionar dados mínimos para evitar conflitos
-        profile_created: false
+        first_name: firstName,
+        last_name: lastName,
+        
+        // Dados do perfil (o trigger pode usar estes dados)
+        birth_date: birthDate || null,
+        profile_type: profileType || 'single',
+        seeking: ensureArray(seeking),
+        interests: ensureArray(interests),
+        other_interest: otherInterest || null,
+        bio: bio || null,
+        location: city || null,
+        uf: uf ? uf.substring(0, 2).toUpperCase() : null,
+        latitude: latitude ? parseFloat(latitude) : null,
+        longitude: longitude ? parseFloat(longitude) : null,
+        plano: selectedPlan,
+        status_assinatura: subscriptionStatus,
+        partner: profileType === "couple" && partner ? partner : null,
+        is_premium: selectedPlan !== 'free'
       }
     })
 
@@ -177,7 +152,6 @@ export async function POST(req: NextRequest) {
         code: authError.code
       })
       
-      // Tentar diferentes abordagens baseadas no erro
       if (authError.message.includes('duplicate') || authError.message.includes('already exists')) {
         return NextResponse.json(
           { error: "Email já está em uso" },
@@ -200,46 +174,77 @@ export async function POST(req: NextRequest) {
 
     console.log("Usuário criado no Auth com sucesso:", authData.user.id)
 
-    // 4. Inserir perfil na tabela users com o ID do usuário criado
-    const finalProfileData = {
-      id: authData.user.id,
-      ...profileData
+    // 4. Aguardar um pouco para o trigger processar (opcional)
+    await new Promise(resolve => setTimeout(resolve, 1000))
+
+    // 5. Verificar se o perfil foi criado pelo trigger e atualizá-lo se necessário
+    console.log("Verificando e atualizando perfil...")
+    
+    const updateData = {
+      username,
+      name: `${firstName} ${lastName}`,
+      first_name: firstName,
+      last_name: lastName,
+      birth_date: birthDate || null,
+      profile_type: profileType || 'single',
+      seeking: ensureArray(seeking),
+      interests: ensureArray(interests),
+      other_interest: otherInterest || null,
+      bio: bio || null,
+      location: city || null,
+      uf: uf ? uf.substring(0, 2).toUpperCase() : null,
+      latitude: latitude ? parseFloat(latitude) : null,
+      longitude: longitude ? parseFloat(longitude) : null,
+      plano: selectedPlan,
+      status_assinatura: subscriptionStatus,
+      partner: profileType === "couple" && partner ? partner : null,
+      is_premium: selectedPlan !== 'free',
+      is_verified: false,
+      is_active: true,
+      privacy_settings: {
+        profile_visibility: "public",
+        show_age: true,
+        show_location: true,
+        allow_messages: "everyone",
+        show_online_status: true
+      },
+      stats: {
+        posts: 0,
+        followers: 0,
+        following: 0,
+        likes_received: 0,
+        comments_received: 0,
+        profile_views: 0,
+        earnings: 0
+      },
+      updated_at: new Date().toISOString()
     }
 
-    console.log("Inserindo perfil na tabela users...")
-    const { data: insertResult, error: profileError } = await supabase
+    const { data: updateResult, error: updateError } = await supabase
       .from('users')
-      .insert([finalProfileData])
+      .update(updateData)
+      .eq('id', authData.user.id)
       .select()
 
-    if (profileError) {
-      console.error("Erro ao criar perfil:", profileError)
+    if (updateError) {
+      console.error("Erro ao atualizar perfil:", updateError)
       
       // Tentar deletar o usuário criado no Auth
       try {
         console.log("Tentando deletar usuário do Auth devido ao erro...")
         await supabase.auth.admin.deleteUser(authData.user.id)
-        console.log("Usuário deletado do Auth após falha na criação do perfil")
+        console.log("Usuário deletado do Auth após falha na atualização do perfil")
       } catch (deleteError) {
         console.error("Erro ao deletar usuário após falha:", deleteError)
       }
       
       return NextResponse.json(
-        { error: "Erro ao criar perfil do usuário: " + profileError.message },
+        { error: "Erro ao atualizar perfil do usuário: " + updateError.message },
         { status: 500 }
       )
     }
 
-    console.log("Perfil criado com sucesso:", insertResult)
-
-    // 5. Atualizar metadados do usuário para indicar que o perfil foi criado
-    await supabase.auth.admin.updateUserById(authData.user.id, {
-      user_metadata: {
-        username,
-        full_name: `${firstName} ${lastName}`,
-        profile_created: true
-      }
-    })
+    console.log("Perfil atualizado com sucesso:", updateResult)
 
     // 6. Se for plano pago, criar registro de assinatura
     if (selectedPlan && selectedPlan !== "free") {
