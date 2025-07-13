@@ -1,11 +1,9 @@
 import { createRouteHandlerClient } from "@/app/lib/supabase-server"
-import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
-import type { Database } from "@/app/lib/database.types"
 import { verifyAuth } from "@/app/lib/auth-helpers"
 
 export async function POST(request: Request) {
-  const supabase = createRouteHandlerClient<Database>({ cookies })
+  const supabase = await createRouteHandlerClient()
   
   // Verificar autenticação e timeout de sessão
   const { user, error: authError } = await verifyAuth()

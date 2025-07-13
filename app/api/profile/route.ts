@@ -4,7 +4,7 @@ import { NextResponse } from "next/server"
 import type { Database } from "@/app/lib/database.types"
 
 export async function GET() {
-  const supabase = createRouteHandlerClient<Database>({ cookies })
+const supabase = await createRouteHandlerClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -23,7 +23,7 @@ export async function GET() {
 }
 
 export async function PUT(request: Request) {
-  const supabase = createRouteHandlerClient<Database>({ cookies })
+ const supabase = await createRouteHandlerClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()

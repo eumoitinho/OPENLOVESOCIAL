@@ -1,7 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createRouteHandlerClient } from "@/app/lib/supabase-server"
 import { cookies } from "next/headers"
-import type { Database } from "@/lib/database.types"
 
 export const dynamic = 'force-dynamic'
 

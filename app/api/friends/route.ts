@@ -43,14 +43,17 @@ export async function GET(request: NextRequest) {
     }
 
     const friends =
-      friendships?.map((f) => ({
-        id: f.profiles.id,
-        full_name: f.profiles.full_name,
-        username: f.profiles.username,
-        avatar_url: f.profiles.avatar_url,
-        location: f.profiles.location,
-        is_friend: true,
-      })) || []
+      friendships?.map((f) => {
+        const profile = Array.isArray(f.profiles) ? f.profiles[0] : f.profiles
+        return {
+          id: profile.id,
+          full_name: profile.full_name,
+          username: profile.username,
+          avatar_url: profile.avatar_url,
+          location: profile.location,
+          is_friend: true,
+        }
+      }) || []
 
     return NextResponse.json(friends)
   } catch (error) {

@@ -8,7 +8,7 @@ export async function GET(
   { params }: { params: { username: string } }
 ) {
   try {
-    const supabase = createRouteHandlerClient<Database>({ cookies })
+    const supabase = await createRouteHandlerClient()
     
     // Buscar usuário autenticado
     const { data: { user } } = await supabase.auth.getUser()

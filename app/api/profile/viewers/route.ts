@@ -1,10 +1,10 @@
 import { createRouteHandlerClient } from "@/app/lib/supabase-server"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
-import type { Database } from "@/app/lib/database.types"
+
 
 export async function GET() {
-  const supabase = createRouteHandlerClient<Database>({ cookies })
+  const supabase = await createRouteHandlerClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()

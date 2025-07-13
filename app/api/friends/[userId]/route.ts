@@ -4,7 +4,7 @@ import { NextResponse } from "next/server"
 import type { Database } from "@/app/lib/database.types"
 
 export async function DELETE(request: Request, { params }: { params: { userId: string } }) {
-  const supabase = createRouteHandlerClient<Database>({ cookies })
+  const supabase = await createRouteHandlerClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
