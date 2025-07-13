@@ -2,13 +2,13 @@ import { getCurrentUser } from "@/app/lib/auth-helpers"
 import AdminContent from "./AdminContent"
 import { redirect } from "next/navigation"
 import type { Metadata } from "next"
-import { createServerComponentClient } from "../lib/supabase-server"
+import { createServerComponentClient } from "@/app/lib/supabase-server"
 
 
 
 export const metadata: Metadata = {
-  title: "Painel Admin - ConnectHub",
-  description: "Painel de administração do ConnectHub",
+  title: "Painel Admin - Openlove",
+  description: "Painel de administração do Openlove",
 }
 
 export default async function AdminPage() {

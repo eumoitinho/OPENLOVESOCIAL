@@ -258,7 +258,7 @@ export default function SignUp() {
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-2xl">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-gray-900">Criar Conta - ConnectHub</CardTitle>
+          <CardTitle className="text-2xl font-bold text-gray-900">Criar Conta - Openlove</CardTitle>
           <CardDescription>Etapa {step} de 3</CardDescription>
           <Progress value={progress} className="mt-4" />
         </CardHeader>

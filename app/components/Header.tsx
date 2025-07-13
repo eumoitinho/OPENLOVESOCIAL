@@ -17,7 +17,7 @@ const Header: React.FC = () => {
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
           <Link href="/" className="text-2xl font-bold hover:text-blue-200 transition-colors">
-            ConnectHub
+            Openlove
           </Link>
 
           {/* Desktop Navigation */}

@@ -2,8 +2,8 @@ import SearchContent from "./SearchContent"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Buscar - ConnectHub",
-  description: "Encontre pessoas, comunidades e eventos no ConnectHub",
+  title: "Buscar - Openlove",
+  description: "Encontre pessoas, comunidades e eventos no Openlove",
 }
 
 interface SearchPageProps {
