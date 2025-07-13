@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Users } from "lucide-react"
 import Link from "next/link"
-import type { Profile } from "@/types/database"
+import type { Database } from "@/app/lib/database.types"
+
+type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 
 async function fetchProfileViewers(): Promise<Profile[]> {
   const response = await fetch("/api/profile/viewers")
@@ -75,7 +77,7 @@ export function ProfileViewers() {
             </div>
           </Link>
         ))}
-        {viewers?.length === 0 && <p className="text-gray-500">Ninguém viu seu perfil ainda.</p>}
+        {(viewers || []).length === 0 && <p className="text-gray-500">Ninguém viu seu perfil ainda.</p>}
       </CardContent>
     </Card>
   )

@@ -79,7 +79,11 @@ export async function POST(req: NextRequest) {
 
     if (subscription.status === "authorized" || subscription.status === "pending") {
       // 4. Atualizar usuário no Supabase
-      const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+      if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        throw new Error("Variáveis de ambiente do Supabase não configuradas")
+      }
+      
+      const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
       await supabase
         .from("users")
         .update({ 

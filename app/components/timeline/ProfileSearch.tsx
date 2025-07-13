@@ -220,7 +220,7 @@ export default function ProfileSearch({ onProfileClick }: ProfileSearchProps) {
       <div className="flex flex-col gap-2 min-w-0">
         {loading && <div className="text-center text-gray-400 py-8">Carregando perfis...</div>}
         {error && <div className="text-center text-red-500 py-8">{error}</div>}
-        {!loading && !error && filteredProfiles.length === 0 && (
+        {!loading && !error && (filteredProfiles || []).length === 0 && (
           <div className="text-center text-gray-400 py-8">Nenhum perfil encontrado.</div>
         )}
         {filteredProfiles.map((profile) => (

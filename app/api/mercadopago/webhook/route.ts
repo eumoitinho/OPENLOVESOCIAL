@@ -30,7 +30,11 @@ export async function POST(req: NextRequest) {
 }
 
 async function handleSubscriptionUpdate(data: any) {
-  const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error("Variáveis de ambiente do Supabase não configuradas")
+  }
+  
+  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
   
   console.log("Processando atualização de assinatura:", data)
   
@@ -61,7 +65,11 @@ async function handleSubscriptionUpdate(data: any) {
 }
 
 async function handlePaymentUpdate(data: any) {
-  const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error("Variáveis de ambiente do Supabase não configuradas")
+  }
+  
+  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
   
   console.log("Processando atualização de pagamento:", data)
   
@@ -88,7 +96,11 @@ async function handlePaymentUpdate(data: any) {
 }
 
 async function handleSubscriptionPayment(data: any) {
-  const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error("Variáveis de ambiente do Supabase não configuradas")
+  }
+  
+  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
   
   console.log("Processando pagamento de assinatura:", data)
   

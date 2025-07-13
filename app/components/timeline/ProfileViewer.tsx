@@ -235,9 +235,9 @@ export function ProfileViewer({
                   </div>
 
                   {/* Interesses */}
-                  {profile.interests.length > 0 && (
+                  {(profile.interests || []).length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {profile.interests.map((interest, index) => (
+                      {(profile.interests || []).map((interest, index) => (
                         <Badge key={index} variant="secondary" className="text-xs">
                           {interest}
                         </Badge>
@@ -279,11 +279,11 @@ export function ProfileViewer({
                 <TabsTrigger value="posts">Posts ({profile.postsCount})</TabsTrigger>
                 <TabsTrigger value="photos">
                   <Camera className="w-4 h-4 mr-2" />
-                  Fotos ({profile.photos.length})
+                  Fotos ({(profile.photos || []).length})
                 </TabsTrigger>
                 <TabsTrigger value="videos">
                   <Video className="w-4 h-4 mr-2" />
-                  Vídeos ({profile.videos.length})
+                  Vídeos ({(profile.videos || []).length})
                 </TabsTrigger>
                 <TabsTrigger value="about">Sobre</TabsTrigger>
               </TabsList>
@@ -294,12 +294,12 @@ export function ProfileViewer({
           <div className="flex-1 overflow-y-auto px-6 pb-6">
             {activeTab === "posts" && (
               <div className="space-y-4">
-                {profile.userPosts.length === 0 ? (
+                {(profile.userPosts || []).length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
                     <p>Nenhum post ainda</p>
                   </div>
                 ) : (
-                  profile.userPosts.map((post: any) => (
+                  (profile.userPosts || []).map((post: any) => (
                     <PostCard
                       key={post.id}
                       post={post}
@@ -317,13 +317,13 @@ export function ProfileViewer({
 
             {activeTab === "photos" && (
               <div className="grid grid-cols-3 gap-2">
-                {profile.photos.length === 0 ? (
+                {(profile.photos || []).length === 0 ? (
                   <div className="col-span-3 text-center py-8 text-gray-500">
                     <ImageIcon className="w-12 h-12 mx-auto mb-2 text-gray-400" />
                     <p>Nenhuma foto ainda</p>
                   </div>
                 ) : (
-                  profile.photos.map((photo, index) => (
+                  (profile.photos || []).map((photo, index) => (
                     <div key={index} className="aspect-square rounded-lg overflow-hidden">
                       <img
                         src={photo}
@@ -338,13 +338,13 @@ export function ProfileViewer({
 
             {activeTab === "videos" && (
               <div className="grid grid-cols-2 gap-4">
-                {profile.videos.length === 0 ? (
+                {(profile.videos || []).length === 0 ? (
                   <div className="col-span-2 text-center py-8 text-gray-500">
                     <Video className="w-12 h-12 mx-auto mb-2 text-gray-400" />
                     <p>Nenhum vídeo ainda</p>
                   </div>
                 ) : (
-                  profile.videos.map((video, index) => (
+                  (profile.videos || []).map((video, index) => (
                     <div key={index} className="aspect-video rounded-lg overflow-hidden bg-black">
                       <img
                         src={video}
@@ -392,14 +392,14 @@ export function ProfileViewer({
                   </CardContent>
                 </Card>
 
-                {profile.interests.length > 0 && (
+                {(profile.interests || []).length > 0 && (
                   <Card>
                     <CardHeader>
                       <CardTitle>Interesses</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="flex flex-wrap gap-2">
-                        {profile.interests.map((interest, index) => (
+                        {(profile.interests || []).map((interest, index) => (
                           <Badge key={index} variant="secondary">
                             {interest}
                           </Badge>

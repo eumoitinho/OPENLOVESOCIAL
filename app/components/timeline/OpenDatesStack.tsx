@@ -159,7 +159,7 @@ export function OpenDatesStack() {
     )
   }
 
-  if (cards.length === 0) {
+  if ((cards || []).length === 0) {
     return (
       <div className="flex h-96 w-full items-center justify-center">
         <div className="text-center">
@@ -192,11 +192,11 @@ export function OpenDatesStack() {
         {/* Stats */}
         <div className="flex justify-center gap-4 mb-4">
           <div className="text-center">
-            <div className="text-lg font-bold text-pink-600">{cards.length}</div>
+            <div className="text-lg font-bold text-pink-600">{(cards || []).length}</div>
             <div className="text-xs text-gray-500">Disponíveis</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-bold text-green-600">{matches.length}</div>
+            <div className="text-lg font-bold text-green-600">{(matches || []).length}</div>
             <div className="text-xs text-gray-500">Matches</div>
           </div>
         </div>
@@ -213,14 +213,14 @@ export function OpenDatesStack() {
               onLike={handleLike}
               onPass={handlePass}
               onSuperLike={handleSuperLike}
-              totalCards={Math.min(cards.length, 3)}
+              totalCards={Math.min((cards || []).length, 3)}
             />
           ))}
         </AnimatePresence>
       </div>
 
       {/* Matches Section */}
-      {matches.length > 0 && (
+      {(matches || []).length > 0 && (
         <div className="mt-8">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <MessageCircle className="w-5 h-5 text-pink-600" />
@@ -254,13 +254,13 @@ export function OpenDatesStack() {
                 )}
               </div>
             ))}
-            {matches.length > 3 && (
+            {(matches || []).length > 3 && (
               <Button
                 variant="outline"
                 className="w-full"
                 onClick={() => window.location.href = '/open-dates/matches'}
               >
-                Ver todos os matches ({matches.length})
+                Ver todos os matches ({(matches || []).length})
               </Button>
             )}
           </div>

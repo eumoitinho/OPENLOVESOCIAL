@@ -432,14 +432,14 @@ export function EventsContent() {
                   </div>
 
                   <div className="flex flex-wrap gap-1 mb-3">
-                    {event.tags.slice(0, 3).map((tag: string, index: number) => (
+                    {(event.tags || []).slice(0, 3).map((tag: string, index: number) => (
                       <Badge key={index} variant="outline" className="text-xs">
                         {tag}
                       </Badge>
                     ))}
-                    {event.tags.length > 3 && (
+                    {(event.tags || []).length > 3 && (
                       <Badge variant="outline" className="text-xs">
-                        +{event.tags.length - 3}
+                        +{(event.tags || []).length - 3}
                       </Badge>
                     )}
                   </div>
