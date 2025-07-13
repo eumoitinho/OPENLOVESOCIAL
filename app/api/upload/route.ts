@@ -10,8 +10,7 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
-    const cookieStore = cookies()
-    const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore })
+    const supabase = createRouteHandlerClient({ cookies })
 
     // Verificar autenticação
     const {
@@ -130,8 +129,7 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const cookieStore = cookies()
-    const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore })
+    const supabase = createRouteHandlerClient({ cookies })
 
     // Verificar autenticação
     const {
