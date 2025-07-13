@@ -40,9 +40,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Failed to fetch posts", details: postsError }, { status: 500 })
     }
     
-    console.log("Posts encontrados:", posts?.length || 0)
+    console.log("Posts encontrados:", (posts || []).length)
 
-    if (!posts || posts.length === 0) {
+    if (!posts || (posts || []).length === 0) {
       const emptyResult = {
         data: [],
         hasMore: false,
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Step 2: Get all unique author IDs
-    const authorIds = [...new Set(posts.map((post) => post.user_id))]
+    const authorIds = [...new Set((posts || []).map((post) => post.user_id))]
 
     // Step 3: Fetch author profiles
     const { data: authors } = await supabase
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
 
     // Create author lookup map
     const authorMap = new Map()
-    authors?.forEach((author) => {
+    ;(authors || []).forEach((author: any) => {
       authorMap.set(author.id, {
         id: author.id,
         name: author.name || "Usuário",
@@ -78,14 +78,14 @@ export async function GET(request: NextRequest) {
     })
 
     // Step 4: Get post IDs for likes and comments
-    const postIds = posts.map((post) => post.id)
+    const postIds = (posts || []).map((post) => post.id)
 
     // Step 5: Fetch likes
     const { data: likes } = await supabase.from("likes").select("post_id, user_id").in("post_id", postIds)
 
     // Group likes by post
     const likesMap = new Map()
-    likes?.forEach((like) => {
+    ;(likes || []).forEach((like: any) => {
       if (!likesMap.has(like.post_id)) {
         likesMap.set(like.post_id, [])
       }
@@ -106,7 +106,7 @@ export async function GET(request: NextRequest) {
       .order("created_at", { ascending: true })
 
     // Get comment author IDs
-    const commentAuthorIds = [...new Set(comments?.map((comment) => comment.user_id) || [])]
+    const commentAuthorIds = [...new Set((comments || []).map((comment) => comment.user_id))]
 
     // Fetch comment authors
     const { data: commentAuthors } = await supabase
@@ -116,7 +116,7 @@ export async function GET(request: NextRequest) {
 
     // Create comment author lookup
     const commentAuthorMap = new Map()
-    commentAuthors?.forEach((author) => {
+    ;(commentAuthors || []).forEach((author: any) => {
       commentAuthorMap.set(author.id, {
         id: author.id,
         name: author.name || "Usuário",
@@ -127,7 +127,7 @@ export async function GET(request: NextRequest) {
 
     // Group comments by post
     const commentsMap = new Map()
-    comments?.forEach((comment) => {
+    ;(comments || []).forEach((comment: any) => {
       if (!commentsMap.has(comment.post_id)) {
         commentsMap.set(comment.post_id, [])
       }
@@ -145,7 +145,7 @@ export async function GET(request: NextRequest) {
     })
 
     // Step 7: Combine all data
-    const timelinePosts = posts.map((post) => {
+    const timelinePosts = (posts || []).map((post) => {
       const author = authorMap.get(post.user_id)
       const postLikes = likesMap.get(post.id) || []
       const postComments = commentsMap.get(post.id) || []
@@ -170,10 +170,10 @@ export async function GET(request: NextRequest) {
           isPrivate: false,
         },
         likes: postLikes,
-        likesCount: postLikes.length,
+        likesCount: (postLikes || []).length,
         isLiked: false, // Simplified for now
         comments: postComments,
-        commentsCount: postComments.length,
+        commentsCount: (postComments || []).length,
         images: post.media_urls || null,
         video: null,
         event: null,
@@ -186,7 +186,7 @@ export async function GET(request: NextRequest) {
 
     const result = {
       data: timelinePosts,
-      hasMore: posts.length === limit,
+      hasMore: (posts || []).length === limit,
       page,
       limit,
     }
