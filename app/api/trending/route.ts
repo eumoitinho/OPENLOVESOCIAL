@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { createRouteHandlerClient } from "@/app/lib/supabase"
+import { createRouteHandlerClient } from "@/app/lib/supabase-server"
 import { verifyAuth } from "@/app/lib/auth-helpers"
 
 export async function GET() {

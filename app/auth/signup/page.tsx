@@ -11,6 +11,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import CheckoutForm from "@/app/components/CheckoutForm"
+import { createClient } from "@/app/lib/supabase-browser"
 
 interface FormData {
   firstName: string
@@ -342,7 +343,6 @@ export default function OpenLoveRegister() {
       if (result.success) {
         // Upload da foto de perfil se existir
         if (formData.profilePicture) {
-          const { createClient } = await import("@/app/lib/supabase")
           const supabase = createClient()
           const fileExt = formData.profilePicture.name.split('.').pop()
           const fileName = `${result.user.id}-${Date.now()}.${fileExt}`

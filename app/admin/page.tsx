@@ -1,7 +1,9 @@
-import { createServerSupabaseClient, getAuthenticatedUser, getUserProfile } from "@/app/lib/auth-helpers"
+import { getCurrentUser } from "@/app/lib/auth-helpers"
 import AdminContent from "./AdminContent"
 import { redirect } from "next/navigation"
 import type { Metadata } from "next"
+import { createClient } from "../lib/supabase-browser"
+
 
 export const metadata: Metadata = {
   title: "Painel Admin - ConnectHub",
@@ -9,20 +11,21 @@ export const metadata: Metadata = {
 }
 
 export default async function AdminPage() {
-  const user = await getAuthenticatedUser()
+  const user = await getCurrentUser()
+  
 
   if (!user) {
     redirect("/auth/signin")
   }
 
-  const profile = await getUserProfile(user.id)
+ 
 
   // Verificar se usuário é admin
-  if (!profile || !["admin", "moderator"].includes(profile.role)) {
+  if (!user || !["admin", "moderator"].includes(user.role ?? "")) {
     redirect("/dashboard")
   }
 
-  const supabase = await createServerSupabaseClient()
+  const supabase = await createClient()
 
   // Buscar estatísticas básicas
   const [
@@ -44,7 +47,7 @@ export default async function AdminPage() {
   return (
     <AdminContent
       user={user}
-      profile={profile}
+      profile={user}
       stats={{
         totalUsers: totalUsers || 0,
         totalCommunities: totalCommunities || 0,

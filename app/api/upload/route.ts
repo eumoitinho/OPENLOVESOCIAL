@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { createRouteHandlerClient} from "@/app/lib/supabase"
+import { createRouteHandlerClient} from "@/app/lib/supabase-server"
 import { promises as fs } from "fs"
 import path from "path"
 import { validateMediaFile, generateFileName, getMediaUrl } from "@/app/lib/media-utils"

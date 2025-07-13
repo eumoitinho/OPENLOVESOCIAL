@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { createRouteHandlerClient } from "@/app/lib/supabase"
+import { createRouteHandlerClient } from "@/app/lib/supabase-server"
 import redis from "@/lib/redis"
 import { verifyAuth } from "@/app/lib/auth-helpers"
 
