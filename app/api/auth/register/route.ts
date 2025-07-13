@@ -45,12 +45,20 @@ export async function POST(req: NextRequest) {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    // 1. Verificar se o username já existe
+    // 1. Verificar se o username já existe (CORRIGIDO)
     const { data: existingUser, error: checkError } = await supabase
       .from('users')
       .select('id')
       .eq('username', username)
-      .single()
+      .maybeSingle() // Mudado de single() para maybeSingle()
+
+    if (checkError) {
+      console.error("Erro ao verificar username:", checkError)
+      return NextResponse.json(
+        { error: "Erro ao verificar disponibilidade do username" },
+        { status: 500 }
+      )
+    }
 
     if (existingUser) {
       return NextResponse.json(
@@ -59,12 +67,20 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // 2. Verificar se o email já existe
+    // 2. Verificar se o email já existe (CORRIGIDO)
     const { data: existingEmail, error: emailCheckError } = await supabase
       .from('users')
       .select('id')
       .eq('email', email)
-      .single()
+      .maybeSingle() // Mudado de single() para maybeSingle()
+
+    if (emailCheckError) {
+      console.error("Erro ao verificar email:", emailCheckError)
+      return NextResponse.json(
+        { error: "Erro ao verificar disponibilidade do email" },
+        { status: 500 }
+      )
+    }
 
     if (existingEmail) {
       return NextResponse.json(
@@ -102,22 +118,28 @@ export async function POST(req: NextRequest) {
 
     console.log("Usuário criado no Auth com sucesso:", authData.user.id)
 
-    // Função para garantir que arrays sejam válidos
+    // Função para garantir que arrays sejam válidos (MELHORADA)
     const ensureArray = (value: any): string[] => {
       if (!value) return [];
-      if (Array.isArray(value)) return value;
+      if (Array.isArray(value)) return value.filter(item => item && typeof item === 'string');
       if (typeof value === 'string') {
         try {
-          // Tenta fazer parse se for uma string JSON
           const parsed = JSON.parse(value);
-          return Array.isArray(parsed) ? parsed : [];
+          return Array.isArray(parsed) ? parsed.filter(item => item && typeof item === 'string') : [];
         } catch {
-          // Se não for JSON válido, trata como string simples
-          return [value];
+          return value.trim() ? [value.trim()] : [];
         }
       }
       return [];
     };
+
+    // Validar plano
+    const validPlans = ['free', 'gold', 'diamante', 'diamante_anual'];
+    const selectedPlan = plan && validPlans.includes(plan) ? plan : 'free';
+
+    // Validar status de assinatura
+    const validStatuses = ['inactive', 'pending', 'authorized', 'cancelled', 'suspended', 'active'];
+    const subscriptionStatus = selectedPlan === 'free' ? 'authorized' : 'pending';
 
     // 4. Criar perfil completo no banco de dados
     console.log("Criando perfil na tabela users...")
@@ -138,11 +160,11 @@ export async function POST(req: NextRequest) {
       uf: uf ? uf.substring(0, 2).toUpperCase() : null,
       latitude: latitude ? parseFloat(latitude) : null,
       longitude: longitude ? parseFloat(longitude) : null,
-      plano: plan || 'free',
-      status_assinatura: plan === "free" ? "authorized" : "pending",
+      plano: selectedPlan,
+      status_assinatura: subscriptionStatus,
       partner: profileType === "couple" && partner ? partner : null,
       // Campos obrigatórios da tabela users
-      is_premium: false,
+      is_premium: selectedPlan !== 'free',
       is_verified: false,
       is_active: true,
       last_seen: new Date().toISOString(),
@@ -188,12 +210,12 @@ export async function POST(req: NextRequest) {
     console.log("Perfil criado com sucesso:", insertResult)
 
     // 6. Se for plano pago, criar registro de assinatura
-    if (plan && plan !== "free") {
+    if (selectedPlan && selectedPlan !== "free") {
       const { error: subscriptionError } = await supabase
         .from('subscriptions')
         .insert([{
           user_id: authData.user.id,
-          plan: plan,
+          plan: selectedPlan,
           status: 'pending',
           created_at: new Date().toISOString()
         }])
@@ -211,8 +233,8 @@ export async function POST(req: NextRequest) {
         id: authData.user.id,
         email: authData.user.email,
         username,
-        plan: plan || 'free',
-        status_assinatura: plan === "free" ? "authorized" : "pending"
+        plan: selectedPlan,
+        status_assinatura: subscriptionStatus
       },
       message: "Conta criada com sucesso!"
     })
@@ -224,4 +246,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     )
   }
-} 
+}
