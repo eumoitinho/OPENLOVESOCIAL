@@ -33,6 +33,7 @@ export async function PUT(request: Request) {
   }
 
   const profileData = await request.json()
+  console.log("Atualizando perfil do usuário:", profileData)
 
   // Remove id and other non-updatable fields
   delete profileData.id
