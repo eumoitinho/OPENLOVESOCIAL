@@ -1,168 +1,49 @@
-import { createServerClient } from "@supabase/ssr"
-import { createBrowserClient } from "@supabase/ssr"
-import { cookies } from "next/headers"
-import { type NextRequest, NextResponse } from "next/server"
+import { createServerComponentClient, createRouteHandlerClient } from './supabase'
+import type { User } from '@supabase/supabase-js'
 
-export async function createServerSupabaseClient() {
-  const cookieStore = await cookies()
-
-  return createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
-    cookies: {
-      get(name: string) {
-        return cookieStore.get(name)?.value
-      },
-      set(name: string, value: string, options: any) {
-        try {
-          cookieStore.set({ name, value, ...options })
-        } catch (error) {
-          // The `set` method was called from a Server Component.
-          // This can be ignored if you have middleware refreshing
-          // user sessions.
-        }
-      },
-      remove(name: string, options: any) {
-        try {
-          cookieStore.set({ name, value: "", ...options })
-        } catch (error) {
-          // The `delete` method was called from a Server Component.
-          // This can be ignored if you have middleware refreshing
-          // user sessions.
-        }
-      },
-    },
-  })
-}
-
-export function createClientSupabaseClient() {
-  return createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
-}
-
-// Função helper para verificar autenticação e timeout de sessão
-export async function verifyAuth() {
-  const supabase = await createServerSupabaseClient()
-
+// Para Server Components
+export async function getCurrentUser(): Promise<User | null> {
+  const supabase = await createServerComponentClient()
+  
   try {
-    const {
-      data: { session },
-      error,
-    } = await supabase.auth.getSession()
-
-    if (error || !session) {
-      return { user: null, error: "Unauthorized" }
-    }
-
-    // Verificar timeout de sessão (5 horas)
-    const tokenExp = session.expires_at ? session.expires_at * 1000 : 0
-    const currentTime = Date.now()
+    const { data: { user }, error } = await supabase.auth.getUser()
     
-    if (tokenExp && currentTime > tokenExp) {
-      // Sessão expirada, fazer logout
-      await supabase.auth.signOut()
-      return { user: null, error: "Session expired" }
-    }
-
-    return { user: session.user, error: null }
-  } catch (error) {
-    console.error("Error in verifyAuth:", error)
-    return { user: null, error: "Authentication error" }
-  }
-}
-
-export async function getAuthenticatedUser() {
-  const supabase = await createServerSupabaseClient()
-
-  try {
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser()
-
     if (error) {
-      console.error("Error getting user:", error)
+      console.error('Erro ao obter usuário:', error)
       return null
     }
-
+    
     return user
   } catch (error) {
-    console.error("Error in getAuthenticatedUser:", error)
+    console.error('Erro ao verificar autenticação:', error)
     return null
   }
 }
 
-export async function getUserProfile(userId: string) {
-  const supabase = await createServerSupabaseClient()
-
+// Para Route Handlers
+export async function verifyAuth(): Promise<{ user: User | null; error: string | null }> {
+  const supabase = await createRouteHandlerClient()
+  
   try {
-    console.log("[getUserProfile] Buscando perfil para usuário:", userId)
-    const { data: profile, error } = await supabase.from("users").select("*").eq("id", userId).single()
-
+    const { data: { user }, error } = await supabase.auth.getUser()
+    
     if (error) {
-      console.error("[getUserProfile] Erro ao buscar perfil:", error)
-      return null
+      return { user: null, error: error.message }
     }
-
-    console.log("[getUserProfile] Perfil encontrado:", profile)
-    return profile
+    
+    if (!user) {
+      return { user: null, error: 'Não autenticado' }
+    }
+    
+    // Verificar se a sessão não expirou
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) {
+      return { user: null, error: 'Sessão expirada' }
+    }
+    
+    return { user, error: null }
   } catch (error) {
-    console.error("[getUserProfile] Erro inesperado:", error)
-    return null
+    console.error('Erro ao verificar autenticação:', error)
+    return { user: null, error: 'Erro interno' }
   }
-}
-
-export async function updateSession(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
-  })
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return request.cookies.get(name)?.value
-        },
-        set(name: string, value: string, options: any) {
-          request.cookies.set({
-            name,
-            value,
-            ...options,
-          })
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          })
-          response.cookies.set({
-            name,
-            value,
-            ...options,
-          })
-        },
-        remove(name: string, options: any) {
-          request.cookies.set({
-            name,
-            value: "",
-            ...options,
-          })
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
-          })
-          response.cookies.set({
-            name,
-            value: "",
-            ...options,
-          })
-        },
-      },
-    },
-  )
-
-  await supabase.auth.getUser()
-
-  return response
 }

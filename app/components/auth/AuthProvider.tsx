@@ -1,4 +1,3 @@
-// app/components/auth/AuthProvider.tsx
 "use client"
 
 import type React from "react"
@@ -6,6 +5,7 @@ import { createContext, useContext, useEffect, useState } from "react"
 import { createBrowserClient } from "@supabase/ssr"
 import type { User, Session } from "@supabase/supabase-js"
 import { useRouter } from "next/navigation"
+import type { Database } from "@/app/lib/database.types"
 
 interface Profile {
   id: string
@@ -43,220 +43,133 @@ interface AuthProviderProps {
   children: React.ReactNode
 }
 
+// Criar cliente Supabase uma única vez
+const supabase = createBrowserClient<Database>(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  useEffect(() => {
-    if (typeof document !== "undefined") {
-      console.log("[AuthProvider] Cookies atuais:", document.cookie);
-    }
-  }, []);
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
-  const projectRef = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).hostname.split('.')[0]
-  const cookieName = `sb-${projectRef}-auth-token`
-
-  const cookieStorage = {
-    getItem: (key: string) => {
-      if (typeof document === "undefined") return null;
-      const cookies = document.cookie.split("; ").reduce((acc: Record<string, string>, curr) => {
-        const [name, ...valueParts] = curr.split("=");
-        acc[name] = valueParts.join("=");
-        return acc;
-      }, {});
-      const value = cookies[key];
-      return value ? decodeURIComponent(value) : null;
-    },
-    setItem: (key: string, value: string) => {
-      if (typeof document === "undefined") return;
-      const encodedValue = encodeURIComponent(value);
-      document.cookie = `${key}=${encodedValue}; path=/; SameSite=Strict${location.protocol === "https:" ? "; Secure" : ""}`;
-    },
-    removeItem: (key: string) => {
-      if (typeof document === "undefined") return;
-      document.cookie = `${key}=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT`;
-    },
-  };
-
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      auth: {
-        storage: cookieStorage,
-        storageKey: cookieName,
-      },
-    }
-  );
-
-  // Função para verificar timeout de sessão
-  const checkSessionTimeout = (session: Session | null) => {
-    if (!session) return false
-    
-    const tokenExp = session.expires_at ? session.expires_at * 1000 : 0
-    const currentTime = Date.now()
-    const maxSessionAge = 5 * 60 * 60 * 1000 // 5 horas em milissegundos
-    
-    // Se o token expirou ou a sessão tem mais de 5 horas
-    if (tokenExp && currentTime > tokenExp) {
-      console.log("[AuthProvider] Sessão expirada, fazendo logout")
-      return true
-    }
-    
-    return false
-  }
-
   const fetchProfile = async (userId: string) => {
     try {
       console.log("[AuthProvider] Buscando perfil para usuário:", userId)
-      const { data, error } = await supabase.from("users").select("*").eq("id", userId).single()
-      if (error || !data) {
-        console.error("[AuthProvider] Error fetching profile:", error)
+      const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", userId)
+        .single()
+      
+      if (error) {
+        console.error("[AuthProvider] Erro ao buscar perfil:", error)
         setProfile(null)
         return null
       }
+      
       setProfile(data)
       console.log("[AuthProvider] Perfil encontrado:", data)
       return data
     } catch (error) {
-      console.error("[AuthProvider] Error fetching profile:", error)
+      console.error("[AuthProvider] Erro ao buscar perfil:", error)
       setProfile(null)
       return null
     }
   }
 
-  const checkEmailConfirmation = async () => {
-    if (user && !user.email_confirmed_at) {
-      // Verificar se o email foi confirmado recentemente
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session?.user?.email_confirmed_at) {
-        setUser(session.user)
-        return true
-      }
-    }
-    return false
-  }
-
   const refreshProfile = async () => {
     if (user) {
-      const profileData = await fetchProfile(user.id)
-      setProfile(profileData)
+      await fetchProfile(user.id)
     }
   }
 
   const signOut = async () => {
     try {
       console.log("[AuthProvider] Fazendo logout...")
-      await supabase.auth.signOut()
+      const { error } = await supabase.auth.signOut()
+      if (error) throw error
+      
       setUser(null)
       setProfile(null)
       setSession(null)
-      // Redirecionar para página inicial após logout
+      
       router.push("/")
+      router.refresh() // Força refresh para limpar cookies server-side
     } catch (error) {
-      console.error("[AuthProvider] Error signing out:", error)
+      console.error("[AuthProvider] Erro ao fazer logout:", error)
     }
   }
 
   useEffect(() => {
-    const getInitialSession = async () => {
+    // Verificar sessão inicial
+    const initializeAuth = async () => {
       try {
-        console.log("[AuthProvider] Iniciando getInitialSession...")
-        setLoading(true)
+        console.log("[AuthProvider] Inicializando autenticação...")
+        
+        // Usar getSession() para obter sessão inicial do cookie
         const { data: { session }, error } = await supabase.auth.getSession()
+        
         if (error) {
-          console.error("[AuthProvider] Error getting session:", error)
-          setUser(null)
-          setProfile(null)
-          setSession(null)
-        } else if (checkSessionTimeout(session)) {
-          await signOut()
-        } else if (session?.user) {
+          console.error("[AuthProvider] Erro ao obter sessão:", error)
+          setLoading(false)
+          return
+        }
+        
+        if (session) {
+          console.log("[AuthProvider] Sessão encontrada:", session.user.email)
           setSession(session)
           setUser(session.user)
           await fetchProfile(session.user.id)
         } else {
-          setSession(null)
-          setUser(null)
-          setProfile(null)
+          console.log("[AuthProvider] Nenhuma sessão encontrada")
         }
-      } catch (error) {
-        console.error("[AuthProvider] Error in getInitialSession (catch):", error)
-        setUser(null)
-        setProfile(null)
-        setSession(null)
-      } finally {
+        
         setLoading(false)
-        console.log("[AuthProvider] Loading finalizado (getInitialSession)")
+      } catch (error) {
+        console.error("[AuthProvider] Erro na inicialização:", error)
+        setLoading(false)
       }
     }
 
-    getInitialSession()
+    initializeAuth()
 
+    // Escutar mudanças de autenticação
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("[AuthProvider] Auth state changed:", event, session?.user?.id)
-      console.log("[AuthProvider] Event type:", event)
-      console.log("[AuthProvider] Session exists:", !!session)
-      console.log("[AuthProvider] User email:", session?.user?.email)
-      console.log("[AuthProvider] URL atual:", typeof window !== "undefined" ? window.location.pathname : "server")
-
-      // Verificar timeout de sessão
-      if (checkSessionTimeout(session)) {
-        console.log("[AuthProvider] Sessão expirada no onAuthStateChange, fazendo logout")
-        await signOut()
-        return
-      }
-
-      setSession(session)
-      setUser(session?.user ?? null)
-
-      if (session?.user) {
-        console.log("[AuthProvider] Buscando perfil para usuário:", session.user.id)
-        const profileData = await fetchProfile(session.user.id)
-        setProfile(profileData)
-        console.log("[AuthProvider] Perfil carregado:", profileData ? "Sim" : "Não")
-        // Removido: redirecionamento para /home (agora feito em useEffect)
-      } else {
-        console.log("[AuthProvider] Nenhum usuário na sessão, limpando perfil")
+      console.log("[AuthProvider] Auth state changed:", event, session?.user?.email)
+      
+      if (event === 'SIGNED_OUT') {
+        setUser(null)
         setProfile(null)
+        setSession(null)
+      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        if (session) {
+          setSession(session)
+          setUser(session.user)
+          await fetchProfile(session.user.id)
+          
+          // Força refresh da página para sincronizar cookies
+          if (event === 'SIGNED_IN') {
+            router.refresh()
+          }
+        }
+      } else if (event === 'USER_UPDATED') {
+        if (session) {
+          setSession(session)
+          setUser(session.user)
+        }
       }
-
-      setLoading(false)
-      console.log("[AuthProvider] Loading finalizado (onAuthStateChange)")
-      console.log("[AuthProvider] Estado final - User:", !!session?.user, "Profile:", !!profile)
     })
 
     return () => {
       subscription.unsubscribe()
     }
-  }, [supabase])
-
-  // Verificar timeout periodicamente (a cada 5 minutos)
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (session && checkSessionTimeout(session)) {
-        signOut()
-      }
-    }, 5 * 60 * 1000) // 5 minutos
-
-    return () => clearInterval(interval)
-  }, [session])
-
-  // Removido: redirecionamento duplicado após carregamento do usuário
-  // Redirecionar para /home quando usuário loga e está em /auth/signin ou /auth/signup
-  useEffect(() => {
-    if (user && typeof window !== "undefined") {
-      const currentPath = window.location.pathname
-      if (["/", "/auth/signin", "/auth/signup"].includes(currentPath)) {
-        console.log("[AuthProvider] Redirecionando para /home após login (useEffect)")
-        router.push("/home")
-      }
-    }
-  }, [user, router])
+  }, [router])
 
   const value: AuthContextType = {
     user,

@@ -1,21 +1,15 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
-import { cookies } from "next/headers"
+import { createRouteHandlerClient} from "@/app/lib/supabase"
+import { verifyAuth } from "@/app/lib/auth-helpers"
 
 export async function GET(request: NextRequest) {
   try {
     console.log("Iniciando busca de timeline...")
     
-    const supabase = createRouteHandlerClient({ cookies })
-
-    // Verificar autenticação
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      console.log("Usuário não autenticado:", authError)
+    const supabase = await createRouteHandlerClient()
+    const { user, error } = await verifyAuth()
+    if (error || !user) {
+      console.log("Usuário não autenticado:", error)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 

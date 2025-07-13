@@ -1,14 +1,17 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
-import { cookies } from "next/headers"
-import type { Database } from "@/lib/database.types"
+import { createRouteHandlerClient } from "@/app/lib/supabase"
 import redis from "@/lib/redis"
+import { verifyAuth } from "@/app/lib/auth-helpers"
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createRouteHandlerClient({ cookies })
+    const supabase = await createRouteHandlerClient()
+    const { user, error } = await verifyAuth()
+    if (error || !user) {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+    }
 
     const { searchParams } = new URL(request.url)
     const query = searchParams.get("query") || ""

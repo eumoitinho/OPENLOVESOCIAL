@@ -9,7 +9,7 @@ import { Moon, Sun, Lock, Mail, ArrowRight, ArrowLeft, Shield, CheckCircle } fro
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import { createClient } from "@/supabase/client"
 import { toast } from "sonner"
 import { useAuth } from "@/app/components/auth/AuthProvider"
 
@@ -25,54 +25,10 @@ export default function SignInPage() {
   const [redirectUrl, setRedirectUrl] = useState("")
 
   const router = useRouter()
-  const supabase = createClientComponentClient()
+  const supabase = createClient()
+
   const { user, loading: authLoading } = useAuth()
 
-  // Verificar redirecionamento quando o usuário estiver autenticado
-  useEffect(() => {
-    if (!authLoading && user) {
-      console.log("[SignIn] Usuário autenticado detectado:", user.email)
-      
-      // Verificar se o email foi confirmado
-      if (user.email_confirmed_at) {
-        console.log("[SignIn] Email confirmado, redirecionando para home")
-        const targetUrl = redirectUrl || "/home"
-        // Usar window.location.href para forçar o redirecionamento
-        window.location.href = targetUrl
-      } else {
-        console.log("[SignIn] Email não confirmado, mostrando tela de verificação")
-        if (user.email) {
-          setEmail(user.email)
-        }
-        setStep("verification")
-        toast.info("Por favor, confirme seu email para continuar")
-      }
-    }
-  }, [user, authLoading, redirectUrl])
-
-  // Check for redirect parameter and email confirmation status
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const urlParams = new URLSearchParams(window.location.search)
-      const redirect = urlParams.get("redirect")
-      const emailUnconfirmed = urlParams.get("email") === "unconfirmed"
-      
-      if (redirect) {
-        setRedirectUrl(redirect)
-      }
-      
-      if (emailUnconfirmed) {
-        setStep("verification")
-        toast.info("Por favor, confirme seu email para continuar")
-        // Obter email da sessão de forma síncrona
-        supabase.auth.getSession().then(({ data: { session } }) => {
-          if (session?.user?.email) {
-            setEmail(session.user.email)
-          }
-        })
-      }
-    }
-  }, [])
 
   // Check system preference on initial load
   useEffect(() => {
@@ -94,6 +50,24 @@ export default function SignInPage() {
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode)
     document.documentElement.classList.toggle("dark")
+  }
+
+  // Enviar código de verificação
+  const sendVerificationCode = async () => {
+    const supabase = createClient()
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email,
+      })
+
+      if (error) {
+        console.error("Error sending verification code:", error)
+        toast.error("Erro ao enviar código de verificação")
+      }
+    } catch (error) {
+      console.error("Error sending verification code:", error)
+    }
   }
 
   // Handle initial login
@@ -120,14 +94,12 @@ export default function SignInPage() {
     if (isValid) {
       setLoading(true)
       try {
-        // Primeiro, tentar fazer login normal
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         })
 
         if (error) {
-          // Se o erro for de email não confirmado, enviar código de verificação
           if (error.message.includes("Email not confirmed")) {
             await sendVerificationCode()
             setStep("verification")
@@ -137,15 +109,19 @@ export default function SignInPage() {
             setErrors({ email: "", password: error.message, code: "" })
             toast.error("Erro ao fazer login")
           }
-        } else {
-          // Login bem-sucedido, redirecionar
+        } else if (data.user) {
           toast.success("Login realizado com sucesso!")
+          
+          // Usar router.push ao invés de window.location.href
           const targetUrl = redirectUrl || "/home"
           console.log("Redirecionando para:", targetUrl)
-          // Aguardar um pouco para garantir que a sessão seja estabelecida
-          setTimeout(() => {
-            window.location.href = targetUrl
-          }, 500)
+          
+          // Aguardar a propagação da sessão
+          await new Promise(resolve => setTimeout(resolve, 100))
+          
+          // Fazer refresh e redirecionar
+          router.refresh()
+          router.push(targetUrl)
         }
       } catch (error) {
         console.error("Sign in error:", error)
@@ -156,24 +132,6 @@ export default function SignInPage() {
       }
     }
   }
-
-  // Enviar código de verificação
-  const sendVerificationCode = async () => {
-    try {
-      const { error } = await supabase.auth.resend({
-        type: "signup",
-        email,
-      })
-
-      if (error) {
-        console.error("Error sending verification code:", error)
-        toast.error("Erro ao enviar código de verificação")
-      }
-    } catch (error) {
-      console.error("Error sending verification code:", error)
-    }
-  }
-
   // Verificar código
   const handleVerification = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -184,6 +142,7 @@ export default function SignInPage() {
     }
 
     setLoading(true)
+    
     try {
       // Tentar fazer login novamente após verificação
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -215,7 +174,7 @@ export default function SignInPage() {
   // Reenviar código
   const handleResendCode = async () => {
     if (countdown > 0) return
-    
+
     setLoading(true)
     try {
       await sendVerificationCode()

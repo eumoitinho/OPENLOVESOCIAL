@@ -1,24 +1,18 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
-import { cookies } from "next/headers"
+import { createRouteHandlerClient} from "@/app/lib/supabase"
 import { promises as fs } from "fs"
 import path from "path"
 import { validateMediaFile, generateFileName, getMediaUrl } from "@/app/lib/media-utils"
 import type { Database } from "@/app/lib/database.types"
+import { verifyAuth } from "@/app/lib/auth-helpers"
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createRouteHandlerClient({ cookies })
-
-    // Verificar autenticação
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    const supabase = await createRouteHandlerClient()
+    const { user, error } = await verifyAuth()
+    if (error || !user) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -129,15 +123,9 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = createRouteHandlerClient({ cookies })
-
-    // Verificar autenticação
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
+    const supabase = await createRouteHandlerClient()
+    const { user, error } = await verifyAuth()
+    if (error || !user) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 

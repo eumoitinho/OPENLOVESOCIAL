@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server"
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
-import { cookies } from "next/headers"
+import { createRouteHandlerClient } from "@/app/lib/supabase"
+import { verifyAuth } from "@/app/lib/auth-helpers"
 
 export async function GET() {
   try {
-    const supabase = createRouteHandlerClient({ cookies })
+    const supabase = await createRouteHandlerClient()
+    const { user, error } = await verifyAuth()
+    if (error || !user) {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+    }
     const today = new Date().toISOString().slice(0, 10)
 
     // Buscar perfis Gold e Diamante que querem se promover hoje

@@ -1,13 +1,16 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
-import { cookies } from "next/headers"
+import { createRouteHandlerClient } from "@/app/lib/supabase"
 import { verifyAuth } from "@/app/lib/auth-helpers"
+import { createClient } from '@supabase/supabase-js'
 
 export async function POST(request: NextRequest) {
   try {
     console.log("Iniciando criação de post...")
-    const supabase = createRouteHandlerClient({ cookies })
-
+    const supabase = await createRouteHandlerClient()
+    const supabaseStorage = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
     // Verificar autenticação e timeout de sessão
     const { user, error: authError } = await verifyAuth()
     
@@ -23,12 +26,11 @@ export async function POST(request: NextRequest) {
     // Garantir que o usuário existe na tabela users
     const { data: userRow, error: userRowError } = await supabase
       .from("users")
-      .select("id")
+      .select("id, plano")
       .eq("id", user.id)
       .single()
     
     if (!userRow) {
-      // Criar perfil mínimo
       const { error: insertError } = await supabase
         .from("users")
         .insert({
@@ -38,6 +40,7 @@ export async function POST(request: NextRequest) {
           name: user.user_metadata?.full_name || "Usuário",
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
+          plano: 'free'
         })
       if (insertError) {
         console.error("Erro ao criar perfil na tabela users:", insertError)
@@ -46,14 +49,87 @@ export async function POST(request: NextRequest) {
       console.log("Perfil criado automaticamente na tabela users para:", user.id)
     }
 
-    const body = await request.json()
-    const { content, mediaUrl, mediaType, visibility = "public" } = body
-    
-    console.log("Dados do post:", { content, mediaUrl, mediaType, visibility })
+    let content = ""
+    let visibility = "public"
+    let mediaUrls: string[] = []
+    let mediaTypes: string[] = []
 
-    if (!content?.trim()) {
+    if (request.headers.get("content-type")?.includes("multipart/form-data")) {
+      const formData = await request.formData()
+      content = formData.get("content")?.toString() || ""
+      visibility = formData.get("visibility")?.toString() || "public"
+
+      const userPlan = userRow?.plano || 'free'
+      const maxImages = userPlan === 'gold' ? 5 : userPlan === 'diamond' ? 10 : 0
+      const maxVideoSize = userPlan === 'gold' ? 25 * 1024 * 1024 : userPlan === 'diamond' ? 50 * 1024 * 1024 : 0
+
+      // Processar arquivos de imagem
+      const images = formData.getAll("images")
+      if (images.length > maxImages) {
+        return NextResponse.json({ error: `Máximo de ${maxImages} imagens permitido` }, { status: 400 })
+      }
+      for (const img of images) {
+        if (typeof img === "object" && "name" in img && "type" in img) {
+          if (!['image/jpeg', 'image/png'].includes(img.type)) {
+            return NextResponse.json({ error: "Apenas imagens JPEG e PNG são aceitas" }, { status: 400 })
+          }
+          if (img.size > 8 * 1024 * 1024) {
+            return NextResponse.json({ error: "Imagem muito grande. Máximo 8MB" }, { status: 400 })
+          }
+          const fileExt = img.name.split('.').pop()
+          const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`
+          const { data, error } = await supabaseStorage.storage
+            .from('media')
+            .upload(fileName, img, { upsert: false, contentType: img.type })
+          if (error) {
+            console.error("Erro ao enviar imagem:", error)
+            continue
+          }
+          const publicUrl = supabaseStorage.storage.from('media').getPublicUrl(fileName).data.publicUrl
+          if (publicUrl) {
+            mediaUrls.push(publicUrl)
+            mediaTypes.push("image")
+          }
+        }
+      }
+
+      // Processar vídeo
+      const video = formData.get("video")
+      if (video && typeof video === "object" && "name" in video && "type" in video) {
+        if (video.type !== 'video/mp4') {
+          return NextResponse.json({ error: "Apenas vídeos MP4 são aceitos" }, { status: 400 })
+        }
+        if (video.size > maxVideoSize) {
+          return NextResponse.json({ error: `Vídeo muito grande. Máximo ${maxVideoSize / (1024 * 1024)}MB` }, { status: 400 })
+        }
+        const fileExt = video.name.split('.').pop()
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`
+        const { data, error } = await supabaseStorage.storage
+          .from('media')
+          .upload(fileName, video, { upsert: false, contentType: video.type })
+        if (error) {
+          console.error("Erro ao enviar vídeo:", error)
+          return NextResponse.json({ error: "Erro ao enviar vídeo" }, { status: 500 })
+        }
+        const publicUrl = supabaseStorage.storage.from('media').getPublicUrl(fileName).data.publicUrl
+        if (publicUrl) {
+          mediaUrls.push(publicUrl)
+          mediaTypes.push("video")
+        }
+      }
+    } else {
+      const body = await request.json()
+      content = body.content
+      visibility = body.visibility || "public"
+      if (body.mediaUrl) mediaUrls.push(body.mediaUrl)
+      if (body.mediaType) mediaTypes.push(body.mediaType)
+    }
+
+    console.log("Dados do post:", { content, mediaUrls, mediaTypes, visibility })
+
+    if (!content?.trim() && mediaUrls.length === 0) {
       console.log("Conteúdo vazio")
-      return NextResponse.json({ error: "Content is required" }, { status: 400 })
+      return NextResponse.json({ error: "Content or media is required" }, { status: 400 })
     }
 
     // Create post
@@ -61,8 +137,8 @@ export async function POST(request: NextRequest) {
     const postData = {
       user_id: user.id,
       content: content.trim(),
-      media_urls: mediaUrl ? [mediaUrl] : [],
-      media_types: mediaType ? [mediaType] : [],
+      media_urls: mediaUrls,
+      media_types: mediaTypes,
       visibility,
     }
     
@@ -120,7 +196,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createRouteHandlerClient({ cookies })
+    const supabase = await createRouteHandlerClient()
     const { searchParams } = new URL(request.url)
     const userId = searchParams.get("userId")
     const page = Number.parseInt(searchParams.get("page") || "1")

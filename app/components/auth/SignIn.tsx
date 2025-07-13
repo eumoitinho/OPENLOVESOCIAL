@@ -33,8 +33,7 @@ const SignIn: React.FC = () => {
       }
 
       if (data.user) {
-        router.push("/home")
-        router.refresh()
+        window.location.href = "/home"
       }
     } catch (err) {
       setError("Erro inesperado. Tente novamente.")

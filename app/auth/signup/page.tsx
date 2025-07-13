@@ -342,7 +342,8 @@ export default function OpenLoveRegister() {
       if (result.success) {
         // Upload da foto de perfil se existir
         if (formData.profilePicture) {
-          const supabase = (await import("@/app/lib/supabase")).supabase
+          const { createClient } = await import("@/app/lib/supabase")
+          const supabase = createClient()
           const fileExt = formData.profilePicture.name.split('.').pop()
           const fileName = `${result.user.id}-${Date.now()}.${fileExt}`
           

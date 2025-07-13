@@ -1,29 +1,115 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
+import React, { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Globe, Users, ImageIcon, Video } from "lucide-react"
 import { toast } from "sonner"
+import Compressor from "compressorjs"
 
 interface CreatePostProps {
   onPostCreated?: (post: any) => void
+  currentUser?: any
+  profile?: any
+  loading?: boolean
 }
 
-export default function CreatePost({ onPostCreated }: CreatePostProps) {
+export default function CreatePost(props: CreatePostProps) {
+  const { onPostCreated, currentUser, profile, loading } = props
   const [content, setContent] = useState("")
   const [visibility, setVisibility] = useState<"public" | "friends_only">("public")
-  const [loading, setLoading] = useState(false)
+  const [internalLoading, setInternalLoading] = useState(false)
+  const [images, setImages] = useState<File[]>([])
+  const [video, setVideo] = useState<File | null>(null)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || [])
+    const imageFiles = files.filter(file => file.type.startsWith('image/') && ['image/jpeg', 'image/png'].includes(file.type))
+
+    const userPlan = profile?.plano || 'free'
+    if (userPlan === 'free') {
+      toast.error("Upload de imagens disponível apenas para planos Open Ouro e Open Diamante")
+      return
+    }
+    const maxImages = userPlan === 'gold' ? 5 : 10
+    if (images.length + imageFiles.length > maxImages) {
+      toast.error(`Máximo de ${maxImages} imagens permitido para seu plano`)
+      return
+    }
+
+    // Comprimir imagens antes de adicionar
+    const compressedImages: File[] = []
+    let processedCount = 0
+
+    imageFiles.forEach((file, index) => {
+      new Compressor(file, {
+        quality: 0.6, // Qualidade de compressão (0.6 é um bom equilíbrio)
+        maxWidth: 1920, // Resolução máxima para imagens
+        maxHeight: 1920,
+        mimeType: 'image/jpeg', // Converter para JPEG
+        success(result: File) {
+          compressedImages[index] = result
+          processedCount++
+          if (processedCount === imageFiles.length) {
+            setImages(prev => [...prev, ...compressedImages])
+          }
+        },
+        error(err) {
+          toast.error(`Erro ao comprimir imagem ${file.name}: ${err.message}`)
+        },
+      })
+    })
+  }
+
+  const handleVideoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('video/mp4')) {
+      toast.error("Apenas vídeos no formato MP4 são aceitos")
+      return
+    }
+
+    const userPlan = profile?.plano || 'free'
+    if (userPlan === 'free') {
+      toast.error("Upload de vídeos disponível apenas para planos Open Ouro e Open Diamante")
+      return
+    }
+    const maxSize = userPlan === 'gold' ? 25 * 1024 * 1024 : 50 * 1024 * 1024
+    if (file.size > maxSize) {
+      toast.error(`Vídeo muito grande. Máximo ${userPlan === 'gold' ? '25MB' : '50MB'} para seu plano`)
+      return
+    }
+
+    // Validação adicional de duração do vídeo (máximo 60 segundos)
+    const videoElement = document.createElement('video')
+    videoElement.src = URL.createObjectURL(file)
+    videoElement.onloadedmetadata = () => {
+      if (videoElement.duration > 60) {
+        toast.error("Vídeos devem ter no máximo 60 segundos")
+        URL.revokeObjectURL(videoElement.src)
+        return
+      }
+      setVideo(file)
+      URL.revokeObjectURL(videoElement.src)
+    }
+  }
+
+  const removeImage = (index: number) => {
+    setImages(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const removeVideo = () => {
+    setVideo(null)
+  }
+
+  const handlePostSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!content.trim()) {
-      toast.error("Por favor, escreva algo para postar")
+    if (!content.trim() && images.length === 0 && !video) {
+      toast.error("Por favor, escreva algo ou adicione mídia para postar")
       return
     }
 
@@ -32,38 +118,46 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
       return
     }
 
-    setLoading(true)
+    if (!currentUser) {
+      toast.error("Você precisa estar logado para criar posts")
+      return
+    }
 
+    setInternalLoading(true)
     try {
-      const response = await fetch("/api/posts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content: content.trim(),
-          visibility,
-        }),
+      const formData = new FormData()
+      formData.append('content', content)
+      formData.append('visibility', visibility)
+
+      images.forEach((image) => {
+        formData.append('images', image)
       })
 
-      if (response.ok) {
-        const newPost = await response.json()
-        setContent("")
-        setVisibility("public")
-        toast.success("Post criado com sucesso!")
-
-        if (onPostCreated) {
-          onPostCreated(newPost)
-        }
-      } else {
-        const error = await response.json()
-        toast.error(error.error || "Erro ao criar post")
+      if (video) {
+        formData.append('video', video)
       }
+
+      const response = await fetch("/api/posts", {
+        method: "POST",
+        body: formData
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        toast.error(errorData.error || "Erro ao criar post")
+        setInternalLoading(false)
+        return
+      }
+      const result = await response.json()
+      toast.success("Post criado com sucesso!")
+      setContent("")
+      setImages([])
+      setVideo(null)
+      if (onPostCreated) onPostCreated(result)
     } catch (error) {
-      console.error("Error creating post:", error)
-      toast.error("Erro ao criar post")
+      toast.error("Erro ao criar post. Tente novamente.")
     } finally {
-      setLoading(false)
+      setInternalLoading(false)
     }
   }
 
@@ -73,7 +167,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
         <CardTitle className="text-lg">Criar Post</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handlePostSubmit} className="space-y-4">
           <Textarea
             placeholder="O que você está pensando?"
             value={content}
@@ -81,6 +175,51 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
             className="min-h-[100px] resize-none"
             maxLength={2000}
           />
+
+          {(images.length > 0 || video) && (
+            <div className="space-y-2">
+              {images.length > 0 && (
+                <div className="grid grid-cols-2 gap-2">
+                  {images.map((image, index) => (
+                    <div key={index} className="relative">
+                      <img
+                        src={URL.createObjectURL(image)}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-lg"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-1 right-1 h-6 w-6 p-0"
+                        onClick={() => removeImage(index)}
+                      >
+                        ×
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {video && (
+                <div className="relative">
+                  <video
+                    src={URL.createObjectURL(video)}
+                    className="w-full h-32 object-cover rounded-lg"
+                    controls
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    className="absolute top-1 right-1 h-6 w-6 p-0"
+                    onClick={removeVideo}
+                  >
+                    ×
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -103,21 +242,38 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
                   </SelectItem>
                 </SelectContent>
               </Select>
-
               <div className="flex items-center gap-1">
-                <Button type="button" variant="ghost" size="sm" disabled>
-                  <ImageIcon className="h-4 w-4" />
-                </Button>
-                <Button type="button" variant="ghost" size="sm" disabled>
-                  <Video className="h-4 w-4" />
-                </Button>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png"
+                  multiple
+                  onChange={handleImageUpload}
+                  className="hidden"
+                  id="image-upload"
+                />
+                <label htmlFor="image-upload">
+                  <Button type="button" variant="ghost" size="sm">
+                    <ImageIcon className="h-4 w-4" />
+                  </Button>
+                </label>
+                <input
+                  type="file"
+                  accept="video/mp4"
+                  onChange={handleVideoUpload}
+                  className="hidden"
+                  id="video-upload"
+                />
+                <label htmlFor="video-upload">
+                  <Button type="button" variant="ghost" size="sm">
+                    <Video className="h-4 w-4" />
+                  </Button>
+                </label>
               </div>
             </div>
-
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500">{content.length}/2000</span>
-              <Button type="submit" disabled={loading || !content.trim()} size="sm">
-                {loading ? "Postando..." : "Postar"}
+              <Button type="submit" disabled={!!loading || internalLoading || (!content.trim() && images.length === 0 && !video)} size="sm">
+                {(!!loading || internalLoading) ? "Postando..." : "Postar"}
               </Button>
             </div>
           </div>

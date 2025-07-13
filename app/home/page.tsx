@@ -65,7 +65,10 @@ import RecommendedPostCard from "@/app/components/timeline/RecommendedPostCard"
 import { OpenDatesStack } from "@/app/components/timeline/OpenDatesStack"
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { useRouter } from 'next/navigation'
-import { createBrowserClient } from "@supabase/ssr"
+import { createClient } from "@/app/lib/supabase"
+import { getCurrentUser } from "@/app/lib/auth-helpers"
+import { CreatePostForm } from "../components/timeline/CreatePostForm"
+import CreatePost from "../components/timeline/CreatePost"
 
 // --- Tipos e Dados para a Sidebar ---
 type NavigationItem = {
@@ -293,10 +296,7 @@ const ProfileView = () => {
 export default function HomePage() {
   const { user, profile, loading: authLoading, session } = useAuth()
   const router = useRouter()
-const supabase = createBrowserClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+
   const { recommendations, loading: loadingRecommendations, error: errorRecommendations } = useRecommendationAlgorithm()
   
   console.log("HomePage: Auth Loading:", authLoading)
@@ -325,7 +325,7 @@ const supabase = createBrowserClient(
       console.log("HomePage: Fazendo requisição para /api/timeline")
       const res = await fetch("/api/timeline", {
         headers: {
-          'Authorization': `Bearer ${session?.access_token}`,
+          // Cookie-based auth, não precisa enviar Authorization
         },
       })
       console.log("HomePage: Status da resposta:", res.status)
@@ -334,7 +334,7 @@ const supabase = createBrowserClient(
         const errorData = await res.json()
         console.log("HomePage: Erro na resposta:", errorData)
         if (errorData.error === "Session expired" || res.status === 401) {
-          await supabase.auth.signOut()
+          await useAuth().signOut()
           router.push("/?session=expired")
           return
         }
@@ -354,17 +354,15 @@ const supabase = createBrowserClient(
   useEffect(() => {
     if (authLoading) return
 
-    if (!user) {
-      router.push('/')
-      return
-    }
-
-    if (!user.email_confirmed_at) {
+    // Se o contexto já garante usuário autenticado, não é necessário redirecionar aqui
+    if (user && !user.email_confirmed_at) {
       router.push('/auth/signin?email=unconfirmed')
       return
     }
 
-    fetchPosts()
+    if (user) {
+      fetchPosts()
+    }
   }, [authLoading, user, router, session])
 
   // Ad tracking
@@ -381,6 +379,7 @@ const supabase = createBrowserClient(
     name: user?.user_metadata?.full_name || "Você",
     username: user?.user_metadata?.username || "@voce",
     avatar: profile?.avatar_url || "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-16.png",
+    plano: profile?.plano || "free",
     id: user?.id
   }), [user, profile])
 
@@ -438,131 +437,7 @@ const supabase = createBrowserClient(
     console.log("Visualizar mídia do post:", postId, "índice:", mediaIndex)
   }
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || [])
-    const imageFiles = files.filter(file => file.type.startsWith('image/'))
-    
-    // Verificar plano do usuário
-    const userPlan = profile?.plano || 'free'
-    
-    if (userPlan === 'free') {
-      alert("Upload de imagens disponível apenas para planos Open Ouro e Open Diamante")
-      return
-    }
-    
-    // Limites baseados no plano
-    const maxImages = userPlan === 'gold' ? 5 : 10 // Gold: 5, Diamante: 10
-    if ((postImages || []).length + (imageFiles || []).length > maxImages) {
-      alert(`Máximo de ${maxImages} imagens permitido para seu plano`)
-      return
-    }
-    
-    setPostImages(prev => [...prev, ...imageFiles])
-  }
 
-  const handleVideoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
-    
-    if (!file.type.startsWith('video/')) {
-      alert("Por favor, selecione um arquivo de vídeo")
-      return
-    }
-    
-    // Verificar plano do usuário
-    const userPlan = profile?.plano || 'free'
-    
-    if (userPlan === 'free') {
-      alert("Upload de vídeos disponível apenas para planos Open Ouro e Open Diamante")
-      return
-    }
-    
-    // Limites baseados no plano
-    const maxSize = userPlan === 'gold' ? 25 * 1024 * 1024 : 50 * 1024 * 1024 // Gold: 25MB, Diamante: 50MB
-    if (file.size > maxSize) {
-      alert(`Vídeo muito grande. Máximo ${userPlan === 'gold' ? '25MB' : '50MB'} para seu plano`)
-      return
-    }
-    
-    setPostVideo(file)
-  }
-
-  const removeImage = (index: number) => {
-    setPostImages(prev => prev.filter((_, i) => i !== index))
-  }
-
-  const removeVideo = () => {
-    setPostVideo(null)
-  }
-
-  const handlePostSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!postContent.trim() && (postImages || []).length === 0 && !postVideo) return
-    
-    console.log("=== DEBUG POST SUBMIT ===")
-    console.log("User:", user)
-    console.log("User ID:", user?.id)
-    console.log("Auth Loading:", authLoading)
-    console.log("Email confirmed:", user?.email_confirmed_at)
-    console.log("========================")
-    
-    if (!user) {
-      console.error("Usuário não autenticado")
-      alert("Você precisa estar logado para criar posts")
-      return
-    }
-    
-    setPostLoading(true)
-    
-    try {
-      const formData = new FormData()
-      formData.append('content', postContent)
-      formData.append('visibility', postVisibility)
-      
-      // Adicionar imagens
-      postImages.forEach((image, index) => {
-        formData.append(`images`, image)
-      })
-      
-      // Adicionar vídeo
-      if (postVideo) {
-        formData.append('video', postVideo)
-      }
-      
-      const response = await fetch("/api/posts", {
-        method: "POST",
-        headers: {
-          'Authorization': `Bearer ${session?.access_token}`,
-        },
-        body: formData
-      })
-      
-      if (!response.ok) {
-        const errorData = await response.json()
-        console.error("Erro ao criar post:", errorData)
-        if (errorData.error === "Session expired" || response.status === 401) {
-          await supabase.auth.signOut()
-          router.push("/?session=expired")
-          return
-        }
-        throw new Error(errorData.error || "Erro ao criar post")
-      }
-      
-      const result = await response.json()
-      console.log("Post criado com sucesso:", result)
-      
-      setPostContent("")
-      setPostImages([])
-      setPostVideo(null)
-      setPostLoading(false)
-      setPostModalOpen(false)
-      fetchPosts()
-    } catch (error) {
-      console.error("Erro ao criar post:", error)
-      setPostLoading(false)
-      alert("Erro ao criar post. Tente novamente.")
-    }
-  }
 
   const navigateToSettings = () => {
     window.location.href = '/settings'
@@ -572,189 +447,7 @@ const supabase = createBrowserClient(
     window.location.href = '/profiles'
   }
 
-  const CreatePostModal = () => (
-    <Dialog open={postModalOpen} onOpenChange={setPostModalOpen}>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto mt-2 mb-2 sm:mt-2 sm:mb-2">
-        <DialogTitle>Criar Post</DialogTitle>
-        <DialogDescription className="sr-only">Crie um novo post para compartilhar com a comunidade</DialogDescription>
-        {!user && !authLoading && (
-          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg mb-4">
-            <p className="text-yellow-800 text-sm">
-              Você precisa estar logado para criar posts. 
-              <Button 
-                variant="link" 
-                className="p-0 h-auto text-yellow-800 underline"
-                onClick={() => window.location.href = '/auth/signin'}
-              >
-                Fazer login
-              </Button>
-            </p>
-          </div>
-        )}
-        {authLoading && (
-          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-4">
-            <p className="text-blue-800 text-sm">Verificando autenticação...</p>
-          </div>
-        )}
-        <Card className="border-0 shadow-none">
-          <CardContent className="p-0">
-            <form onSubmit={handlePostSubmit} className="space-y-4">
-              <textarea
-                placeholder="O que você está pensando?"
-                value={postContent}
-                onChange={(e) => setPostContent(e.target.value)}
-                className="min-h-[100px] w-full resize-none border-0 focus-visible:ring-0 text-base bg-transparent outline-none post-modal-textarea"
-                maxLength={2000}
-                spellCheck="false"
-                autoComplete="off"
-                autoCorrect="off"
-                autoCapitalize="off"
-                style={{
-                  direction: 'ltr',
-                  unicodeBidi: 'normal',
-                  textAlign: 'left',
-                  writingMode: 'horizontal-tb',
-                  textOrientation: 'mixed'
-                }}
-              />
-              
-              {/* Preview de mídia */}
-              {((postImages || []).length > 0 || postVideo) && (
-                <div className="space-y-2">
-                  {(postImages || []).length > 0 && (
-                    <div className="grid grid-cols-2 gap-2">
-                      {postImages.map((image, index) => (
-                        <div key={index} className="relative">
-                          <img
-                            src={URL.createObjectURL(image)}
-                            alt={`Preview ${index + 1}`}
-                            className="w-full h-24 object-cover rounded-lg"
-                          />
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            className="absolute top-1 right-1 h-6 w-6 p-0"
-                            onClick={() => removeImage(index)}
-                          >
-                            ×
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {postVideo && (
-                    <div className="relative">
-                      <video
-                        src={URL.createObjectURL(postVideo)}
-                        className="w-full h-32 object-cover rounded-lg"
-                        controls
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="absolute top-1 right-1 h-6 w-6 p-0"
-                        onClick={removeVideo}
-                      >
-                        ×
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              )}
-              
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Select
-                    value={postVisibility}
-                    onValueChange={(value: "public" | "friends_only") => setPostVisibility(value)}
-                  >
-                    <SelectTrigger className="w-40">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="public">
-                        <div className="flex items-center gap-2">
-                          <Globe className="h-4 w-4" />
-                          <span>Público</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="friends_only">
-                        <div className="flex items-center gap-2">
-                          <Users className="h-4 w-4" />
-                          <span>Amigos</span>
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <div className="flex items-center gap-1">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleImageUpload}
-                      className="hidden"
-                      id="image-upload"
-                      disabled={postVideo !== null || (profile?.plano || 'free') === 'free'}
-                    />
-                    <label htmlFor="image-upload">
-                      <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="sm" 
-                        disabled={postVideo !== null || (profile?.plano || 'free') === 'free'}
-                        className={cn(
-                          "cursor-pointer",
-                          (profile?.plano || 'free') === 'free' && "opacity-50 cursor-not-allowed"
-                        )}
-                        title={(profile?.plano || 'free') === 'free' ? "Disponível apenas para planos Open Ouro e Open Diamante" : "Adicionar imagens"}
-                      >
-                        <ImageIcon className="h-4 w-4" />
-                      </Button>
-                    </label>
-                    <input
-                      type="file"
-                      accept="video/*"
-                      onChange={handleVideoUpload}
-                      className="hidden"
-                      id="video-upload"
-                      disabled={(postImages || []).length > 0 || (profile?.plano || 'free') === 'free'}
-                    />
-                    <label htmlFor="video-upload">
-                      <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="sm" 
-                        disabled={(postImages || []).length > 0 || (profile?.plano || 'free') === 'free'}
-                        className={cn(
-                          "cursor-pointer",
-                          (profile?.plano || 'free') === 'free' && "opacity-50 cursor-not-allowed"
-                        )}
-                        title={(profile?.plano || 'free') === 'free' ? "Disponível apenas para planos Open Ouro e Open Diamante" : "Adicionar vídeo"}
-                      >
-                        <Video className="h-4 w-4" />
-                      </Button>
-                    </label>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500">{postContent.length}/2000</span>
-                  <Button 
-                    type="submit" 
-                    disabled={postLoading || (!postContent.trim() && (postImages || []).length === 0 && !postVideo) || !user || authLoading} 
-                    size="sm"
-                  >
-                    {postLoading ? "Postando..." : authLoading ? "Verificando..." : !user ? "Faça login" : "Postar"}
-                  </Button>
-                </div>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      </DialogContent>
-    </Dialog>
-  )
+
 
   const ProfileCard = ({ profile }: { profile: any }) => (
     <Card className="relative w-full max-w-[280px] overflow-hidden shadow-xl border-0 hover:shadow-2xl transition-all duration-300 cursor-pointer" onClick={navigateToProfiles}>
@@ -851,19 +544,8 @@ const supabase = createBrowserClient(
   }
 
   if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-center">
-          <p className="text-gray-600 dark:text-gray-400 mb-4">Usuário não autenticado</p>
-          <button 
-            onClick={() => router.push('/')}
-            className="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700"
-          >
-            Fazer login
-          </button>
-        </div>
-      </div>
-    )
+    // Usuário não autenticado: não renderiza nada, pois o middleware e AuthProvider já protegem
+    return null
   }
 
   return (
@@ -920,27 +602,33 @@ const supabase = createBrowserClient(
           <div className="p-4">
             {activeView === "home" && (
               <Tabs defaultValue="seguindo" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 bg-gray-100 dark:bg-gray-800 mb-6">
-                  <TabsTrigger 
-                    value="seguindo" 
-                    className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:text-pink-600 dark:data-[state=active]:text-pink-400"
-                  >
-                    Seguindo
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="para-voce" 
-                    className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:text-pink-600 dark:data-[state=active]:text-pink-400"
-                  >
-                    Para Você
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="explorar" 
-                    className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:text-pink-600 dark:data-[state=active]:text-pink-400"
-                  >
-                    Explorar
-                  </TabsTrigger>
-                </TabsList>
-                
+        <TabsList className="grid w-full grid-cols-3 bg-gray-100 dark:bg-gray-800 mb-6">
+          <TabsTrigger 
+            value="seguindo" 
+            className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:text-pink-600 dark:data-[state=active]:text-pink-400"
+          >
+            Seguindo
+          </TabsTrigger>
+          <TabsTrigger 
+            value="para-voce" 
+            className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:text-pink-600 dark:data-[state=active]:text-pink-400"
+          >
+            Para Você
+          </TabsTrigger>
+          <TabsTrigger 
+            value="explorar" 
+            className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700 data-[state=active]:text-pink-600 dark:data-[state=active]:text-pink-400"
+          >
+            Explorar
+          </TabsTrigger>
+        </TabsList>
+        <CreatePost 
+          onPostCreated={fetchPosts}
+          currentUser={currentUser}
+          profile={profile}
+          loading={authLoading}
+        />
+
                 <TabsContent value="seguindo" className="space-y-6">
                   {loadingPosts ? (
                     <div className="text-center py-8">
@@ -1278,8 +966,7 @@ const supabase = createBrowserClient(
         setActiveView={setActiveView}
       />
 
-      {/* Modals */}
-      <CreatePostModal />
+
     </div>
   )
 }

@@ -1,32 +1,27 @@
-// app/auth/callback/route.ts
-import { createServerClient } from "@supabase/ssr"
-import { cookies } from "next/headers"
-import { NextResponse } from "next/server"
+import { createRouteHandlerClient } from '@/app/lib/supabase'
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
-  const code = requestUrl.searchParams.get("code")
-
-  const cookieStore = await cookies()
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options))
-        },
-      },
-    }
-  )
+  const code = requestUrl.searchParams.get('code')
+  const next = requestUrl.searchParams.get('next') || '/home'
 
   if (code) {
-    await supabase.auth.exchangeCodeForSession(code)
+    const supabase = await createRouteHandlerClient()
+    
+    try {
+      const { error } = await supabase.auth.exchangeCodeForSession(code)
+      
+      if (!error) {
+        // Redirecionar para a URL desejada
+        return NextResponse.redirect(new URL(next, requestUrl.origin))
+      }
+    } catch (error) {
+      console.error('Erro ao trocar código por sessão:', error)
+    }
   }
 
-  return NextResponse.redirect(new URL("/home", requestUrl.origin))
+  // Erro ou sem código - redirecionar para signin
+  return NextResponse.redirect(new URL('/auth/signin', requestUrl.origin))
 }
