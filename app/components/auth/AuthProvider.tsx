@@ -72,16 +72,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       console.log("[AuthProvider] Buscando perfil para usuário:", userId)
       const { data, error } = await supabase.from("users").select("*").eq("id", userId).single()
-
-      if (error) {
+      if (error || !data) {
         console.error("[AuthProvider] Error fetching profile:", error)
+        setProfile(null)
         return null
       }
-
+      setProfile(data)
       console.log("[AuthProvider] Perfil encontrado:", data)
       return data
     } catch (error) {
       console.error("[AuthProvider] Error fetching profile:", error)
+      setProfile(null)
       return null
     }
   }
@@ -123,77 +124,40 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const getInitialSession = async () => {
       try {
         console.log("[AuthProvider] Iniciando getInitialSession...")
-        console.log("[AuthProvider] URL atual:", typeof window !== "undefined" ? window.location.pathname : "server")
-        
-        // Primeiro, tentar obter a sessão atual
-        const {
-          data: { session },
-          error,
-        } = await supabase.auth.getSession()
-
+        setLoading(true)
+        const { data: { session }, error } = await supabase.auth.getSession()
         if (error) {
           console.error("[AuthProvider] Error getting session:", error)
-          setLoading(false)
+          setUser(null)
+          setProfile(null)
+          setSession(null)
           return
         }
-
-        console.log("[AuthProvider] Sessão obtida:", session ? "Sim" : "Não")
-        console.log("[AuthProvider] User ID:", session?.user?.id)
-        console.log("[AuthProvider] User Email:", session?.user?.email)
-        console.log("[AuthProvider] Session expires_at:", session?.expires_at)
-        console.log("[AuthProvider] Current time:", Date.now())
-
-        // Verificar timeout de sessão
         if (checkSessionTimeout(session)) {
-          console.log("[AuthProvider] Sessão expirada, fazendo logout")
           await signOut()
-          setLoading(false)
           return
         }
-
-        // Se não há sessão, tentar refresh
-        if (!session) {
-          console.log("[AuthProvider] Nenhuma sessão encontrada, tentando refresh...")
-          const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession()
-          
-          if (refreshError) {
-            console.log("[AuthProvider] Erro no refresh:", refreshError.message)
-            setLoading(false)
-            return
-          }
-          
-          if (refreshedSession) {
-            console.log("[AuthProvider] Sessão refreshada com sucesso")
-            setSession(refreshedSession)
-            setUser(refreshedSession.user)
-            
-            if (refreshedSession.user) {
-              const profileData = await fetchProfile(refreshedSession.user.id)
-              setProfile(profileData)
-            }
-          }
-        } else {
-          // Sessão válida encontrada
+        if (session?.user) {
           setSession(session)
           setUser(session.user)
-          console.log("[AuthProvider] Sessão inicial definida:", session)
-
-          if (session.user) {
-            console.log("[AuthProvider] Buscando perfil para usuário:", session.user.id)
-            const profileData = await fetchProfile(session.user.id)
-            setProfile(profileData)
-            console.log("[AuthProvider] Perfil carregado:", profileData ? "Sim" : "Não")
-          }
+          await fetchProfile(session.user.id)
+        } else {
+          setSession(null)
+          setUser(null)
+          setProfile(null)
         }
       } catch (error) {
         console.error("[AuthProvider] Error in getInitialSession (catch):", error)
-        setLoading(false)
+        setUser(null)
+        setProfile(null)
+        setSession(null)
       } finally {
         setLoading(false)
         console.log("[AuthProvider] Loading finalizado (getInitialSession)")
       }
     }
 
+    getInitialSession()
     getInitialSession()
 
     const {
