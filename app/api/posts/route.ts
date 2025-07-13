@@ -73,8 +73,9 @@ export async function POST(request: NextRequest) {
           if (!['image/jpeg', 'image/png'].includes(img.type)) {
             return NextResponse.json({ error: "Apenas imagens JPEG e PNG são aceitas" }, { status: 400 })
           }
-          if (img.size > 8 * 1024 * 1024) {
-            return NextResponse.json({ error: "Imagem muito grande. Máximo 8MB" }, { status: 400 })
+          // Limite de 10MB para imagens em todos os planos
+          if (img.size > 10 * 1024 * 1024) {
+            return NextResponse.json({ error: "Imagem muito grande. Máximo 10MB por arquivo." }, { status: 400 })
           }
           const fileExt = img.name.split('.').pop()
           const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`

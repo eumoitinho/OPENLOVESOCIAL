@@ -24,16 +24,30 @@ export default function CreatePost(props: CreatePostProps) {
   const [images, setImages] = useState<File[]>([])
   const [video, setVideo] = useState<File | null>(null)
 
+  const allowedTypes = ['image/jpeg', 'image/png', 'video/mp4'];
+  // Imagens limitadas a 10MB em todos os planos
+  const IMAGE_MAX_SIZE = 10 * 1024 * 1024;
+  // Vídeos podem ter regras diferentes por plano (mantido original)
+  const getMaxVideoSize = (plano: string) => plano === 'gold' ? 25 * 1024 * 1024 : 50 * 1024 * 1024;
+
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || [])
-    const imageFiles = files.filter(file => file.type.startsWith('image/') && ['image/jpeg', 'image/png'].includes(file.type))
-
+    const imageFiles = files.filter(file => ['image/jpeg', 'image/png'].includes(file.type))
     const userPlan = profile?.plano || 'free'
+    const maxImages = userPlan === 'gold' ? 5 : 10
+
     if (userPlan === 'free') {
       toast.error("Upload de imagens disponível apenas para planos Open Ouro e Open Diamante")
       return
     }
-    const maxImages = userPlan === 'gold' ? 5 : 10
+
+    for (const file of imageFiles) {
+      if (file.size > IMAGE_MAX_SIZE) {
+        toast.error(`Imagem muito grande. Máximo 10MB por arquivo.`)
+        return
+      }
+    }
+
     if (images.length + imageFiles.length > maxImages) {
       toast.error(`Máximo de ${maxImages} imagens permitido para seu plano`)
       return
@@ -65,19 +79,18 @@ export default function CreatePost(props: CreatePostProps) {
 
   const handleVideoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
-    if (!file) return
+    const userPlan = profile?.plano || 'free'
+    const maxSize = getMaxVideoSize(userPlan)
 
-    if (!file.type.startsWith('video/mp4')) {
-      toast.error("Apenas vídeos no formato MP4 são aceitos")
+    if (!file) return
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Tipo de vídeo não permitido. Apenas MP4.")
       return
     }
-
-    const userPlan = profile?.plano || 'free'
     if (userPlan === 'free') {
       toast.error("Upload de vídeos disponível apenas para planos Open Ouro e Open Diamante")
       return
     }
-    const maxSize = userPlan === 'gold' ? 25 * 1024 * 1024 : 50 * 1024 * 1024
     if (file.size > maxSize) {
       toast.error(`Vídeo muito grande. Máximo ${userPlan === 'gold' ? '25MB' : '50MB'} para seu plano`)
       return
