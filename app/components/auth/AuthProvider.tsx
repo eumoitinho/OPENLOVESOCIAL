@@ -158,7 +158,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     getInitialSession()
-    getInitialSession()
 
     const {
       data: { subscription },
