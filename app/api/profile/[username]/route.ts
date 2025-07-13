@@ -114,10 +114,10 @@ export async function GET(
     const result = {
       profile: {
         ...profile,
-        followers_count: followers?.length || 0,
-        following_count: following?.length || 0,
-        posts_count: posts?.length || 0,
-        media_count: media?.length || 0,
+        followers_count: (followers || []).length,
+        following_count: (following || []).length,
+        posts_count: (posts || []).length,
+        media_count: (media || []).length,
         distance_km: distance,
         view_stats: viewStats?.[0] || {
           total_views: 0,
