@@ -1,10 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
+import { createRouteHandlerClient } from "@/app/lib/supabase-server"
 import { cookies } from "next/headers"
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createRouteHandlerClient({ cookies })
+    const supabase = await createRouteHandlerClient()
 
     const { searchParams } = new URL(request.url)
     const query = searchParams.get("q")

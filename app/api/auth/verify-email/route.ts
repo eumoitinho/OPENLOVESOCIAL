@@ -1,4 +1,4 @@
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
+import { createRouteHandlerClient } from "@/app/lib/supabase-server"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 
@@ -13,7 +13,7 @@ export async function POST(request: Request) {
       )
     }
 
-    const supabase = createRouteHandlerClient({ cookies })
+    const supabase = await createRouteHandlerClient()
 
     // Enviar email de confirmação
     const { error } = await supabase.auth.resend({
@@ -54,7 +54,7 @@ export async function GET(request: Request) {
       )
     }
 
-    const supabase = createRouteHandlerClient({ cookies })
+    const supabase = await createRouteHandlerClient()
 
     // Verificar status da sessão atual
     const { data: { session } } = await supabase.auth.getSession()

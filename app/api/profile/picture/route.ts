@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
+import { createRouteHandlerClient } from "@/app/lib/supabase-server"
 import { cookies } from "next/headers"
 import type { Database } from "@/lib/database.types"
 
@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createRouteHandlerClient({ cookies })
+    const supabase = await createRouteHandlerClient()
 
     // Verificar autenticação
     const {
