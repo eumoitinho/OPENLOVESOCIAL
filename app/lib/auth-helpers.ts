@@ -1,4 +1,4 @@
-import { createServerComponentClient, createRouteHandlerClient } from './supabase'
+import { createServerComponentClient, createRouteHandlerClient } from './supabase-server'
 import type { User } from '@supabase/supabase-js'
 
 // Para Server Components
