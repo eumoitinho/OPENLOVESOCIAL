@@ -11,6 +11,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import { toast } from "sonner"
+import { useAuth } from "@/app/components/auth/AuthProvider"
 
 export default function SignInPage() {
   const [isDarkMode, setIsDarkMode] = useState(false)
@@ -25,6 +26,29 @@ export default function SignInPage() {
 
   const router = useRouter()
   const supabase = createClientComponentClient()
+  const { user, loading: authLoading } = useAuth()
+
+  // Verificar redirecionamento quando o usuário estiver autenticado
+  useEffect(() => {
+    if (!authLoading && user) {
+      console.log("[SignIn] Usuário autenticado detectado:", user.email)
+      
+      // Verificar se o email foi confirmado
+      if (user.email_confirmed_at) {
+        console.log("[SignIn] Email confirmado, redirecionando para home")
+        const targetUrl = redirectUrl || "/home"
+        // Usar window.location.href para forçar o redirecionamento
+        window.location.href = targetUrl
+      } else {
+        console.log("[SignIn] Email não confirmado, mostrando tela de verificação")
+        if (user.email) {
+          setEmail(user.email)
+        }
+        setStep("verification")
+        toast.info("Por favor, confirme seu email para continuar")
+      }
+    }
+  }, [user, authLoading, redirectUrl])
 
   // Check for redirect parameter and email confirmation status
   useEffect(() => {
@@ -118,11 +142,10 @@ export default function SignInPage() {
           toast.success("Login realizado com sucesso!")
           const targetUrl = redirectUrl || "/home"
           console.log("Redirecionando para:", targetUrl)
-          router.push(targetUrl)
-          // Forçar refresh após um pequeno delay
+          // Aguardar um pouco para garantir que a sessão seja estabelecida
           setTimeout(() => {
-            router.refresh()
-          }, 100)
+            window.location.href = targetUrl
+          }, 500)
         }
       } catch (error) {
         console.error("Sign in error:", error)
@@ -171,16 +194,15 @@ export default function SignInPage() {
       if (error) {
         setErrors({ email: "", password: "", code: "Código inválido ou expirado" })
         toast.error("Código inválido")
-      } else {
-        toast.success("Verificação realizada com sucesso!")
-        const targetUrl = redirectUrl || "/home"
-        console.log("Redirecionando após verificação para:", targetUrl)
-        router.push(targetUrl)
-        // Forçar refresh após um pequeno delay
-        setTimeout(() => {
-          router.refresh()
-        }, 100)
-      }
+              } else {
+          toast.success("Verificação realizada com sucesso!")
+          const targetUrl = redirectUrl || "/home"
+          console.log("Redirecionando após verificação para:", targetUrl)
+          // Aguardar um pouco para garantir que a sessão seja estabelecida
+          setTimeout(() => {
+            window.location.href = targetUrl
+          }, 500)
+        }
     } catch (error) {
       console.error("Verification error:", error)
       setErrors({ email: "", password: "", code: "Erro inesperado" })

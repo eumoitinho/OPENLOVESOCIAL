@@ -1,12 +1,14 @@
 "use client"
 
-import type React from "react"
 import { useState, useEffect } from "react"
-import { MessageCircle } from "lucide-react"
-import ConversationList from "../components/chat/ConversationList"
-import Chat from "../components/chat/Chat"
-import { useAuth } from "../components/auth/AuthProvider"
-import { WebRTCProvider } from "../components/chat/WebRTCContext"
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import { useAuth } from "@/app/components/auth/AuthProvider"
+import ConversationList from "@/app/components/chat/ConversationList"
+import Chat from "@/app/components/chat/Chat"
+import { WebRTCProvider } from "@/app/components/chat/WebRTCContext"
+import { Button } from "@/components/ui/button"
+import { ArrowLeft, MessageCircle } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 interface Message {
   id: string
@@ -24,6 +26,10 @@ interface Conversation {
   id: string
   name: string
   avatar?: string
+  lastMessage?: string
+  lastMessageTime?: string
+  unreadCount: number
+  isOnline: boolean
   type: "direct" | "group"
   participants: Array<{
     id: string
@@ -33,201 +39,219 @@ interface Conversation {
   }>
 }
 
-const MessagesPage: React.FC = () => {
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
+export default function MessagesPage() {
+  const { user } = useAuth()
+  const router = useRouter()
+  const supabase = createClientComponentClient()
+  
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null)
+  const [conversations, setConversations] = useState<Conversation[]>([])
   const [messages, setMessages] = useState<Message[]>([])
-  const [loading, setLoading] = useState(false)
-  const { user, loading: authLoading } = useAuth()
+  const [loading, setLoading] = useState(true)
+  const [isMobile, setIsMobile] = useState(false)
 
-  // Simular mensagens para a conversa selecionada
   useEffect(() => {
-    if (selectedConversation) {
-      setLoading(true)
-      // Simular carregamento de mensagens
-      setTimeout(() => {
-        const mockMessages: Message[] = [
-          {
-            id: "1",
-            content: "Oi! Como você está?",
-            timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 min atrás
-            senderId: selectedConversation.participants[0].id,
-            senderName: selectedConversation.participants[0].name,
-            senderAvatar: selectedConversation.participants[0].avatar,
-            type: "text",
-            isOwn: false,
-            isRead: true
-          },
-          {
-            id: "2",
-            content: "Oi! Estou bem, obrigado! E você?",
-            timestamp: new Date(Date.now() - 1000 * 60 * 25).toISOString(), // 25 min atrás
-            senderId: user?.id || "",
-            senderName: user?.user_metadata?.full_name || "Você",
-            senderAvatar: user?.user_metadata?.avatar_url,
-            type: "text",
-            isOwn: true,
-            isRead: true
-          },
-          {
-            id: "3",
-            content: "Também estou bem! Quer sair hoje?",
-            timestamp: new Date(Date.now() - 1000 * 60 * 20).toISOString(), // 20 min atrás
-            senderId: selectedConversation.participants[0].id,
-            senderName: selectedConversation.participants[0].name,
-            senderAvatar: selectedConversation.participants[0].avatar,
-            type: "text",
-            isOwn: false,
-            isRead: true
-          },
-          {
-            id: "4",
-            content: "Claro! Que tal irmos ao cinema?",
-            timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(), // 15 min atrás
-            senderId: user?.id || "",
-            senderName: user?.user_metadata?.full_name || "Você",
-            senderAvatar: user?.user_metadata?.avatar_url,
-            type: "text",
-            isOwn: true,
-            isRead: false
-          }
-        ]
-        setMessages(mockMessages)
-        setLoading(false)
-      }, 500)
-    } else {
-      setMessages([])
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
     }
-  }, [selectedConversation, user])
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  useEffect(() => {
+    if (user) {
+      loadConversations()
+    }
+  }, [user])
+
+  useEffect(() => {
+    if (selectedConversationId) {
+      loadMessages(selectedConversationId)
+    }
+  }, [selectedConversationId])
+
+  const loadConversations = async () => {
+    try {
+      setLoading(true)
+      
+      // Buscar conversas usando a API
+      const response = await fetch('/api/chat/conversations')
+      const result = await response.json()
+
+      if (!response.ok) {
+        console.error('Erro ao carregar conversas:', result.error)
+        return
+      }
+
+      // Converter formato da API para o formato esperado pelos componentes
+      const formattedConversations: Conversation[] = result.data?.map((conv: any) => ({
+        id: conv.id,
+        name: conv.user.name,
+        avatar: conv.user.avatar,
+        lastMessage: conv.lastMessage?.content,
+        lastMessageTime: conv.lastMessage?.timestamp,
+        unreadCount: conv.unreadCount || 0,
+        isOnline: conv.user.isOnline,
+        type: 'direct' as const,
+        participants: [{
+          id: conv.user.username,
+          name: conv.user.name,
+          avatar: conv.user.avatar,
+          isOnline: conv.user.isOnline
+        }]
+      })) || []
+
+      setConversations(formattedConversations)
+    } catch (error) {
+      console.error('Erro ao carregar conversas:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const loadMessages = async (conversationId: string) => {
+    try {
+      // Buscar mensagens usando a API
+      const response = await fetch(`/api/chat/messages?conversationId=${conversationId}`)
+      const result = await response.json()
+
+      if (!response.ok) {
+        console.error('Erro ao carregar mensagens:', result.error)
+        return
+      }
+
+      setMessages(result.data || [])
+    } catch (error) {
+      console.error('Erro ao carregar mensagens:', error)
+    }
+  }
 
   const handleSelectConversation = (conversationId: string) => {
-    // Converter o ID da conversa para o objeto de conversa
-    const conversationMap: Record<string, Conversation> = {
-      "1": {
-        id: "1",
-        name: "Maria & Carlos",
-        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-3.png",
-        type: "direct",
-        participants: [
-          { id: "1", name: "Maria", avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-3.png", isOnline: true },
-          { id: "2", name: "Carlos", avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-6.png", isOnline: false }
-        ]
-      },
-      "2": {
-        id: "2",
-        name: "Ana Silva",
-        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png",
-        type: "direct",
-        participants: [
-          { id: "3", name: "Ana Silva", avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png", isOnline: false }
-        ]
-      },
-      "3": {
-        id: "3",
-        name: "Rafael Alves",
-        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-6.png",
-        type: "direct",
-        participants: [
-          { id: "4", name: "Rafael Alves", avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-6.png", isOnline: true }
-        ]
-      },
-      "4": {
-        id: "4",
-        name: "Sofia Mendes",
-        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-16.png",
-        type: "direct",
-        participants: [
-          { id: "5", name: "Sofia Mendes", avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-16.png", isOnline: false }
-        ]
+    setSelectedConversationId(conversationId)
+  }
+
+  const handleDeleteConversation = async (conversationId: string) => {
+    try {
+      const { error } = await supabase
+        .from('conversations')
+        .delete()
+        .eq('id', conversationId)
+
+      if (error) {
+        console.error('Erro ao deletar conversa:', error)
+        return
       }
-    }
 
-    setSelectedConversation(conversationMap[conversationId] || null)
-  }
-
-  const handleSendMessage = (content: string, type: "text" | "image" | "file") => {
-    if (!selectedConversation || !user) return
-
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      content,
-      timestamp: new Date().toISOString(),
-      senderId: user.id,
-      senderName: user.user_metadata?.full_name || "Você",
-      senderAvatar: user.user_metadata?.avatar_url,
-      type,
-      isOwn: true,
-      isRead: false
-    }
-
-    setMessages(prev => [...prev, newMessage])
-  }
-
-  const handleDeleteConversation = (conversationId: string) => {
-    if (selectedConversation?.id === conversationId) {
-      setSelectedConversation(null)
+      setConversations(prev => prev.filter(c => c.id !== conversationId))
+      
+      if (selectedConversationId === conversationId) {
+        setSelectedConversationId(null)
+        setMessages([])
+      }
+    } catch (error) {
+      console.error('Erro ao deletar conversa:', error)
     }
   }
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600"></div>
-      </div>
-    )
+  const handleSendMessage = async (content: string, type: "text" | "image" | "file") => {
+    if (!selectedConversationId || !user) return
+
+    try {
+      // Enviar mensagem usando a API
+      const response = await fetch('/api/chat/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          conversationId: selectedConversationId,
+          content,
+          type
+        })
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        console.error('Erro ao enviar mensagem:', result.error)
+        return
+      }
+
+      setMessages(prev => [...prev, result.data])
+    } catch (error) {
+      console.error('Erro ao enviar mensagem:', error)
+    }
   }
+
+  const selectedConversation = conversations.find(c => c.id === selectedConversationId)
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900">Acesso negado</h2>
-          <p className="text-gray-600">Você precisa estar logado para ver suas mensagens.</p>
+          <MessageCircle className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+          <h2 className="text-lg font-medium mb-2">Faça login para ver suas mensagens</h2>
+          <Button onClick={() => router.push('/auth/signin')}>
+            Entrar
+          </Button>
         </div>
       </div>
     )
   }
 
-  return (
-    <WebRTCProvider currentUserId={user?.id || ""}>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-8rem)]">
-            {/* Conversation List */}
-            <div className="lg:col-span-1">
-              <ConversationList
-                selectedConversationId={selectedConversation?.id}
-                onSelectConversation={handleSelectConversation}
-                onDeleteConversation={handleDeleteConversation}
-              />
-            </div>
+      return (
+      <WebRTCProvider currentUserId={user.id}>
+      <div className="flex h-screen bg-gray-50">
+        {/* Sidebar com lista de conversas */}
+        <div className={`${isMobile && selectedConversationId ? 'hidden' : 'block'} w-full md:w-80 border-r bg-white`}>
+          <ConversationList
+            selectedConversationId={selectedConversationId || undefined}
+            conversations={conversations}
+            loading={loading}
+            onSelectConversation={handleSelectConversation}
+            onDeleteConversation={handleDeleteConversation}
+          />
+        </div>
 
-            {/* Chat Area */}
-            <div className="lg:col-span-2">
-              {selectedConversation ? (
-                <Chat 
-                  conversation={selectedConversation}
-                  messages={messages}
-                  currentUserId={user?.id || ""}
-                  onSendMessage={handleSendMessage}
-                  isLoading={loading}
-                />
-              ) : (
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 h-full flex items-center justify-center">
-                  <div className="text-center">
-                    <MessageCircle className="mx-auto h-12 w-12 text-gray-400" />
-                    <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-white">Selecione uma conversa</h3>
-                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                      Escolha uma conversa da lista para começar a conversar.
-                    </p>
-                  </div>
-                </div>
-              )}
+        {/* Área do chat */}
+        <div className={`${isMobile && !selectedConversationId ? 'hidden' : 'block'} flex-1 flex flex-col`}>
+          {isMobile && selectedConversationId && (
+            <div className="p-4 border-b bg-white">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelectedConversationId(null)}
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Voltar
+              </Button>
+            </div>
+          )}
+          
+          <Chat
+            conversation={selectedConversation || null}
+            messages={messages}
+            currentUserId={user.id}
+            onSendMessage={handleSendMessage}
+            isLoading={loading}
+          />
+        </div>
+
+        {/* Estado vazio para desktop */}
+        {!isMobile && !selectedConversationId && (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <MessageCircle className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium mb-2">Selecione uma conversa</h3>
+              <p className="text-gray-500">Escolha uma conversa para começar a trocar mensagens</p>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </WebRTCProvider>
   )
 }
-
-export default MessagesPage

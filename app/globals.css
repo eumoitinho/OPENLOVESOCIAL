@@ -292,3 +292,47 @@
 .notification-info {
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
 }
+
+/* Estabilizar textarea do modal de post */
+.post-modal-textarea {
+  direction: ltr !important;
+  unicode-bidi: normal !important;
+  text-align: left !important;
+  font-family: inherit !important;
+  line-height: 1.5 !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  white-space: pre-wrap !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  text-rendering: auto !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  transform: none !important;
+  -webkit-transform: none !important;
+  -moz-transform: none !important;
+  -ms-transform: none !important;
+}
+
+.post-modal-textarea:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  direction: ltr !important;
+  unicode-bidi: normal !important;
+}
+
+/* Regras adicionais para garantir comportamento correto */
+.post-modal-textarea,
+.post-modal-textarea * {
+  direction: ltr !important;
+  unicode-bidi: normal !important;
+  text-align: left !important;
+}
+
+/* Forçar comportamento correto em todos os navegadores */
+@supports (-webkit-appearance: none) {
+  .post-modal-textarea {
+    -webkit-text-orientation: mixed !important;
+    -webkit-writing-mode: horizontal-tb !important;
+  }
+}

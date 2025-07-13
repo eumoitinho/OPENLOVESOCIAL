@@ -15,15 +15,7 @@ export async function GET() {
     // Buscar notificações do usuário
     const { data: notifications, error } = await supabase
       .from("notifications")
-      .select(`
-        *,
-        user:users!notifications_user_id_fkey(
-          id,
-          name,
-          username,
-          avatar_url
-        )
-      `)
+      .select("*")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(50)

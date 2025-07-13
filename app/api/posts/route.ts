@@ -1,23 +1,23 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
+import { verifyAuth } from "@/app/lib/auth-helpers"
 
 export async function POST(request: NextRequest) {
   try {
     console.log("Iniciando criação de post...")
     const supabase = createRouteHandlerClient({ cookies })
 
-    // Get current user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
+    // Verificar autenticação e timeout de sessão
+    const { user, error: authError } = await verifyAuth()
     
-    console.log("Usuário atual:", user?.id, "Erro:", userError)
+    console.log("Usuário atual:", user?.id, "Erro:", authError)
     
-    if (userError || !user) {
-      console.log("Usuário não autenticado")
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (authError || !user) {
+      console.log("Usuário não autenticado ou sessão expirada:", authError)
+      return NextResponse.json({ 
+        error: authError === "Session expired" ? "Session expired" : "Unauthorized" 
+      }, { status: 401 })
     }
 
     // Garantir que o usuário existe na tabela users
@@ -127,13 +127,12 @@ export async function GET(request: NextRequest) {
     const limit = Number.parseInt(searchParams.get("limit") || "10")
     const offset = (page - 1) * limit
 
-    // Get current user
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
-    if (userError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    // Verificar autenticação e timeout de sessão
+    const { user, error: authError } = await verifyAuth()
+    if (authError || !user) {
+      return NextResponse.json({ 
+        error: authError === "Session expired" ? "Session expired" : "Unauthorized" 
+      }, { status: 401 })
     }
 
     let query = supabase

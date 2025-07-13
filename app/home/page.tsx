@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useAuth } from "@/app/components/auth/AuthProvider"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -112,10 +112,190 @@ const NavHeader = ({ title }: { title: string }) => (
   </li>
 )
 
+// --- Componente ProfileView para a Home ---
+const ProfileView = () => {
+  const { user, profile } = useAuth()
+
+  if (!user) {
+    return (
+      <div className="text-center py-8">
+        <p>Usuário não encontrado</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Profile Header */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                {profile?.avatar_url ? (
+                  <img
+                    className="h-20 w-20 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow-lg"
+                    src={profile.avatar_url}
+                    alt={profile?.full_name || "Foto de perfil"}
+                  />
+                ) : (
+                  <div className="h-20 w-20 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center border-4 border-white dark:border-gray-700 shadow-lg">
+                    <User className="h-10 w-10 text-white" />
+                  </div>
+                )}
+                {/* Badge Premium temporariamente removido até ter acesso aos dados */}
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {profile?.full_name || user.email}
+                </h1>
+                <p className="text-gray-600 dark:text-gray-400">@{profile?.username}</p>
+                {profile?.bio && (
+                  <p className="text-gray-700 dark:text-gray-300 mt-2 max-w-md">{profile.bio}</p>
+                )}
+              </div>
+            </div>
+            <div className="flex space-x-3">
+              <Button
+                onClick={() => window.location.href = '/profile/edit'}
+                variant="outline"
+                className="border-pink-500 text-pink-600 hover:bg-pink-50 dark:hover:bg-pink-900/20"
+              >
+                Editar Perfil
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Profile Stats - Temporariamente simplificado */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 border-pink-200 dark:border-pink-700">
+          <CardContent className="p-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-pink-600 dark:text-pink-400">0</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Posts</div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-200 dark:border-purple-700">
+          <CardContent className="p-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">0</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Seguidores</div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 border-blue-200 dark:border-blue-700">
+          <CardContent className="p-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">0</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Seguindo</div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="bg-gradient-to-r from-green-50 to-yellow-50 dark:from-green-900/20 dark:to-yellow-900/20 border-green-200 dark:border-green-700">
+          <CardContent className="p-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">0</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Visualizações</div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Profile Info */}
+      <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
+            Informações do Perfil
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex items-center space-x-3">
+              <Mail className="h-5 w-5 text-gray-500" />
+              <div>
+                <div className="text-sm font-medium text-gray-500">Email</div>
+                <div className="text-gray-900 dark:text-white">{user.email}</div>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <User className="h-5 w-5 text-gray-500" />
+              <div>
+                <div className="text-sm font-medium text-gray-500">Nome de usuário</div>
+                <div className="text-gray-900 dark:text-white">@{profile?.username}</div>
+              </div>
+            </div>
+          </div>
+          
+          {profile?.interests && profile.interests.length > 0 && (
+            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex items-center space-x-3 mb-3">
+                <Globe className="h-5 w-5 text-gray-500" />
+                <div className="text-sm font-medium text-gray-500">Interesses</div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {profile.interests.map((interest, index) => (
+                  <Badge
+                    key={index}
+                    variant="secondary"
+                    className="bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300"
+                  >
+                    {interest}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Account Status - Simplificado */}
+      <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
+            Status da Conta
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex items-center space-x-3">
+              <div className="w-3 h-3 rounded-full bg-green-500" />
+              <div>
+                <div className="text-sm font-medium text-gray-500">Conta</div>
+                <div className="text-gray-900 dark:text-white">Ativa</div>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="w-3 h-3 rounded-full bg-gray-400" />
+              <div>
+                <div className="text-sm font-medium text-gray-500">Premium</div>
+                <div className="text-gray-900 dark:text-white">Inativo</div>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="w-3 h-3 rounded-full bg-green-500" />
+              <div>
+                <div className="text-sm font-medium text-gray-500">Status</div>
+                <div className="text-gray-900 dark:text-white">Online</div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
 // --- Componente Principal da Home ---
 export default function HomePage() {
-  const { user, loading: authLoading } = useAuth()
+  const { user, profile, loading: authLoading } = useAuth()
   const { recommendations, loading: loadingRecommendations, error: errorRecommendations } = useRecommendationAlgorithm()
+  
+  console.log("HomePage: Auth Loading:", authLoading)
+  console.log("HomePage: User:", user ? user.id : "Não logado")
+  console.log("HomePage: User Email:", user?.email)
   
 
   const [isDarkMode, setIsDarkMode] = useState(true)
@@ -123,6 +303,8 @@ export default function HomePage() {
   const [postContent, setPostContent] = useState("")
   const [postVisibility, setPostVisibility] = useState<"public" | "friends_only">("public")
   const [postLoading, setPostLoading] = useState(false)
+  const [postImages, setPostImages] = useState<File[]>([])
+  const [postVideo, setPostVideo] = useState<File | null>(null)
   const [posts, setPosts] = useState<any[]>([])
   const [loadingPosts, setLoadingPosts] = useState(true)
   const [errorPosts, setErrorPosts] = useState<string | null>(null)
@@ -130,14 +312,29 @@ export default function HomePage() {
 
   // Atualiza timeline
   const fetchPosts = async () => {
+    console.log("HomePage: Iniciando fetchPosts...")
     setLoadingPosts(true)
     setErrorPosts(null)
     try {
+      console.log("HomePage: Fazendo requisição para /api/timeline")
       const res = await fetch("/api/timeline")
-      if (!res.ok) throw new Error("Erro ao buscar timeline")
+      console.log("HomePage: Status da resposta:", res.status)
+      
+      if (!res.ok) {
+        const errorData = await res.json()
+        console.log("HomePage: Erro na resposta:", errorData)
+        if (errorData.error === "Session expired") {
+          // Redirecionar para página inicial se a sessão expirou
+          window.location.href = "/?session=expired"
+          return
+        }
+        throw new Error(errorData.error || "Erro ao buscar timeline")
+      }
       const json = await res.json()
+      console.log("HomePage: Timeline carregada com sucesso, posts:", json.data?.length || 0)
       setPosts(json.data || [])
     } catch (err: any) {
+      console.error("HomePage: Erro ao buscar posts:", err)
       setErrorPosts(err.message || "Erro desconhecido")
     } finally {
       setLoadingPosts(false)
@@ -159,12 +356,13 @@ export default function HomePage() {
     console.log("Ad impression:", adId)
   }
 
-  // Current user data
-  const currentUser = {
-    name: "Você",
-    username: "@voce",
-    avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-16.png"
-  }
+  // Current user data - definido após profile estar disponível
+  const currentUser = useMemo(() => ({
+    name: user?.user_metadata?.full_name || "Você",
+    username: user?.user_metadata?.username || "@voce",
+    avatar: profile?.avatar_url || "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-16.png",
+    id: user?.id
+  }), [user, profile])
 
   // Check system preference on initial load
   useEffect(() => {
@@ -220,9 +418,66 @@ export default function HomePage() {
     console.log("Visualizar mídia do post:", postId, "índice:", mediaIndex)
   }
 
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || [])
+    const imageFiles = files.filter(file => file.type.startsWith('image/'))
+    
+    // Verificar plano do usuário
+    const userPlan = profile?.plano || 'free'
+    
+    if (userPlan === 'free') {
+      alert("Upload de imagens disponível apenas para planos Open Ouro e Open Diamante")
+      return
+    }
+    
+    // Limites baseados no plano
+    const maxImages = userPlan === 'gold' ? 5 : 10 // Gold: 5, Diamante: 10
+    if (postImages.length + imageFiles.length > maxImages) {
+      alert(`Máximo de ${maxImages} imagens permitido para seu plano`)
+      return
+    }
+    
+    setPostImages(prev => [...prev, ...imageFiles])
+  }
+
+  const handleVideoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    
+    if (!file.type.startsWith('video/')) {
+      alert("Por favor, selecione um arquivo de vídeo")
+      return
+    }
+    
+    // Verificar plano do usuário
+    const userPlan = profile?.plano || 'free'
+    
+    if (userPlan === 'free') {
+      alert("Upload de vídeos disponível apenas para planos Open Ouro e Open Diamante")
+      return
+    }
+    
+    // Limites baseados no plano
+    const maxSize = userPlan === 'gold' ? 25 * 1024 * 1024 : 50 * 1024 * 1024 // Gold: 25MB, Diamante: 50MB
+    if (file.size > maxSize) {
+      alert(`Vídeo muito grande. Máximo ${userPlan === 'gold' ? '25MB' : '50MB'} para seu plano`)
+      return
+    }
+    
+    setPostVideo(file)
+  }
+
+  const removeImage = (index: number) => {
+    setPostImages(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const removeVideo = () => {
+    setPostVideo(null)
+  }
+
   const handlePostSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!postContent.trim()) return
+    if (!postContent.trim() && postImages.length === 0 && !postVideo) return
     
     console.log("=== DEBUG POST SUBMIT ===")
     console.log("User:", user)
@@ -237,28 +492,35 @@ export default function HomePage() {
       return
     }
     
-    // Verificação de email opcional - comentada para debug
-    // if (!user.email_confirmed_at) {
-    //   console.error("Email não confirmado")
-    //   alert("Você precisa confirmar seu email antes de criar posts")
-    //   return
-    // }
-    
     setPostLoading(true)
     
     try {
+      const formData = new FormData()
+      formData.append('content', postContent)
+      formData.append('visibility', postVisibility)
+      
+      // Adicionar imagens
+      postImages.forEach((image, index) => {
+        formData.append(`images`, image)
+      })
+      
+      // Adicionar vídeo
+      if (postVideo) {
+        formData.append('video', postVideo)
+      }
+      
       const response = await fetch("/api/posts", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          content: postContent, 
-          visibility: postVisibility 
-        })
+        body: formData
       })
       
       if (!response.ok) {
         const errorData = await response.json()
         console.error("Erro ao criar post:", errorData)
+        if (errorData.error === "Session expired") {
+          window.location.href = "/?session=expired"
+          return
+        }
         throw new Error(errorData.error || "Erro ao criar post")
       }
       
@@ -266,6 +528,8 @@ export default function HomePage() {
       console.log("Post criado com sucesso:", result)
       
       setPostContent("")
+      setPostImages([])
+      setPostVideo(null)
       setPostLoading(false)
       setPostModalOpen(false)
       fetchPosts()
@@ -315,11 +579,67 @@ export default function HomePage() {
                 placeholder="O que você está pensando?"
                 value={postContent}
                 onChange={(e) => setPostContent(e.target.value)}
-                className="min-h-[100px] w-full resize-none border-0 focus-visible:ring-0 text-base bg-transparent outline-none"
+                className="min-h-[100px] w-full resize-none border-0 focus-visible:ring-0 text-base bg-transparent outline-none post-modal-textarea"
                 maxLength={2000}
-                dir="ltr"
-                style={{ direction: 'ltr', unicodeBidi: 'normal' }}
+                spellCheck="false"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                style={{
+                  direction: 'ltr',
+                  unicodeBidi: 'normal',
+                  textAlign: 'left',
+                  writingMode: 'horizontal-tb',
+                  textOrientation: 'mixed'
+                }}
               />
+              
+              {/* Preview de mídia */}
+              {(postImages.length > 0 || postVideo) && (
+                <div className="space-y-2">
+                  {postImages.length > 0 && (
+                    <div className="grid grid-cols-2 gap-2">
+                      {postImages.map((image, index) => (
+                        <div key={index} className="relative">
+                          <img
+                            src={URL.createObjectURL(image)}
+                            alt={`Preview ${index + 1}`}
+                            className="w-full h-24 object-cover rounded-lg"
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            className="absolute top-1 right-1 h-6 w-6 p-0"
+                            onClick={() => removeImage(index)}
+                          >
+                            ×
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {postVideo && (
+                    <div className="relative">
+                      <video
+                        src={URL.createObjectURL(postVideo)}
+                        className="w-full h-32 object-cover rounded-lg"
+                        controls
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-1 right-1 h-6 w-6 p-0"
+                        onClick={removeVideo}
+                      >
+                        ×
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+              
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Select
@@ -345,19 +665,60 @@ export default function HomePage() {
                     </SelectContent>
                   </Select>
                   <div className="flex items-center gap-1">
-                    <Button type="button" variant="ghost" size="sm" disabled>
-                      <ImageIcon className="h-4 w-4" />
-                    </Button>
-                    <Button type="button" variant="ghost" size="sm" disabled>
-                      <Video className="h-4 w-4" />
-                    </Button>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      id="image-upload"
+                      disabled={postVideo !== null || (profile?.plano || 'free') === 'free'}
+                    />
+                    <label htmlFor="image-upload">
+                      <Button 
+                        type="button" 
+                        variant="ghost" 
+                        size="sm" 
+                        disabled={postVideo !== null || (profile?.plano || 'free') === 'free'}
+                        className={cn(
+                          "cursor-pointer",
+                          (profile?.plano || 'free') === 'free' && "opacity-50 cursor-not-allowed"
+                        )}
+                        title={(profile?.plano || 'free') === 'free' ? "Disponível apenas para planos Open Ouro e Open Diamante" : "Adicionar imagens"}
+                      >
+                        <ImageIcon className="h-4 w-4" />
+                      </Button>
+                    </label>
+                    <input
+                      type="file"
+                      accept="video/*"
+                      onChange={handleVideoUpload}
+                      className="hidden"
+                      id="video-upload"
+                      disabled={postImages.length > 0 || (profile?.plano || 'free') === 'free'}
+                    />
+                    <label htmlFor="video-upload">
+                      <Button 
+                        type="button" 
+                        variant="ghost" 
+                        size="sm" 
+                        disabled={postImages.length > 0 || (profile?.plano || 'free') === 'free'}
+                        className={cn(
+                          "cursor-pointer",
+                          (profile?.plano || 'free') === 'free' && "opacity-50 cursor-not-allowed"
+                        )}
+                        title={(profile?.plano || 'free') === 'free' ? "Disponível apenas para planos Open Ouro e Open Diamante" : "Adicionar vídeo"}
+                      >
+                        <Video className="h-4 w-4" />
+                      </Button>
+                    </label>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-gray-500">{postContent.length}/2000</span>
                   <Button 
                     type="submit" 
-                    disabled={postLoading || !postContent.trim() || !user || authLoading} 
+                    disabled={postLoading || (!postContent.trim() && postImages.length === 0 && !postVideo) || !user || authLoading} 
                     size="sm"
                   >
                     {postLoading ? "Postando..." : authLoading ? "Verificando..." : !user ? "Faça login" : "Postar"}
@@ -500,6 +861,7 @@ export default function HomePage() {
                 {activeView === "open-dates" && "Open Dates"}
                 {activeView === "saved" && "Salvos"}
                 {activeView === "settings" && "Configurações"}
+                {activeView === "my-profile" && "Meu Perfil"}
               </h1>
             </div>
           </div>
@@ -812,6 +1174,9 @@ export default function HomePage() {
                 onShare={(postId) => handleShare(parseInt(postId))}
                 onViewMedia={(postId, mediaIndex) => handleViewMedia(parseInt(postId), mediaIndex)}
               />
+            )}
+            {activeView === "my-profile" && (
+              <ProfileView />
             )}
             {activeView === "settings" && (
               <div className="p-4 bg-blue-100 rounded">

@@ -12,21 +12,25 @@ export async function POST() {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    // Marcar todas as notificações como lidas
-    const { error } = await supabase
+    // Marcar todas as notificações do usuário como lidas
+    const { data, error } = await supabase
       .from("notifications")
       .update({ is_read: true })
       .eq("user_id", user.id)
       .eq("is_read", false)
+      .select()
 
     if (error) {
       console.error("Erro ao marcar notificações como lidas:", error)
       return NextResponse.json({ error: "Erro interno" }, { status: 500 })
     }
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ 
+      success: true, 
+      message: `${data?.length || 0} notificações marcadas como lidas` 
+    })
   } catch (error) {
-    console.error("Erro na API de marcar notificações como lidas:", error)
+    console.error("Erro na API de marcar todas notificações como lidas:", error)
     return NextResponse.json({ error: "Erro interno" }, { status: 500 })
   }
 } 

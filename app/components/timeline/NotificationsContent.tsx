@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "../../../components/ui/button"
 import { Badge } from "../../../components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar"
@@ -24,103 +24,38 @@ import { cn } from "@/lib/utils"
 
 interface Notification {
   id: string
+  user_id: string
   type: "like" | "comment" | "follow" | "event" | "mention" | "system"
   title: string
-  message: string
-  user?: {
-    name: string
-    avatar: string
-    username: string
-  }
-  timestamp: string
-  isRead: boolean
-  actionUrl?: string
-  event?: {
-    title: string
-    date: string
-    location: string
-  }
+  content: string
+  data?: any
+  is_read: boolean
+  created_at: string
 }
 
 export function NotificationsContent() {
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: "1",
-      type: "like",
-      title: "Amanda & Carlos curtiu seu post",
-      message: "Eles curtiram sua publicação sobre o evento OpenLove",
-      user: {
-        name: "Amanda & Carlos",
-        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png",
-        username: "@amandacarlos"
-      },
-      timestamp: "2 min",
-      isRead: false
-    },
-    {
-      id: "2",
-      type: "comment",
-      title: "Sofia Mendes comentou no seu post",
-      message: "Que foto incrível! Adoraria participar do próximo evento!",
-      user: {
-        name: "Sofia Mendes",
-        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-3.png",
-        username: "@sofia_livre"
-      },
-      timestamp: "15 min",
-      isRead: false
-    },
-    {
-      id: "3",
-      type: "follow",
-      title: "Rafael Alves começou a seguir você",
-      message: "Agora vocês podem ver as atualizações um do outro",
-      user: {
-        name: "Rafael Alves",
-        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-16.png",
-        username: "@rafael_livre"
-      },
-      timestamp: "1h",
-      isRead: true
-    },
-    {
-      id: "4",
-      type: "event",
-      title: "Novo evento próximo de você",
-      message: "Workshop de Fotografia Íntima em São Paulo",
-      timestamp: "2h",
-      isRead: false,
-      event: {
-        title: "Workshop de Fotografia Íntima",
-        date: "Sábado, 15 de Dezembro",
-        location: "São Paulo, SP"
-      }
-    },
-    {
-      id: "5",
-      type: "mention",
-      title: "Você foi mencionado em um post",
-      message: "Lisa & João mencionaram você em uma publicação sobre eventos",
-      user: {
-        name: "Lisa & João",
-        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-6.png",
-        username: "@lisajoao"
-      },
-      timestamp: "3h",
-      isRead: true
-    },
-    {
-      id: "6",
-      type: "system",
-      title: "Bem-vindo ao OpenLove!",
-      message: "Sua conta foi criada com sucesso. Explore a comunidade!",
-      timestamp: "1 dia",
-      isRead: true
-    }
-  ])
-
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("all")
-  const [filter, setFilter] = useState("all")
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const res = await fetch("/api/notifications")
+        if (!res.ok) throw new Error("Erro ao buscar notificações")
+        const json = await res.json()
+        setNotifications(json.data || [])
+      } catch (err: any) {
+        setError(err.message || "Erro desconhecido")
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchNotifications()
+  }, [])
 
   const getNotificationIcon = (type: Notification["type"]) => {
     switch (type) {
@@ -160,32 +95,74 @@ export function NotificationsContent() {
     }
   }
 
-  const markAsRead = (id: string) => {
-    setNotifications(prev =>
-      prev.map(notification =>
-        notification.id === id ? { ...notification, isRead: true } : notification
+  const markAsRead = async (id: string) => {
+    try {
+      await fetch(`/api/notifications/${id}/read`, { method: 'POST' })
+      setNotifications(prev =>
+        prev.map(notification =>
+          notification.id === id ? { ...notification, is_read: true } : notification
+        )
       )
-    )
+    } catch (err) {
+      console.error("Erro ao marcar como lida:", err)
+    }
   }
 
-  const markAllAsRead = () => {
-    setNotifications(prev =>
-      prev.map(notification => ({ ...notification, isRead: true }))
-    )
+  const markAllAsRead = async () => {
+    try {
+      await fetch("/api/notifications/read-all", { method: 'POST' })
+      setNotifications(prev =>
+        prev.map(notification => ({ ...notification, is_read: true }))
+      )
+    } catch (err) {
+      console.error("Erro ao marcar todas como lidas:", err)
+    }
   }
 
   const deleteNotification = (id: string) => {
     setNotifications(prev => prev.filter(notification => notification.id !== id))
   }
 
+  const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+    
+    if (diffInSeconds < 60) return "Agora"
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m`
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h`
+    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d`
+    return date.toLocaleDateString('pt-BR')
+  }
+
   const filteredNotifications = notifications.filter(notification => {
-    if (activeTab === "unread") return !notification.isRead
+    if (activeTab === "unread") return !notification.is_read
     if (activeTab === "mentions") return notification.type === "mention"
     if (activeTab === "events") return notification.type === "event"
     return true
   })
 
-  const unreadCount = notifications.filter(n => !n.isRead).length
+  const unreadCount = notifications.filter(n => !n.is_read).length
+
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto p-4">
+        <div className="text-center py-8">
+          <p>Carregando notificações...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-4xl mx-auto p-4">
+        <div className="text-center py-8 text-red-500">
+          <p>{error}</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-4 space-y-6">
@@ -249,267 +226,237 @@ export function NotificationsContent() {
 
         <TabsContent value="all" className="mt-6">
           <div className="space-y-4">
-            {filteredNotifications.map((notification) => (
-              <Card
-                key={notification.id}
-                className={cn(
-                  "transition-all duration-200 hover:shadow-md cursor-pointer border-l-4",
-                  getNotificationColor(notification.type),
-                  !notification.isRead && "ring-2 ring-blue-500"
-                )}
-                onClick={() => markAsRead(notification.id)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0">
-                      {notification.user ? (
-                        <Avatar className="w-10 h-10">
-                          <AvatarImage src={notification.user.avatar} />
-                          <AvatarFallback>{notification.user.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                      ) : (
+            {filteredNotifications.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                Nenhuma notificação encontrada
+              </div>
+            ) : (
+              filteredNotifications.map((notification) => (
+                <Card
+                  key={notification.id}
+                  className={cn(
+                    "transition-all duration-200 hover:shadow-md cursor-pointer border-l-4",
+                    getNotificationColor(notification.type),
+                    !notification.is_read && "ring-2 ring-blue-500"
+                  )}
+                  onClick={() => !notification.is_read && markAsRead(notification.id)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0">
                         <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                           {getNotificationIcon(notification.type)}
                         </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-sm">{notification.title}</h3>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {notification.message}
-                          </p>
-                          {notification.event && (
-                            <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                              <p className="font-medium text-sm">{notification.event.title}</p>
-                              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                                <Calendar className="w-3 h-3" />
-                                <span>{notification.event.date}</span>
-                                <MapPin className="w-3 h-3" />
-                                <span>{notification.event.location}</span>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-muted-foreground flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {notification.timestamp}
-                          </span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              deleteNotification(notification.id)
-                            }}
-                            className="h-6 w-6 p-0"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-sm">{notification.title}</h3>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {notification.content}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {formatTimeAgo(notification.created_at)}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                deleteNotification(notification.id)
+                              }}
+                              className="h-6 w-6 p-0"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         </TabsContent>
 
         <TabsContent value="unread" className="mt-6">
           <div className="space-y-4">
-            {filteredNotifications.map((notification) => (
-              <Card
-                key={notification.id}
-                className={cn(
-                  "transition-all duration-200 hover:shadow-md cursor-pointer border-l-4",
-                  getNotificationColor(notification.type),
-                  "ring-2 ring-blue-500"
-                )}
-                onClick={() => markAsRead(notification.id)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0">
-                      {notification.user ? (
-                        <Avatar className="w-10 h-10">
-                          <AvatarImage src={notification.user.avatar} />
-                          <AvatarFallback>{notification.user.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                      ) : (
+            {filteredNotifications.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                Nenhuma notificação não lida
+              </div>
+            ) : (
+              filteredNotifications.map((notification) => (
+                <Card
+                  key={notification.id}
+                  className={cn(
+                    "transition-all duration-200 hover:shadow-md cursor-pointer border-l-4",
+                    getNotificationColor(notification.type),
+                    "ring-2 ring-blue-500"
+                  )}
+                  onClick={() => markAsRead(notification.id)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0">
                         <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                           {getNotificationIcon(notification.type)}
                         </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-sm">{notification.title}</h3>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {notification.message}
-                          </p>
-                          {notification.event && (
-                            <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                              <p className="font-medium text-sm">{notification.event.title}</p>
-                              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                                <Calendar className="w-3 h-3" />
-                                <span>{notification.event.date}</span>
-                                <MapPin className="w-3 h-3" />
-                                <span>{notification.event.location}</span>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-muted-foreground flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {notification.timestamp}
-                          </span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              deleteNotification(notification.id)
-                            }}
-                            className="h-6 w-6 p-0"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-sm">{notification.title}</h3>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {notification.content}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {formatTimeAgo(notification.created_at)}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                deleteNotification(notification.id)
+                              }}
+                              className="h-6 w-6 p-0"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         </TabsContent>
 
         <TabsContent value="mentions" className="mt-6">
           <div className="space-y-4">
-            {filteredNotifications.map((notification) => (
-              <Card
-                key={notification.id}
-                className={cn(
-                  "transition-all duration-200 hover:shadow-md cursor-pointer border-l-4",
-                  getNotificationColor(notification.type),
-                  !notification.isRead && "ring-2 ring-blue-500"
-                )}
-                onClick={() => markAsRead(notification.id)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0">
-                      {notification.user ? (
-                        <Avatar className="w-10 h-10">
-                          <AvatarImage src={notification.user.avatar} />
-                          <AvatarFallback>{notification.user.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                      ) : (
+            {filteredNotifications.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                Nenhuma menção encontrada
+              </div>
+            ) : (
+              filteredNotifications.map((notification) => (
+                <Card
+                  key={notification.id}
+                  className={cn(
+                    "transition-all duration-200 hover:shadow-md cursor-pointer border-l-4",
+                    getNotificationColor(notification.type),
+                    !notification.is_read && "ring-2 ring-blue-500"
+                  )}
+                  onClick={() => !notification.is_read && markAsRead(notification.id)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0">
                         <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                           {getNotificationIcon(notification.type)}
                         </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-sm">{notification.title}</h3>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {notification.message}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-muted-foreground flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {notification.timestamp}
-                          </span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              deleteNotification(notification.id)
-                            }}
-                            className="h-6 w-6 p-0"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-sm">{notification.title}</h3>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {notification.content}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {formatTimeAgo(notification.created_at)}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                deleteNotification(notification.id)
+                              }}
+                              className="h-6 w-6 p-0"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         </TabsContent>
 
         <TabsContent value="events" className="mt-6">
           <div className="space-y-4">
-            {filteredNotifications.map((notification) => (
-              <Card
-                key={notification.id}
-                className={cn(
-                  "transition-all duration-200 hover:shadow-md cursor-pointer border-l-4",
-                  getNotificationColor(notification.type),
-                  !notification.isRead && "ring-2 ring-blue-500"
-                )}
-                onClick={() => markAsRead(notification.id)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0">
-                      <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                        {getNotificationIcon(notification.type)}
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-sm">{notification.title}</h3>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {notification.message}
-                          </p>
-                          {notification.event && (
-                            <div className="mt-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                              <p className="font-medium text-sm">{notification.event.title}</p>
-                              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                                <Calendar className="w-3 h-3" />
-                                <span>{notification.event.date}</span>
-                                <MapPin className="w-3 h-3" />
-                                <span>{notification.event.location}</span>
-                              </div>
-                            </div>
-                          )}
+            {filteredNotifications.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                Nenhum evento encontrado
+              </div>
+            ) : (
+              filteredNotifications.map((notification) => (
+                <Card
+                  key={notification.id}
+                  className={cn(
+                    "transition-all duration-200 hover:shadow-md cursor-pointer border-l-4",
+                    getNotificationColor(notification.type),
+                    !notification.is_read && "ring-2 ring-blue-500"
+                  )}
+                  onClick={() => !notification.is_read && markAsRead(notification.id)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                          {getNotificationIcon(notification.type)}
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-muted-foreground flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {notification.timestamp}
-                          </span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              deleteNotification(notification.id)
-                            }}
-                            className="h-6 w-6 p-0"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-sm">{notification.title}</h3>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {notification.content}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {formatTimeAgo(notification.created_at)}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                deleteNotification(notification.id)
+                              }}
+                              className="h-6 w-6 p-0"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         </TabsContent>
       </Tabs>

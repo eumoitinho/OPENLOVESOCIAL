@@ -1,202 +1,90 @@
-# OpenLove - Plataforma de Conexão e Relacionamentos
+# OpenLove - Plataforma de Conexões
 
-Uma plataforma moderna e inclusiva para pessoas que buscam conexões autênticas, inspirada no design do Twitter/X, com foco em casais livres, poliamor e relacionamentos não-tradicionais.
+Uma plataforma moderna de networking social focada em conectar pessoas através de interesses compartilhados, eventos e comunidades.
 
 ## 🚀 Funcionalidades Principais
 
-### 📱 Interface Responsiva
-- **Layout Mobile-First**: Otimizado para dispositivos móveis
-- **Navegação Intuitiva**: Sidebar lateral com navegação rápida
-- **Design Moderno**: Interface inspirada no Twitter/X com cores personalizadas
+### Sistema de Autenticação e Sessão
+- **Login/Registro**: Sistema completo de autenticação com email e senha
+- **Verificação de Email**: 2FA com código de verificação enviado por email
+- **Timeout de Sessão**: Sessões expiram automaticamente após 5 horas por segurança
+- **Redirecionamento Inteligente**: 
+  - Usuários não logados são redirecionados para a página inicial (/)
+  - Usuários logados são redirecionados para a home (/home)
+  - Proteção automática de rotas sensíveis
+- **Verificação Periódica**: Sistema verifica timeout de sessão a cada 5 minutos
+- **Logout Automático**: Sessões expiradas fazem logout automático e redirecionam
 
-### 🔐 Sistema de Autenticação
-- **Login/Registro**: Sistema completo de autenticação
-- **Perfis de Usuário**: Perfis personalizáveis com fotos e informações
-- **Verificação de Email**: Sistema de confirmação por email
+### Perfil de Usuário
+- **Perfil Completo**: Galeria, posts, amigos, reputação, tokens
+- **Foto de Perfil e Capa**: Upload e gerenciamento de mídia
+- **Informações Detalhadas**: Data de entrada, cidade, distância
+- **Sistema de Seguir**: Seguir usuários ou solicitar acesso para perfis privados
+- **Visualização de Perfil**: Sistema completo de visualização de perfis por username
+- **Perfil Integrado**: Visualização do perfil diretamente na página home (no lugar da timeline)
 
-### 📝 Sistema de Posts
-- **Timeline Dinâmica**: Feed de posts em tempo real
-- **Criação de Posts**: Interface para criar posts com texto e mídia
-- **Interações**: Sistema de likes, comentários e compartilhamentos
-- **Visibilidade**: Posts públicos ou apenas para amigos
+### Timeline e Navegação
+- **Sistema de Navegação Interna (SPA)**: Todas as páginas abrem na view principal
+- **Controle de Estado**: Views e histórico de navegação
+- **Views Disponíveis**: Home, perfil, eventos, comunidades, mensagens, notificações, amigos, busca, salvos, configurações
+- **Sidebar Responsiva**: Navegação lateral com todas as funcionalidades
+- **Navegação Móvel**: Menu mobile otimizado
 
-### 💬 Sistema de Mensagens
-- **Chat em Tempo Real**: Sistema de mensagens integrado
-- **WebRTC**: Suporte para chamadas de voz e vídeo
-- **Conversas**: Interface de conversas com histórico
+### Sistema de Posts
+- **Criação de Posts**: Texto, mídia, visibilidade (público/amigos)
+- **Interações**: Likes, comentários, compartilhamento
+- **Timeline Dinâmica**: Feed personalizado com posts de usuários seguidos
+- **Mídia Otimizada**: Upload e otimização automática de imagens e vídeos
+
+### Comunidades e Eventos
+- **Criação de Comunidades**: Grupos temáticos com moderadores
+- **Eventos**: Criação e participação em eventos
+- **Sistema de Membros**: Gerenciamento de membros e permissões
+
+### Sistema de Amizades
+- **Solicitações de Amizade**: Enviar e responder solicitações
+- **Sugestões**: Algoritmo de recomendação de amigos
+- **Gerenciamento**: Lista de amigos e solicitações pendentes
+
+### Chat e Comunicação
+- **Chat em Tempo Real**: Sistema de mensagens instantâneas
+- **Chamadas de Vídeo**: WebRTC para chamadas de vídeo
 - **Notificações**: Sistema de notificações em tempo real
 
-### 🎯 Sistema Open Dates (Tinder-like)
-- **Cards Interativos**: Interface de cards com drag & drop
-- **Sistema de Likes**: Like, pass e super like
-- **Algoritmo de Recomendação**: Baseado em interesses, localização e preferências
-- **Matches**: Sistema de matches automático
-- **Chat de Matches**: Chat exclusivo para matches
-- **Preferências**: Configuração de idade, distância e interesses
+### Sistema de Pagamentos
+- **Integração MercadoPago**: Pagamentos e assinaturas
+- **Planos Premium**: 
+  - **Free**: Acesso básico
+  - **Open Ouro (R$ 25/mês)**: 5 imagens, 1 vídeo (25MB), mensagens
+  - **Open Diamante (R$ 45,90/mês)**: 10 imagens, 1 vídeo (50MB), recursos avançados
+- **Webhooks**: Processamento seguro de pagamentos
 
-### 👥 Sistema de Amizades
-- **Seguir Usuários**: Sistema de follow/unfollow
-- **Sugestões**: Recomendações de pessoas para seguir
-- **Perfis Públicos**: Visualização de perfis de outros usuários
-
-### 🎪 Sistema de Eventos
-- **Criação de Eventos**: Interface para criar eventos
-- **Participação**: Sistema de inscrição em eventos
-- **Compartilhamento**: Compartilhar eventos na timeline
-
-### 🏘️ Sistema de Comunidades
-- **Criação de Comunidades**: Criar e gerenciar comunidades
-- **Participação**: Sistema de membros e moderadores
-- **Posts em Comunidades**: Posts específicos para comunidades
-
-### 🔍 Sistema de Busca
-- **Busca de Usuários**: Buscar por nome, localização, interesses
-- **Filtros Avançados**: Filtros por idade, localização, tipo de perfil
-- **Resultados em Tempo Real**: Busca instantânea
-
-### 💰 Sistema de Pagamentos
-- **Integração MercadoPago**: Sistema de pagamentos brasileiro
-- **Planos Premium**: Diferentes níveis de assinatura
-- **Webhooks**: Processamento automático de pagamentos
-
-### 📊 Sistema de Anúncios
-- **Anúncios Contextuais**: Anúncios baseados no conteúdo
-- **Métricas**: Sistema de tracking de cliques e impressões
-- **Diferentes Formatos**: Banners, cards e anúncios nativos
-
-### 🎨 Personalização
-- **Tema Escuro/Claro**: Alternância entre temas
-- **Cores Personalizadas**: Paleta de cores OpenLove
-- **Layout Responsivo**: Adaptação para diferentes tamanhos de tela
-
-## 🚀 Características Principais
-
-### Layout Responsivo e Moderno
-- **Layout em Grid**: Sistema de 3 colunas similar ao Twitter/X
-  - Sidebar esquerda (1fr): Navegação principal
-  - Timeline central (2-3fr): Conteúdo principal
-  - Sidebar direita (1fr): Informações complementares
-- **Responsividade Mobile-First**: Otimizado para dispositivos móveis
-- **Sidebars Otimizadas**: Sem overflow horizontal, scroll vertical oculto
-- **Navegação Unificada**: Componentes integrados na página principal
-
-### Interface de Usuário
-- **Design System Consistente**: Cores, tipografia e componentes padronizados
-- **Tema Escuro/Claro**: Alternância automática baseada na preferência do sistema
-- **Animações Suaves**: Transições e efeitos visuais elegantes
-- **Componentes Reutilizáveis**: UI modular e escalável
-
-### Funcionalidades de Navegação
-- **Timeline Principal**: Posts, perfis e conteúdo em tempo real
-- **Exploração de Perfis**: Sistema de busca e descoberta de usuários
-- **Notificações**: Sistema completo de notificações em tempo real
-- **Mensagens**: Chat integrado com WebRTC
-- **Eventos**: Criação e participação em eventos
-- **Comunidades**: Grupos e fóruns temáticos
-- **Conteúdo Salvo**: Sistema de favoritos e salvamento
-
-### Sistema de Autenticação
-- **Supabase Auth**: Autenticação segura e confiável
-- **Múltiplos Provedores**: Login com Google, GitHub, etc.
-- **Proteção de Rotas**: Middleware de autenticação
-- **Sessões Persistentes**: Manutenção do estado de login
-
-### Recursos Avançados
-- **Upload de Mídia**: Imagens e vídeos com otimização automática
-- **Sistema de Anúncios**: Plataforma de publicidade integrada
-- **Pagamentos**: Integração com MercadoPago e Stripe
-- **WebRTC**: Chamadas de vídeo e áudio em tempo real
-- **Notificações Push**: Alertas em tempo real
+### Sistema de Anúncios
+- **Dashboard de Anúncios**: Criação e gerenciamento de campanhas
+- **Métricas**: Analytics e relatórios de performance
+- **Segmentação**: Direcionamento por público-alvo
 
 ## 🛠️ Tecnologias Utilizadas
 
-### Frontend
-- **Next.js 15**: Framework React com App Router
-- **TypeScript**: Tipagem estática para maior confiabilidade
-- **Tailwind CSS**: Framework CSS utilitário
-- **Shadcn/ui**: Componentes de UI modernos
-- **Lucide React**: Ícones consistentes
+- **Frontend**: Next.js 14, React 18, TypeScript
+- **Backend**: Next.js API Routes, Supabase
+- **Banco de Dados**: PostgreSQL (via Supabase)
+- **Autenticação**: Supabase Auth
+- **Estilização**: Tailwind CSS, shadcn/ui
+- **Estado**: React Context, Zustand
+- **Mídia**: Supabase Storage
+- **Pagamentos**: MercadoPago
+- **Chat**: WebRTC, Socket.io
+- **Deploy**: Vercel, Docker
 
-### Backend & Banco de Dados
-- **Supabase**: Backend-as-a-Service com PostgreSQL
-- **PostgreSQL**: Banco de dados relacional robusto
-- **Redis**: Cache e sessões em tempo real
+## 📋 Pré-requisitos
 
-### Integrações
-- **MercadoPago**: Processamento de pagamentos
-- **Stripe**: Pagamentos internacionais
-- **WebRTC**: Comunicação peer-to-peer
-- **Cloudinary**: Otimização de mídia
+- Node.js 18+
+- pnpm (gerenciador de pacotes)
+- Conta no Supabase
+- Conta no MercadoPago (para pagamentos)
 
-## 📱 Layout e Responsividade
-
-### Estrutura de Grid
-```css
-/* Layout principal */
-.grid-cols-1 lg:grid-cols-4 xl:grid-cols-5
-
-/* Sidebar esquerda */
-lg:col-span-1
-
-/* Timeline central */
-lg:col-span-2 xl:col-span-3
-
-/* Sidebar direita */
-lg:col-span-1
-```
-
-### Sidebars Otimizadas
-- **Larguras Fixas**: 72px (mobile) / 275px (desktop) para esquerda, 350px para direita
-- **Overflow Control**: `overflow-x-hidden` para evitar scroll horizontal
-- **Scroll Oculto**: Classe `scrollbar-hide` para esconder barra de rolagem
-- **Sticky Positioning**: Sidebars fixas durante scroll
-
-### Navegação Mobile
-- **MobileNav**: Barra de navegação lateral em dispositivos móveis
-- **Touch-Friendly**: Botões otimizados para toque
-- **Responsive Breakpoints**: Adaptação automática por tamanho de tela
-
-## 🎨 Sistema de Design
-
-### Cores Principais
-- **Primária**: Gradiente rosa-roxo (#ec4899 → #8b5cf6)
-- **Secundária**: Tons de cinza neutros
-- **Acentos**: Verde para sucesso, vermelho para erro, azul para info
-
-### Tipografia
-- **Hierarquia Clara**: Títulos, subtítulos e corpo de texto bem definidos
-- **Responsiva**: Tamanhos adaptáveis por breakpoint
-- **Legibilidade**: Contraste e espaçamento otimizados
-
-### Componentes
-- **Cards**: Elevação e sombras sutis
-- **Botões**: Estados hover e focus bem definidos
-- **Formulários**: Validação visual e feedback imediato
-- **Modais**: Overlays com backdrop blur
-
-## 📋 Versionamento
-
-Este projeto segue o **Versionamento Semântico** (SemVer). Atualmente estamos na versão **0.2.0-alpha.1**.
-
-### Versão Atual
-- **0.2.0-alpha.1**: Sistema Open Dates implementado, correções críticas de bugs
-- Veja o [CHANGELOG.md](CHANGELOG.md) para detalhes completos das mudanças
-
-### Próximas Versões
-- `0.2.0-alpha.2`: Melhorias no sistema Open Dates
-- `0.2.0-beta.1`: Sistema Open Dates estável
-- `0.2.0`: Versão estável com Open Dates
-- `1.0.0`: Primeira versão major para produção
-
-## 🛠️ Configuração e Instalação
-
-### Pré-requisitos
-- Node.js 18+ 
-- pnpm
-- Supabase (banco de dados)
-- Conta MercadoPago (para pagamentos)
-
-### Instalação
+## 🚀 Instalação
 
 1. **Clone o repositório**
 ```bash
@@ -210,149 +98,213 @@ pnpm install
 ```
 
 3. **Configure as variáveis de ambiente**
-
-Crie um arquivo `.env.local` na raiz do projeto:
-
 ```bash
-# Na raiz do projeto
-touch .env.local
+cp .env.example .env.local
 ```
 
-Adicione as seguintes variáveis obrigatórias:
-
+Edite o arquivo `.env.local` com suas configurações:
 ```env
-# Supabase Configuration (OBRIGATÓRIO)
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-
-# NextAuth Configuration (RECOMENDADO)
-NEXTAUTH_SECRET=your-32-character-secret-key
-NEXTAUTH_URL=http://localhost:3000
+NEXT_PUBLIC_SUPABASE_URL=sua_url_do_supabase
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_chave_anonima_do_supabase
+SUPABASE_SERVICE_ROLE_KEY=sua_chave_service_role_do_supabase
+MERCADOPAGO_ACCESS_TOKEN=seu_token_do_mercadopago
+MERCADOPAGO_WEBHOOK_SECRET=seu_webhook_secret
 ```
-
-**Como obter as chaves do Supabase:**
-1. Acesse o [dashboard do Supabase](https://supabase.com/dashboard)
-2. Selecione seu projeto
-3. Vá para **Settings > API**
-4. Copie as informações necessárias
-
-Para mais detalhes, consulte [docs/SETUP_ENVIRONMENT.md](docs/SETUP_ENVIRONMENT.md)
 
 4. **Configure o banco de dados**
+```bash
+# Execute os scripts SQL na ordem correta no Supabase SQL Editor
+# 1. Script inicial
+scripts/001_initial_schema.sql
 
-Execute os scripts SQL no Supabase SQL Editor na seguinte ordem:
+# 2. Dados iniciais
+scripts/002_seed_data.sql
 
-```sql
--- 1. Schema inicial completo
-\i scripts/016_complete_openlove_schema.sql
+# 3. Configuração de autenticação
+scripts/003_auth_setup.sql
 
--- 2. Dados de exemplo
-\i scripts/017_seed_sample_data.sql
+# 4. Correção de problemas de cadastro (IMPORTANTE!)
+scripts/031_fix_registration.sql
 
--- 3. Correção da estrutura da tabela users (IMPORTANTE)
-\i scripts/026_fix_users_table.sql
-
--- 4. Sistema Open Dates
-\i scripts/025_open_dates_system.sql
+# 5. Outros scripts conforme necessário
+scripts/016_complete_openlove_schema.sql
+scripts/030_message_reactions.sql
 ```
-
-**Importante:** O script `026_fix_users_table.sql` corrige a estrutura da tabela `users` e é essencial para o funcionamento do sistema de registro.
-
-### 🔍 Diagnóstico de Problemas
-
-Se você encontrar erros de registro, siga estes passos:
-
-#### 1. Correção Completa (Recomendado)
-Cole este script completo no SQL Editor do Supabase:
-
-```sql
--- Cole o conteúdo do arquivo scripts/comprehensive_fix.sql
--- Execute tudo de uma vez
-```
-
-**Este script inclui TODAS as correções necessárias baseadas na análise completa do código.**
-
-#### 2. Teste Rápido (Opcional)
-Após a correção, execute este teste para verificar:
-
-```sql
--- Cole o conteúdo do arquivo scripts/quick_test.sql
--- Execute tudo de uma vez
-```
-
-#### 3. Scripts Alternativos
-Se preferir scripts separados:
-- `scripts/fix_all_at_once.sql` - Versão anterior (menos completa)
-- `scripts/diagnose_registration.sql` - Diagnóstico detalhado
-
-**Nota:** No SQL Editor do Supabase, você pode colar todo o script e executar de uma vez, não precisa selecionar query por query.
 
 5. **Execute o projeto**
 ```bash
-pnpm run dev
+pnpm dev
 ```
 
-### Configuração do Sistema Open Dates
+O projeto estará disponível em `http://localhost:3000`
 
-O sistema Open Dates requer algumas configurações específicas:
+## ⚠️ Correção de Problemas de Cadastro
 
-1. **Tabelas do Banco**: Execute o script `025_open_dates_system.sql`
-2. **Funções SQL**: O script cria funções para recomendação e matching
-3. **Políticas RLS**: Segurança configurada automaticamente
-4. **Dados de Exemplo**: Cards de exemplo incluídos no script
+Se você encontrar problemas ao cadastrar novos usuários, execute o script de correção:
 
-### Estrutura do Sistema Open Dates
+1. Acesse o Supabase Dashboard
+2. Vá para SQL Editor
+3. Execute o script: `scripts/031_fix_registration.sql`
+4. Verifique se todas as mensagens de sucesso aparecem
 
+**Documentação completa:** [docs/REGISTRATION_FIX.md](docs/REGISTRATION_FIX.md)
+
+## 🔧 Correção de Problemas Críticos (ÚLTIMA ATUALIZAÇÃO)
+
+### Problemas Identificados e Soluções
+
+#### 1. Sistema de Notificações com Mock
+**Status**: ✅ **CORRIGIDO**
+- Removido sistema de notificações mockado
+- Implementado sistema real com banco de dados
+- APIs criadas para buscar e marcar notificações
+- Componente `NotificationsContent` atualizado
+
+**Solução:**
+1. **Execute os scripts de correção:**
+   ```sql
+   -- Execute no Supabase SQL Editor
+   scripts/031_fix_notifications_schema.sql
+   scripts/032_create_test_notifications.sql
+   ```
+
+2. **Teste as funcionalidades:**
+   - Acesse `/home` e clique no ícone de notificações
+   - Verifique se as notificações carregam
+   - Teste marcar como lida
+
+#### 2. Erro de Cookies no API de Timeline
+**Status**: ✅ **CORRIGIDO**
+- Corrigido uso do `cookies()` para Next.js 15
+- API de timeline agora funciona corretamente em desktop
+
+#### 3. Timeline não carrega em Desktop
+**Status**: ✅ **CORRIGIDO**
+- Corrigido problema de autenticação na API
+- Posts agora carregam corretamente
+- Seções recuperadas adequadamente
+
+#### 4. Erro de Registro: "Database error creating new user"
+**Status**: ⚠️ **REQUER AÇÃO**
+
+**Solução:**
+1. **Execute o script de correção de permissões:**
+   ```sql
+   -- Execute no Supabase SQL Editor
+   scripts/033_fix_registration_permissions.sql
+   ```
+
+2. **Verifique as variáveis de ambiente:**
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=sua_url_do_supabase
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_chave_anonima_do_supabase
+   SUPABASE_SERVICE_ROLE_KEY=sua_chave_service_role_do_supabase
+   ```
+
+3. **Reinicie o servidor:**
+   ```bash
+   pnpm dev
+   ```
+
+### O que foi corrigido:
+- ✅ Sistema de notificações real implementado
+- ✅ APIs de notificações funcionando
+- ✅ Timeline corrigida para desktop
+- ✅ Permissões do service role para criar usuários
+- ✅ Políticas RLS adequadas para inserção de usuários
+- ✅ Melhor tratamento de sessão no AuthProvider
+- ✅ Redirecionamento corrigido após login
+- ✅ Logs detalhados para debug
+- ✅ Compatibilidade com Next.js 15
+
+### Funcionalidades de Notificações:
+- ✅ Busca notificações do banco de dados
+- ✅ Exibe notificações não lidas com destaque
+- ✅ Marca notificações como lidas
+- ✅ Marca todas como lidas
+- ✅ Filtros por tipo (todas, não lidas, menções, eventos)
+- ✅ Interface responsiva e moderna
+
+### Se o problema persistir:
+1. Verifique os logs do console do navegador
+2. Verifique os logs do servidor
+3. Confirme se os scripts SQL foram executados com sucesso
+4. Teste com um novo usuário
+
+**Documentação completa das correções:** [docs/NOTIFICATIONS_FIX.md](docs/NOTIFICATIONS_FIX.md)
+
+**Documentação completa:** [docs/CRITICAL_FIXES.md](docs/CRITICAL_FIXES.md)
+
+## 🔧 Configuração do Sistema de Autenticação
+
+### 1. Configuração do Supabase
+- Configure os templates de email em **Settings > Auth > Email Templates**
+- Configure SMTP personalizado em **Settings > Auth > SMTP Settings** (opcional)
+- Configure as políticas RLS nas tabelas do banco
+
+### 2. Timeout de Sessão
+O sistema implementa timeout automático de sessão:
+- **Duração**: 5 horas
+- **Verificação**: A cada 5 minutos no cliente
+- **Middleware**: Verificação em todas as requisições
+- **Logout Automático**: Redirecionamento para página inicial
+
+### 3. Proteção de Rotas
+- **Middleware**: Proteção automática de rotas sensíveis
+- **Redirecionamento**: Inteligente baseado no status de autenticação
+- **APIs**: Todas as APIs verificam autenticação e timeout
+
+## 📱 Funcionalidades Mobile-First
+
+- **Design Responsivo**: Otimizado para dispositivos móveis
+- **Navegação Touch**: Interface adaptada para toque
+- **Navegação Mobile**: Sidebar com ícones e botão de logout
+- **Performance**: Otimizações para conexões lentas
+- **PWA**: Suporte a Progressive Web App
+
+## 🔒 Segurança
+
+- **Autenticação**: JWT tokens gerenciados pelo Supabase
+- **RLS**: Row Level Security no banco de dados
+- **Validação**: Sanitização de inputs e validação de dados
+- **HTTPS**: Forçado em produção
+- **CORS**: Configurado adequadamente
+- **Rate Limiting**: Proteção contra ataques de força bruta
+
+## 🧪 Testes
+
+```bash
+# Executar testes
+pnpm test
+
+# Executar testes com coverage
+pnpm test:coverage
+
+# Executar testes em modo watch
+pnpm test:watch
 ```
-app/
-├── components/timeline/
-│   ├── OpenDatesCard.tsx      # Card individual com drag & drop
-│   └── OpenDatesStack.tsx     # Stack de cards principal
-├── api/open-dates/
-│   ├── recommendations/       # API de recomendações
-│   ├── interactions/          # API de likes/pass/super_like
-│   └── matches/              # API de matches
-└── home/page.tsx             # Integração na sidebar
-```
 
-## 📊 Estrutura do Projeto
-
-```
-app/
-├── components/          # Componentes reutilizáveis
-│   ├── timeline/       # Componentes da timeline
-│   ├── auth/          # Autenticação
-│   ├── chat/          # Sistema de chat
-│   ├── media/         # Upload e otimização de mídia
-│   └── ui/            # Componentes base de UI
-├── home/              # Página principal com layout em grid
-├── api/               # Rotas da API
-├── auth/              # Páginas de autenticação
-├── profile/           # Perfis de usuário
-├── events/            # Sistema de eventos
-├── communities/       # Comunidades
-├── messages/          # Sistema de mensagens
-└── lib/               # Utilitários e configurações
-```
-
-## 🚀 Deploy
+## 📦 Deploy
 
 ### Vercel (Recomendado)
-```bash
-# Conecte seu repositório ao Vercel
-# Configure as variáveis de ambiente
-# Deploy automático a cada push
-```
+1. Conecte seu repositório ao Vercel
+2. Configure as variáveis de ambiente
+3. Deploy automático a cada push
 
 ### Docker
 ```bash
 # Build da imagem
 docker build -t openlove .
 
-# Execução
+# Executar container
 docker run -p 3000:3000 openlove
 ```
+
+## 📊 Monitoramento
+
+- **Logs**: Centralizados no Vercel e Supabase
+- **Métricas**: Analytics de uso e performance
+- **Alertas**: Notificações para falhas críticas
 
 ## 🤝 Contribuição
 
@@ -366,23 +318,22 @@ docker run -p 3000:3000 openlove
 
 Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
-## 🆘 Suporte
+## 📞 Suporte
 
-- **Documentação**: [docs/](docs/)
-- **Issues**: [GitHub Issues](https://github.com/seu-usuario/openlove/issues)
-- **Discord**: [Comunidade OpenLove](https://discord.gg/openlove)
+Para suporte e dúvidas:
+- Abra uma [issue](https://github.com/seu-usuario/openlove/issues)
+- Consulte a [documentação](docs/)
+- Entre em contato: suporte@openlove.com
 
-## 🔮 Roadmap
+## 🗺️ Roadmap
 
-- [ ] Sistema de matchmaking avançado
+- [ ] Sistema de notificações push
 - [ ] Integração com redes sociais
 - [ ] Sistema de gamificação
-- [ ] Analytics e métricas avançadas
+- [ ] Analytics avançados
+- [ ] API pública
 - [ ] App mobile nativo
-- [ ] Inteligência artificial para recomendações
-- [ ] Sistema de verificação de perfis
-- [ ] Marketplace de produtos e serviços
 
 ---
 
-**OpenLove** - Conectando pessoas, respeitando diversidade. ❤️
+**OpenLove** - Conectando pessoas, criando relacionamentos.

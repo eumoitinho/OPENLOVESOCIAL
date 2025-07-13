@@ -30,7 +30,7 @@ import {
   MapPin,
   ImageIcon,
   Video,
-  MessageCircleIcon,
+  MessageCircle,
   Lock,
   UserPlus,
   BadgeCheck,
@@ -40,6 +40,9 @@ import {
   Clapperboard,
   Flag,
   HelpCircle,
+  Shield,
+  Edit,
+  Camera,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../../../components/ui/carousel"
@@ -127,6 +130,8 @@ export default function Timeline() {
   const [loadingPosts, setLoadingPosts] = useState(true)
   const [errorPosts, setErrorPosts] = useState<string | null>(null)
 
+  console.log("Timeline render - User:", user?.id, "Loading:", authLoading)
+
   // Atualiza timeline
   const fetchPosts = async () => {
     setLoadingPosts(true)
@@ -161,9 +166,13 @@ export default function Timeline() {
   }
 
   const [activeView, setActiveView] = useState("home")
+  const [viewParams, setViewParams] = useState<any>({})
+  const [viewHistory, setViewHistory] = useState<string[]>([])
 
-
-
+  // Debug: Log quando activeView muda
+  useEffect(() => {
+    console.log("Timeline: activeView mudou para:", activeView)
+  }, [activeView])
 
 
   // Current user data
@@ -308,10 +317,19 @@ export default function Timeline() {
                 placeholder="O que você está pensando?"
                 value={postContent}
                 onChange={(e) => setPostContent(e.target.value)}
-                className="min-h-[100px] w-full resize-none border-0 focus-visible:ring-0 text-base bg-transparent outline-none"
+                className="min-h-[100px] w-full resize-none border-0 focus-visible:ring-0 text-base bg-transparent outline-none post-modal-textarea"
                 maxLength={2000}
-                dir="ltr"
-                style={{ direction: 'ltr', unicodeBidi: 'normal' }}
+                spellCheck="false"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                style={{
+                  direction: 'ltr',
+                  unicodeBidi: 'normal',
+                  textAlign: 'left',
+                  writingMode: 'horizontal-tb',
+                  textOrientation: 'mixed'
+                }}
               />
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -366,12 +384,62 @@ export default function Timeline() {
 
   // Função para navegar para configurações
   const navigateToSettings = () => {
-    window.location.href = '/settings'
+    setViewHistory(prev => [...prev, activeView])
+    setActiveView("settings")
   }
 
   // Função para navegar para perfis
   const navigateToProfiles = () => {
-    window.location.href = '/profiles'
+    setViewHistory(prev => [...prev, activeView])
+    setActiveView("profiles")
+  }
+
+  const navigateToProfile = (username: string) => {
+    setViewHistory(prev => [...prev, activeView])
+    setActiveView("profile")
+    setViewParams({ username })
+  }
+
+  const navigateToEvents = () => {
+    setViewHistory(prev => [...prev, activeView])
+    setActiveView("events")
+  }
+
+  const navigateToCommunities = () => {
+    setViewHistory(prev => [...prev, activeView])
+    setActiveView("communities")
+  }
+
+  const navigateToMessages = () => {
+    setViewHistory(prev => [...prev, activeView])
+    setActiveView("messages")
+  }
+
+  const navigateToNotifications = () => {
+    setViewHistory(prev => [...prev, activeView])
+    setActiveView("notifications")
+  }
+
+  const navigateToFriends = () => {
+    setViewHistory(prev => [...prev, activeView])
+    setActiveView("friends")
+  }
+
+  const navigateToSearch = () => {
+    setViewHistory(prev => [...prev, activeView])
+    setActiveView("search")
+  }
+
+  const goBack = () => {
+    if (viewHistory.length > 0) {
+      const previousView = viewHistory[viewHistory.length - 1]
+      setViewHistory(prev => prev.slice(0, -1))
+      setActiveView(previousView)
+      setViewParams({})
+    } else {
+      setActiveView("home")
+      setViewParams({})
+    }
   }
 
   // Componente simplificado para exibir perfis na timeline
@@ -622,6 +690,12 @@ export default function Timeline() {
           setActiveView={setActiveView}
           onNavigateToSettings={navigateToSettings}
           onNavigateToProfiles={navigateToProfiles}
+          onNavigateToEvents={navigateToEvents}
+          onNavigateToCommunities={navigateToCommunities}
+          onNavigateToMessages={navigateToMessages}
+          onNavigateToNotifications={navigateToNotifications}
+          onNavigateToFriends={navigateToFriends}
+          onNavigateToSearch={navigateToSearch}
           onCreatePost={() => setPostModalOpen(true)}
         />
 
@@ -693,76 +767,429 @@ export default function Timeline() {
                     </div>
                   ))
                 case "explore":
+                  return <ProfileSearch />
+                case "profile":
                   return (
-                    <ProfileSearch />
-                  )
-                case "notifications":
-                  return (
-                    <div className="p-4 bg-green-100 rounded">
-                      <h2 className="text-2xl font-bold mb-4">Notificações</h2>
-                      <p>Redirecionando para a página de notificações...</p>
-                      <Button onClick={() => window.location.href = '/notificacoes'}>
-                        Ir para Notificações
-                      </Button>
+                    <div className="min-h-screen">
+                      <div className="flex items-center mb-4">
+                        <Button variant="ghost" onClick={goBack} className="mr-4">
+                          ← Voltar
+                        </Button>
+                        <h1 className="text-2xl font-bold">Perfil de @{viewParams.username}</h1>
+                      </div>
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
+                        <div className="text-center">
+                          <Avatar className="h-24 w-24 mx-auto mb-4">
+                            <AvatarImage src="/placeholder-user.jpg" />
+                            <AvatarFallback>@{viewParams.username}</AvatarFallback>
+                          </Avatar>
+                          <h2 className="text-xl font-bold mb-2">@{viewParams.username}</h2>
+                          <p className="text-gray-600 dark:text-gray-400 mb-4">
+                            Perfil em desenvolvimento...
+                          </p>
+                          <div className="flex justify-center space-x-4">
+                            <Button onClick={() => handleFollow(1, false)}>
+                              <UserPlus className="h-4 w-4 mr-2" />
+                              Seguir
+                            </Button>
+                            <Button variant="outline">
+                              <MessageCircle className="h-4 w-4 mr-2" />
+                              Mensagem
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   )
-                case "messages":
-                  return <MessagesContent />
                 case "events":
                   return (
-                    <div className="p-4 bg-orange-100 rounded">
-                      <h2 className="text-2xl font-bold mb-4">Eventos</h2>
-                      <p>Redirecionando para a página de eventos...</p>
-                      <Button onClick={() => window.location.href = '/events'}>
-                        Ir para Eventos
-                      </Button>
+                    <div className="min-h-screen">
+                      <div className="flex items-center mb-4">
+                        <Button variant="ghost" onClick={goBack} className="mr-4">
+                          ← Voltar
+                        </Button>
+                        <h1 className="text-2xl font-bold">Eventos</h1>
+                      </div>
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
+                        <div className="text-center">
+                          <Calendar className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+                          <h2 className="text-xl font-bold mb-2">Eventos</h2>
+                          <p className="text-gray-600 dark:text-gray-400 mb-4">
+                            Seção de eventos em desenvolvimento...
+                          </p>
+                          <Button>
+                            <Plus className="h-4 w-4 mr-2" />
+                            Criar Evento
+                          </Button>
+                        </div>
+                      </div>
                     </div>
                   )
                 case "communities":
                   return (
-                    <div className="p-4 bg-pink-100 rounded">
-                      <h2 className="text-2xl font-bold mb-4">Comunidades</h2>
-                      <p>Redirecionando para a página de comunidades...</p>
-                      <Button onClick={() => window.location.href = '/communities'}>
-                        Ir para Comunidades
-                      </Button>
+                    <div className="min-h-screen">
+                      <div className="flex items-center mb-4">
+                        <Button variant="ghost" onClick={goBack} className="mr-4">
+                          ← Voltar
+                        </Button>
+                        <h1 className="text-2xl font-bold">Comunidades</h1>
+                      </div>
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
+                        <div className="text-center">
+                          <Users className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+                          <h2 className="text-xl font-bold mb-2">Comunidades</h2>
+                          <p className="text-gray-600 dark:text-gray-400 mb-4">
+                            Seção de comunidades em desenvolvimento...
+                          </p>
+                          <Button>
+                            <Plus className="h-4 w-4 mr-2" />
+                            Criar Comunidade
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                case "messages":
+                  return (
+                    <div className="min-h-screen">
+                      <div className="flex items-center mb-4">
+                        <Button variant="ghost" onClick={goBack} className="mr-4">
+                          ← Voltar
+                        </Button>
+                        <h1 className="text-2xl font-bold">Mensagens</h1>
+                      </div>
+                      <MessagesContent />
+                    </div>
+                  )
+                case "notifications":
+                  return (
+                    <div className="min-h-screen">
+                      <div className="flex items-center mb-4">
+                        <Button variant="ghost" onClick={goBack} className="mr-4">
+                          ← Voltar
+                        </Button>
+                        <h1 className="text-2xl font-bold">Notificações</h1>
+                      </div>
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
+                        <div className="text-center">
+                          <Bell className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+                          <h2 className="text-xl font-bold mb-2">Notificações</h2>
+                          <p className="text-gray-600 dark:text-gray-400">
+                            Seção de notificações em desenvolvimento...
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                case "friends":
+                  return (
+                    <div className="min-h-screen">
+                      <div className="flex items-center mb-4">
+                        <Button variant="ghost" onClick={goBack} className="mr-4">
+                          ← Voltar
+                        </Button>
+                        <h1 className="text-2xl font-bold">Amigos</h1>
+                      </div>
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
+                        <div className="text-center">
+                          <Users className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+                          <h2 className="text-xl font-bold mb-2">Amigos</h2>
+                          <p className="text-gray-600 dark:text-gray-400 mb-4">
+                            Seção de amigos em desenvolvimento...
+                          </p>
+                          <Button>
+                            <UserPlus className="h-4 w-4 mr-2" />
+                            Adicionar Amigos
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                case "search":
+                  return (
+                    <div className="min-h-screen">
+                      <div className="flex items-center mb-4">
+                        <Button variant="ghost" onClick={goBack} className="mr-4">
+                          ← Voltar
+                        </Button>
+                        <h1 className="text-2xl font-bold">Busca</h1>
+                      </div>
+                      <SearchContent 
+                        initialQuery=""
+                        initialType="all"
+                        initialInterests={[]}
+                      />
+                    </div>
+                  )
+                case "profiles":
+                  return (
+                    <div className="min-h-screen">
+                      <div className="flex items-center mb-4">
+                        <Button variant="ghost" onClick={goBack} className="mr-4">
+                          ← Voltar
+                        </Button>
+                        <h1 className="text-2xl font-bold">Perfis</h1>
+                      </div>
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
+                        <div className="text-center">
+                          <User className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+                          <h2 className="text-xl font-bold mb-2">Perfis</h2>
+                          <p className="text-gray-600 dark:text-gray-400 mb-4">
+                            Seção de perfis em desenvolvimento...
+                          </p>
+                          <Button>
+                            <Search className="h-4 w-4 mr-2" />
+                            Buscar Perfis
+                          </Button>
+                        </div>
+                      </div>
                     </div>
                   )
                 case "saved":
-                  return <SavedContent
-                    savedPosts={posts.filter(p => p.saved).map(p => ({
-                      id: p.id.toString(),
-                      user: p.user,
-                      content: p.content,
-                      images: p.images || undefined,
-                      video: p.video || undefined,
-                      event: p.event || undefined,
-                      likes: p.likes,
-                      comments: p.comments,
-                      shares: p.shares,
-                      timestamp: p.timestamp,
-                      savedAt: p.timestamp,
-                      category: p.event ? "events" : p.images || p.video ? "media" : "posts"
-                    }))}
-                    onRemoveFromSaved={(postId) => {
-                      setPosts(prev => prev.map(p => 
-                        p.id.toString() === postId ? { ...p, saved: false } : p
-                      ))
-                    }}
-                    onLike={(postId) => handleLike(parseInt(postId))}
-                    onComment={(postId) => handleComment(parseInt(postId))}
-                    onShare={(postId) => handleShare(parseInt(postId))}
-                    onViewMedia={(postId, mediaIndex) => handleViewMedia(parseInt(postId), mediaIndex)}
-                  />
-              
+                  return (
+                    <div className="min-h-screen">
+                      <div className="flex items-center mb-4">
+                        <Button variant="ghost" onClick={goBack} className="mr-4">
+                          ← Voltar
+                        </Button>
+                        <h1 className="text-2xl font-bold">Salvos</h1>
+                      </div>
+                      <SavedContent
+                        savedPosts={posts.filter(p => p.saved).map(p => ({
+                          id: p.id.toString(),
+                          user: p.user,
+                          content: p.content,
+                          images: p.images || undefined,
+                          video: p.video || undefined,
+                          event: p.event || undefined,
+                          likes: p.likes,
+                          comments: p.comments,
+                          shares: p.shares,
+                          timestamp: p.timestamp,
+                          savedAt: p.timestamp,
+                          category: p.event ? "events" : p.images || p.video ? "media" : "posts"
+                        }))}
+                        onRemoveFromSaved={(postId) => {
+                          setPosts(prev => prev.map(p => 
+                            p.id.toString() === postId ? { ...p, saved: false } : p
+                          ))
+                        }}
+                        onLike={(postId) => handleLike(parseInt(postId))}
+                        onComment={(postId) => handleComment(parseInt(postId))}
+                        onShare={(postId) => handleShare(parseInt(postId))}
+                        onViewMedia={(postId, mediaIndex) => handleViewMedia(parseInt(postId), mediaIndex)}
+                      />
+                    </div>
+                  )
+                case "my-profile":
+                  console.log("Timeline: Renderizando view my-profile")
+                  console.log("Timeline: authLoading:", authLoading)
+                  console.log("Timeline: user:", user)
+                  return (
+                    <div className="min-h-screen">
+                      <div className="flex items-center mb-4">
+                        <Button variant="ghost" onClick={goBack} className="mr-4">
+                          ← Voltar
+                        </Button>
+                        <h1 className="text-2xl font-bold">Meu Perfil</h1>
+                      </div>
+                      
+                      {authLoading ? (
+                        <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
+                          <div className="text-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500 mx-auto mb-4"></div>
+                            <p className="text-gray-600 dark:text-gray-400">Carregando perfil...</p>
+                          </div>
+                        </div>
+                      ) : !user ? (
+                        <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
+                          <div className="text-center">
+                            <User className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+                            <h2 className="text-xl font-bold mb-2">Usuário não autenticado</h2>
+                            <p className="text-gray-600 dark:text-gray-400 mb-4">
+                              Faça login para ver seu perfil
+                            </p>
+                            <Button onClick={() => window.location.href = '/auth/signin'}>
+                              Fazer Login
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        console.log("Timeline: Renderizando conteúdo do perfil para usuário:", user.email),
+                        <div className="space-y-6">
+                          {/* Profile Header Card */}
+                          <Card className="overflow-hidden">
+                            {/* Cover Photo */}
+                            <div className="h-48 bg-gradient-to-r from-pink-400 via-rose-400 to-pink-500 relative">
+                              <div className="absolute inset-0 bg-black/20"></div>
+                              <div className="absolute bottom-4 left-4 right-4">
+                                <div className="flex items-end gap-4">
+                                  <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
+                                    <AvatarImage src={user?.user_metadata?.avatar_url || "/placeholder-user.jpg"} />
+                                    <AvatarFallback className="text-2xl bg-pink-500 text-white">
+                                      {user?.user_metadata?.full_name 
+                                        ? user.user_metadata.full_name.split(' ').map((n: string) => n[0]).join('')
+                                        : user?.email?.charAt(0).toUpperCase()
+                                      }
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div className="flex-1 text-white">
+                                    <h2 className="text-2xl font-bold mb-1">
+                                      {user?.user_metadata?.full_name || user?.email}
+                                    </h2>
+                                    <p className="text-pink-100 mb-2">
+                                      @{user?.user_metadata?.username || user?.email?.split('@')[0]}
+                                    </p>
+                                    <div className="flex gap-2">
+                                      <Button size="sm" variant="secondary" className="bg-white/20 hover:bg-white/30 text-white border-white/30">
+                                        <Edit className="h-4 w-4 mr-2" />
+                                        Editar Perfil
+                                      </Button>
+                                      <Button size="sm" variant="secondary" className="bg-white/20 hover:bg-white/30 text-white border-white/30">
+                                        <Camera className="h-4 w-4 mr-2" />
+                                        Alterar Foto
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Profile Stats */}
+                            <CardContent className="p-6">
+                              <div className="grid grid-cols-3 gap-4 text-center">
+                                <div>
+                                  <div className="text-2xl font-bold text-pink-600">0</div>
+                                  <div className="text-sm text-gray-600 dark:text-gray-400">Posts</div>
+                                </div>
+                                <div>
+                                  <div className="text-2xl font-bold text-pink-600">0</div>
+                                  <div className="text-sm text-gray-600 dark:text-gray-400">Seguidores</div>
+                                </div>
+                                <div>
+                                  <div className="text-2xl font-bold text-pink-600">0</div>
+                                  <div className="text-sm text-gray-600 dark:text-gray-400">Seguindo</div>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+
+                          {/* Profile Info Card */}
+                          <Card>
+                            <CardHeader>
+                              <CardTitle className="flex items-center gap-2">
+                                <User className="h-5 w-5" />
+                                Informações do Perfil
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="flex items-center gap-3">
+                                  <Mail className="h-4 w-4 text-gray-500" />
+                                  <div>
+                                    <div className="text-sm text-gray-500">Email</div>
+                                    <div className="font-medium">{user.email}</div>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  <Calendar className="h-4 w-4 text-gray-500" />
+                                  <div>
+                                    <div className="text-sm text-gray-500">Membro desde</div>
+                                    <div className="font-medium">
+                                      {user.created_at ? new Date(user.created_at).toLocaleDateString('pt-BR') : 'N/A'}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  <MapPin className="h-4 w-4 text-gray-500" />
+                                  <div>
+                                    <div className="text-sm text-gray-500">Localização</div>
+                                    <div className="font-medium">Não informada</div>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  <Globe className="h-4 w-4 text-gray-500" />
+                                  <div>
+                                    <div className="text-sm text-gray-500">Status</div>
+                                    <div className="font-medium">
+                                      {user.email_confirmed_at ? (
+                                        <Badge variant="default" className="bg-green-100 text-green-800">
+                                          Verificado
+                                        </Badge>
+                                      ) : (
+                                        <Badge variant="secondary">
+                                          Pendente
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+
+                          {/* Quick Actions Card */}
+                          <Card>
+                            <CardHeader>
+                              <CardTitle>Ações Rápidas</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <Button variant="outline" className="h-auto p-4 flex flex-col gap-2">
+                                  <Edit className="h-6 w-6" />
+                                  <span className="text-sm">Editar Perfil</span>
+                                </Button>
+                                <Button variant="outline" className="h-auto p-4 flex flex-col gap-2">
+                                  <Camera className="h-6 w-6" />
+                                  <span className="text-sm">Alterar Foto</span>
+                                </Button>
+                                <Button variant="outline" className="h-auto p-4 flex flex-col gap-2">
+                                  <Settings className="h-6 w-6" />
+                                  <span className="text-sm">Configurações</span>
+                                </Button>
+                                <Button variant="outline" className="h-auto p-4 flex flex-col gap-2">
+                                  <Shield className="h-6 w-6" />
+                                  <span className="text-sm">Privacidade</span>
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      )}
+                    </div>
+                  )
                 case "settings":
                   return (
-                    <div className="p-4 bg-blue-100 rounded">
-                      <h2 className="text-2xl font-bold mb-4">Configurações</h2>
-                      <p>Redirecionando para a página de configurações...</p>
-                      <Button onClick={() => window.location.href = '/settings'}>
-                        Ir para Configurações
-                      </Button>
+                    <div className="min-h-screen">
+                      <div className="flex items-center mb-4">
+                        <Button variant="ghost" onClick={goBack} className="mr-4">
+                          ← Voltar
+                        </Button>
+                        <h1 className="text-2xl font-bold">Configurações</h1>
+                      </div>
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
+                        <div className="text-center">
+                          <Settings className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+                          <h2 className="text-xl font-bold mb-2">Configurações</h2>
+                          <p className="text-gray-600 dark:text-gray-400 mb-4">
+                            Seção de configurações em desenvolvimento...
+                          </p>
+                          <div className="flex justify-center space-x-4">
+                            <Button variant="outline">
+                              <User className="h-4 w-4 mr-2" />
+                              Perfil
+                            </Button>
+                            <Button variant="outline">
+                              <Shield className="h-4 w-4 mr-2" />
+                              Privacidade
+                            </Button>
+                            <Button variant="outline">
+                              <Bell className="h-4 w-4 mr-2" />
+                              Notificações
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   )
                 default:
@@ -786,12 +1213,12 @@ export default function Timeline() {
           }}
           onViewEvent={(eventId: string) => {
             console.log("Visualizando evento:", eventId)
-            window.location.href = `/events?id=${eventId}`
+            navigateToEvents()
             // Aqui você pode implementar a navegação para o evento específico
           }}
           onSearch={(query: string) => {
             console.log("Buscando:", query)
-            window.location.href = `/search?q=${encodeURIComponent(query)}`
+            navigateToSearch()
             // Aqui você pode implementar a busca
           }}
         />
@@ -830,12 +1257,12 @@ export default function Timeline() {
 
       {/* Mobile Navigation */}
       <MobileNav
-        onProfileClick={() => window.location.href = '/profile'}
-        onSettingsClick={() => window.location.href = '/settings'}
-        onMessagesClick={() => window.location.href = '/messages'}
-        onNotificationsClick={() => window.location.href = '/notificacoes'}
-        onEventsClick={() => window.location.href = '/events'}
-        onCommunitiesClick={() => window.location.href = '/communities'}
+        onProfileClick={() => navigateToProfile("voce")}
+        onSettingsClick={navigateToSettings}
+        onMessagesClick={navigateToMessages}
+        onNotificationsClick={navigateToNotifications}
+        onEventsClick={navigateToEvents}
+        onCommunitiesClick={navigateToCommunities}
         onSavedContentClick={() => setActiveView("saved")}
         onProfileSearchClick={() => setActiveView("explore")}
         onCreatePostClick={() => setPostModalOpen(true)}

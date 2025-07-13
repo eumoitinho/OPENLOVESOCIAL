@@ -67,6 +67,41 @@ const config: Config = {
           900: "#831843",
           950: "#500724",
         },
+        // Chat theme colors for light/dark mode
+        chat: {
+          bg: {
+            light: "#FFFFFF",
+            dark: "#0f0f23",
+          },
+          bgSecondary: {
+            light: "#f8fafc",
+            dark: "#1a1a2e",
+          },
+          text: {
+            light: "#1e293b",
+            dark: "#f1f5f9",
+          },
+          textSecondary: {
+            light: "#64748b",
+            dark: "#94a3b8",
+          },
+          border: {
+            light: "#e2e8f0",
+            dark: "#334155",
+          },
+          primary: {
+            light: "#ec4899",
+            dark: "#f472b6",
+          },
+          muted: {
+            light: "#f1f5f9",
+            dark: "#334155",
+          },
+          accent: {
+            light: "#fce7f3",
+            dark: "#831843",
+          },
+        },
         // Extended color palette
         rose: {
           50: "#fff1f2",

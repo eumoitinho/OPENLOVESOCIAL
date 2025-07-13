@@ -2,14 +2,14 @@ import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 import type { Database } from "@/app/lib/database.types"
+import { verifyAuth } from "@/app/lib/auth-helpers"
 
 export async function POST(request: Request) {
   const supabase = createRouteHandlerClient<Database>({ cookies })
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
+  
+  // Verificar autenticação e timeout de sessão
+  const { user, error: authError } = await verifyAuth()
+  if (authError || !user) {
     // Don't return an error, just fail silently
     return NextResponse.json({ success: false })
   }

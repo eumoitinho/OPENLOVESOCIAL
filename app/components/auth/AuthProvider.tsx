@@ -4,6 +4,7 @@ import type React from "react"
 import { createContext, useContext, useEffect, useState } from "react"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import type { User, Session } from "@supabase/supabase-js"
+import { useRouter } from "next/navigation"
 
 interface Profile {
   id: string
@@ -15,6 +16,7 @@ interface Profile {
   interests: string[]
   created_at: string
   updated_at: string
+  plano?: string
 }
 
 interface AuthContextType {
@@ -45,21 +47,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
 
   const supabase = createClientComponentClient()
 
+  // Função para verificar timeout de sessão
+  const checkSessionTimeout = (session: Session | null) => {
+    if (!session) return false
+    
+    const tokenExp = session.expires_at ? session.expires_at * 1000 : 0
+    const currentTime = Date.now()
+    const maxSessionAge = 5 * 60 * 60 * 1000 // 5 horas em milissegundos
+    
+    // Se o token expirou ou a sessão tem mais de 5 horas
+    if (tokenExp && currentTime > tokenExp) {
+      console.log("[AuthProvider] Sessão expirada, fazendo logout")
+      return true
+    }
+    
+    return false
+  }
+
   const fetchProfile = async (userId: string) => {
     try {
+      console.log("[AuthProvider] Buscando perfil para usuário:", userId)
       const { data, error } = await supabase.from("users").select("*").eq("id", userId).single()
 
       if (error) {
-        console.error("Error fetching profile:", error)
+        console.error("[AuthProvider] Error fetching profile:", error)
         return null
       }
 
+      console.log("[AuthProvider] Perfil encontrado:", data)
       return data
     } catch (error) {
-      console.error("Error fetching profile:", error)
+      console.error("[AuthProvider] Error fetching profile:", error)
       return null
     }
   }
@@ -85,18 +107,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signOut = async () => {
     try {
+      console.log("[AuthProvider] Fazendo logout...")
       await supabase.auth.signOut()
       setUser(null)
       setProfile(null)
       setSession(null)
+      // Redirecionar para página inicial após logout
+      router.push("/")
     } catch (error) {
-      console.error("Error signing out:", error)
+      console.error("[AuthProvider] Error signing out:", error)
     }
   }
 
   useEffect(() => {
     const getInitialSession = async () => {
       try {
+        console.log("[AuthProvider] Iniciando getInitialSession...")
+        console.log("[AuthProvider] URL atual:", typeof window !== "undefined" ? window.location.pathname : "server")
+        
+        // Primeiro, tentar obter a sessão atual
         const {
           data: { session },
           error,
@@ -108,13 +137,53 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           return
         }
 
-        setSession(session)
-        setUser(session?.user ?? null)
-        console.log("[AuthProvider] Sessão inicial:", session)
+        console.log("[AuthProvider] Sessão obtida:", session ? "Sim" : "Não")
+        console.log("[AuthProvider] User ID:", session?.user?.id)
+        console.log("[AuthProvider] User Email:", session?.user?.email)
+        console.log("[AuthProvider] Session expires_at:", session?.expires_at)
+        console.log("[AuthProvider] Current time:", Date.now())
 
-        if (session?.user) {
-          const profileData = await fetchProfile(session.user.id)
-          setProfile(profileData)
+        // Verificar timeout de sessão
+        if (checkSessionTimeout(session)) {
+          console.log("[AuthProvider] Sessão expirada, fazendo logout")
+          await signOut()
+          setLoading(false)
+          return
+        }
+
+        // Se não há sessão, tentar refresh
+        if (!session) {
+          console.log("[AuthProvider] Nenhuma sessão encontrada, tentando refresh...")
+          const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession()
+          
+          if (refreshError) {
+            console.log("[AuthProvider] Erro no refresh:", refreshError.message)
+            setLoading(false)
+            return
+          }
+          
+          if (refreshedSession) {
+            console.log("[AuthProvider] Sessão refreshada com sucesso")
+            setSession(refreshedSession)
+            setUser(refreshedSession.user)
+            
+            if (refreshedSession.user) {
+              const profileData = await fetchProfile(refreshedSession.user.id)
+              setProfile(profileData)
+            }
+          }
+        } else {
+          // Sessão válida encontrada
+          setSession(session)
+          setUser(session.user)
+          console.log("[AuthProvider] Sessão inicial definida:", session)
+
+          if (session.user) {
+            console.log("[AuthProvider] Buscando perfil para usuário:", session.user.id)
+            const profileData = await fetchProfile(session.user.id)
+            setProfile(profileData)
+            console.log("[AuthProvider] Perfil carregado:", profileData ? "Sim" : "Não")
+          }
         }
       } catch (error) {
         console.error("[AuthProvider] Error in getInitialSession (catch):", error)
@@ -131,25 +200,79 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("[AuthProvider] Auth state changed:", event, session?.user?.id)
+      console.log("[AuthProvider] Event type:", event)
+      console.log("[AuthProvider] Session exists:", !!session)
+      console.log("[AuthProvider] User email:", session?.user?.email)
+      console.log("[AuthProvider] URL atual:", typeof window !== "undefined" ? window.location.pathname : "server")
+
+      // Verificar timeout de sessão
+      if (checkSessionTimeout(session)) {
+        console.log("[AuthProvider] Sessão expirada no onAuthStateChange, fazendo logout")
+        await signOut()
+        return
+      }
 
       setSession(session)
       setUser(session?.user ?? null)
 
       if (session?.user) {
+        console.log("[AuthProvider] Buscando perfil para usuário:", session.user.id)
         const profileData = await fetchProfile(session.user.id)
         setProfile(profileData)
+        console.log("[AuthProvider] Perfil carregado:", profileData ? "Sim" : "Não")
+        
+        // Verificar se precisa redirecionar
+        if (typeof window !== "undefined") {
+          const currentPath = window.location.pathname
+          console.log("[AuthProvider] Verificando redirecionamento - Path atual:", currentPath)
+          
+          // Se está em uma rota que usuários logados não devem acessar
+          if (["/", "/auth/signin", "/auth/signup"].includes(currentPath)) {
+            console.log("[AuthProvider] Usuário logado em rota protegida, redirecionando para /home")
+            // Usar window.location.href para forçar o redirecionamento
+            window.location.href = "/home"
+          }
+        }
       } else {
+        console.log("[AuthProvider] Nenhum usuário na sessão, limpando perfil")
         setProfile(null)
       }
 
       setLoading(false)
       console.log("[AuthProvider] Loading finalizado (onAuthStateChange)")
+      console.log("[AuthProvider] Estado final - User:", !!session?.user, "Profile:", !!profile)
     })
 
     return () => {
       subscription.unsubscribe()
     }
   }, [supabase.auth])
+
+  // Verificar timeout periodicamente (a cada 5 minutos)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (session && checkSessionTimeout(session)) {
+        signOut()
+      }
+    }, 5 * 60 * 1000) // 5 minutos
+
+    return () => clearInterval(interval)
+  }, [session])
+
+  // Verificar redirecionamento quando o usuário é carregado
+  useEffect(() => {
+    if (!loading && user && typeof window !== "undefined") {
+      const currentPath = window.location.pathname
+      console.log("[AuthProvider] Verificando redirecionamento após carregamento - Path:", currentPath)
+      
+      // Se está em uma rota que usuários logados não devem acessar
+      if (["/", "/auth/signin", "/auth/signup"].includes(currentPath)) {
+        console.log("[AuthProvider] Usuário logado em rota protegida após carregamento, redirecionando para /home")
+        // Usar window.location.href para forçar o redirecionamento
+        window.location.href = "/home"
+      }
+    }
+  }, [loading, user])
 
   const value: AuthContextType = {
     user,

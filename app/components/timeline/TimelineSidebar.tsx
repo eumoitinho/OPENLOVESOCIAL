@@ -45,10 +45,30 @@ interface TimelineSidebarProps {
   setActiveView: (view: string) => void
   onNavigateToSettings?: () => void
   onNavigateToProfiles?: () => void
+  onNavigateToEvents?: () => void
+  onNavigateToCommunities?: () => void
+  onNavigateToMessages?: () => void
+  onNavigateToNotifications?: () => void
+  onNavigateToFriends?: () => void
+  onNavigateToSearch?: () => void
   onCreatePost?: () => void
 }
 
-export function TimelineSidebar({ isDarkMode, onToggleTheme, activeView, setActiveView, onNavigateToSettings, onNavigateToProfiles, onCreatePost }: TimelineSidebarProps) {
+export function TimelineSidebar({ 
+  isDarkMode, 
+  onToggleTheme, 
+  activeView, 
+  setActiveView, 
+  onNavigateToSettings, 
+  onNavigateToProfiles, 
+  onNavigateToEvents,
+  onNavigateToCommunities,
+  onNavigateToMessages,
+  onNavigateToNotifications,
+  onNavigateToFriends,
+  onNavigateToSearch,
+  onCreatePost 
+}: TimelineSidebarProps) {
   const { user, signOut } = useAuth()
   
 
@@ -330,6 +350,27 @@ export function TimelineSidebar({ isDarkMode, onToggleTheme, activeView, setActi
               "text-base xs:text-lg transition-all hidden lg:inline",
               activeView === "saved" ? "font-bold text-gray-900 dark:text-white" : "font-normal text-gray-600 dark:text-gray-400"
             )}>Salvos</span> 
+          </Button>
+          
+          <Button 
+            variant="ghost" 
+            className={cn(
+              "w-full justify-start gap-3 xs:gap-4 text-left h-11 xs:h-12 px-3 xs:px-4 rounded-full transition-all duration-200",
+              activeView === "my-profile" && "bg-transparent"
+            )}
+            onClick={() => {
+              console.log("Clicou em Meu Perfil - Definindo view para my-profile")
+              setActiveView("my-profile")
+            }}
+          > 
+            <User className={cn(
+              "w-5 h-5 xs:w-6 xs:h-6 transition-colors",
+              activeView === "my-profile" ? "text-pink-600 dark:text-pink-400" : "text-gray-600 dark:text-gray-400"
+            )} /> 
+            <span className={cn(
+              "text-base xs:text-lg transition-all hidden lg:inline",
+              activeView === "my-profile" ? "font-bold text-gray-900 dark:text-white" : "font-normal text-gray-600 dark:text-gray-400"
+            )}>Meu Perfil</span> 
           </Button>
           
           <Button 

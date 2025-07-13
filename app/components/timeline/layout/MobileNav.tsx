@@ -13,9 +13,11 @@ import {
   Settings,
   Feather,
   Heart,
+  LogOut,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/app/components/auth/AuthProvider"
 
 const navItems = [
   { id: "home", label: "Timeline", icon: Home },
@@ -26,9 +28,10 @@ const navItems = [
   { id: "communities", label: "Comunidades", icon: Users },
   { id: "open-dates", label: "Open Dates", icon: Heart },
   { id: "saved", label: "Salvos", icon: Bookmark },
-  { id: "profile", label: "Perfil", icon: User },
+  { id: "my-profile", label: "Meu Perfil", icon: User },
   { id: "settings", label: "Configurações", icon: Settings },
-  { id: "create-post", label: "Criar Post", icon: Feather }, // Botão de criar post após Configurações
+  { id: "create-post", label: "Criar Post", icon: Feather },
+  { id: "logout", label: "Sair", icon: LogOut },
 ]
 
 interface MobileNavProps {
@@ -62,6 +65,8 @@ export function MobileNav({
   activeView = "home",
   setActiveView,
 }: MobileNavProps) {
+  const { signOut } = useAuth()
+
   const handleItemClick = (itemId: string) => {
     if (setActiveView) setActiveView(itemId)
 
@@ -74,8 +79,8 @@ export function MobileNav({
       case "messages":
         onMessagesClick?.()
         break
-      case "profile":
-        onNavigateToProfiles?.()
+      case "my-profile":
+        // Navega para o perfil do usuário logado
         break
       case "notifications":
         onNotificationsClick?.()
@@ -98,6 +103,9 @@ export function MobileNav({
       case "create-post":
         onCreatePostClick?.()
         break
+      case "logout":
+        signOut()
+        break
     }
   }
 
@@ -114,8 +122,9 @@ export function MobileNav({
           size="icon"
           className={cn(
             "rounded-full h-12 w-12",
-            activeView === item.id && item.id !== "create-post" && "bg-pink-100 text-pink-600 dark:bg-gray-800 dark:text-pink-400",
-            item.id === "create-post" && "bg-gradient-to-r from-pink-600 to-purple-600 text-white hover:from-pink-700 hover:to-purple-700"
+            activeView === item.id && item.id !== "create-post" && item.id !== "logout" && "bg-pink-100 text-pink-600 dark:bg-gray-800 dark:text-pink-400",
+            item.id === "create-post" && "bg-gradient-to-r from-pink-600 to-purple-600 text-white hover:from-pink-700 hover:to-purple-700",
+            item.id === "logout" && "text-red-500 hover:bg-red-100 dark:hover:bg-red-900/20 hover:text-red-600"
           )}
           onClick={() => handleItemClick(item.id)}
           aria-label={item.label}

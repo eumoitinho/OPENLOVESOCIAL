@@ -59,8 +59,8 @@ export default function DashboardClient({ user, profile }: DashboardClientProps)
       const [friendsRes, postsRes, likesRes, viewsRes, earningsRes] = await Promise.all([
         supabase.from("friends").select("id", { count: "exact" }).eq("user_id", user.id).eq("status", "accepted"),
         supabase.from("posts").select("id", { count: "exact" }).eq("user_id", user.id),
-        supabase.from("post_interactions").select("id", { count: "exact" }).eq("user_id", user.id).eq("type", "like"),
-        supabase.from("profile_views").select("id", { count: "exact" }).eq("viewed_user_id", user.id),
+        supabase.from("likes").select("id", { count: "exact" }).eq("user_id", user.id).eq("type", "like"),
+        supabase.from("profile_views").select("id", { count: "exact" }).eq("viewed_profile_id", user.id),
         supabase.from("user_earnings").select("total_earnings").eq("user_id", user.id).single(),
       ])
 

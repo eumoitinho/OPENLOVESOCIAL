@@ -37,23 +37,27 @@ interface CreatePostDialogProps {
   onCreatePost: () => void
 }
 
-export function CreatePostDialog({
+export const CreatePostDialog = React.memo(function CreatePostDialog({
   isOpen,
   onOpenChange,
   newPost,
   onNewPostChange,
   onCreatePost,
 }: CreatePostDialogProps) {
-  const handleFieldChange = (field: keyof NewPostState, value: any) => {
+  const handleFieldChange = React.useCallback((field: keyof NewPostState, value: any) => {
     onNewPostChange({ ...newPost, [field]: value })
-  }
+  }, [newPost, onNewPostChange])
 
-  const handleEventDetailChange = (field: keyof NewPostState["eventDetails"], value: any) => {
+  const handleEventDetailChange = React.useCallback((field: keyof NewPostState["eventDetails"], value: any) => {
     onNewPostChange({
       ...newPost,
       eventDetails: { ...newPost.eventDetails, [field]: value },
     })
-  }
+  }, [newPost, onNewPostChange])
+
+  const handleContentChange = React.useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    handleFieldChange("content", e.target.value)
+  }, [handleFieldChange])
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -65,7 +69,7 @@ export function CreatePostDialog({
           <Plus className="h-6 w-6" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-lg bg-white">
+      <DialogContent className="max-w-lg bg-white" style={{ direction: 'ltr', unicodeBidi: 'normal' }}>
         <DialogHeader>
           <DialogTitle className="text-openlove-800">Criar Novo Post</DialogTitle>
           <DialogDescription className="text-openlove-600">
@@ -73,11 +77,23 @@ export function CreatePostDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
-          <Textarea
+          <textarea
             placeholder="O que está acontecendo?"
             value={newPost.content}
-            onChange={(e) => handleFieldChange("content", e.target.value)}
-            className="min-h-[100px] border-openlove-300 focus:ring-openlove-500"
+            onChange={handleContentChange}
+            className="min-h-[100px] w-full resize-none border-0 focus-visible:ring-0 text-base bg-transparent outline-none post-modal-textarea border border-openlove-300 focus:ring-openlove-500"
+            maxLength={2000}
+            spellCheck="false"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            style={{
+              direction: 'ltr',
+              unicodeBidi: 'normal',
+              textAlign: 'left',
+              writingMode: 'horizontal-tb',
+              textOrientation: 'mixed'
+            }}
           />
           <div className="flex items-center space-x-2">
             <Switch
@@ -153,4 +169,4 @@ export function CreatePostDialog({
       </DialogContent>
     </Dialog>
   )
-}
+})

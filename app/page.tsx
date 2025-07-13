@@ -12,14 +12,23 @@ export default function OpenLoveLanding() {
   const [scrollY, setScrollY] = useState(0)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [isHoveringDesignElement, setIsHoveringDesignElement] = useState(false)
+  const [sessionExpired, setSessionExpired] = useState(false)
   const scrollRef = useRef<NodeJS.Timeout | null>(null)
   const mouseRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Check system preference on initial load
+  // Check system preference on initial load and session status
   useEffect(() => {
     if (typeof window !== "undefined") {
       const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
       setIsDarkMode(prefersDark)
+      
+      // Verificar se a sessão expirou
+      const urlParams = new URLSearchParams(window.location.search)
+      if (urlParams.get("session") === "expired") {
+        setSessionExpired(true)
+        // Limpar o parâmetro da URL
+        window.history.replaceState({}, document.title, window.location.pathname)
+      }
     }
   }, [])
 
@@ -160,6 +169,20 @@ export default function OpenLoveLanding() {
 
       {/* Main Content */}
       <main className="relative z-10">
+        {/* Session Expired Notification */}
+        {sessionExpired && (
+          <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 animate-in slide-in-from-top-2 duration-300">
+            <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+            <span className="text-sm font-medium">Sua sessão expirou. Faça login novamente para continuar.</span>
+            <button 
+              onClick={() => setSessionExpired(false)}
+              className="text-white/80 hover:text-white transition-colors"
+            >
+              ×
+            </button>
+          </div>
+        )}
+        
         {/* Responsive Navigation */}
         <nav className="fixed top-4 md:top-8 right-4 md:right-8 z-50" role="navigation" aria-label="Main navigation">
           <div className="flex items-center gap-3 md:gap-6">

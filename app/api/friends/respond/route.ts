@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
 
     if (accept) {
       // Accept the request
-      const { error } = await supabase.from("friendships").update({ status: "accepted" }).eq("id", request_id)
+      const { error } = await supabase.from("friends").update({ status: "accepted" }).eq("id", request_id)
 
       if (error) {
         console.error("Error accepting friend request:", error)
@@ -27,13 +27,13 @@ export async function POST(request: NextRequest) {
 
       // Create reciprocal friendship
       const { data: request_data } = await supabase
-        .from("friendships")
+        .from("friends")
         .select("user_id, friend_id")
         .eq("id", request_id)
         .single()
 
       if (request_data) {
-        await supabase.from("friendships").insert({
+        await supabase.from("friends").insert({
           user_id: request_data.friend_id,
           friend_id: request_data.user_id,
           status: "accepted",
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
       }
     } else {
       // Reject the request
-      const { error } = await supabase.from("friendships").delete().eq("id", request_id)
+      const { error } = await supabase.from("friends").delete().eq("id", request_id)
 
       if (error) {
         console.error("Error rejecting friend request:", error)

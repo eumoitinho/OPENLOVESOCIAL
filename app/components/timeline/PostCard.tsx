@@ -80,6 +80,7 @@ interface PostCardProps {
     name: string
     username: string
     avatar: string
+    id?: string
   }
 }
 
@@ -224,20 +225,22 @@ export default function PostCard({
           </div>
         </div>
         <div className="flex items-center gap-1.5 xs:gap-2">
-          <Button
-            variant={followState === "following" ? "secondary" : "outline"}
-            size="sm"
-            onClick={handleFollow}
-            className={cn(
-              "transition-all duration-200 text-xs",
-              "border-gray-300 dark:border-gray-600 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200",
-              followState === "requested" && "bg-yellow-100/10 text-yellow-600 dark:text-yellow-400 border-yellow-300/50 dark:border-yellow-400/30 hover:bg-yellow-100/20",
-              followState === "following" && "bg-green-100/10 text-green-600 dark:text-green-400 border-green-300/50 dark:border-green-400/30 hover:bg-green-100/20",
-            )}
-          >
-            {getFollowButtonIcon()}
-            {getFollowButtonText()}
-          </Button>
+          {currentUser.id !== post.user.id && (
+            <Button
+              variant={followState === "following" ? "secondary" : "outline"}
+              size="sm"
+              onClick={handleFollow}
+              className={cn(
+                "transition-all duration-200 text-xs",
+                "border-gray-300 dark:border-gray-600 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200",
+                followState === "requested" && "bg-yellow-100/10 text-yellow-600 dark:text-yellow-400 border-yellow-300/50 dark:border-yellow-400/30 hover:bg-yellow-100/20",
+                followState === "following" && "bg-green-100/10 text-green-600 dark:text-green-400 border-green-300/50 dark:border-green-400/30 hover:bg-green-100/20",
+              )}
+            >
+              {getFollowButtonIcon()}
+              {getFollowButtonText()}
+            </Button>
+          )}
           <Button variant="ghost" size="icon" aria-label="Toggle menu" className="text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800">
             <EllipsisIcon className="size-4" />
           </Button>

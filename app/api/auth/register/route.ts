@@ -45,7 +45,36 @@ export async function POST(req: NextRequest) {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    // 1. Criar usuário no Supabase Auth
+    // 1. Verificar se o username já existe
+    const { data: existingUser, error: checkError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('username', username)
+      .single()
+
+    if (existingUser) {
+      return NextResponse.json(
+        { error: "Nome de usuário já está em uso" },
+        { status: 400 }
+      )
+    }
+
+    // 2. Verificar se o email já existe
+    const { data: existingEmail, error: emailCheckError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', email)
+      .single()
+
+    if (existingEmail) {
+      return NextResponse.json(
+        { error: "Email já está em uso" },
+        { status: 400 }
+      )
+    }
+
+    // 3. Criar usuário no Supabase Auth
+    console.log("Criando usuário no Supabase Auth...")
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email,
       password,
@@ -53,11 +82,11 @@ export async function POST(req: NextRequest) {
       user_metadata: {
         username,
         full_name: `${firstName} ${lastName}`,
-      },
+      }
     })
 
     if (authError) {
-      console.error("Erro ao criar usuário:", authError)
+      console.error("Erro ao criar usuário no Auth:", authError)
       return NextResponse.json(
         { error: "Erro ao criar usuário: " + authError.message },
         { status: 400 }
@@ -70,6 +99,8 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       )
     }
+
+    console.log("Usuário criado no Auth com sucesso:", authData.user.id)
 
     // Função para garantir que arrays sejam válidos
     const ensureArray = (value: any): string[] => {
@@ -88,7 +119,8 @@ export async function POST(req: NextRequest) {
       return [];
     };
 
-    // 2. Criar perfil completo no banco de dados - inserção direta
+    // 4. Criar perfil completo no banco de dados
+    console.log("Criando perfil na tabela users...")
     const profileData = {
       id: authData.user.id,
       email,
@@ -108,8 +140,6 @@ export async function POST(req: NextRequest) {
       longitude: longitude ? parseFloat(longitude) : null,
       plano: plan || 'free',
       status_assinatura: plan === "free" ? "authorized" : "pending",
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
       partner: profileType === "couple" && partner ? partner : null,
       // Campos obrigatórios da tabela users
       is_premium: false,
@@ -134,7 +164,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Usar função com permissões adequadas para inserir usuário
+    // 5. Inserir perfil na tabela users usando service role
     const { data: insertResult, error: profileError } = await supabase
       .from('users')
       .insert([profileData])
@@ -143,13 +173,38 @@ export async function POST(req: NextRequest) {
     if (profileError) {
       console.error("Erro ao criar perfil:", profileError)
       // Se falhar ao criar perfil, deletar o usuário criado
-      await supabase.auth.admin.deleteUser(authData.user.id)
+      try {
+        await supabase.auth.admin.deleteUser(authData.user.id)
+        console.log("Usuário deletado do Auth após falha na criação do perfil")
+      } catch (deleteError) {
+        console.error("Erro ao deletar usuário após falha:", deleteError)
+      }
       return NextResponse.json(
         { error: "Erro ao criar perfil do usuário: " + profileError.message },
         { status: 500 }
       )
     }
 
+    console.log("Perfil criado com sucesso:", insertResult)
+
+    // 6. Se for plano pago, criar registro de assinatura
+    if (plan && plan !== "free") {
+      const { error: subscriptionError } = await supabase
+        .from('subscriptions')
+        .insert([{
+          user_id: authData.user.id,
+          plan: plan,
+          status: 'pending',
+          created_at: new Date().toISOString()
+        }])
+
+      if (subscriptionError) {
+        console.error("Erro ao criar assinatura:", subscriptionError)
+        // Não falhar o cadastro por causa disso, apenas logar o erro
+      }
+    }
+
+    // 7. Retornar sucesso
     return NextResponse.json({
       success: true,
       user: {
@@ -158,13 +213,14 @@ export async function POST(req: NextRequest) {
         username,
         plan: plan || 'free',
         status_assinatura: plan === "free" ? "authorized" : "pending"
-      }
+      },
+      message: "Conta criada com sucesso!"
     })
 
   } catch (error) {
     console.error("Erro no registro:", error)
     return NextResponse.json(
-      { error: "Erro interno do servidor" },
+      { error: "Erro interno do servidor: " + (error as Error).message },
       { status: 500 }
     )
   }

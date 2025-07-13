@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     const { user_id: targetUserId } = await request.json()
 
     // Get user's profile_id
-    const { data: profile } = await supabase.from("users").select("id").eq("user_id", user.id).single()
+    const { data: profile } = await supabase.from("users").select("id").eq("id", user.id).single()
 
     if (!profile) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 })
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
 
     // Check if friendship already exists
     const { data: existing } = await supabase
-      .from("friendships")
+      .from("friends")
       .select("id")
       .or(
         `and(user_id.eq.${profile.id},friend_id.eq.${targetUserId}),and(user_id.eq.${targetUserId},friend_id.eq.${profile.id})`,
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create friend request
-    const { error } = await supabase.from("friendships").insert({
+    const { error } = await supabase.from("friends").insert({
       user_id: profile.id,
       friend_id: targetUserId,
       status: "pending",

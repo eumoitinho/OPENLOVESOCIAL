@@ -5,102 +5,35 @@ import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { User, Mail, Calendar, MapPin, Globe, Camera, Upload } from "lucide-react"
+import { User, Mail, Calendar, MapPin, Globe } from "lucide-react"
 import SignOut from "../components/auth/SignOut"
-import MediaUpload from "../components/media/MediaUpload"
-import MediaGallery from "../components/media/MediaGallery"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
-import type { Database } from "../lib/database.types"
 
-type Profile = Database["public"]["Tables"]["profiles"]["Row"]
-type Media = Database["public"]["Tables"]["media"]["Row"]
+// Definir tipos baseados na tabela users
+type Profile = {
+  id: string
+  email: string
+  username: string
+  name: string
+  first_name?: string
+  last_name?: string
+  bio?: string
+  avatar_url?: string
+  location?: string
+  birth_date?: string
+  interests?: string[]
+  created_at: string
+  updated_at: string
+}
 
 interface ProfileContentProps {
   user: SupabaseUser
   profile: Profile | null
-  initialMedia: Media[]
+  initialMedia: any[]
 }
 
 const ProfileContent: React.FC<ProfileContentProps> = ({ user, profile, initialMedia }) => {
-  const [media, setMedia] = useState<Media[]>(initialMedia)
-  const [showUpload, setShowUpload] = useState(false)
-  const [uploadError, setUploadError] = useState<string | null>(null)
-  const [uploadSuccess, setUploadSuccess] = useState<string | null>(null)
   const router = useRouter()
-
-  const handleUploadSuccess = (newMedia: any) => {
-    setMedia((prev) => [newMedia, ...prev])
-    setUploadSuccess("Mídia enviada com sucesso!")
-    setUploadError(null)
-    setTimeout(() => setUploadSuccess(null), 3000)
-
-    // Se for foto de perfil, recarregar a página para atualizar o header
-    if (newMedia.isProfilePicture) {
-      router.refresh()
-    }
-  }
-
-  const handleUploadError = (error: string) => {
-    setUploadError(error)
-    setUploadSuccess(null)
-  }
-
-  const handleDeleteMedia = async (mediaId: string) => {
-    try {
-      const response = await fetch(`/api/upload?id=${mediaId}`, {
-        method: "DELETE",
-      })
-
-      if (!response.ok) {
-        const result = await response.json()
-        throw new Error(result.error || "Erro ao deletar mídia")
-      }
-
-      setMedia((prev) => prev.filter((item) => item.id !== mediaId))
-      setUploadSuccess("Mídia removida com sucesso!")
-      setTimeout(() => setUploadSuccess(null), 3000)
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Erro ao deletar mídia"
-      setUploadError(errorMessage)
-    }
-  }
-
-  const handleSetProfilePicture = async (mediaId: string) => {
-    try {
-      const response = await fetch("/api/profile/picture", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ mediaId }),
-      })
-
-      if (!response.ok) {
-        const result = await response.json()
-        throw new Error(result.error || "Erro ao definir foto de perfil")
-      }
-
-      // Atualizar estado local
-      setMedia((prev) =>
-        prev.map((item) => ({
-          ...item,
-          is_profile_picture: item.id === mediaId,
-        })),
-      )
-
-      setUploadSuccess("Foto de perfil atualizada!")
-      setTimeout(() => setUploadSuccess(null), 3000)
-
-      // Recarregar página para atualizar header
-      router.refresh()
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Erro ao definir foto de perfil"
-      setUploadError(errorMessage)
-    }
-  }
-
-  const profilePicture = media.find((item) => item.is_profile_picture)
-  const otherMedia = media.filter((item) => !item.is_profile_picture)
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -110,21 +43,21 @@ const ProfileContent: React.FC<ProfileContentProps> = ({ user, profile, initialM
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center">
               <Link href="/" className="text-2xl font-bold text-blue-600">
-                ConnectHub
+                OpenLove
               </Link>
             </div>
             <div className="flex items-center space-x-4">
+              <Link
+                href="/home"
+                className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Home
+              </Link>
               <Link
                 href="/dashboard"
                 className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
               >
                 Dashboard
-              </Link>
-              <Link
-                href="/communities"
-                className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Comunidades
               </Link>
               <SignOut />
             </div>
@@ -135,43 +68,26 @@ const ProfileContent: React.FC<ProfileContentProps> = ({ user, profile, initialM
       {/* Main Content */}
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
-          {/* Mensagens de feedback */}
-          {uploadSuccess && (
-            <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
-              {uploadSuccess}
-            </div>
-          )}
-          {uploadError && (
-            <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">{uploadError}</div>
-          )}
-
           {/* Profile Header */}
           <div className="bg-white overflow-hidden shadow rounded-lg mb-6">
             <div className="px-4 py-5 sm:p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <div className="flex-shrink-0 relative">
-                    {profilePicture ? (
+                    {profile?.avatar_url ? (
                       <img
                         className="h-20 w-20 rounded-full object-cover"
-                        src={profilePicture.url || "/placeholder.svg"}
-                        alt={profile?.full_name || "Foto de perfil"}
+                        src={profile.avatar_url}
+                        alt={profile?.name || "Foto de perfil"}
                       />
                     ) : (
                       <div className="h-20 w-20 rounded-full bg-blue-100 flex items-center justify-center">
                         <User className="h-10 w-10 text-blue-600" />
                       </div>
                     )}
-                    <button
-                      onClick={() => setShowUpload(!showUpload)}
-                      className="absolute -bottom-1 -right-1 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition-colors"
-                      title="Alterar foto de perfil"
-                    >
-                      <Camera className="h-4 w-4" />
-                    </button>
                   </div>
                   <div className="ml-6">
-                    <h1 className="text-2xl font-bold text-gray-900">{profile?.full_name || user.email}</h1>
+                    <h1 className="text-2xl font-bold text-gray-900">{profile?.name || user.email}</h1>
                     <p className="text-gray-600">@{profile?.username}</p>
                     {profile?.bio && <p className="text-gray-700 mt-2">{profile.bio}</p>}
                   </div>
@@ -205,11 +121,9 @@ const ProfileContent: React.FC<ProfileContentProps> = ({ user, profile, initialM
                 <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                   <dt className="text-sm font-medium text-gray-500 flex items-center">
                     <User className="h-4 w-4 mr-2" />
-                    Nome completo
+                    Nome de usuário
                   </dt>
-                  <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {profile?.full_name || "Não informado"}
-                  </dd>
+                  <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">@{profile?.username}</dd>
                 </div>
                 {profile?.location && (
                   <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
@@ -220,99 +134,46 @@ const ProfileContent: React.FC<ProfileContentProps> = ({ user, profile, initialM
                     <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{profile.location}</dd>
                   </div>
                 )}
-                {profile?.website && (
+                {profile?.birth_date && (
                   <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                     <dt className="text-sm font-medium text-gray-500 flex items-center">
-                      <Globe className="h-4 w-4 mr-2" />
-                      Website
+                      <Calendar className="h-4 w-4 mr-2" />
+                      Data de nascimento
                     </dt>
                     <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                      <a
-                        href={profile.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-500"
-                      >
-                        {profile.website}
-                      </a>
+                      {new Date(profile.birth_date).toLocaleDateString('pt-BR')}
                     </dd>
                   </div>
                 )}
-                <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                  <dt className="text-sm font-medium text-gray-500 flex items-center">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    Membro desde
-                  </dt>
-                  <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                    {new Date(profile?.created_at || user.created_at).toLocaleDateString("pt-BR")}
-                  </dd>
-                </div>
+                {profile?.interests && profile.interests.length > 0 && (
+                  <div className="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt className="text-sm font-medium text-gray-500 flex items-center">
+                      <Globe className="h-4 w-4 mr-2" />
+                      Interesses
+                    </dt>
+                    <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                      <div className="flex flex-wrap gap-2">
+                        {profile.interests.map((interest, index) => (
+                          <span
+                            key={index}
+                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                          >
+                            {interest}
+                          </span>
+                        ))}
+                      </div>
+                    </dd>
+                  </div>
+                )}
               </dl>
             </div>
           </div>
 
-          {/* Upload Section */}
-          {showUpload && (
-            <div className="bg-white shadow rounded-lg mb-6">
-              <div className="px-4 py-5 sm:p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg leading-6 font-medium text-gray-900">Upload de Mídia</h3>
-                  <button onClick={() => setShowUpload(false)} className="text-gray-400 hover:text-gray-600">
-                    ×
-                  </button>
-                </div>
-                <MediaUpload
-                  onUploadSuccess={handleUploadSuccess}
-                  onUploadError={handleUploadError}
-                  maxFiles={5} onUpload={function (files: File[]): Promise<void> {
-                    throw new Error("Function not implemented.")
-                  } }                />
-              </div>
-            </div>
-          )}
-
-          {/* Media Gallery */}
+          {/* Mídia temporariamente desabilitada */}
           <div className="bg-white shadow rounded-lg">
             <div className="px-4 py-5 sm:p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg leading-6 font-medium text-gray-900">
-                  Minha Mídia ({media.length} {media.length === 1 ? "arquivo" : "arquivos"})
-                </h3>
-                <button
-                  onClick={() => setShowUpload(!showUpload)}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload
-                </button>
-              </div>
-              <MediaGallery
-                items={media.map((item) => ({
-                  id: item.id,
-                  url: item.url,
-                  type: item.file_type,
-                  size: item.file_size,
-                  dimensions: { width: item.width ?? 0, height: item.height ?? 0 },
-                  createdAt: item.created_at,
-                  filename: item.filename,
-                  originalName: item.original_name,
-                  mimeType: item.mime_type,
-                  isProfilePicture: item.is_profile_picture,
-                  author: {
-                    id: profile?.id || "",
-                    name: profile?.full_name || user.email || "",
-                    avatar: profilePicture?.url || "",
-                  },
-                  stats: {
-                    likes: 0,
-                    downloads: 0,
-                    shares: 0,
-                    views: 0,
-                  },
-                }))}
-                onDelete={handleDeleteMedia}
-                columns={4}
-              />
+              <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Galeria de Mídia</h3>
+              <p className="text-gray-500">Funcionalidade de mídia será implementada em breve.</p>
             </div>
           </div>
         </div>

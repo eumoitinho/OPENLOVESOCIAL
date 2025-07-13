@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user's profile_id
-    const { data: profile } = await supabase.from("users").select("id").eq("user_id", user.id).single()
+    const { data: profile } = await supabase.from("users").select("id").eq("id", user.id).single()
 
     if (!profile) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 })
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 
     // Get friends
     const { data: friendships, error } = await supabase
-      .from("friendships")
+      .from("friends")
       .select(`
         friend_id,
         profiles!friendships_friend_id_fkey (

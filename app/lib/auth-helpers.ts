@@ -37,6 +37,37 @@ export function createClientSupabaseClient() {
   return createBrowserClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
 }
 
+// Função helper para verificar autenticação e timeout de sessão
+export async function verifyAuth() {
+  const supabase = await createServerSupabaseClient()
+
+  try {
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.getSession()
+
+    if (error || !session) {
+      return { user: null, error: "Unauthorized" }
+    }
+
+    // Verificar timeout de sessão (5 horas)
+    const tokenExp = session.expires_at ? session.expires_at * 1000 : 0
+    const currentTime = Date.now()
+    
+    if (tokenExp && currentTime > tokenExp) {
+      // Sessão expirada, fazer logout
+      await supabase.auth.signOut()
+      return { user: null, error: "Session expired" }
+    }
+
+    return { user: session.user, error: null }
+  } catch (error) {
+    console.error("Error in verifyAuth:", error)
+    return { user: null, error: "Authentication error" }
+  }
+}
+
 export async function getAuthenticatedUser() {
   const supabase = await createServerSupabaseClient()
 
@@ -62,16 +93,18 @@ export async function getUserProfile(userId: string) {
   const supabase = await createServerSupabaseClient()
 
   try {
+    console.log("[getUserProfile] Buscando perfil para usuário:", userId)
     const { data: profile, error } = await supabase.from("users").select("*").eq("id", userId).single()
 
     if (error) {
-      console.error("Error getting user profile:", error)
+      console.error("[getUserProfile] Erro ao buscar perfil:", error)
       return null
     }
 
+    console.log("[getUserProfile] Perfil encontrado:", profile)
     return profile
   } catch (error) {
-    console.error("Error in getUserProfile:", error)
+    console.error("[getUserProfile] Erro inesperado:", error)
     return null
   }
 }

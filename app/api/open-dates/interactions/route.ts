@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
             // Buscar informações do outro usuário
             const otherUserId = matchInfo.user1_id === user.id ? matchInfo.user2_id : matchInfo.user1_id
             const { data: otherUser } = await supabase
-              .from('profiles')
+              .from('users')
               .select('full_name, avatar_url')
               .eq('id', otherUserId)
               .single()

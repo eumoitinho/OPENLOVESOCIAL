@@ -4,8 +4,8 @@ import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 
 export const metadata: Metadata = {
-  title: "Perfil - ConnectHub",
-  description: "Gerencie seu perfil e mídia no ConnectHub",
+  title: "Perfil - OpenLove",
+  description: "Gerencie seu perfil no OpenLove",
 }
 
 export default async function ProfilePage() {
@@ -16,15 +16,22 @@ export default async function ProfilePage() {
   const profile = await getUserProfile(user.id)
   const supabase = await createServerSupabaseClient()
 
-  // Buscar mídia do usuário
-  const { data: media, error: mediaError } = await supabase
-    .from("media")
-    .select("*")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
+  // Buscar mídia do usuário (se a tabela media existir)
+  let media = []
+  try {
+    const { data: mediaData, error: mediaError } = await supabase
+      .from("media")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
 
-  if (mediaError) {
-    console.error("Erro ao buscar mídia:", mediaError)
+    if (!mediaError && mediaData) {
+      media = mediaData
+    } else {
+      console.log("Tabela media não encontrada ou erro ao buscar mídia:", mediaError)
+    }
+  } catch (error) {
+    console.log("Erro ao buscar mídia:", error)
   }
 
   return <ProfileContent user={user} profile={profile} initialMedia={media || []} />
