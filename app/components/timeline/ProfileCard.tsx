@@ -68,16 +68,16 @@ export default function ProfileCard({ profile, onFollow, onSave }: ProfileCardPr
           <p className="text-xs sm:text-sm text-muted-foreground font-medium truncate">{profile.username}</p>
 
           {/* Tags */}
-          {profile.tags && profile.tags.length > 0 && (
+          {profile.tags && (profile.tags || []).length > 0 && (
             <div className="flex flex-wrap justify-center gap-1 mt-1 sm:mt-2">
               {profile.tags.slice(0, 2).map((tag: string, index: number) => (
                 <Badge key={index} variant="secondary" className="text-xs px-1.5 py-0.5">
                   {tag}
                 </Badge>
               ))}
-              {profile.tags.length > 2 && (
+              {(profile.tags || []).length > 2 && (
                 <Badge variant="outline" className="text-xs px-1.5 py-0.5">
-                  +{profile.tags.length - 2}
+                  +{(profile.tags || []).length - 2}
                 </Badge>
               )}
             </div>

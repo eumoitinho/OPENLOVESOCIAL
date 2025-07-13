@@ -191,7 +191,7 @@ export function NotificationsDialog({ open, onOpenChange }: NotificationsDialogP
     return true
   })
 
-  const unreadCount = notifications.filter(n => !n.isRead).length
+  const unreadCount = (notifications || []).filter(n => !n.isRead).length
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -236,9 +236,9 @@ export function NotificationsDialog({ open, onOpenChange }: NotificationsDialogP
             <TabsList className="grid w-full grid-cols-4 mx-2 sm:mx-4 mt-2 sm:mt-4">
               <TabsTrigger value="all" className="flex items-center gap-1 text-xs">
                 Todas
-                {notifications.length > 0 && (
+                {(notifications || []).length > 0 && (
                   <Badge variant="secondary" className="text-xs px-1 py-0.5">
-                    {notifications.length}
+                    {(notifications || []).length}
                   </Badge>
                 )}
               </TabsTrigger>
@@ -255,14 +255,14 @@ export function NotificationsDialog({ open, onOpenChange }: NotificationsDialogP
             </TabsList>
 
             <div className="mt-2 sm:mt-4 overflow-y-auto max-h-[60vh] space-y-1 sm:space-y-2 px-2 sm:px-4">
-              {filteredNotifications.length === 0 ? (
+              {(filteredNotifications || []).length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <Bell className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-2 sm:mb-4 opacity-50" />
                   <p className="text-sm sm:text-lg font-medium">Nenhuma notificação</p>
                   <p className="text-xs sm:text-sm">Você está em dia com tudo!</p>
                 </div>
               ) : (
-                filteredNotifications.map((notification) => (
+                (filteredNotifications || []).map((notification) => (
                   <Card
                     key={notification.id}
                     className={cn(

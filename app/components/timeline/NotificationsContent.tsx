@@ -142,7 +142,7 @@ export function NotificationsContent() {
     return true
   })
 
-  const unreadCount = notifications.filter(n => !n.is_read).length
+  const unreadCount = (notifications || []).filter(n => !n.is_read).length
 
   if (loading) {
     return (
@@ -202,9 +202,9 @@ export function NotificationsContent() {
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="all" className="flex items-center gap-1">
             Todas
-            {notifications.length > 0 && (
+            {(notifications || []).length > 0 && (
               <Badge variant="secondary" className="text-xs px-1 py-0.5">
-                {notifications.length}
+                {(notifications || []).length}
               </Badge>
             )}
           </TabsTrigger>
@@ -226,12 +226,12 @@ export function NotificationsContent() {
 
         <TabsContent value="all" className="mt-6">
           <div className="space-y-4">
-            {filteredNotifications.length === 0 ? (
+            {(filteredNotifications || []).length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 Nenhuma notificação encontrada
               </div>
             ) : (
-              filteredNotifications.map((notification) => (
+              (filteredNotifications || []).map((notification) => (
                 <Card
                   key={notification.id}
                   className={cn(
@@ -285,12 +285,12 @@ export function NotificationsContent() {
 
         <TabsContent value="unread" className="mt-6">
           <div className="space-y-4">
-            {filteredNotifications.length === 0 ? (
+            {(filteredNotifications || []).length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 Nenhuma notificação não lida
               </div>
             ) : (
-              filteredNotifications.map((notification) => (
+              (filteredNotifications || []).map((notification) => (
                 <Card
                   key={notification.id}
                   className={cn(
@@ -344,12 +344,12 @@ export function NotificationsContent() {
 
         <TabsContent value="mentions" className="mt-6">
           <div className="space-y-4">
-            {filteredNotifications.length === 0 ? (
+            {(filteredNotifications || []).length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 Nenhuma menção encontrada
               </div>
             ) : (
-              filteredNotifications.map((notification) => (
+              (filteredNotifications || []).map((notification) => (
                 <Card
                   key={notification.id}
                   className={cn(
@@ -403,12 +403,12 @@ export function NotificationsContent() {
 
         <TabsContent value="events" className="mt-6">
           <div className="space-y-4">
-            {filteredNotifications.length === 0 ? (
+            {(filteredNotifications || []).length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 Nenhum evento encontrado
               </div>
             ) : (
-              filteredNotifications.map((notification) => (
+              (filteredNotifications || []).map((notification) => (
                 <Card
                   key={notification.id}
                   className={cn(

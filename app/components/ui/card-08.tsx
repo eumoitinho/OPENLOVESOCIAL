@@ -100,9 +100,9 @@ export default function Card08({
         </div>
 
         {/* Tags */}
-        {tags && tags.length > 0 && (
+        {(tags || []).length > 0 && (
           <div className="absolute top-3 left-3 flex flex-wrap gap-1">
-            {tags.slice(0, 2).map((tag, index) => (
+            {(tags || []).slice(0, 2).map((tag, index) => (
               <span
                 key={index}
                 className="px-2 py-1 rounded-lg text-xs font-medium bg-white/20 backdrop-blur-md text-white border border-white/30"
@@ -110,9 +110,9 @@ export default function Card08({
                 {tag}
               </span>
             ))}
-            {tags.length > 2 && (
+            {(tags || []).length > 2 && (
               <span className="px-2 py-1 rounded-lg text-xs font-medium bg-white/20 backdrop-blur-md text-white border border-white/30">
-                +{tags.length - 2}
+                +{(tags || []).length - 2}
               </span>
             )}
           </div>
