@@ -2,9 +2,7 @@ import { getCurrentUser } from "@/app/lib/auth-helpers"
 import AdminContent from "./AdminContent"
 import { redirect } from "next/navigation"
 import type { Metadata } from "next"
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs"
-import { cookies } from "next/headers"
-import type { Database } from "@/app/lib/database.types"
+import { createServerComponentClient } from "@/app/lib/supabase-server"
 
 
 
@@ -19,7 +17,7 @@ export default async function AdminPage() {
     redirect("/auth/signin")
   }
 
-  const supabase = createServerComponentClient<Database>({ cookies })
+  const supabase = await createServerComponentClient()
   // Buscar perfil do usuário na tabela profiles
   const { data: profile } = await supabase
     .from("profiles")
