@@ -1,38 +1,73 @@
-import { NextResponse } from "next/server"
-import { createRouteHandlerClient } from "@/app/lib/supabase-server"
-import { cookies } from "next/headers"
+import { NextRequest, NextResponse } from "next/server"
+import { createClient } from "@supabase/supabase-js"
 
 export async function POST(
-  request: Request,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = await createRouteHandlerClient()
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
     
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
+
     // Verificar autenticação
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const authHeader = req.headers.get('authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json({ error: "Token de autenticação necessário" }, { status: 401 })
+    }
+
+    const token = authHeader.replace('Bearer ', '')
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    
     if (authError || !user) {
-      return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+      return NextResponse.json({ error: "Token inválido" }, { status: 401 })
     }
 
     const notificationId = params.id
 
     // Marcar notificação como lida
     const { data, error } = await supabase
-      .from("notifications")
-      .update({ is_read: true })
-      .eq("id", notificationId)
-      .eq("user_id", user.id)
+      .from('notifications')
+      .update({ 
+        is_read: true,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', notificationId)
+      .eq('user_id', user.id)
       .select()
 
     if (error) {
       console.error("Erro ao marcar notificação como lida:", error)
-      return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+      return NextResponse.json(
+        { error: "Erro ao atualizar notificação" },
+        { status: 500 }
+      )
     }
 
-    return NextResponse.json({ success: true, data })
+    if (!data || data.length === 0) {
+      return NextResponse.json(
+        { error: "Notificação não encontrada" },
+        { status: 404 }
+      )
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Notificação marcada como lida",
+      notification: data[0]
+    })
+
   } catch (error) {
-    console.error("Erro na API de marcar notificação como lida:", error)
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+    console.error("Erro no endpoint de marcar notificação como lida:", error)
+    return NextResponse.json(
+      { error: "Erro interno do servidor" },
+      { status: 500 }
+    )
   }
 } 
