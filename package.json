@@ -12,7 +12,10 @@
     "release:patch": "node scripts/release.js patch",
     "release:minor": "node scripts/release.js minor",
     "release:major": "node scripts/release.js major",
-    "changelog": "node scripts/generate-changelog.js"
+    "changelog": "node scripts/generate-changelog.js",
+    "auto-release:check": "node scripts/auto-release.js --check",
+    "auto-release": "node scripts/auto-release.js --release",
+    "auto-release:help": "node scripts/auto-release.js --help"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "latest",

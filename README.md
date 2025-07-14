@@ -175,6 +175,66 @@ Se você encontrar problemas ao cadastrar novos usuários, execute o script de c
 
 **Documentação completa:** [docs/REGISTRATION_FIX.md](docs/REGISTRATION_FIX.md)
 
+## 🚀 Sistema de Release Automático
+
+### Como Usar
+
+O projeto agora possui um sistema de release automático que detecta códigos de versão nos commits e atualiza automaticamente a versão, changelog e README.
+
+#### Códigos de Versão Suportados
+
+| Código | Descrição | Exemplo de Versão |
+|--------|-----------|-------------------|
+| `[alphamajor]` | Incrementa major + alpha.1 | `1.0.0-alpha.1` |
+| `[alphaminor]` | Incrementa minor + alpha.1 | `0.3.0-alpha.1` |
+| `[alphapatch]` | Incrementa patch + alpha.1 | `0.2.1-alpha.1` |
+| `[alpha]` | Incrementa alpha atual | `0.2.0-alpha.3` |
+| `[betamajor]` | Incrementa major + beta.1 | `1.0.0-beta.1` |
+| `[betaminor]` | Incrementa minor + beta.1 | `0.3.0-beta.1` |
+| `[betapatch]` | Incrementa patch + beta.1 | `0.2.1-beta.1` |
+| `[beta]` | Incrementa beta atual | `0.2.0-beta.3` |
+| `[major]` | Incrementa major version | `1.0.0` |
+| `[minor]` | Incrementa minor version | `0.3.0` |
+| `[patch]` | Incrementa patch version | `0.2.1` |
+
+#### Exemplos de Commits
+
+```bash
+# Nova funcionalidade importante
+git commit -m "feat: sistema de chat em tempo real [alphamajor]"
+
+# Correção de bug
+git commit -m "fix: correção no sistema de autenticação [alphaminor]"
+
+# Atualização de dependências
+git commit -m "chore: atualização de dependências [alpha]"
+
+# Mudança incompatível
+git commit -m "feat: refatoração completa da API [major]"
+```
+
+#### Comandos Disponíveis
+
+```bash
+# Verificar commits recentes para códigos de versão
+pnpm run auto-release:check
+
+# Executar release automático
+pnpm run auto-release
+
+# Ver ajuda
+pnpm run auto-release:help
+```
+
+#### O que é Atualizado Automaticamente
+
+- ✅ **package.json**: Versão atualizada
+- ✅ **README.md**: Badge com nova versão
+- ✅ **CHANGELOG.md**: Histórico de mudanças
+- ✅ **Commits categorizados**: Features, fixes, chores, breaking changes
+
+---
+
 ## 🔧 Correção de Problemas Críticos (ÚLTIMA ATUALIZAÇÃO)
 
 ### Problemas Identificados e Soluções
