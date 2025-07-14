@@ -116,7 +116,9 @@ function updateReadme(newVersion) {
   
   // Atualizar badge do OpenLove
   const badgeRegex = /!\[OpenLove Logo\]\(https:\/\/img\.shields\.io\/badge\/OpenLove-[^)]+\)/;
-  const newBadge = `![OpenLove Logo](https://img.shields.io/badge/OpenLove-v${newVersion.replace(/\./g, '--')}-pink?style=for-the-badge&logo=heart&logoColor=white)`;
+  // Formatar versão para URL do shields.io (substituir pontos por hífens e caracteres especiais)
+  const versionForUrl = newVersion.replace(/\./g, '-').replace(/-alpha-/, '--alpha--').replace(/-beta-/, '--beta--');
+  const newBadge = `![OpenLove Logo](https://img.shields.io/badge/OpenLove-v${versionForUrl}-pink?style=for-the-badge&logo=heart&logoColor=white)`;
   
   if (badgeRegex.test(readmeContent)) {
     readmeContent = readmeContent.replace(badgeRegex, newBadge);
