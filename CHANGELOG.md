@@ -1,3 +1,33 @@
+## [0.3.0-alpha.1] - 2025-07-14
+
+### ✨ Features
+
+- feat: implementar sistema de release automático com códigos de versão [alphaminor] (b5437e3)
+
+### 🐛 Fixes
+
+- fix: corrigir erro de build relacionado ao import de createServerComponentClient em auth-helpers (31ee4be)
+
+### 🔧 Chores
+
+- chore: update version to 0.2.0-alpha.2 in package.json (ad2bc9c)
+
+### 📝 Outros
+
+- refactor: atualizar caminho de importação do cliente Supabase para 'supabase-server' em auth-helpers (e4024f8)
+- refactor: update Supabase client initialization in AdminPage (a30b5c4)
+- refactor: update Supabase client initialization to include cookies in AdminPage (fe9da31)
+- refactor: update import path for createServerComponentClient in AdminPage (cca7dc5)
+- refactor: replace createServerSupabaseClient with createServerComponentClient in ProfilePage (89c2085)
+- refactor: integrate Vercel Analytics into RootLayout component (3a71f85)
+- refactor: replace createServerComponentClient with createRouteHandlerClient in AdminPage (0dadd9b)
+- refactor: update Supabase client initialization to use async/await across API routes (2027290)
+- refactor: update Supabase client import and initialization across API routes (affa5a5)
+- refactor: clean up AdminPage component structure and improve readability (ec727b4)
+- Refactor Supabase client initialization (bd04768)
+- refactor: add logging for user profile update in PUT request handler (d777dbe)
+- refactor: update image upload size limit to 10MB and improve error handling for uploads (3727164)
+
 # Changelog
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
