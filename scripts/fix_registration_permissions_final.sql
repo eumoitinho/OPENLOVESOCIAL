@@ -26,10 +26,12 @@ GRANT EXECUTE ON FUNCTION uuid_generate_v4() TO service_role;
 
 -- 8. Verificar e corrigir permissões de sequências se existirem
 DO $$
+DECLARE
+    seq_record RECORD;
 BEGIN
     -- Dar permissões em todas as sequências do schema public
-    FOR seq IN SELECT sequence_name FROM information_schema.sequences WHERE sequence_schema = 'public' LOOP
-        EXECUTE 'GRANT USAGE, SELECT ON SEQUENCE public.' || seq.sequence_name || ' TO service_role';
+    FOR seq_record IN SELECT sequence_name FROM information_schema.sequences WHERE sequence_schema = 'public' LOOP
+        EXECUTE 'GRANT USAGE, SELECT ON SEQUENCE public.' || seq_record.sequence_name || ' TO service_role';
     END LOOP;
 END $$;
 
