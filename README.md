@@ -1,6 +1,32 @@
-# OpenLove - Plataforma de Conexões
+# 🌹 OpenLove - Plataforma Social para Conexões Autênticas
 
-Uma plataforma moderna de networking social focada em conectar pessoas através de interesses compartilhados, eventos e comunidades.
+<div align="center">
+
+![OpenLove Logo](https://img.shields.io/badge/OpenLove-v0.2.0--alpha.2-pink?style=for-the-badge&logo=heart&logoColor=white)
+
+**Uma plataforma social moderna para casais e pessoas que buscam conexões autênticas, eventos locais e uma comunidade segura com abordagem liberal e familiar.**
+
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-Database-green?style=flat-square&logo=supabase)](https://supabase.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
+[![shadcn/ui](https://img.shields.io/badge/shadcn/ui-Components-000?style=flat-square)](https://ui.shadcn.com/)
+
+[📖 Docs](https://docs.openlove.com) • [🐛 Issues](https://github.com/openlove/issues) • [💬 Discord](https://discord.gg/openlove)
+
+</div>
+
+---
+
+## 🎯 **Visão Geral**
+
+ConnectHub é uma plataforma social inovadora que conecta casais e pessoas em busca de relacionamentos autênticos, amizades e eventos locais. Com foco em segurança, respeito e liberdade de expressão, oferecemos um ambiente moderado onde usuários podem:
+
+- 💕 **Conectar-se** com casais e pessoas afins
+- 🎉 **Participar** de eventos locais e workshops
+- 💬 **Conversar** em tempo real com sistema de chat avançado
+- 🔒 **Navegar** com segurança em ambiente moderado
+- ⭐ **Acessar** recursos premium para experiência completa
 
 ## 🚀 Funcionalidades Principais
 
@@ -153,7 +179,17 @@ Se você encontrar problemas ao cadastrar novos usuários, execute o script de c
 
 ### Problemas Identificados e Soluções
 
-#### 1. Sistema de Notificações com Mock
+#### 1. Erro de Build: createServerComponentClient is not a function
+**Status**: ✅ **CORRIGIDO**
+- Corrigido import incorreto em `auth-helpers.ts`
+- Atualizado import de `'./supabase'` para `'./supabase-server'`
+- Build agora funciona corretamente
+
+**Solução:**
+- O arquivo `app/lib/auth-helpers.ts` estava importando de um arquivo placeholder
+- Corrigido para importar de `'./supabase-server'` onde a função está definida
+
+#### 2. Sistema de Notificações com Mock
 **Status**: ✅ **CORRIGIDO**
 - Removido sistema de notificações mockado
 - Implementado sistema real com banco de dados
