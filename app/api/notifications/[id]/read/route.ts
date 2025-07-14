@@ -1,38 +1,57 @@
-import { NextResponse } from "next/server"
-import { createRouteHandlerClient } from "@/app/lib/supabase-server"
+import { NextRequest, NextResponse } from "next/server"
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 import { cookies } from "next/headers"
 
 export async function POST(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = await createRouteHandlerClient()
-    
+    const supabase = await createRouteHandlerClient({ cookies })
+
     // Verificar autenticação
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+
     if (authError || !user) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
     const notificationId = params.id
 
-    // Marcar notificação como lida
-    const { data, error } = await supabase
-      .from("notifications")
-      .update({ is_read: true })
-      .eq("id", notificationId)
-      .eq("user_id", user.id)
-      .select()
+    // Verificar se a notificação pertence ao usuário
+    const { data: notification, error: fetchError } = await supabase
+      .from('notifications')
+      .select('id, user_id')
+      .eq('id', notificationId)
+      .eq('user_id', user.id)
+      .single()
 
-    if (error) {
-      console.error("Erro ao marcar notificação como lida:", error)
-      return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+    if (fetchError || !notification) {
+      return NextResponse.json({ error: "Notificação não encontrada" }, { status: 404 })
     }
 
-    return NextResponse.json({ success: true, data })
+    // Marcar notificação como lida
+    const { error } = await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('id', notificationId)
+      .eq('user_id', user.id)
+
+    if (error) {
+      console.error('Erro ao marcar notificação como lida:', error)
+      return NextResponse.json({ error: "Erro ao marcar notificação como lida" }, { status: 500 })
+    }
+
+    return NextResponse.json({ 
+      success: true, 
+      message: "Notificação marcada como lida" 
+    })
+
   } catch (error) {
-    console.error("Erro na API de marcar notificação como lida:", error)
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+    console.error("Error marking notification as read:", error)
+    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
   }
 } 
