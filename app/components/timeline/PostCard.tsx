@@ -95,12 +95,121 @@ export default function PostCard({
   followState = "follow",
   currentUser = { name: "Usuário", username: "@usuario", avatar: "/placeholder.svg" }
 }: PostCardProps) {
+  // Estados básicos
   const [commentsOpen, setCommentsOpen] = useState(false)
   const [mediaViewerOpen, setMediaViewerOpen] = useState(false)
   const [shareDialogOpen, setShareDialogOpen] = useState(false)
   const [profileViewerOpen, setProfileViewerOpen] = useState(false)
   const [selectedMediaIndex, setSelectedMediaIndex] = useState(0)
+  
+  // Estados para as correções
+  const [loadedComments, setLoadedComments] = useState<any[]>([])
+  const [loadingComments, setLoadingComments] = useState(false)
+  const [loadingSave, setLoadingSave] = useState(false)
+  const [loadingLike, setLoadingLike] = useState(false)
+
   const router = useRouter()
+
+  // Função para buscar comentários
+  const fetchComments = async (postId: string) => {
+    if (loadingComments) return
+    
+    setLoadingComments(true)
+    try {
+      console.log("[PostCard] Buscando comentários do post:", postId)
+      const response = await fetch(`/api/posts/${postId}/comments`)
+      if (response.ok) {
+        const result = await response.json()
+        setLoadedComments(result.data || [])
+        console.log("[PostCard] Comentários carregados:", result.data?.length || 0)
+      } else {
+        console.error("Erro ao buscar comentários")
+        setLoadedComments([])
+      }
+    } catch (error) {
+      console.error("Erro ao buscar comentários:", error)
+      setLoadedComments([])
+    } finally {
+      setLoadingComments(false)
+    }
+  }
+
+  // Função para adicionar comentário
+  const handleAddComment = async (content: string) => {
+    try {
+      console.log("[PostCard] Adicionando comentário:", content)
+      const response = await fetch("/api/interactions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          type: "comment", 
+          postId: post.id, 
+          content 
+        })
+      })
+      
+      if (response.ok) {
+        const result = await response.json()
+        
+        // Adicionar novo comentário à lista
+        const newComment = {
+          id: result.data.id,
+          content: result.data.content,
+          timestamp: result.data.createdAt,
+          likes: 0,
+          isLiked: false,
+          author: result.data.author
+        }
+        
+        setLoadedComments(prev => [...prev, newComment])
+        console.log("[PostCard] Comentário adicionado com sucesso")
+        
+        // Chamar callback do componente pai se existir
+        onComment?.(post.id)
+      } else {
+        console.error("Erro ao adicionar comentário")
+        throw new Error("Erro ao adicionar comentário")
+      }
+    } catch (error) {
+      console.error("Erro ao adicionar comentário:", error)
+      throw error
+    }
+  }
+
+  // Função para curtir comentário
+  const handleLikeComment = async (commentId: string) => {
+    try {
+      console.log("[PostCard] Curtindo comentário:", commentId)
+      const response = await fetch("/api/interactions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          type: "like", 
+          postId: commentId, // Para comentários, usar ID do comentário
+          targetType: "comment"
+        })
+      })
+      
+      if (response.ok) {
+        const result = await response.json()
+        const isLiked = result.action === "liked"
+        
+        // Atualizar o comentário específico
+        setLoadedComments(prev => prev.map(comment => 
+          comment.id === commentId
+            ? {
+                ...comment,
+                isLiked,
+                likes: isLiked ? comment.likes + 1 : comment.likes - 1
+              }
+            : comment
+        ))
+      }
+    } catch (error) {
+      console.error("Erro ao curtir comentário:", error)
+    }
+  }
+
   const getFollowButtonText = () => {
     switch (followState) {
       case "requested":
@@ -123,12 +232,63 @@ export default function PostCard({
     }
   }
 
-  const handleLike = () => {
-    onLike?.(post.id)
+  const handleLike = async () => {
+    if (loadingLike) return
+    
+    setLoadingLike(true)
+    try {
+      console.log("[PostCard] Curtindo/descurtindo post:", post.id)
+      const response = await fetch("/api/interactions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          type: "like", 
+          postId: post.id 
+        })
+      })
+      
+      if (response.ok) {
+        const result = await response.json()
+        console.log("[PostCard] Resultado do like:", result.action)
+        
+        // Chamar callback do componente pai
+        onLike?.(post.id)
+      } else {
+        console.error("Erro ao curtir post")
+      }
+    } catch (error) {
+      console.error("Erro ao curtir post:", error)
+    } finally {
+      setLoadingLike(false)
+    }
   }
 
-  const handleSave = () => {
-    onSave?.(post.id)
+  const handleSave = async () => {
+    if (loadingSave) return
+    
+    setLoadingSave(true)
+    try {
+      console.log("[PostCard] Salvando/removendo post:", post.id)
+      const response = await fetch("/api/posts/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId: post.id })
+      })
+      
+      if (response.ok) {
+        const result = await response.json()
+        console.log("[PostCard] Resultado do save:", result.action)
+        
+        // Chamar callback do componente pai
+        onSave?.(post.id)
+      } else {
+        console.error("Erro ao salvar post")
+      }
+    } catch (error) {
+      console.error("Erro ao salvar post:", error)
+    } finally {
+      setLoadingSave(false)
+    }
   }
 
   const handleFollow = () => {
@@ -136,7 +296,9 @@ export default function PostCard({
   }
 
   const handleComment = () => {
+    console.log("[PostCard] Abrindo comentários do post:", post.id)
     setCommentsOpen(true)
+    fetchComments(post.id.toString())
   }
 
   const handleShare = () => {
@@ -160,25 +322,6 @@ export default function PostCard({
     const username = post.user?.username?.replace('@','') || 'usuario'
     router.push(`/profile/${username}`)
   }
-
-  // Remover qualquer array de exemplo, valores fixos ou mocks de comentários, curtidas, etc.
-  // Garantir que todos os dados exibidos venham de props.post
-  const comments = Array.isArray(post.comments)
-    ? post.comments.map((comment: any) => ({
-        id: comment.id,
-        author: {
-          name: comment.author?.name || "Usuário",
-          username: comment.author?.username || "@usuario",
-          avatar: comment.author?.avatar || "/placeholder.svg",
-          verified: comment.author?.verified || false,
-          premium: comment.author?.premium || false,
-        },
-        content: comment.content,
-        timestamp: comment.timestamp,
-        likes: comment.likes || 0,
-        isLiked: comment.liked || false,
-      }))
-    : []
 
   return (
     <Card className="max-w-full bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 shadow-sm transition-colors">
@@ -225,7 +368,7 @@ export default function PostCard({
           </div>
         </div>
         <div className="flex items-center gap-1.5 xs:gap-2">
-          {currentUser.id !== post.user.id && (
+          {currentUser.id !== post.user?.username && (
             <Button
               variant={followState === "following" ? "secondary" : "outline"}
               size="sm"
@@ -246,6 +389,7 @@ export default function PostCard({
           </Button>
         </div>
       </CardHeader>
+      
       <CardContent className="px-3 xs:px-4 pb-3 xs:pb-4 space-y-3 xs:space-y-4 text-xs xs:text-sm">
         <p className="leading-relaxed text-gray-800 dark:text-gray-300">{post.content}</p>
         
@@ -276,13 +420,26 @@ export default function PostCard({
           </div>
         )}
       </CardContent>
+      
       <CardFooter className="flex justify-between items-center p-3 xs:p-4 border-t border-gray-100 dark:border-gray-800">
         <div className="flex items-center gap-1 xs:gap-1.5 sm:gap-2">
-          <Button variant="ghost" size="sm" onClick={handleLike} className="text-gray-500 dark:text-gray-400 hover:bg-red-100/50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleLike}
+            disabled={loadingLike}
+            className="text-gray-500 dark:text-gray-400 hover:bg-red-100/50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400"
+          >
             <Heart className={cn("w-4 h-4 mr-1 xs:mr-1.5", post.liked && "fill-red-500 text-red-500")} />
             <span className="text-xs">{post.likes}</span>
           </Button>
-          <Button variant="ghost" size="sm" onClick={handleComment} className="text-gray-500 dark:text-gray-400 hover:bg-sky-100/50 dark:hover:bg-sky-900/20 hover:text-sky-600 dark:hover:text-sky-400">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleComment}
+            disabled={loadingComments}
+            className="text-gray-500 dark:text-gray-400 hover:bg-sky-100/50 dark:hover:bg-sky-900/20 hover:text-sky-600 dark:hover:text-sky-400"
+          >
             <MessageCircleIcon className="w-4 h-4 mr-1 xs:mr-1.5" />
             <span className="text-xs">{post.comments}</span>
           </Button>
@@ -291,52 +448,76 @@ export default function PostCard({
             <span className="hidden sm:inline text-xs">Compartilhar</span>
           </Button>
         </div>
-        <Button variant="ghost" size="sm" onClick={handleSave} className="text-gray-500 dark:text-gray-400 hover:bg-amber-100/50 dark:hover:bg-amber-900/20 hover:text-amber-600 dark:hover:text-amber-400">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={handleSave}
+          disabled={loadingSave}
+          className="text-gray-500 dark:text-gray-400 hover:bg-amber-100/50 dark:hover:bg-amber-900/20 hover:text-amber-600 dark:hover:text-amber-400"
+        >
           <Save className={cn("w-4 h-4", post.saved && "fill-amber-400 text-amber-500")} />
-          <span className="hidden sm:inline text-xs ml-1 xs:ml-1.5">Salvar</span>
+          <span className="hidden sm:inline text-xs ml-1 xs:ml-1.5">
+            {loadingSave ? "..." : "Salvar"}
+          </span>
         </Button>
       </CardFooter>
 
       {/* Dialogs Corrigidos */}
-      {commentsOpen && <CommentsDialog 
-        isOpen={commentsOpen} 
-        onClose={() => setCommentsOpen(false)} 
-        postId={post.id.toString()} 
-        postAuthor={post.user || { name: "Usuário", username: "@usuario", avatar: "/placeholder.svg" }}
-        postContent={post.content}
-        comments={comments} 
-        onAddComment={(content) => console.log("Add comment:", content)}
-        onLikeComment={(commentId) => console.log("Like comment:", commentId)}
-      />}
+      {commentsOpen && (
+        <CommentsDialog 
+          isOpen={commentsOpen} 
+          onClose={() => setCommentsOpen(false)} 
+          postId={post.id.toString()} 
+          postAuthor={{
+            name: post.user?.name || "Usuário",
+            username: post.user?.username || "@usuario", 
+            avatar: post.user?.avatar || "/placeholder.svg",
+            verified: post.user?.verified || false,
+            premium: post.user?.premium || false
+          }}
+          postContent={post.content}
+          comments={loadedComments} // ✅ Usar comentários carregados da API
+          onAddComment={handleAddComment} // ✅ Usar função real
+          onLikeComment={handleLikeComment} // ✅ Usar função real
+        />
+      )}
       
-      {mediaViewerOpen && <MediaViewer 
-        isOpen={mediaViewerOpen} 
-        onClose={() => setMediaViewerOpen(false)}
-        media={(post.images || (post.video ? [post.video] : [])).map((url, index) => ({ id: `${post.id}-${index}`, type: url.endsWith('.mp4') ? 'video' : 'image', url }))}
-        initialIndex={selectedMediaIndex} 
-        postAuthor={post.user || { name: "Usuário", username: "@usuario", avatar: "/placeholder.svg" }}
-        postContent={post.content}
-        postTimestamp={post.timestamp}
-        currentUser={currentUser}
-        onLike={() => onLike?.(post.id)}
-        onComment={() => onComment?.(post.id)}
-        onShare={() => onShare?.(post.id)}
-        isLiked={post.liked}
-        likes={post.likes}
-        comments={post.comments}
-      />}
+      {mediaViewerOpen && (
+        <MediaViewer 
+          isOpen={mediaViewerOpen} 
+          onClose={() => setMediaViewerOpen(false)}
+          media={(post.images || (post.video ? [post.video] : [])).map((url, index) => ({ 
+            id: `${post.id}-${index}`, 
+            type: url.endsWith('.mp4') ? 'video' : 'image', 
+            url 
+          }))}
+          initialIndex={selectedMediaIndex} 
+          postAuthor={post.user || { name: "Usuário", username: "@usuario", avatar: "/placeholder.svg" }}
+          postContent={post.content}
+          postTimestamp={post.timestamp}
+          currentUser={currentUser}
+          onLike={() => handleLike()}
+          onComment={() => handleComment()}
+          onShare={() => handleShare()}
+          isLiked={post.liked}
+          likes={post.likes}
+          comments={post.comments}
+        />
+      )}
       
-      {shareDialogOpen && <ShareDialog 
-        isOpen={shareDialogOpen} 
-        onClose={() => setShareDialogOpen(false)} 
-        postId={post.id.toString()}
-        postContent={post.content}
-        postAuthor={post.user || { name: "Usuário", username: "@usuario", avatar: "/placeholder.svg" }}
-        postImages={post.images || undefined}
-        postVideo={post.video || undefined}
-        currentUser={currentUser}
-        onCopyLink={() => navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`)}
-      />}
+      {shareDialogOpen && (
+        <ShareDialog 
+          isOpen={shareDialogOpen} 
+          onClose={() => setShareDialogOpen(false)} 
+          postId={post.id.toString()}
+          postContent={post.content}
+          postAuthor={post.user || { name: "Usuário", username: "@usuario", avatar: "/placeholder.svg" }}
+          postImages={post.images || undefined}
+          postVideo={post.video || undefined}
+          currentUser={currentUser}
+          onCopyLink={() => navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`)}
+        />
+      )}
     </Card>
   )
 }

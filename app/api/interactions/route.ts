@@ -1,4 +1,3 @@
-// /app/api/interactions/route.ts - CORRIGIDO
 import { type NextRequest, NextResponse } from "next/server"
 import { createRouteHandlerClient } from "@/app/lib/supabase-server"
 import { cookies } from "next/headers"
@@ -19,6 +18,8 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
     const { type, postId, content } = body
+
+    console.log("[Interactions API] Tipo:", type, "PostId:", postId)
 
     if (type === "like") {
       // Check if already liked
@@ -44,6 +45,7 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ error: "Failed to unlike post" }, { status: 500 })
         }
 
+        console.log("[Interactions API] Post descurtido")
         return NextResponse.json({ action: "unliked" })
       } else {
         // Like
@@ -60,6 +62,7 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ error: "Failed to like post" }, { status: 500 })
         }
 
+        console.log("[Interactions API] Post curtido")
         return NextResponse.json({ action: "liked" })
       }
     }
@@ -69,12 +72,14 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Comment content is required" }, { status: 400 })
       }
 
+      console.log("[Interactions API] Criando comentário")
+
       // Create comment
       const { data: comment, error: commentError } = await supabase
         .from("comments")
         .insert({
           post_id: postId,
-          user_id: user.id, // ✅ CORRIGIDO: usar user_id
+          user_id: user.id, // ✅ Usar user_id conforme seu banco
           content: content.trim(),
         })
         .select()
@@ -88,7 +93,7 @@ export async function POST(request: NextRequest) {
       // Get author profile
       const { data: profile } = await supabase
         .from("users")
-        .select("username, name, avatar_url") // ✅ CORRIGIDO: usar 'name' em vez de 'full_name'
+        .select("username, name, avatar_url") // ✅ Usar 'name' não 'full_name'
         .eq("id", user.id)
         .single()
 
@@ -98,12 +103,15 @@ export async function POST(request: NextRequest) {
         createdAt: comment.created_at,
         author: {
           id: user.id,
-          name: profile?.name || "Usuário", // ✅ CORRIGIDO: usar 'name'
+          name: profile?.name || "Usuário", // ✅ Usar 'name'
           username: profile?.username || "unknown",
-          avatar: profile?.avatar_url, // ✅ CORRIGIDO: usar avatar_url
+          avatar: profile?.avatar_url || "/placeholder.svg", // ✅ Usar avatar_url
+          verified: false, // TODO: Buscar is_verified se necessário
+          premium: false,  // TODO: Buscar is_premium se necessário
         },
       }
 
+      console.log("[Interactions API] Comentário criado:", comment.id)
       return NextResponse.json({ data: formattedComment })
     }
 
