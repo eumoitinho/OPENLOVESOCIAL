@@ -1,48 +1,66 @@
+// /app/api/timeline/route.ts - CORRIGIDO
 import { type NextRequest, NextResponse } from "next/server"
-import { createRouteHandlerClient} from "@/app/lib/supabase-server"
-import { verifyAuth } from "@/app/lib/auth-helpers"
+import { createRouteHandlerClient } from "@/app/lib/supabase-server"
+import { cookies } from "next/headers"
 
 export async function GET(request: NextRequest) {
   try {
-    console.log("Iniciando busca de timeline...")
-    
     const supabase = await createRouteHandlerClient()
-    const { user, error } = await verifyAuth()
-    if (error || !user) {
-      console.log("Usuário não autenticado:", error)
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
-    console.log("Usuário autenticado:", user.id)
     const { searchParams } = new URL(request.url)
-    const page = Number.parseInt(searchParams.get("page") || "1")
-    const limit = Number.parseInt(searchParams.get("limit") || "10")
+    const page = parseInt(searchParams.get("page") || "1")
+    const limit = parseInt(searchParams.get("limit") || "20")
     const offset = (page - 1) * limit
 
+    // Buscar usuário autenticado
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
 
+    if (userError) {
+      console.error("Timeline auth error:", userError)
+    }
 
-    // Step 1: Fetch all posts (simplified for now)
-    console.log("Buscando posts...")
+    console.log("[Timeline] Buscando posts, página:", page, "limit:", limit)
+
+    // Step 1: Fetch posts with basic data
     const { data: posts, error: postsError } = await supabase
       .from("posts")
-      .select("*")
+      .select(`
+        id,
+        user_id,
+        content,
+        media_urls,
+        media_types,
+        hashtags,
+        mentions,
+        visibility,
+        location,
+        is_event,
+        event_details,
+        is_premium_content,
+        price,
+        stats,
+        created_at
+      `)
+      .eq("visibility", "public")
       .order("created_at", { ascending: false })
       .range(offset, offset + limit - 1)
 
     if (postsError) {
-      console.error("Posts fetch error:", postsError)
-      return NextResponse.json({ error: "Failed to fetch posts", details: postsError }, { status: 500 })
+      console.error("Timeline posts error:", postsError)
+      return NextResponse.json({ error: "Failed to fetch posts" }, { status: 500 })
     }
-    
-    console.log("Posts encontrados:", (posts || []).length)
 
-    if (!posts || (posts || []).length === 0) {
-      const emptyResult = {
+    console.log("[Timeline] Posts encontrados:", (posts || []).length)
+
+    if (!posts || posts.length === 0) {
+      return NextResponse.json({
         data: [],
         hasMore: false,
-        message: "Nenhum post encontrado",
-      }
-      return NextResponse.json(emptyResult)
+        page,
+        limit,
+      })
     }
 
     // Step 2: Get all unique author IDs
@@ -51,7 +69,7 @@ export async function GET(request: NextRequest) {
     // Step 3: Fetch author profiles
     const { data: authors } = await supabase
       .from("users")
-      .select("id, username, name, avatar_url, is_verified")
+      .select("id, username, name, avatar_url, is_verified, is_premium, location")
       .in("id", authorIds)
 
     // Create author lookup map
@@ -61,11 +79,11 @@ export async function GET(request: NextRequest) {
         id: author.id,
         name: author.name || "Usuário",
         username: author.username || "unknown",
-        avatar: author.avatar_url,
+        avatar: author.avatar_url, // ✅ CORRIGIDO: usar avatar_url
         verified: author.is_verified || false,
         type: "single",
-        location: "Localização não informada",
-        premium: false,
+        location: author.location || "Localização não informada",
+        premium: author.is_premium || false,
         relationshipType: "single",
         isPrivate: false,
       })
@@ -75,18 +93,22 @@ export async function GET(request: NextRequest) {
     const postIds = (posts || []).map((post) => post.id)
 
     // Step 5: Fetch likes
-    const { data: likes } = await supabase.from("likes").select("post_id, user_id").in("post_id", postIds)
+    const { data: likes } = await supabase
+      .from("likes")
+      .select("target_id, user_id")
+      .eq("target_type", "post")
+      .in("target_id", postIds)
 
     // Group likes by post
     const likesMap = new Map()
     ;(likes || []).forEach((like: any) => {
-      if (!likesMap.has(like.post_id)) {
-        likesMap.set(like.post_id, [])
+      if (!likesMap.has(like.target_id)) {
+        likesMap.set(like.target_id, [])
       }
-      likesMap.get(like.post_id).push(like.user_id)
+      likesMap.get(like.target_id).push(like.user_id)
     })
 
-    // Step 6: Fetch comments with author info
+    // Step 6: Fetch comments with author info using JOIN
     const { data: comments } = await supabase
       .from("comments")
       .select(`
@@ -94,32 +116,20 @@ export async function GET(request: NextRequest) {
         post_id,
         user_id,
         content,
-        created_at
+        created_at,
+        stats,
+        users!inner (
+          id,
+          name,
+          username,
+          avatar_url,
+          is_verified
+        )
       `)
       .in("post_id", postIds)
       .order("created_at", { ascending: true })
 
-    // Get comment author IDs
-    const commentAuthorIds = [...new Set((comments || []).map((comment) => comment.user_id))]
-
-    // Fetch comment authors
-    const { data: commentAuthors } = await supabase
-      .from("users")
-      .select("id, username, name, avatar_url")
-      .in("id", commentAuthorIds)
-
-    // Create comment author lookup
-    const commentAuthorMap = new Map()
-    ;(commentAuthors || []).forEach((author: any) => {
-      commentAuthorMap.set(author.id, {
-        id: author.id,
-        name: author.name || "Usuário",
-        username: author.username || "unknown",
-        avatar: author.avatar_url,
-      })
-    })
-
-    // Group comments by post
+    // Group comments by post with correct author mapping
     const commentsMap = new Map()
     ;(comments || []).forEach((comment: any) => {
       if (!commentsMap.has(comment.post_id)) {
@@ -129,12 +139,14 @@ export async function GET(request: NextRequest) {
         id: comment.id,
         content: comment.content,
         createdAt: comment.created_at,
-        author: commentAuthorMap.get(comment.user_id) || {
-          id: comment.user_id,
-          name: "Usuário",
-          username: "unknown",
-          avatar: null,
+        author: {
+          id: comment.users.id,
+          name: comment.users.name || "Usuário",
+          username: comment.users.username || "unknown",
+          avatar: comment.users.avatar_url, // ✅ CORRIGIDO: usar avatar_url
+          verified: comment.users.is_verified || false,
         },
+        likes: comment.stats?.likes || 0,
       })
     })
 
@@ -147,8 +159,8 @@ export async function GET(request: NextRequest) {
       return {
         id: post.id,
         content: post.content,
-        mediaUrl: post.media_urls?.[0] || null, // Usar media_urls array
-        mediaType: post.media_types?.[0] || null, // Usar media_types array
+        mediaUrl: post.media_urls?.[0] || null,
+        mediaType: post.media_types?.[0] || null,
         visibility: post.visibility,
         createdAt: post.created_at,
         user: author || {
@@ -164,14 +176,17 @@ export async function GET(request: NextRequest) {
           isPrivate: false,
         },
         likes: postLikes,
-        likesCount: (postLikes || []).length,
-        isLiked: false, // Simplified for now
+        // ✅ CORRIGIDO: usar JavaScript em vez de SQL
+        likesCount: (post.stats?.likes) || 0,
+        isLiked: postLikes.includes(user?.id || ''),
         comments: postComments,
-        commentsCount: (postComments || []).length,
-        images: post.media_urls || null,
+        // ✅ CORRIGIDO: usar JavaScript em vez de SQL
+        commentsCount: (post.stats?.comments) || 0,
+        images: post.media_urls || [],
         video: null,
         event: null,
-        shares: 0,
+        // ✅ CORRIGIDO: usar JavaScript em vez de SQL
+        shares: (post.stats?.shares) || 0,
         reposts: 0,
         saved: false,
         timestamp: post.created_at,
@@ -184,6 +199,8 @@ export async function GET(request: NextRequest) {
       page,
       limit,
     }
+
+    console.log("[Timeline] Retornando", timelinePosts.length, "posts processados")
     return NextResponse.json(result)
   } catch (error) {
     console.error("Timeline fetch error:", error)

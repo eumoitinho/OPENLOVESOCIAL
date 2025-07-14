@@ -16,57 +16,37 @@ export async function GET(request: NextRequest) {
     const { data: authUser } = await supabase.auth.getUser()
     const userId = authUser?.user?.id
 
-    // Se for busca de sugestões, retornar usuários recomendados
     if (suggested) {
-      const queryBuilder = supabase
-        .from("users")
-        .select(`
-          id,
-          name,
-          username,
-          avatar_url,
-          cover_url,
-          location,
-          bio,
-          age,
-          gender,
-          interests,
-          relationship_status,
-          looking_for,
-          is_premium,
-          is_verified,
-          stats,
-          created_at,
-          tokens,
-          tokens_received
-        `)
-        .eq("is_active", true)
-        .order("created_at", { ascending: false })
-        .limit(20)
-      if (userId) queryBuilder.neq("id", userId)
-      const { data: users, error } = await queryBuilder
-
+      const { data: users, error } = await supabase
+        .rpc('search_users_with_suggestions', {
+          search_query: '',
+          limit_count: 20,
+          offset_count: 0,
+          exclude_user_id: userId,
+          suggestions_only: true
+        })
+    
       if (error) {
-        console.error("Error searching suggested users:", error)
-        return NextResponse.json({ error: "Search failed" }, { status: 500 })
+        console.error("Erro na busca de sugestões:", error)
+        return NextResponse.json({ error: "Falha na busca" }, { status: 500 })
       }
 
-      // Verificar se já segue cada usuário
-      const userIds = users?.map((u) => u.id) || []
-      const { data: follows } = userId
+      // Verificar follows
+      const userIds = users?.map((u: { id: string }) => u.id) || []
+      const { data: follows } = userId && userIds.length > 0
         ? await supabase
             .from("follows")
             .select("following_id")
             .eq("follower_id", userId)
             .in("following_id", userIds)
         : { data: [] }
+    
+      // Corrigindo o erro de tipo implícito de 'any' para o parâmetro 'u'
+      const followingIds = new Set(follows?.map((f: { following_id: string }) => f.following_id) || [])
 
-      const followingIds = new Set(follows?.map(f => f.following_id) || [])
-
-      const results = users?.map((u) => ({
+      const results = users?.map((u: any) => ({
         ...u,
         is_following: followingIds.has(u.id),
-        // Adicionar dados formatados para o ProfileCard
         profileImage: u.avatar_url,
         backgroundImage: u.cover_url || "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=200&fit=crop",
         verified: u.is_verified,
@@ -76,10 +56,10 @@ export async function GET(request: NextRequest) {
         following: u.stats?.following || 0,
         description: u.bio || "Usuário do OpenLove",
         joinedDate: new Date(u.created_at).toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' }),
-        tokens: u.tokens || u.tokens_received || 0,
-        tokens_received: u.tokens_received || u.tokens || 0
+        tokens: u.tokens || 0,
+        tokens_received: u.tokens_received || 0
       })) || []
-
+    
       return NextResponse.json({ data: results })
     }
 
@@ -87,43 +67,25 @@ export async function GET(request: NextRequest) {
     if (!query) {
       return NextResponse.json({ data: [] })
     }
-
-    const queryBuilder2 = supabase
-      .from("users")
-      .select(`
-        id,
-        name,
-        username,
-        avatar_url,
-        cover_url,
-        location,
-        bio,
-        age,
-        gender,
-        interests,
-        relationship_status,
-        looking_for,
-        is_premium,
-        is_verified,
-        stats,
-        created_at,
-        tokens,
-        tokens_received
-      `)
-      .or(`name.ilike.%${query}%,username.ilike.%${query}%`)
-      .eq("is_active", true)
-      .limit(20)
-    if (userId) queryBuilder2.neq("id", userId)
-    const { data: users, error } = await queryBuilder2
-
+    
+    const { data: users, error } = await supabase
+      .rpc('search_users_with_suggestions', {
+        search_query: query,
+        limit_count: 20,
+        offset_count: 0,
+        exclude_user_id: userId,
+        suggestions_only: false
+      })
+    
     if (error) {
-      console.error("Error searching users:", error)
-      return NextResponse.json({ error: "Search failed" }, { status: 500 })
+      console.error("Erro na busca de usuários:", error)
+      return NextResponse.json({ error: "Falha na busca" }, { status: 500 })
     }
 
     // Verificar se já segue cada usuário
-    const userIds = users?.map((u) => u.id) || []
-    const { data: follows } = userId
+    // Corrigindo o erro de tipo implícito de 'any' para o parâmetro 'u'
+    const userIds = users?.map((u: { id: string }) => u.id) || []
+    const { data: follows } = userId && userIds.length > 0
       ? await supabase
           .from("follows")
           .select("following_id")
@@ -131,9 +93,10 @@ export async function GET(request: NextRequest) {
           .in("following_id", userIds)
       : { data: [] }
 
-    const followingIds = new Set(follows?.map(f => f.following_id) || [])
+    // Corrigindo o erro de tipo implícito de 'any' para o parâmetro 'u'
+    const followingIds = new Set(follows?.map((f: { following_id: string }) => f.following_id) || [])
 
-    const results = users?.map((u) => ({
+    const results = users?.map((u: any) => ({
       ...u,
       is_following: followingIds.has(u.id),
       // Adicionar dados formatados para o ProfileCard

@@ -1,3 +1,4 @@
+// /app/api/interactions/route.ts - CORRIGIDO
 import { type NextRequest, NextResponse } from "next/server"
 import { createRouteHandlerClient } from "@/app/lib/supabase-server"
 import { cookies } from "next/headers"
@@ -11,6 +12,7 @@ export async function POST(request: NextRequest) {
       data: { user },
       error: userError,
     } = await supabase.auth.getUser()
+    
     if (userError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -23,7 +25,8 @@ export async function POST(request: NextRequest) {
       const { data: existingLike } = await supabase
         .from("likes")
         .select("id")
-        .eq("post_id", postId)
+        .eq("target_type", "post")
+        .eq("target_id", postId)
         .eq("user_id", user.id)
         .single()
 
@@ -32,22 +35,28 @@ export async function POST(request: NextRequest) {
         const { error: deleteError } = await supabase
           .from("likes")
           .delete()
-          .eq("post_id", postId)
+          .eq("target_type", "post")
+          .eq("target_id", postId)
           .eq("user_id", user.id)
 
         if (deleteError) {
+          console.error("Error unliking post:", deleteError)
           return NextResponse.json({ error: "Failed to unlike post" }, { status: 500 })
         }
 
         return NextResponse.json({ action: "unliked" })
       } else {
         // Like
-        const { error: insertError } = await supabase.from("likes").insert({
-          post_id: postId,
-          user_id: user.id,
-        })
+        const { error: insertError } = await supabase
+          .from("likes")
+          .insert({
+            target_type: "post",
+            target_id: postId,
+            user_id: user.id,
+          })
 
         if (insertError) {
+          console.error("Error liking post:", insertError)
           return NextResponse.json({ error: "Failed to like post" }, { status: 500 })
         }
 
@@ -65,20 +74,21 @@ export async function POST(request: NextRequest) {
         .from("comments")
         .insert({
           post_id: postId,
-          author_id: user.id,
+          user_id: user.id, // ✅ CORRIGIDO: usar user_id
           content: content.trim(),
         })
         .select()
         .single()
 
       if (commentError) {
+        console.error("Error creating comment:", commentError)
         return NextResponse.json({ error: "Failed to create comment" }, { status: 500 })
       }
 
       // Get author profile
       const { data: profile } = await supabase
         .from("users")
-        .select("username, full_name, avatar_url")
+        .select("username, name, avatar_url") // ✅ CORRIGIDO: usar 'name' em vez de 'full_name'
         .eq("id", user.id)
         .single()
 
@@ -88,9 +98,9 @@ export async function POST(request: NextRequest) {
         createdAt: comment.created_at,
         author: {
           id: user.id,
-          name: profile?.full_name || "Usuário",
+          name: profile?.name || "Usuário", // ✅ CORRIGIDO: usar 'name'
           username: profile?.username || "unknown",
-          avatar: profile?.avatar_url,
+          avatar: profile?.avatar_url, // ✅ CORRIGIDO: usar avatar_url
         },
       }
 
