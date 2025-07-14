@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Icon } from '@iconify/react'
 import {
-  Avatar,
   Button,
   Card,
   CardBody,
@@ -19,6 +18,7 @@ import {
   Spinner,
   Badge
 } from "@heroui/react"
+import { AvatarBadge } from "@/app/components/ui/avatar-badge"
 import { useAuth } from '@/app/components/auth/AuthProvider'
 import { toast } from 'sonner'
 
@@ -56,11 +56,16 @@ interface Post {
   is_liked?: boolean
 }
 
-export default function UserProfile() {
+interface UserProfileProps {
+  username?: string
+  isView?: boolean // Se true, funciona como view na home
+}
+
+export default function UserProfile({ username, isView = false }: UserProfileProps) {
   const params = useParams()
   const router = useRouter()
   const { user: currentUser } = useAuth()
-  const username = params.username as string
+  const profileUsername = username || params.username as string
 
   const [profile, setProfile] = useState<Profile | null>(null)
   const [posts, setPosts] = useState<Post[]>([])
@@ -71,17 +76,17 @@ export default function UserProfile() {
   const [isOwnProfile, setIsOwnProfile] = useState(false)
 
   useEffect(() => {
-    if (username) {
+    if (profileUsername) {
       fetchProfile()
     }
-  }, [username])
+  }, [profileUsername])
 
   const fetchProfile = async () => {
     setIsLoading(true)
     setError(null)
     
     try {
-      const response = await fetch(`/api/profile/${username}`)
+      const response = await fetch(`/api/profile/${profileUsername}`)
       if (!response.ok) {
         throw new Error("Perfil não encontrado")
       }
@@ -183,6 +188,161 @@ export default function UserProfile() {
     return age
   }
 
+  // Se for uma view na home, usar layout mais compacto
+  if (isView) {
+    return (
+      <div className="space-y-6">
+        {/* Profile Header */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="relative">
+                  {profile?.avatar_url ? (
+                    <img
+                      className="h-20 w-20 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow-lg"
+                      src={profile.avatar_url}
+                      alt={profile?.name || "Foto de perfil"}
+                    />
+                  ) : (
+                    <div className="h-20 w-20 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center border-4 border-white dark:border-gray-700 shadow-lg">
+                      <Icon icon="lucide:user" className="h-10 w-10 text-white" />
+                    </div>
+                  )}
+                  {profile?.is_verified && (
+                    <div className="absolute -top-1 -right-1 bg-blue-500 rounded-full p-1">
+                      <Icon icon="lucide:check" className="w-3 h-3 text-white" />
+                    </div>
+                  )}
+                  {profile?.is_premium && (
+                    <div className="absolute -bottom-1 -right-1 bg-yellow-500 rounded-full p-1">
+                      <Icon icon="lucide:crown" className="w-3 h-3 text-white" />
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">{profile.name}</h1>
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">@{profile.username}</p>
+                  {profile.bio && (
+                    <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 mt-2">{profile.bio}</p>
+                  )}
+                </div>
+              </div>
+              <div className="flex space-x-3">
+                {isOwnProfile ? (
+                  <Button color="primary" onPress={handleEditProfile} className="text-xs sm:text-sm">
+                    Editar Perfil
+                  </Button>
+                ) : (
+                  <>
+                    <Button 
+                      color={isFollowing ? "default" : "primary"}
+                      variant={isFollowing ? "bordered" : "solid"}
+                      onPress={handleFollow}
+                      className="text-xs sm:text-sm"
+                    >
+                      {isFollowing ? "Seguindo" : "Seguir"}
+                    </Button>
+                    <Button variant="bordered" onPress={handleMessage} className="text-xs sm:text-sm">
+                      Mensagem
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="p-6">
+            <div className="grid grid-cols-4 gap-4 text-center">
+              <div>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">
+                  {profile.stats?.posts?.toLocaleString() || "0"}
+                </p>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Posts</p>
+              </div>
+              <div>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">
+                  {profile.stats?.followers?.toLocaleString() || "0"}
+                </p>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Seguidores</p>
+              </div>
+              <div>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">
+                  {profile.stats?.following?.toLocaleString() || "0"}
+                </p>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Seguindo</p>
+              </div>
+              <div>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">
+                  {profile.stats?.profile_views?.toLocaleString() || "0"}
+                </p>
+                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Visualizações</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Posts */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="p-6">
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-4">Posts Recentes</h2>
+            {posts.length > 0 ? (
+              <div className="space-y-4">
+                {posts.slice(0, 5).map((post) => (
+                  <div key={post.id} className="border-b border-gray-200 dark:border-gray-700 pb-4 last:border-b-0">
+                    <div className="flex items-start gap-3">
+                      <AvatarBadge
+                        src={profile.avatar_url}
+                        alt={profile.name}
+                        fallback={profile.name?.split(' ').map((n: string) => n[0]).join('') || 'U'}
+                        size="sm"
+                        isVerified={profile.is_verified}
+                        isPremium={profile.is_premium}
+                        createdAt={profile.created_at}
+                        className="flex-shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-medium text-xs sm:text-sm">{profile.name}</span>
+                          <span className="text-xs text-gray-500">
+                            {formatDate(post.created_at)}
+                          </span>
+                        </div>
+                        <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 mb-2">{post.content}</p>
+                        {post.media_urls && post.media_urls.length > 0 && (
+                          <div className="mb-2">
+                            <Image
+                              src={post.media_urls[0]}
+                              alt="Post media"
+                              className="rounded-lg max-h-32 object-cover"
+                            />
+                          </div>
+                        )}
+                        <div className="flex items-center gap-4 text-xs text-gray-500">
+                          <span>{post.likes_count} curtidas</span>
+                          <span>{post.comments_count} comentários</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Icon icon="lucide:file-text" className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                <p className="text-xs sm:text-sm text-gray-500">Nenhum post ainda</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Layout completo para página de perfil
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-4xl mx-auto p-2 sm:p-4">
@@ -203,11 +363,14 @@ export default function UserProfile() {
             <div className="px-3 sm:px-4 pb-4">
               <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
                 <div className="flex items-end">
-                  <Avatar
-                    isBordered
-                    color="primary"
-                    size="lg"
+                  <AvatarBadge
                     src={profile.avatar_url || "https://img.heroui.chat/image/avatar?w=200&h=200&u=1"}
+                    alt={profile.name}
+                    fallback={profile.name?.split(' ').map((n: string) => n[0]).join('') || 'U'}
+                    size="xl"
+                    isVerified={profile.is_verified}
+                    isPremium={profile.is_premium}
+                    createdAt={profile.created_at}
                     className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 -mt-8 sm:-mt-10 md:-mt-12 z-10"
                   />
                   <div className="ml-3 sm:ml-4">
@@ -324,9 +487,14 @@ export default function UserProfile() {
                     {posts.map((post) => (
                       <div key={post.id} className="border-b border-default-200 pb-4 last:border-b-0">
                         <div className="flex items-start gap-3">
-                          <Avatar
-                            size="sm"
+                          <AvatarBadge
                             src={profile.avatar_url}
+                            alt={profile.name}
+                            fallback={profile.name?.split(' ').map((n: string) => n[0]).join('') || 'U'}
+                            size="sm"
+                            isVerified={profile.is_verified}
+                            isPremium={profile.is_premium}
+                            createdAt={profile.created_at}
                             className="flex-shrink-0"
                           />
                           <div className="flex-1 min-w-0">
@@ -409,4 +577,4 @@ export default function UserProfile() {
       </div>
     </div>
   )
-}
+} 

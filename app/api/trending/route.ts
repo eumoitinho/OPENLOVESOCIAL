@@ -1,71 +1,65 @@
-import { NextResponse } from "next/server"
-import { createRouteHandlerClient } from "@/app/lib/supabase-server"
-import { verifyAuth } from "@/app/lib/auth-helpers"
+import { NextRequest, NextResponse } from 'next/server'
+import { createRouteHandlerClient } from '@/app/lib/supabase-server'
+import { cookies } from 'next/headers'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const supabase = await createRouteHandlerClient()
-    const { user, error } = await verifyAuth()
-    if (error || !user) {
-      return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
-    }
-    const today = new Date().toISOString().slice(0, 10)
-
-    // Buscar perfis Gold e Diamante que querem se promover hoje
-    // Supondo que existe uma tabela 'promoted_profiles' com user_id, date, plano, promo_count
-    // Se não existir, buscar direto dos usuários com lógica de limitação
-    const { data: golds, error: goldError } = await supabase
-      .from("users")
+    
+    // Buscar trending topics baseado em hashtags mais usadas
+    const { data: trendingTopics, error } = await supabase
+      .from('posts')
       .select(`
-        id, name, username, avatar_url, plano, tokens, tokens_received, bio, interests, is_verified
+        id,
+        content,
+        created_at,
+        hashtags
       `)
-      .eq("plano", "gold")
-      .eq("is_active", true)
-      .order("tokens_received", { ascending: false })
-      .limit(10)
+      .not('hashtags', 'is', null)
+      .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()) // Últimos 7 dias
+      .order('created_at', { ascending: false })
+      .limit(50)
 
-    const { data: diamantes, error: diamanteError } = await supabase
-      .from("users")
-      .select(`
-        id, name, username, avatar_url, plano, tokens, tokens_received, bio, interests, is_verified
-      `)
-      .eq("plano", "diamante")
-      .eq("is_active", true)
-      .order("tokens_received", { ascending: false })
-      .limit(10)
-
-    if (goldError || diamanteError) {
-      return NextResponse.json({ error: "Erro ao buscar perfis patrocinados" }, { status: 500 })
+    if (error) {
+      console.error('Erro ao buscar trending topics:', error)
+      return NextResponse.json({ error: 'Erro ao buscar trending topics' }, { status: 500 })
     }
 
-    // Lógica de promoção diária: gold 1x/dia, diamante 4x/dia
-    // (Aqui, para simplificar, sorteia 1 gold e até 4 diamantes aleatórios)
-    function shuffle(arr: any[]) {
-      return arr.map(a => [Math.random(), a]).sort((a, b) => a[0] - b[0]).map(a => a[1])
-    }
-    const goldPromoted = shuffle(golds || []).slice(0, 1)
-    const diamantePromoted = shuffle(diamantes || []).slice(0, 4)
-    const promoted = [...goldPromoted, ...diamantePromoted]
+    // Processar hashtags e contar ocorrências
+    const hashtagCounts: Record<string, { count: number, category: string, isHot: boolean }> = {}
+    
+    trendingTopics?.forEach(post => {
+      if (post.hashtags) {
+        const hashtags = Array.isArray(post.hashtags) ? post.hashtags : [post.hashtags]
+        hashtags.forEach(hashtag => {
+          if (hashtag && typeof hashtag === 'string') {
+            const cleanHashtag = hashtag.replace('#', '').toLowerCase()
+            if (!hashtagCounts[cleanHashtag]) {
+              hashtagCounts[cleanHashtag] = { count: 0, category: 'general', isHot: false }
+            }
+            hashtagCounts[cleanHashtag].count++
+          }
+        })
+      }
+    })
 
-    // Formatar para o frontend
-    const trendingProfiles = promoted.map((u) => ({
-      id: u.id,
-      name: u.name,
-      username: u.username,
-      avatar_url: u.avatar_url,
-      plano: u.plano,
-      tokens: u.tokens || u.tokens_received || 0,
-      tokens_received: u.tokens_received || u.tokens || 0,
-      bio: u.bio,
-      interests: u.interests,
-      verified: u.is_verified,
-      description: u.bio,
-      tags: u.interests || [],
-    }))
+    // Converter para formato da interface
+    const trending = Object.entries(hashtagCounts)
+      .filter(([_, data]) => data.count > 1) // Pelo menos 2 posts
+      .sort(([_, a], [__, b]) => b.count - a.count)
+      .slice(0, 10)
+      .map(([hashtag, data], index) => ({
+        id: `trending-${index}`,
+        hashtag: hashtag.charAt(0).toUpperCase() + hashtag.slice(1),
+        postCount: data.count,
+        growth: Math.floor(Math.random() * 50) + 10, // Simulado por enquanto
+        category: data.category,
+        isHot: data.count > 5
+      }))
 
-    return NextResponse.json({ data: trendingProfiles })
+    return NextResponse.json({ trending })
   } catch (error) {
-    console.error("Erro na API de trending:", error)
-    return NextResponse.json({ error: "Erro interno" }, { status: 500 })
+    console.error('Erro interno:', error)
+    return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 })
   }
 } 

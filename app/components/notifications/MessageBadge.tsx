@@ -1,8 +1,27 @@
 'use client'
 
-import { MessageCircle } from 'lucide-react'
+import { Badge } from '@heroui/react'
 import { useNotifications } from '@/app/hooks/useNotifications'
 import { cn } from '@/lib/utils'
+
+// Componente do ícone de mensagem
+const MessageIcon = ({ size = 24, ...props }: { size?: number; [key: string]: any }) => {
+  return (
+    <svg
+      fill="none"
+      height={size}
+      viewBox="0 0 24 24"
+      width={size}
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <path
+        d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
 
 interface MessageBadgeProps {
   className?: string
@@ -11,7 +30,9 @@ interface MessageBadgeProps {
 
 export function MessageBadge({ className, onClick }: MessageBadgeProps) {
   const { stats } = useNotifications()
-  const unreadMessages = stats.by_type.new_message?.unread || 0
+  // Para mensagens, vamos usar um contador simples baseado em notificações não lidas
+  // que podem ser do tipo 'message' ou 'mention'
+  const unreadMessages = stats.unread
   const hasUnread = unreadMessages > 0
 
   return (
@@ -22,19 +43,15 @@ export function MessageBadge({ className, onClick }: MessageBadgeProps) {
       )}
       onClick={onClick}
     >
-      <MessageCircle className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-      
-      {/* Badge rosa para mensagens não lidas */}
-      {hasUnread && (
-        <div className="absolute -top-1 -right-1 w-3 h-3 bg-pink-500 rounded-full animate-pulse">
-          {/* Contador para múltiplas mensagens */}
-          {unreadMessages > 1 && (
-            <span className="absolute -top-1 -right-1 text-xs text-white font-bold bg-pink-600 rounded-full w-4 h-4 flex items-center justify-center">
-              {unreadMessages > 9 ? '9+' : unreadMessages}
-            </span>
-          )}
-        </div>
-      )}
+      <Badge 
+        color="danger" 
+        content={hasUnread ? (unreadMessages > 99 ? '99+' : unreadMessages) : undefined}
+        isInvisible={!hasUnread}
+        shape="circle"
+        size="sm"
+      >
+        <MessageIcon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+      </Badge>
       
       {/* Tooltip */}
       <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">

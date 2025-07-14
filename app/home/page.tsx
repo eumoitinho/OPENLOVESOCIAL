@@ -53,6 +53,22 @@ import {
   Flag,
   HelpCircle,
   ArrowLeft,
+  Filter,
+  X,
+  Check,
+  AlertCircle,
+  Shield,
+  BarChart3,
+  FileText,
+  Camera,
+  Mic,
+  Smile,
+  Send,
+  MoreHorizontal,
+  Eye,
+  EyeOff,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -73,10 +89,20 @@ import { CommunitiesContent } from "@/app/components/timeline/CommunitiesContent
 import { useRecommendationAlgorithm } from "@/app/hooks/useRecommendationAlgorithm";
 import RecommendedPostCard from "@/app/components/timeline/RecommendedPostCard";
 import { OpenDatesStack } from "@/app/components/timeline/OpenDatesStack";
+import UserProfile from "@/app/components/profile/UserProfile";
 
 import { useRouter } from "next/navigation";
 
 import CreatePost from "../components/timeline/CreatePost";
+
+// Novos imports dos componentes avançados
+// Componentes serão implementados conforme necessário
+
+// Novos hooks
+import { useNotifications } from "@/app/hooks/useNotifications";
+import { useConversations } from "@/app/hooks/useConversations";
+import { usePostToast } from "@/app/hooks/usePostToast";
+import { useAppState } from "@/app/hooks/useAppState";
 
 // --- Tipos e Dados para a Sidebar ---
 type NavigationItem = {
@@ -141,7 +167,7 @@ const NavHeader = ({ title }: { title: string }) => (
 );
 
 // --- Componente ProfileView para a Home ---
-const ProfileView = () => {
+const ProfileView = ({ username }: { username?: string }) => {
   const { user, profile } = useAuth();
 
   if (!user) {
@@ -152,196 +178,9 @@ const ProfileView = () => {
     );
   }
 
-  return (
-    <div className="space-y-6">
-      {/* Profile Header */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                {profile?.avatar_url ? (
-                  <img
-                    className="h-20 w-20 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow-lg"
-                    src={profile.avatar_url}
-                    alt={profile?.full_name || "Foto de perfil"}
-                  />
-                ) : (
-                  <div className="h-20 w-20 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center border-4 border-white dark:border-gray-700 shadow-lg">
-                    <User className="h-10 w-10 text-white" />
-                  </div>
-                )}
-                {/* Badge Premium temporariamente removido até ter acesso aos dados */}
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {profile?.full_name || user.email}
-                </h1>
-                <p className="text-gray-600 dark:text-gray-400">
-                  @{profile?.username}
-                </p>
-                {profile?.bio && (
-                  <p className="text-gray-700 dark:text-gray-300 mt-2 max-w-md">
-                    {profile.bio}
-                  </p>
-                )}
-              </div>
-            </div>
-            <div className="flex space-x-3">
-              <Button
-                onClick={() => (window.location.href = "/profile/edit")}
-                variant="outline"
-                className="border-pink-500 text-pink-600 hover:bg-pink-50 dark:hover:bg-pink-900/20"
-              >
-                Editar Perfil
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Profile Stats - Temporariamente simplificado */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 border-pink-200 dark:border-pink-700">
-          <CardContent className="p-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-pink-600 dark:text-pink-400">
-                0
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Posts
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-200 dark:border-purple-700">
-          <CardContent className="p-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                0
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Seguidores
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 border-blue-200 dark:border-blue-700">
-          <CardContent className="p-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                0
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Seguindo
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-to-r from-green-50 to-yellow-50 dark:from-green-900/20 dark:to-yellow-900/20 border-green-200 dark:border-green-700">
-          <CardContent className="p-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                0
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Visualizações
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Profile Info */}
-      <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
-            Informações do Perfil
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-center space-x-3">
-              <Mail className="h-5 w-5 text-gray-500" />
-              <div>
-                <div className="text-sm font-medium text-gray-500">Email</div>
-                <div className="text-gray-900 dark:text-white">
-                  {user.email}
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <User className="h-5 w-5 text-gray-500" />
-              <div>
-                <div className="text-sm font-medium text-gray-500">
-                  Nome de usuário
-                </div>
-                <div className="text-gray-900 dark:text-white">
-                  @{profile?.username}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {profile?.interests && profile.interests.length > 0 && (
-            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-              <div className="flex items-center space-x-3 mb-3">
-                <Globe className="h-5 w-5 text-gray-500" />
-                <div className="text-sm font-medium text-gray-500">
-                  Interesses
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {profile.interests.map((interest, index) => (
-                  <Badge
-                    key={index}
-                    variant="secondary"
-                    className="bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300"
-                  >
-                    {interest}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Account Status - Simplificado */}
-      <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold text-gray-900 dark:text-white">
-            Status da Conta
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-3 h-3 rounded-full bg-green-500" />
-              <div>
-                <div className="text-sm font-medium text-gray-500">Conta</div>
-                <div className="text-gray-900 dark:text-white">Ativa</div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-3 h-3 rounded-full bg-gray-400" />
-              <div>
-                <div className="text-sm font-medium text-gray-500">Premium</div>
-                <div className="text-gray-900 dark:text-white">Inativo</div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <div className="w-3 h-3 rounded-full bg-green-500" />
-              <div>
-                <div className="text-sm font-medium text-gray-500">Status</div>
-                <div className="text-gray-900 dark:text-white">Online</div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
+  const profileUsername = username || profile?.username || user.email?.split('@')[0] || 'user';
+  
+  return <UserProfile username={profileUsername} isView={true} />;
 };
 
 export default function HomePage() {
@@ -353,6 +192,21 @@ export default function HomePage() {
     loading: loadingRecommendations,
     error: errorRecommendations,
   } = useRecommendationAlgorithm();
+
+  // Novos hooks avançados
+  const { notifications, markAsRead, markAllAsRead } = useNotifications();
+  const { conversations, sendMessage, markAsRead: markMessageAsRead } = useConversations();
+  const { showToast, hideToast } = usePostToast();
+  const { 
+    theme, 
+    setTheme, 
+    notifications: appNotifications, 
+    setNotifications: setAppNotifications,
+    searchFilters,
+    setSearchFilters,
+    userSettings,
+    updateUserSettings
+  } = useAppState();
 
   console.log("HomePage: Auth Loading:", authLoading);
   console.log("HomePage: User:", user ? user.id : "Não logado");
@@ -371,6 +225,18 @@ export default function HomePage() {
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [errorPosts, setErrorPosts] = useState<string | null>(null);
   const [activeView, setActiveView] = useState("home");
+  const [viewingProfile, setViewingProfile] = useState<string | null>(null);
+
+  // Novos estados para funcionalidades avançadas
+  const [showFilters, setShowFilters] = useState(false);
+  const [showChat, setShowChat] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [showModerationPanel, setShowModerationPanel] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showProfileEditor, setShowProfileEditor] = useState(false);
 
   // Atualiza timeline
   const fetchPosts = async () => {
@@ -509,6 +375,50 @@ export default function HomePage() {
 
   const navigateToProfiles = () => {
     window.location.href = "/profiles";
+  };
+
+  const navigateToProfile = (username: string) => {
+    setViewingProfile(username);
+    setActiveView("profile");
+  };
+
+  // Novas funções para funcionalidades avançadas
+  const handleFilterChange = (filters: any) => {
+    setSearchFilters(filters);
+    console.log("Filtros aplicados:", filters);
+  };
+
+  const handleNotificationClick = (notificationId: string) => {
+    markAsRead(notificationId);
+    console.log("Notificação clicada:", notificationId);
+  };
+
+  const handleChatMessage = (conversationId: string, message: string) => {
+    sendMessage(conversationId, message);
+    console.log("Mensagem enviada para:", conversationId);
+  };
+
+  const handlePostReport = (postId: string, reason: string) => {
+    console.log("Post reportado:", postId, "Motivo:", reason);
+    setShowReportModal(false);
+  };
+
+  const handleSettingsUpdate = (settings: any) => {
+    updateUserSettings(settings);
+    console.log("Configurações atualizadas:", settings);
+  };
+
+  const handleProfileUpdate = (profileData: any) => {
+    console.log("Perfil atualizado:", profileData);
+    setShowProfileEditor(false);
+  };
+
+  const handleAnalyticsView = () => {
+    setShowAnalytics(true);
+  };
+
+  const handleModerationAction = (action: string, targetId: string) => {
+    console.log("Ação de moderação:", action, "Target:", targetId);
   };
 
   const ProfileCard = ({ profile }: { profile: any }) => (
@@ -678,9 +588,9 @@ export default function HomePage() {
       `}</style>
 
       {/* Layout Grid Principal - Similar ao Twitter/X */}
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)] max-w-7xl mx-auto min-h-screen">
-        {/* Sidebar Esquerda */}
-        <aside className="hidden lg:block w-[275px] sticky top-0 h-screen overflow-y-auto scrollbar-hide">
+      <div className="grid grid-cols-1 2xl:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)] max-w-7xl mx-auto min-h-screen">
+        {/* Sidebar Esquerda - APENAS DESKTOP */}
+        <aside className="hidden 2xl:block w-[275px] sticky top-0 h-screen overflow-y-auto scrollbar-hide">
           <TimelineSidebar
             isDarkMode={isDarkMode}
             onToggleTheme={toggleTheme}
@@ -689,13 +599,34 @@ export default function HomePage() {
             onNavigateToSettings={navigateToSettings}
             onNavigateToProfiles={navigateToProfiles}
             onCreatePost={() => setPostModalOpen(true)}
+            onShowFilters={() => setShowFilters(!showFilters)}
+            onShowChat={() => setShowChat(true)}
+            onShowAnalytics={() => setShowAnalytics(true)}
+            onShowModeration={() => setShowModerationPanel(true)}
+            onShowProfileEditor={() => setShowProfileEditor(true)}
           />
         </aside>
 
         {/* Timeline Principal */}
-        <main className="w-full border-x border-gray-200 dark:border-gray-800 pl-[72px] xl:pl-0">
+        <main className="w-full border-x border-gray-200 dark:border-gray-800 2xl:pl-0">
           <div className="sticky top-0 z-20 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800">
             <div className="p-4">
+              {activeView === "profile" && viewingProfile && (
+                <div className="flex items-center gap-3 mb-4">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setActiveView("home");
+                      setViewingProfile(null);
+                    }}
+                    className="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Voltar
+                  </Button>
+                </div>
+              )}
               <h1 className="text-xl font-bold text-gray-900 dark:text-white">
                 {activeView === "home" && "Início"}
                 {activeView === "explore" && "Explorar"}
@@ -707,11 +638,80 @@ export default function HomePage() {
                 {activeView === "saved" && "Salvos"}
                 {activeView === "settings" && "Configurações"}
                 {activeView === "my-profile" && "Meu Perfil"}
+                {activeView === "profile" && viewingProfile && `@${viewingProfile}`}
               </h1>
             </div>
           </div>
 
           <div className="p-4">
+            {/* Componentes avançados integrados - Agora apenas os modais */}
+            {/* Filtros expandidos */}
+            {showFilters && (
+              <div className="mb-6 bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Filtros Avançados</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Tipo de usuário" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Todos</SelectItem>
+                        <SelectItem value="single">Solteiros</SelectItem>
+                        <SelectItem value="couple">Casais</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Idade" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="18-25">18-25</SelectItem>
+                        <SelectItem value="26-35">26-35</SelectItem>
+                        <SelectItem value="36-45">36-45</SelectItem>
+                        <SelectItem value="46+">46+</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Localização" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="nearby">Próximo</SelectItem>
+                        <SelectItem value="city">Cidade</SelectItem>
+                        <SelectItem value="state">Estado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button onClick={() => setShowFilters(false)}>
+                      Aplicar Filtros
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Busca avançada */}
+            {showSearch && (
+              <div className="mb-6 bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold">Busca Avançada</h3>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Buscar usuários, posts, eventos..."
+                      className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800"
+                    />
+                    <Button onClick={() => setShowSearch(false)}>
+                      Buscar
+                    </Button>
+                    <Button variant="outline" onClick={() => setShowSearch(false)}>
+                      Cancelar
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {activeView === "home" && (
               <Tabs defaultValue="seguindo" className="w-full">
                 <TabsList className="grid w-full grid-cols-3 bg-gray-100 dark:bg-gray-800 mb-6">
@@ -768,6 +768,7 @@ export default function HomePage() {
                           onComment={handleComment}
                           onShare={handleShare}
                           onViewMedia={handleViewMedia}
+                          onViewProfile={navigateToProfile}
                           currentUser={currentUser}
                         />
                         {(index + 1) % 3 === 0 && (
@@ -818,6 +819,7 @@ export default function HomePage() {
                               onComment={handleComment}
                               onShare={handleShare}
                               onViewMedia={handleViewMedia}
+                              onViewProfile={navigateToProfile}
                               currentUser={currentUser}
                             />
 
@@ -1050,6 +1052,7 @@ export default function HomePage() {
               />
             )}
             {activeView === "my-profile" && <ProfileView />}
+            {activeView === "profile" && viewingProfile && <ProfileView username={viewingProfile} />}
             {activeView === "settings" && (
               <div className="p-4 bg-blue-100 rounded">
                 <h2 className="text-2xl font-bold mb-4">Configurações</h2>
@@ -1063,7 +1066,7 @@ export default function HomePage() {
         </main>
 
         {/* Sidebar Direita */}
-        <aside className="hidden xl:block w-[350px] sticky top-0 h-screen overflow-y-auto scrollbar-hide">
+        <aside className="hidden 2xl:block w-[350px] sticky top-0 h-screen overflow-y-auto scrollbar-hide">
           <TimelineRightSidebar
             userLocation="São Paulo, SP"
             onFollowUser={(userId: string) => {
@@ -1084,7 +1087,8 @@ export default function HomePage() {
         </aside>
       </div>
 
-      {/* Mobile Navigation */}
+      {/* Mobile Navigation - APENAS DESKTOP */}
+      <div className="hidden 2xl:block">
       <MobileNav
         onProfileClick={() => setActiveView("profile")}
         onSettingsClick={() => setActiveView("settings")}
@@ -1100,6 +1104,343 @@ export default function HomePage() {
         activeView={activeView}
         setActiveView={setActiveView}
       />
+      </div>
+
+      {/* Modais e componentes flutuantes avançados */}
+      
+      {/* Notificações Modal */}
+      {showNotifications && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-md h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold">Notificações</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowNotifications(false)}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="flex-1 overflow-auto p-4">
+              {notifications.length === 0 ? (
+                <div className="text-center text-gray-500 py-8">
+                  Nenhuma notificação
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {notifications.map((notification) => (
+                    <div
+                      key={notification.id}
+                      className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full mt-2" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{notification.title}</p>
+                          <p className="text-xs text-gray-500">Nova notificação</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Chat Interface */}
+      {showChat && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-6xl h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold">Mensagens</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowChat(false)}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <MessagesContent />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Analytics Dashboard */}
+      {showAnalytics && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-6xl h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold">Analytics Dashboard</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowAnalytics(false)}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="flex-1 overflow-auto p-4">
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold">Analytics Dashboard</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Visualizações</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold text-blue-600">1,234</div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Seguidores</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold text-green-600">567</div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Posts</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold text-purple-600">89</div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sistema de Reports */}
+      {showReportModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-md p-6">
+            <h3 className="text-lg font-semibold mb-4">Reportar Post</h3>
+            <div className="space-y-4">
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Motivo do report" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="spam">Spam</SelectItem>
+                  <SelectItem value="inappropriate">Conteúdo inadequado</SelectItem>
+                  <SelectItem value="harassment">Assédio</SelectItem>
+                  <SelectItem value="other">Outro</SelectItem>
+                </SelectContent>
+              </Select>
+              <textarea
+                placeholder="Descrição adicional..."
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg"
+                rows={3}
+              />
+              <div className="flex gap-2">
+                <Button onClick={() => setShowReportModal(false)}>
+                  Enviar Report
+                </Button>
+                <Button variant="outline" onClick={() => setShowReportModal(false)}>
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Painel de Moderação */}
+      {showModerationPanel && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-6xl h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold">Painel de Moderação</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowModerationPanel(false)}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="flex-1 overflow-auto p-4">
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold">Painel de Moderação</h2>
+                <div className="space-y-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Reports Pendentes</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-center text-gray-500">
+                        Nenhum report pendente
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Ações Recentes</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-center text-gray-500">
+                        Nenhuma ação recente
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Configurações do Usuário */}
+      {showSettings && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-2xl h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold">Configurações</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowSettings(false)}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="flex-1 overflow-auto p-4">
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold">Configurações</h2>
+                <div className="space-y-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Notificações</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span>Notificações push</span>
+                        <Button variant="outline" size="sm">Ativado</Button>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>Email</span>
+                        <Button variant="outline" size="sm">Desativado</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Privacidade</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span>Perfil público</span>
+                        <Button variant="outline" size="sm">Ativado</Button>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>Mostrar localização</span>
+                        <Button variant="outline" size="sm">Desativado</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Editor de Perfil */}
+      {showProfileEditor && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-2xl h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold">Editar Perfil</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowProfileEditor(false)}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="flex-1 overflow-auto p-4">
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold">Editar Perfil</h2>
+                <div className="space-y-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Informações Básicas</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Nome</label>
+                        <input
+                          type="text"
+                          defaultValue={profile?.full_name || ""}
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Bio</label>
+                        <textarea
+                          defaultValue={profile?.bio || ""}
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg"
+                          rows={3}
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <div className="flex gap-2">
+                    <Button>Salvar Alterações</Button>
+                    <Button variant="outline">Cancelar</Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast para novos posts */}
+      <div className="fixed bottom-4 right-4 z-50">
+        {/* Toast notifications aparecerão aqui */}
+      </div>
+
+      {/* Navegação Mobile Melhorada */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 xl:hidden">
+        <div className="flex justify-around py-2">
+          <Button variant="ghost" size="sm" onClick={() => setActiveView("home")}>
+            <Home className="w-5 h-5" />
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => setShowSearch(true)}>
+            <Search className="w-5 h-5" />
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => setShowNotifications(true)} className="relative">
+            <div className="relative">
+              <Bell className="w-5 h-5" />
+              {/* Badge de notificações mobile */}
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
+                <span className="text-xs text-white font-bold">3</span>
+              </div>
+            </div>
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => setShowChat(true)} className="relative">
+            <div className="relative">
+              <MessageCircle className="w-5 h-5" />
+              {/* Badge de mensagens mobile */}
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
+                <span className="text-xs text-white font-bold">2</span>
+              </div>
+            </div>
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

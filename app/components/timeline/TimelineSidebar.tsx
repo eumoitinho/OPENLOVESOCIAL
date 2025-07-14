@@ -20,6 +20,11 @@ import {
   LogOut,
   Edit,
   ChevronDown,
+  Filter,
+  MessageCircle,
+  BarChart3,
+  Shield,
+  FileText,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Logo from "../Logo"
@@ -52,6 +57,12 @@ interface TimelineSidebarProps {
   onNavigateToFriends?: () => void
   onNavigateToSearch?: () => void
   onCreatePost?: () => void
+  // Novos callbacks para funcionalidades avançadas
+  onShowFilters?: () => void
+  onShowChat?: () => void
+  onShowAnalytics?: () => void
+  onShowModeration?: () => void
+  onShowProfileEditor?: () => void
 }
 
 export function TimelineSidebar({ 
@@ -67,7 +78,12 @@ export function TimelineSidebar({
   onNavigateToNotifications,
   onNavigateToFriends,
   onNavigateToSearch,
-  onCreatePost 
+  onCreatePost,
+  onShowFilters,
+  onShowChat,
+  onShowAnalytics,
+  onShowModeration,
+  onShowProfileEditor
 }: TimelineSidebarProps) {
   const { user, signOut } = useAuth()
   
@@ -247,15 +263,21 @@ export function TimelineSidebar({
           <Button 
             variant="ghost" 
             className={cn(
-              "w-full justify-start gap-3 xs:gap-4 text-left h-11 xs:h-12 px-3 xs:px-4 rounded-full transition-all duration-200",
+              "w-full justify-start gap-3 xs:gap-4 text-left h-11 xs:h-12 px-3 xs:px-4 rounded-full transition-all duration-200 relative",
               activeView === "notifications" && "bg-transparent"
             )}
             onClick={() => setActiveView("notifications")}
           > 
+            <div className="relative">
             <Bell className={cn(
               "w-5 h-5 xs:w-6 xs:h-6 transition-colors",
               activeView === "notifications" ? "text-pink-600 dark:text-pink-400" : "text-gray-600 dark:text-gray-400"
             )} /> 
+              {/* Badge de notificações */}
+              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-pink-500 rounded-full flex items-center justify-center">
+                <span className="text-[10px] text-white font-medium">2</span>
+              </div>
+            </div>
             <span className={cn(
               "text-base xs:text-lg transition-all hidden lg:inline",
               activeView === "notifications" ? "font-bold text-gray-900 dark:text-white" : "font-normal text-gray-600 dark:text-gray-400"
@@ -265,15 +287,21 @@ export function TimelineSidebar({
           <Button 
             variant="ghost" 
             className={cn(
-              "w-full justify-start gap-3 xs:gap-4 text-left h-11 xs:h-12 px-3 xs:px-4 rounded-full transition-all duration-200",
+              "w-full justify-start gap-3 xs:gap-4 text-left h-11 xs:h-12 px-3 xs:px-4 rounded-full transition-all duration-200 relative",
               activeView === "messages" && "bg-transparent"
             )}
             onClick={() => setActiveView("messages")}
           > 
+            <div className="relative">
             <Mail className={cn(
               "w-5 h-5 xs:w-6 xs:h-6 transition-colors",
               activeView === "messages" ? "text-pink-600 dark:text-pink-400" : "text-gray-600 dark:text-gray-400"
             )} /> 
+              {/* Badge de mensagens */}
+              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-pink-500 rounded-full flex items-center justify-center">
+                <span className="text-[10px] text-white font-medium">1</span>
+              </div>
+            </div>
             <span className={cn(
               "text-base xs:text-lg transition-all hidden lg:inline",
               activeView === "messages" ? "font-bold text-gray-900 dark:text-white" : "font-normal text-gray-600 dark:text-gray-400"
@@ -381,6 +409,7 @@ export function TimelineSidebar({
             <Settings className="w-5 h-5 xs:w-6 xs:h-6 text-gray-600 dark:text-gray-400" /> 
             <span className="text-base xs:text-lg font-normal text-gray-600 dark:text-gray-400 hidden lg:inline">Configurações</span> 
           </Button>
+
 
           {/* Botão Postar */}
           <div className="inline-flex w-full justify-center items-center gap-2 bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 dark:from-pink-500 dark:via-rose-500 dark:to-purple-500 p-[1px] rounded-full group hover:scale-105 transition-all duration-300 hover:shadow-xl">

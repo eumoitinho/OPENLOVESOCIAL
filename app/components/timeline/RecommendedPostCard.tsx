@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { AvatarBadge } from "@/app/components/ui/avatar-badge"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { 
@@ -31,6 +32,7 @@ interface RecommendedPostCardProps {
   onComment: (postId: number) => void
   onShare: (postId: number) => void
   onViewMedia: (postId: number, mediaIndex: number) => void
+  onViewProfile?: (username: string) => void
   currentUser: any
 }
 
@@ -42,6 +44,7 @@ export default function RecommendedPostCard({
   onComment,
   onShare,
   onViewMedia,
+  onViewProfile,
   currentUser
 }: RecommendedPostCardProps) {
   const { user } = useAuth()
@@ -116,15 +119,23 @@ export default function RecommendedPostCard({
         <CardHeader className="pb-3 post-card-header">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
-              <Avatar className="w-12 h-12 border-2 border-gray-200 dark:border-gray-700">
-                <AvatarImage src={post.user?.avatar || "/placeholder-user.jpg"} alt={post.user?.name} />
-                <AvatarFallback className="text-sm font-semibold">
-                  {post.user?.name?.split(' ').map((n: string) => n[0]).join('') || 'U'}
-                </AvatarFallback>
-              </Avatar>
+              <AvatarBadge
+                src={post.user?.avatar || "/placeholder-user.jpg"}
+                alt={post.user?.name}
+                fallback={post.user?.name?.split(' ').map((n: string) => n[0]).join('') || 'U'}
+                size="lg"
+                isVerified={post.user?.verified}
+                isPremium={post.user?.premium}
+                createdAt={post.timestamp}
+                onClick={() => onViewProfile?.(post.user?.username?.replace('@', '') || 'usuario')}
+                className="border-2 border-gray-200 dark:border-gray-700 cursor-pointer hover:opacity-80 transition-opacity"
+              />
               <div className="flex flex-col">
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-gray-900 dark:text-white text-base">
+                  <span 
+                    className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base cursor-pointer hover:text-pink-600 dark:hover:text-pink-400 transition-colors"
+                    onClick={() => onViewProfile?.(post.user?.username?.replace('@', '') || 'usuario')}
+                  >
                     {post.user?.name || 'Usuário'}
                   </span>
                   {post.user?.verified && (
@@ -133,7 +144,7 @@ export default function RecommendedPostCard({
                     </Badge>
                   )}
                 </div>
-                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                   <span>@{post.user?.username || 'usuario'}</span>
                   <span>•</span>
                   <span>{formatDate(post.timestamp)}</span>
@@ -169,7 +180,7 @@ export default function RecommendedPostCard({
         <CardContent className="pt-0 space-y-4 post-card-content">
           {/* Conteúdo do Post */}
           <div className="space-y-3">
-            <p className="text-gray-900 dark:text-white text-base leading-relaxed">
+            <p className="text-gray-900 dark:text-white text-sm sm:text-base leading-relaxed">
               {post.content}
             </p>
 
@@ -241,7 +252,7 @@ export default function RecommendedPostCard({
           </div>
 
           {/* Estatísticas */}
-          <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-100 dark:border-gray-800 post-card-actions">
+          <div className="flex items-center justify-between text-xs sm:text-sm text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-100 dark:border-gray-800 post-card-actions">
             <div className="flex items-center gap-4">
               <span>{post.likes || 0} curtidas</span>
               <span>{post.comments || 0} comentários</span>
@@ -266,7 +277,7 @@ export default function RecommendedPostCard({
                 )}
               >
                 <Heart className={cn("w-5 h-5", post.liked && "fill-current")} />
-                <span className="text-sm">Curtir</span>
+                <span className="text-xs sm:text-sm">Curtir</span>
               </Button>
               <Button
                 variant="ghost"
@@ -275,7 +286,7 @@ export default function RecommendedPostCard({
                 className="flex items-center gap-2 px-3 py-2 h-10"
               >
                 <MessageCircle className="w-5 h-5" />
-                <span className="text-sm">Comentar</span>
+                <span className="text-xs sm:text-sm">Comentar</span>
               </Button>
               <Button
                 variant="ghost"
@@ -284,7 +295,7 @@ export default function RecommendedPostCard({
                 className="flex items-center gap-2 px-3 py-2 h-10"
               >
                 <Share2 className="w-5 h-5" />
-                <span className="text-sm">Compartilhar</span>
+                <span className="text-xs sm:text-sm">Compartilhar</span>
               </Button>
             </div>
             <Button

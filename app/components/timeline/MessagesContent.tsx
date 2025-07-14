@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import { useAuth } from "@/app/components/auth/AuthProvider"
-import ConversationList from "@/app/components/chat/ConversationList"
+import { ConversationList } from "@/app/components/chat/ConversationList"
 import Chat from "@/app/components/chat/Chat"
 import { WebRTCProvider } from "@/app/components/chat/WebRTCContext"
 import { Button } from "@/components/ui/button"
@@ -26,19 +26,22 @@ interface Message {
 
 interface Conversation {
   id: string
-  name: string
-  avatar?: string
-  lastMessage?: string
-  lastMessageTime?: string
-  unreadCount: number
-  isOnline: boolean
-  type: "direct" | "group"
-  participants: Array<{
+  type: 'direct' | 'group'
+  name?: string
+  created_at: string
+  updated_at: string
+  participants: {
     id: string
     name: string
-    avatar?: string
-    isOnline: boolean
-  }>
+    username: string
+    avatar_url?: string
+  }[]
+  last_message?: {
+    content: string
+    sender_name: string
+    created_at: string
+  }
+  unread_count: number
 }
 
 export function MessagesContent() {
@@ -90,19 +93,22 @@ export function MessagesContent() {
       // Converter formato da API para o formato esperado pelos componentes
       const formattedConversations: Conversation[] = result.data?.map((conv: any) => ({
         id: conv.id,
-        name: conv.user.name,
-        avatar: conv.user.avatar,
-        lastMessage: conv.lastMessage?.content,
-        lastMessageTime: conv.lastMessage?.timestamp,
-        unreadCount: conv.unreadCount || 0,
-        isOnline: conv.user.isOnline,
         type: 'direct' as const,
+        name: conv.user.name,
+        created_at: conv.created_at || new Date().toISOString(),
+        updated_at: conv.updated_at || new Date().toISOString(),
         participants: [{
           id: conv.user.username,
           name: conv.user.name,
-          avatar: conv.user.avatar,
-          isOnline: conv.user.isOnline
-        }]
+          username: conv.user.username,
+          avatar_url: conv.user.avatar
+        }],
+        last_message: conv.lastMessage ? {
+          content: conv.lastMessage.content,
+          sender_name: conv.lastMessage.sender_name || conv.user.name,
+          created_at: conv.lastMessage.timestamp
+        } : undefined,
+        unread_count: conv.unreadCount || 0
       })) || []
 
       setConversations(formattedConversations)
@@ -188,6 +194,24 @@ export function MessagesContent() {
   }
 
   const selectedConversation = conversations.find(c => c.id === selectedConversationId)
+  
+  // Converter para o formato esperado pelo componente Chat
+  const convertConversationForChat = (conv: Conversation | null) => {
+    if (!conv) return null
+    
+    return {
+      id: conv.id,
+      name: conv.name || conv.participants[0]?.name || 'Conversa',
+      avatar: conv.participants[0]?.avatar_url,
+      type: conv.type,
+      participants: conv.participants.map(p => ({
+        id: p.id,
+        name: p.name,
+        avatar: p.avatar_url,
+        isOnline: false // Por enquanto, não temos essa informação
+      }))
+    }
+  }
 
   if (!user) {
     return (
@@ -224,13 +248,7 @@ export function MessagesContent() {
         <div className="flex h-[calc(100vh-200px)] bg-chat-bg-light dark:bg-chat-bg-dark rounded-lg overflow-hidden border border-chat-border-light dark:border-chat-border-dark shadow-lg">
           {/* Sidebar com lista de conversas */}
           <div className={`${isMobile && selectedConversationId ? 'hidden' : 'block'} w-full md:w-80 border-r border-chat-border-light dark:border-chat-border-dark bg-chat-bg-light dark:bg-chat-bg-dark`}>
-            <ConversationList
-              selectedConversationId={selectedConversationId || undefined}
-              conversations={conversations}
-              loading={loading}
-              onSelectConversation={handleSelectConversation}
-              onDeleteConversation={handleDeleteConversation}
-            />
+           
           </div>
 
           {/* Área do chat */}
@@ -250,7 +268,7 @@ export function MessagesContent() {
             )}
             
             <Chat
-              conversation={selectedConversation || null}
+              conversation={convertConversationForChat(selectedConversation || null)}
               messages={messages}
               currentUserId={user.id}
               onSendMessage={handleSendMessage}

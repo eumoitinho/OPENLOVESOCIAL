@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import { useAuth } from "@/app/components/auth/AuthProvider"
-import ConversationList from "@/app/components/chat/ConversationList"
+import { ConversationList } from "@/app/components/chat/ConversationList"
 import Chat from "@/app/components/chat/Chat"
 import { WebRTCProvider } from "@/app/components/chat/WebRTCContext"
 import { Button } from "@/components/ui/button"
@@ -208,11 +208,8 @@ export default function MessagesPage() {
         {/* Sidebar com lista de conversas */}
         <div className={`${isMobile && selectedConversationId ? 'hidden' : 'block'} w-full md:w-80 border-r bg-white`}>
           <ConversationList
-            selectedConversationId={selectedConversationId || undefined}
-            conversations={conversations}
-            loading={loading}
+            conversations={conversations as any}
             onSelectConversation={handleSelectConversation}
-            onDeleteConversation={handleDeleteConversation}
           />
         </div>
 

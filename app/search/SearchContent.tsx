@@ -128,37 +128,37 @@ const SearchContent: React.FC<SearchContentProps> = ({ initialQuery, initialType
     <Link
       key={user.id}
       href={`/profile/${user.username}`}
-      className="block bg-white rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow"
+      className="block bg-white rounded-lg shadow-sm border p-3 xs:p-4 hover:shadow-md transition-shadow"
     >
-      <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-3 xs:space-x-4">
         <div className="flex-shrink-0">
           {user.avatar_url ? (
-            <img src={user.avatar_url || "/placeholder.svg"} alt={user.full_name} className="w-12 h-12 rounded-full" />
+              <img src={user.avatar_url || "/placeholder.svg"} alt={user.full_name} className="w-10 h-10 xs:w-12 xs:h-12 rounded-full" />
           ) : (
-            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-              <Users className="w-6 h-6 text-blue-600" />
+              <div className="w-10 h-10 xs:w-12 xs:h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                <Users className="w-5 h-5 xs:w-6 xs:h-6 text-blue-600" />
             </div>
           )}
         </div>
         <div className="flex-grow min-w-0">
-          <div className="flex items-center space-x-2">
-            <h3 className="text-lg font-medium text-gray-900 truncate">{user.full_name}</h3>
-            {user.is_verified && <span className="text-blue-500">✓</span>}
+          <div className="flex items-center space-x-1 xs:space-x-2">
+            <h3 className="text-sm xs:text-lg font-medium text-gray-900 truncate">{user.full_name}</h3>
+            {user.is_verified && <span className="text-blue-500 text-xs xs:text-sm">✓</span>}
           </div>
-          <p className="text-sm text-gray-500">@{user.username}</p>
-          {user.bio && <p className="text-sm text-gray-700 mt-1 line-clamp-2">{user.bio}</p>}
-          {user.location && <p className="text-xs text-gray-500 mt-1">{user.location}</p>}
+          <p className="text-xs xs:text-sm text-gray-500">@{user.username}</p>
+          {user.bio && <p className="text-xs xs:text-sm text-gray-700 mt-1 line-clamp-2">{user.bio}</p>}
+          {user.location && <p className="text-[10px] xs:text-xs text-gray-500 mt-1">{user.location}</p>}
         </div>
       </div>
       {user.interests && user.interests.length > 0 && (
-        <div className="mt-3 flex flex-wrap gap-1">
+        <div className="mt-2 xs:mt-3 flex flex-wrap gap-0.5 xs:gap-1">
           {user.interests.slice(0, 3).map((interest: string) => (
-            <span key={interest} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+            <span key={interest} className="px-1.5 xs:px-2 py-0.5 xs:py-1 bg-blue-100 text-blue-800 text-[10px] xs:text-xs rounded-full">
               {interest}
             </span>
           ))}
           {user.interests.length > 3 && (
-            <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+            <span className="px-1.5 xs:px-2 py-0.5 xs:py-1 bg-gray-100 text-gray-600 text-[10px] xs:text-xs rounded-full">
               +{user.interests.length - 3}
             </span>
           )}
@@ -171,26 +171,26 @@ const SearchContent: React.FC<SearchContentProps> = ({ initialQuery, initialType
     <Link
       key={community.id}
       href={`/communities/${community.slug}`}
-      className="block bg-white rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow"
+      className="block bg-white rounded-lg shadow-sm border p-3 xs:p-4 hover:shadow-md transition-shadow"
     >
-      <div className="flex items-start space-x-4">
+              <div className="flex items-start space-x-3 xs:space-x-4">
         <div className="flex-shrink-0">
           {community.image_url ? (
             <img
               src={community.image_url || "/placeholder.svg"}
               alt={community.name}
-              className="w-12 h-12 rounded-lg object-cover"
+                className="w-10 h-10 xs:w-12 xs:h-12 rounded-lg object-cover"
             />
           ) : (
-            <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
-              <Building className="w-6 h-6 text-green-600" />
+              <div className="w-10 h-10 xs:w-12 xs:h-12 rounded-lg bg-green-100 flex items-center justify-center">
+                <Building className="w-5 h-5 xs:w-6 xs:h-6 text-green-600" />
             </div>
           )}
         </div>
         <div className="flex-grow min-w-0">
-          <h3 className="text-lg font-medium text-gray-900">{community.name}</h3>
-          <p className="text-sm text-gray-500">{community.member_count} membros</p>
-          <p className="text-sm text-gray-700 mt-1 line-clamp-2">{community.description}</p>
+            <h3 className="text-sm xs:text-lg font-medium text-gray-900">{community.name}</h3>
+            <p className="text-xs xs:text-sm text-gray-500">{community.member_count} membros</p>
+            <p className="text-xs xs:text-sm text-gray-700 mt-1 line-clamp-2">{community.description}</p>
           {community.interest_categories && (
             <span
               className="inline-block mt-2 px-2 py-1 text-xs rounded-full"

@@ -120,6 +120,7 @@ export default function SignUp() {
     password: "",
     confirmPassword: "",
     fullName: "",
+    username: "",
 
     // Etapa 2
     profileType: "",
@@ -160,6 +161,7 @@ export default function SignUp() {
           formData.password &&
           formData.confirmPassword &&
           formData.fullName &&
+          formData.username &&
           formData.password === formData.confirmPassword
         )
       case 2:
@@ -204,7 +206,7 @@ export default function SignUp() {
         const userData: User = {
           id: authData.user.id,
           email: formData.email,
-          username: authData.user.email?.split("@")[0] || "user_" + authData.user.id.substring(0, 8),
+          username: formData.username || authData.user.email?.split("@")[0] || "user_" + authData.user.id.substring(0, 8),
           name: formData.fullName,
           bio: formData.bio || null,
           location: formData.location || null,
@@ -288,6 +290,17 @@ export default function SignUp() {
                   onChange={(e) => handleInputChange("email", e.target.value)}
                   placeholder="seu@email.com"
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="username">Nome de Usuário</Label>
+                <Input
+                  id="username"
+                  value={formData.username}
+                  onChange={(e) => handleInputChange("username", e.target.value)}
+                  placeholder="seu_usuario"
+                />
+                <p className="text-xs text-gray-500">Este será seu @username no OpenLove</p>
               </div>
 
               <div className="space-y-2">

@@ -1,413 +1,229 @@
-# 🌹 OpenLove - Plataforma Social para Conexões Autênticas
+# OpenLove - Rede Social Moderna
 
-<div align="center">
+## 📋 Sobre o Projeto
 
-![OpenLove Logo](https://img.shields.io/badge/OpenLove-v0.3.0--alpha.2-pink?style=for-the-badge&logo=heart&logoColor=white)
+OpenLove é uma rede social moderna e completa, desenvolvida com Next.js 15, TypeScript, Tailwind CSS e Supabase. O projeto oferece uma experiência de usuário rica com funcionalidades avançadas de interação social.
 
-**Uma plataforma social moderna para casais e pessoas que buscam conexões autênticas, eventos locais e uma comunidade segura com abordagem liberal e familiar.**
+## ✨ Funcionalidades Principais
 
-[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
-[![Supabase](https://img.shields.io/badge/Supabase-Database-green?style=flat-square&logo=supabase)](https://supabase.com/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
-[![shadcn/ui](https://img.shields.io/badge/shadcn/ui-Components-000?style=flat-square)](https://ui.shadcn.com/)
+### 🔐 **Autenticação e Perfil**
+- Sistema de autenticação completo com Supabase Auth
+- Perfis de usuário personalizáveis com avatars e badges
+- Sistema de badges dinâmicos (verificado, premium, online, novo)
+- Edição de perfil em tempo real
 
-[📖 Docs](https://docs.openlove.com) • [🐛 Issues](https://github.com/openlove/issues) • [💬 Discord](https://discord.gg/openlove)
+### 📱 **Interface Responsiva**
+- Design mobile-first com navegação bottom
+- Sidebar adaptativa para desktop
+- Componentes otimizados para diferentes telas
+- **Tipografia responsiva** - fontes menores em mobile para melhor legibilidade
+- Animações suaves com Framer Motion
 
-</div>
+### 💬 **Sistema de Comunicação**
+- Chat em tempo real com WebRTC
+- Notificações com badges do HeroUI
+- Sistema de mensagens com reações
+- Upload de arquivos no chat
 
----
+### 🎨 **Design Moderno**
+- Cards com design moderno e animações
+- Gradientes e sombras sutis
+- Micro-interações em botões e elementos
+- **Layout responsivo otimizado** para mobile e desktop
+- Cores dinâmicas baseadas no tema
 
-## 🎯 **Visão Geral**
+### 📊 **Funcionalidades Avançadas**
+- Sistema de likes com atualização otimista
+- Busca avançada com filtros múltiplos
+- Trending topics em tempo real
+- Sugestões de usuários inteligentes
+- Eventos próximos com geolocalização
+- Sistema de follows com estados visuais
 
-ConnectHub é uma plataforma social inovadora que conecta casais e pessoas em busca de relacionamentos autênticos, amizades e eventos locais. Com foco em segurança, respeito e liberdade de expressão, oferecemos um ambiente moderado onde usuários podem:
+### 🔔 **Notificações Inteligentes**
+- Badges do HeroUI para notificações
+- Centro de notificações modal
+- Configurações personalizáveis
+- Horário silencioso
+- Diferentes tipos de notificação
 
-- 💕 **Conectar-se** com casais e pessoas afins
-- 🎉 **Participar** de eventos locais e workshops
-- 💬 **Conversar** em tempo real com sistema de chat avançado
-- 🔒 **Navegar** com segurança em ambiente moderado
-- ⭐ **Acessar** recursos premium para experiência completa
+## 🚀 **Versão**: v0.3.0-alpha.9
+**Última atualização**: Janeiro 2025  
+**Status**: Em desenvolvimento ativo
 
-## 🚀 Funcionalidades Principais
+### 📱 **Melhorias Mobile Recentes**
+- **Tipografia responsiva** implementada em todos os cards
+- Fontes menores em mobile (`text-xs sm:text-sm`) para melhor legibilidade
+- Botões e elementos otimizados para telas pequenas
+- Layout adaptativo para diferentes tamanhos de tela
+- Melhor experiência de usuário em dispositivos móveis
 
-### Sistema de Autenticação e Sessão
-- **Login/Registro**: Sistema completo de autenticação com email e senha
-- **Verificação de Email**: 2FA com código de verificação enviado por email
-- **Timeout de Sessão**: Sessões expiram automaticamente após 5 horas por segurança
-- **Redirecionamento Inteligente**: 
-  - Usuários não logados são redirecionados para a página inicial (/)
-  - Usuários logados são redirecionados para a home (/home)
-  - Proteção automática de rotas sensíveis
-- **Verificação Periódica**: Sistema verifica timeout de sessão a cada 5 minutos
-- **Logout Automático**: Sessões expiradas fazem logout automático e redirecionam
-
-### Perfil de Usuário
-- **Perfil Completo**: Galeria, posts, amigos, reputação, tokens
-- **Foto de Perfil e Capa**: Upload e gerenciamento de mídia
-- **Informações Detalhadas**: Data de entrada, cidade, distância
-- **Sistema de Seguir**: Seguir usuários ou solicitar acesso para perfis privados
-- **Visualização de Perfil**: Sistema completo de visualização de perfis por username
-- **Perfil Integrado**: Visualização do perfil diretamente na página home (no lugar da timeline)
-
-### Timeline e Navegação
-- **Sistema de Navegação Interna (SPA)**: Todas as páginas abrem na view principal
-- **Controle de Estado**: Views e histórico de navegação
-- **Views Disponíveis**: Home, perfil, eventos, comunidades, mensagens, notificações, amigos, busca, salvos, configurações
-- **Sidebar Responsiva**: Navegação lateral com todas as funcionalidades
-- **Navegação Móvel**: Menu mobile otimizado
-
-### Sistema de Posts
-- **Criação de Posts**: Texto, mídia, visibilidade (público/amigos)
-- **Interações**: Likes, comentários, compartilhamento
-- **Timeline Dinâmica**: Feed personalizado com posts de usuários seguidos
-- **Mídia Otimizada**: Upload e otimização automática de imagens e vídeos
-
-### Comunidades e Eventos
-- **Criação de Comunidades**: Grupos temáticos com moderadores
-- **Eventos**: Criação e participação em eventos
-- **Sistema de Membros**: Gerenciamento de membros e permissões
-
-### Sistema de Amizades
-- **Solicitações de Amizade**: Enviar e responder solicitações
-- **Sugestões**: Algoritmo de recomendação de amigos
-- **Gerenciamento**: Lista de amigos e solicitações pendentes
-
-### Chat e Comunicação
-- **Chat em Tempo Real**: Sistema de mensagens instantâneas
-- **Chamadas de Vídeo**: WebRTC para chamadas de vídeo
-- **Notificações**: Sistema de notificações em tempo real
-
-### Sistema de Pagamentos
-- **Integração MercadoPago**: Pagamentos e assinaturas
-- **Planos Premium**: 
-  - **Free**: Acesso básico
-  - **Open Ouro (R$ 25/mês)**: 5 imagens, 1 vídeo (25MB), mensagens
-  - **Open Diamante (R$ 45,90/mês)**: 10 imagens, 1 vídeo (50MB), recursos avançados
-- **Webhooks**: Processamento seguro de pagamentos
-
-### Sistema de Anúncios
-- **Dashboard de Anúncios**: Criação e gerenciamento de campanhas
-- **Métricas**: Analytics e relatórios de performance
-- **Segmentação**: Direcionamento por público-alvo
+### 🎯 **Funcionalidades Implementadas**
+- ✅ Sistema completo de autenticação
+- ✅ Perfis de usuário com badges dinâmicos
+- ✅ Chat em tempo real com WebRTC
+- ✅ Notificações com badges do HeroUI
+- ✅ Timeline com posts interativos
+- ✅ Sistema de likes e comentários
+- ✅ Busca avançada com filtros
+- ✅ Navegação mobile responsiva
+- ✅ Design moderno com animações
+- ✅ **Tipografia responsiva otimizada**
 
 ## 🛠️ Tecnologias Utilizadas
 
-- **Frontend**: Next.js 14, React 18, TypeScript
-- **Backend**: Next.js API Routes, Supabase
-- **Banco de Dados**: PostgreSQL (via Supabase)
-- **Autenticação**: Supabase Auth
-- **Estilização**: Tailwind CSS, shadcn/ui
-- **Estado**: React Context, Zustand
-- **Mídia**: Supabase Storage
-- **Pagamentos**: MercadoPago
-- **Chat**: WebRTC, Socket.io
-- **Deploy**: Vercel, Docker
+- **Frontend**: Next.js 15, React 18, TypeScript
+- **Estilização**: Tailwind CSS, Framer Motion
+- **UI Components**: HeroUI, Shadcn/ui
+- **Backend**: Supabase (Auth, Database, Storage, Realtime)
+- **Pagamentos**: MercadoPago, Stripe
+- **Deploy**: Vercel
 
-## 📋 Pré-requisitos
+## 📱 Responsividade
 
-- Node.js 18+
-- pnpm (gerenciador de pacotes)
-- Conta no Supabase
-- Conta no MercadoPago (para pagamentos)
+### **Breakpoints Otimizados**
+- Mobile: < 768px (fontes menores)
+- Tablet: 768px - 1024px
+- Desktop: > 1024px
 
-## 🚀 Instalação
+### **Tipografia Responsiva**
+- **Mobile**: `text-xs` (12px) para melhor legibilidade
+- **Desktop**: `text-sm` (14px) para conforto visual
+- **Títulos**: `text-lg sm:text-xl` para hierarquia clara
+- **Botões**: `text-xs sm:text-sm` para proporção adequada
 
-1. **Clone o repositório**
+### **Componentes Adaptativos**
+- **PostCard**: Fontes responsivas em todos os elementos
+- **UserProfile**: Layout compacto em mobile
+- **Navigation**: Bottom nav em mobile, sidebar em desktop
+- **Chat**: Interface otimizada para telas pequenas
+- **Filters**: Accordion em mobile, grid em desktop
+
+## ⚡ Performance
+
+### **Otimizações Implementadas**
+- Lazy loading de componentes
+- Debounce em buscas
+- Paginação em listas
+- Caching de queries
+- Compressão de imagens
+- Bundle splitting
+- **Tipografia responsiva** para melhor performance visual
+
+### **Métricas Recomendadas**
+- FCP < 1.5s
+- LCP < 2.5s
+- CLS < 0.1
+- FID < 100ms
+
+## 🎨 Design System
+
+### **Cores Principais**
+- **Primária**: Rosa/roxo gradiente (`from-pink-500 to-purple-500`)
+- **Secundária**: Azul (`blue-600`)
+- **Neutra**: Cinza (`gray-900`, `gray-100`)
+
+### **Tipografia Responsiva**
+```css
+/* Mobile First */
+.text-xs sm:text-sm    /* 12px → 14px */
+.text-sm sm:text-base  /* 14px → 16px */
+.text-lg sm:text-xl    /* 18px → 20px */
+.text-xl sm:text-2xl   /* 20px → 24px */
+```
+
+### **Componentes Modernos**
+- Cards com backdrop blur
+- Gradientes sutis
+- Sombras dinâmicas
+- Micro-animações
+- Estados visuais claros
+
+## 🔧 Configuração
+
+### **Pré-requisitos**
 ```bash
-git clone https://github.com/seu-usuario/openlove.git
+Node.js 18+
+pnpm 8+
+Supabase account
+```
+
+### **Instalação**
+```bash
+git clone [repository]
 cd openlove
-```
-
-2. **Instale as dependências**
-```bash
 pnpm install
-```
-
-3. **Configure as variáveis de ambiente**
-```bash
 cp .env.example .env.local
-```
-
-Edite o arquivo `.env.local` com suas configurações:
-```env
-NEXT_PUBLIC_SUPABASE_URL=sua_url_do_supabase
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_chave_anonima_do_supabase
-SUPABASE_SERVICE_ROLE_KEY=sua_chave_service_role_do_supabase
-MERCADOPAGO_ACCESS_TOKEN=seu_token_do_mercadopago
-MERCADOPAGO_WEBHOOK_SECRET=seu_webhook_secret
-```
-
-4. **Configure o banco de dados**
-```bash
-# Execute os scripts SQL na ordem correta no Supabase SQL Editor
-# 1. Script inicial
-scripts/001_initial_schema.sql
-
-# 2. Dados iniciais
-scripts/002_seed_data.sql
-
-# 3. Configuração de autenticação
-scripts/003_auth_setup.sql
-
-# 4. Correção de problemas de cadastro (IMPORTANTE!)
-scripts/031_fix_registration.sql
-
-# 5. Outros scripts conforme necessário
-scripts/016_complete_openlove_schema.sql
-scripts/030_message_reactions.sql
-```
-
-5. **Execute o projeto**
-```bash
+# Configure as variáveis de ambiente
 pnpm dev
 ```
 
-O projeto estará disponível em `http://localhost:3000`
-
-## ⚠️ Correção de Problemas de Cadastro
-
-Se você encontrar problemas ao cadastrar novos usuários, execute o script de correção:
-
-1. Acesse o Supabase Dashboard
-2. Vá para SQL Editor
-3. Execute o script: `scripts/031_fix_registration.sql`
-4. Verifique se todas as mensagens de sucesso aparecem
-
-**Documentação completa:** [docs/REGISTRATION_FIX.md](docs/REGISTRATION_FIX.md)
-
-## 🚀 Sistema de Release Automático
-
-### Como Usar
-
-O projeto agora possui um sistema de release automático que detecta códigos de versão nos commits e atualiza automaticamente a versão, changelog e README.
-
-#### Códigos de Versão Suportados
-
-| Código | Descrição | Exemplo de Versão |
-|--------|-----------|-------------------|
-| `[alphamajor]` | Incrementa major + alpha.1 | `1.0.0-alpha.1` |
-| `[alphaminor]` | Incrementa minor + alpha.1 | `0.3.0-alpha.1` |
-| `[alphapatch]` | Incrementa patch + alpha.1 | `0.2.1-alpha.1` |
-| `[alpha]` | Incrementa alpha atual | `0.2.0-alpha.3` |
-| `[betamajor]` | Incrementa major + beta.1 | `1.0.0-beta.1` |
-| `[betaminor]` | Incrementa minor + beta.1 | `0.3.0-beta.1` |
-| `[betapatch]` | Incrementa patch + beta.1 | `0.2.1-beta.1` |
-| `[beta]` | Incrementa beta atual | `0.2.0-beta.3` |
-| `[major]` | Incrementa major version | `1.0.0` |
-| `[minor]` | Incrementa minor version | `0.3.0` |
-| `[patch]` | Incrementa patch version | `0.2.1` |
-
-#### Exemplos de Commits
-
-```bash
-# Nova funcionalidade importante
-git commit -m "feat: sistema de chat em tempo real [alphamajor]"
-
-# Correção de bug
-git commit -m "fix: correção no sistema de autenticação [alphaminor]"
-
-# Atualização de dependências
-git commit -m "chore: atualização de dependências [alpha]"
-
-# Mudança incompatível
-git commit -m "feat: refatoração completa da API [major]"
+### **Variáveis de Ambiente**
+```env
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```
 
-#### Comandos Disponíveis
+## 📊 Estrutura do Projeto
 
-```bash
-# Verificar commits recentes para códigos de versão
-pnpm run auto-release:check
-
-# Executar release automático
-pnpm run auto-release
-
-# Ver ajuda
-pnpm run auto-release:help
+```
+app/
+├── components/
+│   ├── timeline/
+│   │   ├── PostCard.tsx          # Cards responsivos
+│   │   └── RecommendedPostCard.tsx
+│   ├── profile/
+│   │   └── UserProfile.tsx       # Perfil responsivo
+│   ├── navigation/
+│   │   └── MobileNavigation.tsx  # Nav mobile
+│   └── notifications/
+│       └── NotificationBadge.tsx # Badges HeroUI
+├── api/                          # APIs REST
+├── hooks/                        # Hooks customizados
+└── lib/                          # Utilitários
 ```
 
-#### O que é Atualizado Automaticamente
+## 🚀 Deploy
 
-- ✅ **package.json**: Versão atualizada
-- ✅ **README.md**: Badge com nova versão
-- ✅ **CHANGELOG.md**: Histórico de mudanças
-- ✅ **Commits categorizados**: Features, fixes, chores, breaking changes
-
----
-
-## 🔧 Correção de Problemas Críticos (ÚLTIMA ATUALIZAÇÃO)
-
-### Problemas Identificados e Soluções
-
-#### 1. Erro de Build: createServerComponentClient is not a function
-**Status**: ✅ **CORRIGIDO**
-- Corrigido import incorreto em `auth-helpers.ts`
-- Atualizado import de `'./supabase'` para `'./supabase-server'`
-- Build agora funciona corretamente
-
-**Solução:**
-- O arquivo `app/lib/auth-helpers.ts` estava importando de um arquivo placeholder
-- Corrigido para importar de `'./supabase-server'` onde a função está definida
-
-#### 2. Sistema de Notificações com Mock
-**Status**: ✅ **CORRIGIDO**
-- Removido sistema de notificações mockado
-- Implementado sistema real com banco de dados
-- APIs criadas para buscar e marcar notificações
-- Componente `NotificationsContent` atualizado
-
-**Solução:**
-1. **Execute os scripts de correção:**
-   ```sql
-   -- Execute no Supabase SQL Editor
-   scripts/031_fix_notifications_schema.sql
-   scripts/032_create_test_notifications.sql
-   ```
-
-2. **Teste as funcionalidades:**
-   - Acesse `/home` e clique no ícone de notificações
-   - Verifique se as notificações carregam
-   - Teste marcar como lida
-
-#### 2. Erro de Cookies no API de Timeline
-**Status**: ✅ **CORRIGIDO**
-- Corrigido uso do `cookies()` para Next.js 15
-- API de timeline agora funciona corretamente em desktop
-
-#### 3. Timeline não carrega em Desktop
-**Status**: ✅ **CORRIGIDO**
-- Corrigido problema de autenticação na API
-- Posts agora carregam corretamente
-- Seções recuperadas adequadamente
-
-#### 4. Erro de Registro: "Database error creating new user"
-**Status**: ⚠️ **REQUER AÇÃO**
-
-**Solução:**
-1. **Execute o script de correção de permissões:**
-   ```sql
-   -- Execute no Supabase SQL Editor
-   scripts/033_fix_registration_permissions.sql
-   ```
-
-2. **Verifique as variáveis de ambiente:**
-   ```env
-   NEXT_PUBLIC_SUPABASE_URL=sua_url_do_supabase
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_chave_anonima_do_supabase
-   SUPABASE_SERVICE_ROLE_KEY=sua_chave_service_role_do_supabase
-   ```
-
-3. **Reinicie o servidor:**
-   ```bash
-   pnpm dev
-   ```
-
-### O que foi corrigido:
-- ✅ Sistema de notificações real implementado
-- ✅ APIs de notificações funcionando
-- ✅ Timeline corrigida para desktop
-- ✅ Permissões do service role para criar usuários
-- ✅ Políticas RLS adequadas para inserção de usuários
-- ✅ Melhor tratamento de sessão no AuthProvider
-- ✅ Redirecionamento corrigido após login
-- ✅ Logs detalhados para debug
-- ✅ Compatibilidade com Next.js 15
-
-### Funcionalidades de Notificações:
-- ✅ Busca notificações do banco de dados
-- ✅ Exibe notificações não lidas com destaque
-- ✅ Marca notificações como lidas
-- ✅ Marca todas como lidas
-- ✅ Filtros por tipo (todas, não lidas, menções, eventos)
-- ✅ Interface responsiva e moderna
-
-### Se o problema persistir:
-1. Verifique os logs do console do navegador
-2. Verifique os logs do servidor
-3. Confirme se os scripts SQL foram executados com sucesso
-4. Teste com um novo usuário
-
-**Documentação completa das correções:** [docs/NOTIFICATIONS_FIX.md](docs/NOTIFICATIONS_FIX.md)
-
-**Documentação completa:** [docs/CRITICAL_FIXES.md](docs/CRITICAL_FIXES.md)
-
-## 🔧 Configuração do Sistema de Autenticação
-
-### 1. Configuração do Supabase
-- Configure os templates de email em **Settings > Auth > Email Templates**
-- Configure SMTP personalizado em **Settings > Auth > SMTP Settings** (opcional)
-- Configure as políticas RLS nas tabelas do banco
-
-### 2. Timeout de Sessão
-O sistema implementa timeout automático de sessão:
-- **Duração**: 5 horas
-- **Verificação**: A cada 5 minutos no cliente
-- **Middleware**: Verificação em todas as requisições
-- **Logout Automático**: Redirecionamento para página inicial
-
-### 3. Proteção de Rotas
-- **Middleware**: Proteção automática de rotas sensíveis
-- **Redirecionamento**: Inteligente baseado no status de autenticação
-- **APIs**: Todas as APIs verificam autenticação e timeout
-
-## 📱 Funcionalidades Mobile-First
-
-- **Design Responsivo**: Otimizado para dispositivos móveis
-- **Navegação Touch**: Interface adaptada para toque
-- **Navegação Mobile**: Sidebar com ícones e botão de logout
-- **Performance**: Otimizações para conexões lentas
-- **PWA**: Suporte a Progressive Web App
-
-## 🔒 Segurança
-
-- **Autenticação**: JWT tokens gerenciados pelo Supabase
-- **RLS**: Row Level Security no banco de dados
-- **Validação**: Sanitização de inputs e validação de dados
-- **HTTPS**: Forçado em produção
-- **CORS**: Configurado adequadamente
-- **Rate Limiting**: Proteção contra ataques de força bruta
-
-## 🧪 Testes
-
+### **Vercel (Recomendado)**
 ```bash
-# Executar testes
-pnpm test
-
-# Executar testes com coverage
-pnpm test:coverage
-
-# Executar testes em modo watch
-pnpm test:watch
+vercel --prod
 ```
 
-## 📦 Deploy
+### **Configurações de Produção**
+- Configurar domínio personalizado
+- Habilitar SSL
+- Configurar CORS
+- Backup automático
+- Monitoramento
 
-### Vercel (Recomendado)
-1. Conecte seu repositório ao Vercel
-2. Configure as variáveis de ambiente
-3. Deploy automático a cada push
+## 📈 Roadmap
 
-### Docker
-```bash
-# Build da imagem
-docker build -t openlove .
+### **Próximas Funcionalidades**
+- [ ] Push notifications
+- [ ] Video calls
+- [ ] Stories
+- [ ] Live streaming
+- [ ] AI moderation
+- [ ] Marketplace
+- [ ] Events calendar
+- [ ] Groups
 
-# Executar container
-docker run -p 3000:3000 openlove
-```
-
-## 📊 Monitoramento
-
-- **Logs**: Centralizados no Vercel e Supabase
-- **Métricas**: Analytics de uso e performance
-- **Alertas**: Notificações para falhas críticas
+### **Melhorias Técnicas**
+- [ ] Micro-frontends
+- [ ] GraphQL
+- [ ] Redis cache
+- [ ] Kubernetes
+- [ ] CDN
+- [ ] Elasticsearch
 
 ## 🤝 Contribuição
 
 1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
+2. Crie uma branch para sua feature
+3. Commit suas mudanças
+4. Push para a branch
 5. Abra um Pull Request
 
 ## 📄 Licença
@@ -416,20 +232,8 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ## 📞 Suporte
 
-Para suporte e dúvidas:
-- Abra uma [issue](https://github.com/seu-usuario/openlove/issues)
-- Consulte a [documentação](docs/)
-- Entre em contato: suporte@openlove.com
-
-## 🗺️ Roadmap
-
-- [ ] Sistema de notificações push
-- [ ] Integração com redes sociais
-- [ ] Sistema de gamificação
-- [ ] Analytics avançados
-- [ ] API pública
-- [ ] App mobile nativo
+Para dúvidas ou suporte, abra uma issue no GitHub ou entre em contato através do email: support@openlove.com
 
 ---
 
-**OpenLove** - Conectando pessoas, criando relacionamentos.
+**🎉 OpenLove - Conectando pessoas através da tecnologia moderna!**

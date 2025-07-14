@@ -84,147 +84,63 @@ export function TimelineRightSidebar({
 }: TimelineRightSidebarProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [followStates, setFollowStates] = useState<Record<string, "follow" | "requested" | "following">>({})
+  const [trendingTopics, setTrendingTopics] = useState<TrendingTopic[]>([])
+  const [suggestedUsers, setSuggestedUsers] = useState<SuggestedUser[]>([])
+  const [sharedEvents, setSharedEvents] = useState<SharedEvent[]>([])
+  const [loading, setLoading] = useState({
+    trending: true,
+    users: true,
+    events: true
+  })
 
-  // Trending Topics - Dados dinâmicos
-  const [trendingTopics] = useState<TrendingTopic[]>([
-    {
-      id: "1",
-      hashtag: "OpenLove",
-      postCount: 12500,
-      growth: 15.2,
-      category: "general",
-      isHot: true
-    },
-    {
-      id: "2", 
-      hashtag: "LiberdadeERespeito",
-      postCount: 8200,
-      growth: 8.7,
-      category: "relationships"
-    },
-    {
-      id: "3",
-      hashtag: "CasaisLivres", 
-      postCount: 5800,
-      growth: 12.3,
-      category: "relationships"
-    },
-    {
-      id: "4",
-      hashtag: "EventosOpenLove",
-      postCount: 3200,
-      growth: 25.1,
-      category: "events",
-      isHot: true
-    },
-    {
-      id: "5",
-      hashtag: "FotografiaIntima",
-      postCount: 2100,
-      growth: 18.9,
-      category: "lifestyle"
-    }
-  ])
+  // Buscar dados reais
+  useEffect(() => {
+    fetchTrendingTopics()
+    fetchSuggestedUsers()
+    fetchNearbyEvents()
+  }, [])
 
-  // Quem Seguir - Baseado em localização
-  const [suggestedUsers] = useState<SuggestedUser[]>([
-    {
-      id: "1",
-      name: "Maria & Carlos",
-      username: "@mariacarlos",
-      avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-3.png",
-      location: "São Paulo, SP",
-      distance: "2km",
-      followers: 1240,
-      verified: true,
-      premium: true,
-      relationshipType: "Casal (M&H)",
-      tags: ["fotografia", "viagens", "arte"],
-      mutualFriends: 3,
-      followState: "follow"
-    },
-    {
-      id: "2", 
-      name: "Rafael Alves",
-      username: "@rafael_livre",
-      avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-6.png",
-      location: "São Paulo, SP",
-      distance: "5km",
-      followers: 890,
-      verified: false,
-      premium: true,
-      relationshipType: "Solteiro",
-      tags: ["música", "festivais", "cultura"],
-      mutualFriends: 1,
-      followState: "follow"
-    },
-    {
-      id: "3",
-      name: "Ana & Pedro",
-      username: "@anapedro",
-      avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png", 
-      location: "São Paulo, SP",
-      distance: "8km",
-      followers: 2100,
-      verified: true,
-      premium: false,
-      relationshipType: "Casal (M&H)",
-      tags: ["gastronomia", "vinhos", "experiências"],
-      mutualFriends: 5,
-      followState: "follow"
-    },
-    {
-      id: "4",
-      name: "Sofia Mendes",
-      username: "@sofia_livre",
-      avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-16.png",
-      location: "São Paulo, SP", 
-      distance: "3km",
-      followers: 670,
-      verified: false,
-      premium: false,
-      relationshipType: "Solteira",
-      tags: ["yoga", "bem-estar", "natureza"],
-      mutualFriends: 2,
-      followState: "follow"
+  const fetchTrendingTopics = async () => {
+    try {
+      const response = await fetch('/api/trending')
+      if (response.ok) {
+        const data = await response.json()
+        setTrendingTopics(data.trending || [])
+      }
+    } catch (error) {
+      console.error('Erro ao buscar trending topics:', error)
+    } finally {
+      setLoading(prev => ({ ...prev, trending: false }))
     }
-  ])
+  }
 
-  // Eventos Compartilhados
-  const [sharedEvents] = useState<SharedEvent[]>([
-    {
-      id: "1",
-      title: "Workshop de Fotografia Íntima",
-      date: "Sábado, 15 de Dezembro",
-      location: "São Paulo, SP",
-      attendees: 24,
-      maxAttendees: 30,
-      image: "https://cdn.shadcnstudio.com/ss-assets/components/card/image-6.png?width=350&format=auto",
-      category: "Fotografia",
-      sharedBy: {
-        name: "Lisa & João",
-        username: "@lisajoao",
-        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-6.png"
-      },
-      sharedAt: "2h"
-    },
-    {
-      id: "2",
-      title: "Encontro de Casais Livres",
-      date: "Domingo, 16 de Dezembro", 
-      location: "São Paulo, SP",
-      attendees: 45,
-      maxAttendees: 50,
-      image: "https://cdn.shadcnstudio.com/ss-assets/components/card/image-3.png",
-      category: "Social",
-      sharedBy: {
-        name: "Amanda & Carlos",
-        username: "@amandacarlos",
-        avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png"
-      },
-      sharedAt: "4h"
+  const fetchSuggestedUsers = async () => {
+    try {
+      const response = await fetch('/api/suggestions/users')
+      if (response.ok) {
+        const data = await response.json()
+        setSuggestedUsers(data.users || [])
+      }
+    } catch (error) {
+      console.error('Erro ao buscar usuários sugeridos:', error)
+    } finally {
+      setLoading(prev => ({ ...prev, users: false }))
     }
-  ])
+  }
+
+  const fetchNearbyEvents = async () => {
+    try {
+      const response = await fetch('/api/events/nearby')
+      if (response.ok) {
+        const data = await response.json()
+        setSharedEvents(data.events || [])
+      }
+    } catch (error) {
+      console.error('Erro ao buscar eventos:', error)
+    } finally {
+      setLoading(prev => ({ ...prev, events: false }))
+    }
+  }
 
   // Handlers
   const handleFollow = (userId: string, isPrivate: boolean = false) => {
@@ -290,72 +206,6 @@ export function TimelineRightSidebar({
     )
   }
 
-  const AdCard1 = () => (
-    <Card className="max-w-lg py-0 sm:flex-row sm:gap-0">
-      <CardContent className="grow-1 px-0">
-        <img
-          src="https://cdn.shadcnstudio.com/ss-assets/components/card/image-3.png"
-          alt="Banner"
-          className="size-full rounded-s-xl"
-        />
-      </CardContent>
-      <div className="sm:min-w-54">
-        <CardHeader className="pt-6">
-          <CardTitle className="text-sm">Eventos Exclusivos</CardTitle>
-          <div className="text-xs text-muted-foreground">
-            Participe de eventos únicos para casais e pessoas livres em sua cidade.
-          </div>
-        </CardHeader>
-        <CardContent className="gap-3 py-6">
-          <Button className="bg-transparent bg-gradient-to-br from-purple-500 to-pink-500 text-white focus-visible:ring-pink-600/20 text-xs">
-            Explorar Eventos
-          </Button>
-        </CardContent>
-      </div>
-    </Card>
-  )
-
-  const AvatarGroup = () => {
-    const avatars = [
-      {
-        src: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-3.png",
-        fallback: "OS",
-        name: "Olivia Sparks",
-      },
-      {
-        src: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-6.png",
-        fallback: "HL",
-        name: "Howard Lloyd",
-      },
-      {
-        src: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png",
-        fallback: "HR",
-        name: "Hallie Richards",
-      },
-      {
-        src: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-16.png",
-        fallback: "JW",
-        name: "Jenny Wilson",
-      },
-    ]
-
-    return (
-      <div className="bg-background flex flex-wrap items-center justify-center rounded-full border p-1 shadow-sm">
-        <div className="flex -space-x-1">
-          {avatars.map((avatar, index) => (
-            <Avatar key={index} className="ring-background size-6 ring-2">
-              <AvatarImage src={avatar.src || "/placeholder.svg"} alt={avatar.name} />
-              <AvatarFallback className="text-xs">{avatar.fallback}</AvatarFallback>
-            </Avatar>
-          ))}
-        </div>
-        <p className="text-muted-foreground px-2 text-xs">
-          <strong className="text-foreground font-medium">10K+</strong> pessoas conectadas.
-        </p>
-      </div>
-    )
-  }
-
   return (
     <aside className="hidden xl:block w-[350px] p-3 xs:p-4 sticky top-0 h-screen overflow-y-auto overflow-x-hidden scrollbar-hide space-y-4 xs:space-y-6">
       {/* Search Bar */}
@@ -381,22 +231,37 @@ export function TimelineRightSidebar({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ul className="space-y-4">
-            {trendingTopics.map((topic, index) => (
-              <li key={topic.id} className="group">
-                <a href="#" className="block">
-                  <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
-                    <span>{index + 1} · {topic.category}</span>
-                    {topic.isHot && <Badge variant="destructive" className="text-xs">Hot</Badge>}
-                  </div>
-                  <h4 className="font-semibold text-sm text-gray-900 dark:text-gray-50 group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors">
-                    #{topic.hashtag}
-                  </h4>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{formatNumber(topic.postCount)} posts</p>
-                </a>
-              </li>
-            ))}
-          </ul>
+          {loading.trending ? (
+            <div className="space-y-4">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                </div>
+              ))}
+            </div>
+          ) : trendingTopics.length > 0 ? (
+            <ul className="space-y-4">
+              {trendingTopics.map((topic, index) => (
+                <li key={topic.id} className="group">
+                  <a href="#" className="block">
+                    <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
+                      <span>{index + 1} · {topic.category}</span>
+                      {topic.isHot && <Badge variant="destructive" className="text-xs">Hot</Badge>}
+                    </div>
+                    <h4 className="font-semibold text-sm text-gray-900 dark:text-gray-50 group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors">
+                      #{topic.hashtag}
+                    </h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{formatNumber(topic.postCount)} posts</p>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+              Nenhum trending topic encontrado
+            </p>
+          )}
         </CardContent>
       </Card>
       
@@ -409,33 +274,51 @@ export function TimelineRightSidebar({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {suggestedUsers.map(user => (
-              <div key={user.id} className="flex items-start gap-3">
-                <Avatar className="w-10 h-10 border-2 border-gray-100 dark:border-gray-700">
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <div className="flex items-center gap-1">
-                    <h4 className="font-semibold text-sm text-gray-900 dark:text-gray-50">{user.name}</h4>
-                    {user.verified && <BadgeCheck className="w-4 h-4 text-blue-500" />}
-                    {user.premium && <Star className="w-4 h-4 text-yellow-500" />}
+          {loading.users ? (
+            <div className="space-y-4">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="flex items-start gap-3 animate-pulse">
+                  <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
                   </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">@{user.username}</p>
                 </div>
-                <Button 
-                  size="sm" 
-                  variant={getFollowButtonVariant(user.id)} 
-                  onClick={() => handleFollow(user.id)}
-                  className={getFollowButtonClassName(user.id)}
-                >
-                  {getFollowButtonIcon(user.id)}
-                  {getFollowButtonText(user.id)}
-                </Button>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : suggestedUsers.length > 0 ? (
+            <div className="space-y-4">
+              {suggestedUsers.map(user => (
+                <div key={user.id} className="flex items-start gap-3">
+                  <Avatar className="w-10 h-10 border-2 border-gray-100 dark:border-gray-700">
+                    <AvatarImage src={user.avatar} alt={user.name} />
+                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-1">
+                      <h4 className="font-semibold text-sm text-gray-900 dark:text-gray-50">{user.name}</h4>
+                      {user.verified && <BadgeCheck className="w-4 h-4 text-blue-500" />}
+                      {user.premium && <Star className="w-4 h-4 text-yellow-500" />}
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">@{user.username}</p>
+                  </div>
+                  <Button 
+                    size="sm" 
+                    variant={getFollowButtonVariant(user.id)} 
+                    onClick={() => handleFollow(user.id)}
+                    className={getFollowButtonClassName(user.id)}
+                  >
+                    {getFollowButtonIcon(user.id)}
+                    {getFollowButtonText(user.id)}
+                  </Button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+              Nenhuma sugestão encontrada
+            </p>
+          )}
         </CardContent>
       </Card>
 
@@ -448,25 +331,41 @@ export function TimelineRightSidebar({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {sharedEvents.map(event => (
-              <a href="#" key={event.id} className="block group">
-                <Card className="overflow-hidden border-gray-200 dark:border-gray-700 group-hover:border-pink-500 dark:group-hover:border-pink-400 transition-colors">
-                  <CardContent className="p-0">
-                    <img src={event.image} alt={event.title} className="w-full h-24 object-cover" />
-                    <div className="p-3">
-                      <p className="text-xs font-semibold uppercase text-pink-600 dark:text-pink-400">{event.category}</p>
-                      <h4 className="font-bold text-sm text-gray-900 dark:text-gray-50">{event.title}</h4>
-                      <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        <Calendar className="w-3 h-3 mr-1.5" />
-                        <span>{event.date}</span>
+          {loading.events ? (
+            <div className="space-y-4">
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="h-24 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-1"></div>
+                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                </div>
+              ))}
+            </div>
+          ) : sharedEvents.length > 0 ? (
+            <div className="space-y-4">
+              {sharedEvents.map(event => (
+                <a href="#" key={event.id} className="block group">
+                  <Card className="overflow-hidden border-gray-200 dark:border-gray-700 group-hover:border-pink-500 dark:group-hover:border-pink-400 transition-colors">
+                    <CardContent className="p-0">
+                      <img src={event.image} alt={event.title} className="w-full h-24 object-cover" />
+                      <div className="p-3">
+                        <p className="text-xs font-semibold uppercase text-pink-600 dark:text-pink-400">{event.category}</p>
+                        <h4 className="font-bold text-sm text-gray-900 dark:text-gray-50">{event.title}</h4>
+                        <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          <Calendar className="w-3 h-3 mr-1.5" />
+                          <span>{event.date}</span>
+                        </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </a>
-            ))}
-          </div>
+                    </CardContent>
+                  </Card>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+              Nenhum evento encontrado
+            </p>
+          )}
         </CardContent>
       </Card>
       
