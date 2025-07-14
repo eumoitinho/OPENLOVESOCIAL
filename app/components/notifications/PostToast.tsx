@@ -1,25 +1,45 @@
-"use client"
+'use client'
 
-import { useEffect } from "react"
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
-import { useAuth } from "@/app/components/auth/AuthProvider"
-import { useToast } from "@/hooks/use-toast"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { ExternalLink, Heart, MessageCircle, Share } from "lucide-react"
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
+import { createClient } from '@supabase/supabase-js'
+import { useRouter } from 'next/navigation'
 
-interface PostToastProps {
-  onNewPost?: (postId: string) => void
+interface Post {
+  id: string
+  title: string
+  content: string
+  user_id: string
+  created_at: string
 }
 
-export default function PostToast({ onNewPost }: PostToastProps) {
-  const { user } = useAuth()
-  const supabase = createClientComponentClient()
-  const { toast } = useToast()
+export function PostToast() {
+  const [lastPostId, setLastPostId] = useState<string | null>(null)
+  const router = useRouter()
+  
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
 
   useEffect(() => {
-    if (!user) return
+    // Buscar o último post para estabelecer baseline
+    const fetchLastPost = async () => {
+      const { data } = await supabase
+        .from('posts')
+        .select('id, created_at')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single()
 
+      if (data) {
+        setLastPostId(data.id)
+      }
+    }
+
+    fetchLastPost()
+
+    // Configurar real-time para novos posts
     const channel = supabase
       .channel('new_posts')
       .on(
@@ -27,45 +47,47 @@ export default function PostToast({ onNewPost }: PostToastProps) {
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'posts',
-          filter: `user_id=neq.${user.id}`
+          table: 'posts'
         },
-        (payload) => {
-          const newPost = payload.new as any
+        async (payload) => {
+          const newPost = payload.new as Post
           
+          // Evitar mostrar toast para posts antigos
+          if (lastPostId && newPost.id === lastPostId) {
+            return
+          }
+
           // Buscar informações do usuário que fez o post
-          supabase
-            .from('profiles')
-            .select('username, full_name, avatar_url')
+          const { data: userData } = await supabase
+            .from('users')
+            .select('name, username')
             .eq('id', newPost.user_id)
             .single()
-            .then(({ data: userData }) => {
-              if (userData) {
-                // Mostrar toast com informações do novo post
-                toast({
-                  title: `Novo post de ${userData.full_name || userData.username}`,
-                  description: newPost.content?.substring(0, 100) + (newPost.content?.length > 100 ? '...' : ''),
-                  duration: 6000,
-                  action: (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                                             onClick={() => {
-                         // Atualizar timeline
-                         if (onNewPost) {
-                           onNewPost(newPost.id)
-                         }
-                       }}
-                      className="ml-2"
-                    >
-                      <ExternalLink className="h-3 w-3 mr-1" />
-                      Ver
-                    </Button>
-                  ),
-                  className: "bg-white border border-gray-200 shadow-lg",
-                })
-              }
-            })
+
+          const userName = userData?.name || 'Alguém'
+          const userUsername = userData?.username || 'usuario'
+
+          // Mostrar toast com preview do post
+          const postPreview = newPost.content?.substring(0, 50) || newPost.title?.substring(0, 50) || 'Novo post'
+          const displayText = postPreview.length > 50 ? postPreview + '...' : postPreview
+
+          toast(
+            `Novo post de ${userName}`,
+            {
+              description: displayText,
+              action: {
+                label: 'Ver',
+                onClick: () => {
+                  // Navegar para o timeline
+                  router.push('/timeline')
+                }
+              },
+              duration: 5000,
+              position: 'top-right'
+            }
+          )
+
+          setLastPostId(newPost.id)
         }
       )
       .subscribe()
@@ -73,7 +95,7 @@ export default function PostToast({ onNewPost }: PostToastProps) {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [user, supabase, toast, onNewPost])
+  }, [supabase, router, lastPostId])
 
-  return null // Este componente não renderiza nada, apenas escuta eventos
+  return null // Este componente não renderiza nada visualmente
 } 

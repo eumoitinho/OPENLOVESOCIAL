@@ -1,96 +1,45 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { MessageCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
-import { useAuth } from "@/app/components/auth/AuthProvider"
+import { MessageCircle } from 'lucide-react'
+import { useNotifications } from '@/app/hooks/useNotifications'
+import { cn } from '@/lib/utils'
 
 interface MessageBadgeProps {
   className?: string
   onClick?: () => void
 }
 
-export default function MessageBadge({ className, onClick }: MessageBadgeProps) {
-  const [unreadCount, setUnreadCount] = useState(0)
-  const { user } = useAuth()
-  const supabase = createClientComponentClient()
-
-  // Buscar contagem de mensagens não lidas
-  const fetchUnreadCount = async () => {
-    if (!user) return
-
-    try {
-      const { count, error } = await supabase
-        .from('messages')
-        .select('*', { count: 'exact', head: true })
-        .eq('conversation_id', 
-          supabase
-            .from('conversation_participants')
-            .select('conversation_id')
-            .eq('user_id', user.id)
-        )
-        .eq('is_read', false)
-        .neq('sender_id', user.id)
-
-      if (error) {
-        console.error('Erro ao buscar mensagens não lidas:', error)
-        return
-      }
-
-      setUnreadCount(count || 0)
-    } catch (error) {
-      console.error('Erro ao buscar mensagens não lidas:', error)
-    }
-  }
-
-  // Configurar real-time para novas mensagens
-  useEffect(() => {
-    if (!user) return
-
-    fetchUnreadCount()
-
-    const channel = supabase
-      .channel('messages')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: `sender_id=neq.${user.id}`
-        },
-        () => {
-          fetchUnreadCount()
-        }
-      )
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [user, supabase])
+export function MessageBadge({ className, onClick }: MessageBadgeProps) {
+  const { stats } = useNotifications()
+  const unreadMessages = stats.by_type.new_message?.unread || 0
+  const hasUnread = unreadMessages > 0
 
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      className={`relative ${className}`}
+    <div 
+      className={cn(
+        'relative inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer',
+        className
+      )}
       onClick={onClick}
     >
-      <MessageCircle className="h-5 w-5" />
+      <MessageCircle className="w-5 h-5 text-gray-700 dark:text-gray-300" />
       
       {/* Badge rosa para mensagens não lidas */}
-      {unreadCount > 0 && (
-        <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-pink-500 animate-pulse" />
-      )}
-      
-      {/* Badge com número para muitas mensagens */}
-      {unreadCount > 3 && (
-        <div className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-red-500 flex items-center justify-center text-xs font-bold text-white">
-          {unreadCount > 99 ? '99+' : unreadCount}
+      {hasUnread && (
+        <div className="absolute -top-1 -right-1 w-3 h-3 bg-pink-500 rounded-full animate-pulse">
+          {/* Contador para múltiplas mensagens */}
+          {unreadMessages > 1 && (
+            <span className="absolute -top-1 -right-1 text-xs text-white font-bold bg-pink-600 rounded-full w-4 h-4 flex items-center justify-center">
+              {unreadMessages > 9 ? '9+' : unreadMessages}
+            </span>
+          )}
         </div>
       )}
-    </Button>
+      
+      {/* Tooltip */}
+      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+        {hasUnread ? `${unreadMessages} mensagem${unreadMessages > 1 ? 's' : ''} não lida${unreadMessages > 1 ? 's' : ''}` : 'Mensagens'}
+      </div>
+    </div>
   )
 } 

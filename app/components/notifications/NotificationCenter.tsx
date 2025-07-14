@@ -1,580 +1,193 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
-import { Bell, Check, X, Settings, Trash2, Eye, EyeOff } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
-import { useToast } from '@/hooks/use-toast'
-import { createClient } from '@/app/lib/supabase-browser'
+import { useState } from 'react'
+import { Bell, Check, X, MessageCircle, Heart, UserPlus, AtSign, Calendar } from 'lucide-react'
+import { useNotifications } from '@/app/hooks/useNotifications'
+import { cn } from '@/lib/utils'
+import { formatDistanceToNow } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
 
-interface Notification {
-  id: string
-  type: string
-  title: string
-  content: string
-  is_read: boolean
-  created_at: string
-  sender?: {
-    id: string
-    username: string
-    name: string
-    avatar_url?: string
-  }
-  related_post?: {
-        id: string
-        content: string
-    media_urls?: string[]
-  }
-  related_comment?: {
-    id: string
-    content: string
-  }
-  notification_data?: any
-}
-
-interface NotificationSettings {
-  likes_enabled: boolean
-  comments_enabled: boolean
-  follows_enabled: boolean
-  messages_enabled: boolean
-  mentions_enabled: boolean
-  saves_enabled: boolean
-  shares_enabled: boolean
-  events_enabled: boolean
-  communities_enabled: boolean
-  system_enabled: boolean
-  matches_enabled: boolean
-  open_dates_enabled: boolean
-  email_notifications: boolean
-  push_notifications: boolean
-  in_app_notifications: boolean
-  quiet_hours_enabled: boolean
-  quiet_hours_start: string
-  quiet_hours_end: string
-}
-
-interface NotificationStats {
-  total_notifications: number
-  unread_notifications: number
-  notifications_by_type: Record<string, number>
-  recent_notifications: Notification[]
-}
-
-export default function NotificationCenter() {
-  const [notifications, setNotifications] = useState<Notification[]>([])
-  const [unreadCount, setUnreadCount] = useState(0)
-  const [isOpen, setIsOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [settings, setSettings] = useState<NotificationSettings | null>(null)
-  const [showSettings, setShowSettings] = useState(false)
-  const [page, setPage] = useState(1)
-  const [hasMore, setHasMore] = useState(true)
-  const [stats, setStats] = useState<NotificationStats | null>(null)
-  
-  const { toast } = useToast()
-  const supabase = createClient()
-
-  // Buscar notificações
-  const fetchNotifications = useCallback(async (pageNum = 1, append = false) => {
-    try {
-      setIsLoading(true)
-      
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) return
-
-      const response = await fetch(`/api/notifications?page=${pageNum}&limit=20`, {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`
-        }
-      })
-
-      if (!response.ok) {
-        throw new Error('Erro ao buscar notificações')
-      }
-
-      const data = await response.json()
-      
-      if (append) {
-        setNotifications(prev => [...prev, ...data.notifications])
-      } else {
-        setNotifications(data.notifications)
-      }
-      
-      setUnreadCount(data.stats?.unread_notifications || 0)
-      setStats(data.stats)
-      setHasMore(data.pagination.hasMore)
-      setPage(pageNum)
-      
-    } catch (error) {
-      console.error('Erro ao buscar notificações:', error)
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar as notificações",
-        variant: "destructive"
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }, [supabase, toast])
-
-  // Buscar configurações
-  const fetchSettings = useCallback(async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) return
-
-      const response = await fetch('/api/notifications/settings', {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`
-        }
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        setSettings(data.settings)
-      }
-    } catch (error) {
-      console.error('Erro ao buscar configurações:', error)
-    }
-  }, [supabase])
-
-  // Marcar notificação como lida
-  const markAsRead = async (notificationId: string) => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) return
-
-      const response = await fetch(`/api/notifications/${notificationId}/read`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`
-        }
-      })
-
-      if (response.ok) {
-        setNotifications(prev => 
-          prev.map(n => 
-            n.id === notificationId ? { ...n, is_read: true } : n
-          )
-        )
-        setUnreadCount(prev => Math.max(0, prev - 1))
-      }
-    } catch (error) {
-      console.error('Erro ao marcar como lida:', error)
-    }
-  }
-
-  // Marcar todas como lidas
-  const markAllAsRead = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) return
-
-      const response = await fetch('/api/notifications/read-all', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`
-        }
-      })
-
-      if (response.ok) {
-        setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
-        setUnreadCount(0)
-        toast({
-          title: "Sucesso",
-          description: "Todas as notificações foram marcadas como lidas"
-        })
-      }
-    } catch (error) {
-      console.error('Erro ao marcar todas como lidas:', error)
-      toast({
-        title: "Erro",
-        description: "Não foi possível marcar todas como lidas",
-        variant: "destructive"
-      })
-    }
-  }
-
-  // Atualizar configurações
-  const updateSettings = async (newSettings: Partial<NotificationSettings>) => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) return
-
-      const response = await fetch('/api/notifications', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          action: 'update_settings',
-          settings: newSettings
-        })
-      })
-
-      if (response.ok) {
-        setSettings(prev => prev ? { ...prev, ...newSettings } : null)
-        toast({
-          title: "Sucesso",
-          description: "Configurações atualizadas"
-        })
-      }
-    } catch (error) {
-      console.error('Erro ao atualizar configurações:', error)
-      toast({
-        title: "Erro",
-        description: "Não foi possível atualizar as configurações",
-        variant: "destructive"
-      })
-    }
-  }
-
-  // Carregar mais notificações
-  const loadMore = () => {
-    if (!isLoading && hasMore) {
-      fetchNotifications(page + 1, true)
-    }
-  }
-
-  // Formatar data
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60)
-    
-    if (diffInHours < 1) {
-      return 'Agora'
-    } else if (diffInHours < 24) {
-      return `${Math.floor(diffInHours)}h atrás`
-    } else {
-      return date.toLocaleDateString('pt-BR')
-    }
-  }
-
-  // Obter ícone baseado no tipo
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case 'like':
-        return '❤️'
-      case 'comment':
-        return '💬'
-      case 'follow':
-        return '👥'
-      case 'message':
-        return '💌'
-      case 'mention':
-        return '📢'
-      case 'save':
-        return '🔖'
-      case 'share':
-        return '📤'
-      case 'event_invite':
-        return '📅'
-      case 'match':
-        return '💕'
-      case 'system':
-        return '⚙️'
-      default:
-        return '🔔'
-    }
-  }
-
-  // Carregar dados iniciais
-  useEffect(() => {
-    fetchNotifications()
-    fetchSettings()
-  }, [fetchNotifications, fetchSettings])
-
-  return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
-          {unreadCount > 0 && (
-            <Badge 
-              variant="destructive" 
-              className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
-            >
-              {unreadCount > 99 ? '99+' : unreadCount}
-            </Badge>
-          )}
-        </Button>
-      </DialogTrigger>
-      
-      <DialogContent className="max-w-md max-h-[80vh] p-0">
-        <DialogHeader className="px-6 py-4 border-b">
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-lg font-semibold">
-              Notificações
-            </DialogTitle>
-            <div className="flex items-center gap-2">
-              {unreadCount > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={markAllAsRead}
-                  className="text-xs"
-                >
-                  <Check className="h-3 w-3 mr-1" />
-                  Marcar todas
-                </Button>
-              )}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowSettings(!showSettings)}
-              >
-                <Settings className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </DialogHeader>
-
-        <div className="flex flex-col h-full">
-          {showSettings ? (
-            <NotificationSettings
-              settings={settings}
-              onUpdate={updateSettings}
-              onClose={() => setShowSettings(false)}
-            />
-          ) : (
-            <ScrollArea className="flex-1 px-6 py-4">
-              {notifications.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Bell className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Nenhuma notificação</p>
-                  <p className="text-sm">Você está em dia!</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {notifications.map((notification) => (
-                    <NotificationItem
-                      key={notification.id}
-                      notification={notification}
-                      onMarkAsRead={markAsRead}
-                      formatDate={formatDate}
-                      getIcon={getNotificationIcon}
-                    />
-                  ))}
-                  
-                  {hasMore && (
-                    <Button
-                      variant="outline"
-                      onClick={loadMore}
-                      disabled={isLoading}
-                      className="w-full"
-                    >
-                      {isLoading ? 'Carregando...' : 'Carregar mais'}
-                    </Button>
-                  )}
-                </div>
-              )}
-            </ScrollArea>
-          )}
-        </div>
-      </DialogContent>
-    </Dialog>
-  )
-}
-
-// Componente para item de notificação
-function NotificationItem({ 
-  notification, 
-  onMarkAsRead, 
-  formatDate, 
-  getIcon 
-}: {
-  notification: Notification
-  onMarkAsRead: (id: string) => void
-  formatDate: (date: string) => string
-  getIcon: (type: string) => string
-}) {
-  return (
-    <Card className={`transition-all duration-200 ${!notification.is_read ? 'bg-blue-50 border-blue-200' : ''}`}>
-      <CardContent className="p-4">
-        <div className="flex items-start gap-3">
-          <div className="flex-shrink-0">
-            {notification.sender?.avatar_url ? (
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={notification.sender.avatar_url} />
-                <AvatarFallback>
-                  {notification.sender.name?.charAt(0) || 'U'}
-                </AvatarFallback>
-              </Avatar>
-            ) : (
-              <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-sm">
-                {getIcon(notification.type)}
-              </div>
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <p className="text-sm font-medium leading-tight">
-                  {notification.title}
-                </p>
-                {notification.content && (
-                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                    {notification.content}
-                  </p>
-                )}
-                <p className="text-xs text-muted-foreground mt-2">
-                  {formatDate(notification.created_at)}
-                </p>
-              </div>
-              
-              {!notification.is_read && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onMarkAsRead(notification.id)}
-                  className="ml-2 h-6 w-6 p-0"
-                >
-                  <Check className="h-3 w-3" />
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-// Componente para configurações de notificação
-function NotificationSettings({ 
-  settings, 
-  onUpdate, 
-  onClose 
-}: {
-  settings: NotificationSettings | null
-  onUpdate: (settings: Partial<NotificationSettings>) => void
+interface NotificationCenterProps {
+  isOpen: boolean
   onClose: () => void
-}) {
-  if (!settings) {
-    return (
-      <div className="p-6 text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-        <p className="mt-2 text-sm text-muted-foreground">Carregando configurações...</p>
-      </div>
-    )
+}
+
+const notificationIcons = {
+  new_message: MessageCircle,
+  new_follower: UserPlus,
+  new_like: Heart,
+  new_comment: MessageCircle,
+  mention: AtSign,
+  new_match: Heart,
+  new_event: Calendar,
+  system: Bell
+}
+
+const notificationColors = {
+  new_message: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+  new_follower: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+  new_like: 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200',
+  new_comment: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+  mention: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
+  new_match: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+  new_event: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
+  system: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+}
+
+export function NotificationCenter({ isOpen, onClose }: NotificationCenterProps) {
+  const { notifications, stats, loading, markAsRead, markAllAsRead } = useNotifications()
+  const [activeTab, setActiveTab] = useState<'all' | 'unread'>('all')
+
+  const filteredNotifications = activeTab === 'unread' 
+    ? notifications.filter(n => !n.is_read)
+    : notifications
+
+  const handleNotificationClick = async (notification: any) => {
+    if (!notification.is_read) {
+      await markAsRead(notification.id)
+    }
+    // Aqui você pode adicionar navegação baseada no tipo de notificação
+    onClose()
   }
 
+  if (!isOpen) return null
+
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold">Configurações</h3>
-        <Button variant="ghost" size="sm" onClick={onClose}>
-          <X className="h-4 w-4" />
-        </Button>
-      </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
       
-      <ScrollArea className="max-h-[60vh]">
-        <div className="space-y-6">
-          {/* Tipos de Notificação */}
-          <div>
-            <h4 className="font-medium mb-3">Tipos de Notificação</h4>
-            <div className="space-y-3">
-              {[
-                { key: 'likes_enabled', label: 'Curtidas' },
-                { key: 'comments_enabled', label: 'Comentários' },
-                { key: 'follows_enabled', label: 'Novos seguidores' },
-                { key: 'messages_enabled', label: 'Mensagens' },
-                { key: 'mentions_enabled', label: 'Menções' },
-                { key: 'saves_enabled', label: 'Posts salvos' },
-                { key: 'shares_enabled', label: 'Compartilhamentos' },
-                { key: 'events_enabled', label: 'Eventos' },
-                { key: 'matches_enabled', label: 'Matches' },
-                { key: 'system_enabled', label: 'Sistema' }
-              ].map(({ key, label }) => (
-                <div key={key} className="flex items-center justify-between">
-                  <Label htmlFor={key} className="text-sm">{label}</Label>
-                  <Switch
-                    id={key}
-                    checked={settings[key as keyof NotificationSettings] as boolean}
-                    onCheckedChange={(checked) => 
-                      onUpdate({ [key]: checked } as Partial<NotificationSettings>)
-                    }
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          <Separator />
-          
-          {/* Canais de Notificação */}
-          <div>
-            <h4 className="font-medium mb-3">Canais</h4>
-            <div className="space-y-3">
-              {[
-                { key: 'in_app_notifications', label: 'No aplicativo' },
-                { key: 'push_notifications', label: 'Push notifications' },
-                { key: 'email_notifications', label: 'Email' }
-              ].map(({ key, label }) => (
-                <div key={key} className="flex items-center justify-between">
-                  <Label htmlFor={key} className="text-sm">{label}</Label>
-                  <Switch
-                    id={key}
-                    checked={settings[key as keyof NotificationSettings] as boolean}
-                    onCheckedChange={(checked) => 
-                      onUpdate({ [key]: checked } as Partial<NotificationSettings>)
-                    }
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          <Separator />
-          
-          {/* Horário Silencioso */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="font-medium">Horário Silencioso</h4>
-              <Switch
-                checked={settings.quiet_hours_enabled}
-                onCheckedChange={(checked) => 
-                  onUpdate({ quiet_hours_enabled: checked })
-                }
-              />
-            </div>
-            
-            {settings.quiet_hours_enabled && (
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <Label className="text-xs">Início</Label>
-                    <input
-                      type="time"
-                      value={settings.quiet_hours_start}
-                      onChange={(e) => onUpdate({ quiet_hours_start: e.target.value })}
-                      className="w-full mt-1 px-2 py-1 text-sm border rounded"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs">Fim</Label>
-                    <input
-                      type="time"
-                      value={settings.quiet_hours_end}
-                      onChange={(e) => onUpdate({ quiet_hours_end: e.target.value })}
-                      className="w-full mt-1 px-2 py-1 text-sm border rounded"
-                    />
-                  </div>
-                </div>
-              </div>
+      {/* Modal */}
+      <div className="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-md max-h-[80vh] overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b dark:border-gray-700">
+          <div className="flex items-center space-x-2">
+            <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Notificações
+            </h2>
+            {stats.unread > 0 && (
+              <span className="bg-pink-500 text-white text-xs px-2 py-1 rounded-full">
+                {stats.unread}
+              </span>
             )}
           </div>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
-      </ScrollArea>
+
+        {/* Tabs */}
+        <div className="flex border-b dark:border-gray-700">
+          <button
+            onClick={() => setActiveTab('all')}
+            className={cn(
+              'flex-1 px-4 py-2 text-sm font-medium transition-colors',
+              activeTab === 'all'
+                ? 'text-pink-600 border-b-2 border-pink-600'
+                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+            )}
+          >
+            Todas ({notifications.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('unread')}
+            className={cn(
+              'flex-1 px-4 py-2 text-sm font-medium transition-colors',
+              activeTab === 'unread'
+                ? 'text-pink-600 border-b-2 border-pink-600'
+                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+            )}
+          >
+            Não lidas ({stats.unread})
+          </button>
+        </div>
+
+        {/* Actions */}
+        {stats.unread > 0 && (
+          <div className="p-3 border-b dark:border-gray-700">
+            <button
+              onClick={markAllAsRead}
+              className="w-full px-3 py-2 text-sm text-pink-600 hover:bg-pink-50 dark:hover:bg-pink-900/20 rounded-md transition-colors flex items-center justify-center space-x-2"
+            >
+              <Check className="w-4 h-4" />
+              <span>Marcar todas como lidas</span>
+            </button>
+          </div>
+        )}
+
+        {/* Notifications List */}
+        <div className="overflow-y-auto max-h-96">
+          {loading ? (
+            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+              Carregando notificações...
+            </div>
+          ) : filteredNotifications.length === 0 ? (
+            <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+              {activeTab === 'unread' ? 'Nenhuma notificação não lida' : 'Nenhuma notificação'}
+            </div>
+          ) : (
+            <div className="divide-y dark:divide-gray-700">
+              {filteredNotifications.map((notification) => {
+                const Icon = notificationIcons[notification.type as keyof typeof notificationIcons] || Bell
+                const colorClass = notificationColors[notification.type as keyof typeof notificationColors] || notificationColors.system
+                
+                return (
+                  <div
+                    key={notification.id}
+                    onClick={() => handleNotificationClick(notification)}
+                    className={cn(
+                      'p-4 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors',
+                      !notification.is_read && 'bg-pink-50 dark:bg-pink-900/10'
+                    )}
+                  >
+                    <div className="flex items-start space-x-3">
+                      {/* Icon */}
+                      <div className={cn(
+                        'flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center',
+                        colorClass
+                      )}>
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                              {notification.title}
+                            </p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                              {notification.message}
+                            </p>
+                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                              {formatDistanceToNow(new Date(notification.created_at), {
+                                addSuffix: true,
+                                locale: ptBR
+                              })}
+                            </p>
+                          </div>
+                          
+                          {/* Unread indicator */}
+                          {!notification.is_read && (
+                            <div className="flex-shrink-0 w-2 h-2 bg-pink-500 rounded-full ml-2" />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   )
 } 

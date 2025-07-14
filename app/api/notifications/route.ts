@@ -1,109 +1,89 @@
-import { NextRequest, NextResponse } from "next/server"
-import { createClient } from "@supabase/supabase-js"
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 
 export async function GET(req: NextRequest) {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-    
-    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
-    })
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
 
-    // Verificar autenticação
+    // Extrair token de autorização
     const authHeader = req.headers.get('authorization')
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: "Token de autenticação necessário" }, { status: 401 })
+      return NextResponse.json(
+        { error: 'Token de autorização não fornecido' },
+        { status: 401 }
+      )
     }
 
     const token = authHeader.replace('Bearer ', '')
+
+    // Verificar token e obter usuário
     const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-    
     if (authError || !user) {
-      return NextResponse.json({ error: "Token inválido" }, { status: 401 })
+      return NextResponse.json(
+        { error: 'Token inválido' },
+        { status: 401 }
+      )
     }
 
-    const url = new URL(req.url)
-    const page = parseInt(url.searchParams.get('page') || '1')
-    const limit = parseInt(url.searchParams.get('limit') || '20')
-    const unreadOnly = url.searchParams.get('unread') === 'true'
-    const type = url.searchParams.get('type')
-    const offset = (page - 1) * limit
+    // Parâmetros de consulta
+    const { searchParams } = new URL(req.url)
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '20')
+    const unreadOnly = searchParams.get('unread') === 'true'
+    const type = searchParams.get('type')
 
-    // Construir query base
+    // Construir query
     let query = supabase
       .from('notifications')
-      .select(`
-        *,
-        sender:users!notifications_sender_id_fkey(
-          id,
-          username,
-          name,
-          avatar_url
-        ),
-        related_post:posts!notifications_related_post_id_fkey(
-          id,
-          content,
-          media_urls
-        ),
-        related_comment:comments!notifications_related_comment_id_fkey(
-          id,
-          content
-        ),
-        related_user:users!notifications_related_user_id_fkey(
-          id,
-          username,
-          name,
-          avatar_url
-        )
-      `)
+      .select('*')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
 
-    // Aplicar filtros
-    if (unreadOnly) {
-      query = query.eq('is_read', false)
-    }
-
+    // Filtrar por tipo se especificado
     if (type) {
       query = query.eq('type', type)
     }
 
+    // Filtrar apenas não lidas se solicitado
+    if (unreadOnly) {
+      query = query.eq('is_read', false)
+    }
+
     // Aplicar paginação
+    const offset = (page - 1) * limit
     query = query.range(offset, offset + limit - 1)
 
-    const { data: notifications, error, count } = await query
+    const { data: notifications, error } = await query
 
     if (error) {
-      console.error("Erro ao buscar notificações:", error)
+      console.error('Erro ao buscar notificações:', error)
       return NextResponse.json(
-        { error: "Erro ao buscar notificações" },
+        { error: 'Erro ao buscar notificações' },
         { status: 500 }
       )
     }
 
     // Buscar estatísticas
     const { data: stats } = await supabase
-      .rpc('get_notification_stats', { user_id_param: user.id })
+      .rpc('get_notification_stats', { p_user_id: user.id })
 
     return NextResponse.json({
-      notifications,
+      notifications: notifications || [],
+      stats: stats || { total: 0, unread: 0, by_type: {} },
       pagination: {
         page,
         limit,
-        total: count || 0,
         hasMore: (notifications?.length || 0) === limit
-      },
-      stats
+      }
     })
 
   } catch (error) {
-    console.error("Erro no endpoint de notificações:", error)
+    console.error('Erro na API de notificações:', error)
     return NextResponse.json(
-      { error: "Erro interno do servidor" },
+      { error: 'Erro interno do servidor' },
       { status: 500 }
     )
   }
