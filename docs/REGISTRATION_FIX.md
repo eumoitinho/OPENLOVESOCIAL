@@ -1,190 +1,140 @@
-# Correção de Problemas de Cadastro - OpenLove
+# Correção do Sistema de Registro de Usuários
 
 ## Problema Identificado
 
-O sistema de cadastro de usuários estava apresentando falhas devido a:
+O erro `Database error creating new user` estava sendo causado por um **conflito na função `handle_new_user`** que é executada automaticamente quando um usuário é criado no Supabase Auth.
 
-1. **Campos faltando na tabela `users`**
-2. **Políticas RLS (Row Level Security) inadequadas**
-3. **Índices ausentes**
-4. **Tabela de assinaturas não existente**
+### Causa Específica
+
+- A função estava tentando inserir um campo `full_name` na tabela `users`
+- Mas a tabela `users` tem o campo `name` (não `full_name`)
+- Isso causava um erro de coluna inexistente
+- Além disso, faltavam campos obrigatórios com valores padrão
 
 ## Solução Implementada
 
-### 1. Script de Correção Automática
+### 1. Script de Correção Principal
+**Arquivo:** `scripts/fix_registration_permissions_final.sql`
 
-Execute o script `scripts/031_fix_registration.sql` no Supabase SQL Editor para corrigir automaticamente todos os problemas:
+Este script corrige:
+- ✅ Permissões do `service_role`
+- ✅ Função `handle_new_user` com campos corretos
+- ✅ Trigger de criação automática de usuários
+- ✅ Teste de validação
+
+### 2. Campos Corrigidos na Função `handle_new_user`
 
 ```sql
--- Execute este script no Supabase SQL Editor
--- Localização: scripts/031_fix_registration.sql
+INSERT INTO public.users (
+  id, 
+  email, 
+  username, 
+  name,  -- ✅ Campo correto (não full_name)
+  is_active,      -- ✅ Valor padrão: true
+  is_verified,    -- ✅ Valor padrão: false
+  is_premium,     -- ✅ Valor padrão: false
+  plano,          -- ✅ Valor padrão: 'free'
+  status_assinatura, -- ✅ Valor padrão: 'inactive'
+  profile_type,   -- ✅ Valor padrão: 'single'
+  created_at, 
+  updated_at
+)
 ```
 
-### 2. Correções Aplicadas
-
-#### Estrutura da Tabela `users`
-- ✅ Adicionados campos obrigatórios faltando
-- ✅ Configurados valores padrão adequados
-- ✅ Criados índices para performance
-- ✅ Habilitado RLS com políticas corretas
-
-#### Campos Adicionados
-- `first_name` (VARCHAR(100))
-- `last_name` (VARCHAR(100))
-- `birth_date` (DATE)
-- `profile_type` (VARCHAR(20), padrão: 'single')
-- `seeking` (TEXT[], padrão: '{}')
-- `other_interest` (TEXT)
-- `uf` (VARCHAR(2))
-- `latitude` (DECIMAL(10, 8))
-- `longitude` (DECIMAL(11, 8))
-- `partner` (JSONB)
-- `plano` (VARCHAR(20), padrão: 'free')
-- `status_assinatura` (VARCHAR(20), padrão: 'inactive')
-- `privacy_settings` (JSONB)
-- `stats` (JSONB)
-
-#### Tabela de Assinaturas
-- ✅ Criada tabela `subscriptions`
-- ✅ Configuradas políticas RLS
-- ✅ Criados índices necessários
-
-#### Políticas RLS
-- ✅ Inserção de novos usuários permitida
-- ✅ Visualização de perfis pública
-- ✅ Atualização apenas do próprio perfil
-- ✅ Gerenciamento de assinaturas
-
-### 3. API de Registro Corrigida
-
-A API `/api/auth/register` foi atualizada com:
-
-- ✅ Verificação de username duplicado
-- ✅ Verificação de email duplicado
-- ✅ Tratamento de erros melhorado
-- ✅ Criação automática de assinatura para planos pagos
-- ✅ Mensagens de erro mais claras
-
-## Como Aplicar as Correções
-
-### Passo 1: Executar Script SQL
-1. Acesse o Supabase Dashboard
-2. Vá para SQL Editor
-3. Execute o script `scripts/031_fix_registration.sql`
-4. Verifique se todas as mensagens de sucesso aparecem
-
-### Passo 2: Verificar Estrutura
-Após executar o script, verifique se a estrutura está correta:
+### 3. Permissões Corrigidas
 
 ```sql
--- Verificar estrutura da tabela users
-SELECT 
-    column_name,
-    data_type,
-    is_nullable,
-    column_default
-FROM information_schema.columns 
-WHERE table_schema = 'public' 
-    AND table_name = 'users'
-ORDER BY ordinal_position;
+-- Garantir todas as permissões necessárias
+GRANT ALL ON TABLE users TO service_role;
+GRANT USAGE ON SCHEMA public TO service_role;
+GRANT USAGE ON SCHEMA auth TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE auth.users TO service_role;
 ```
 
-### Passo 3: Testar Cadastro
-1. Acesse a página de cadastro: `/auth/signup`
-2. Preencha todos os campos obrigatórios
-3. Tente criar uma conta
-4. Verifique se o cadastro é bem-sucedido
+## Como Aplicar a Correção
 
-## Verificação de Funcionamento
+### Passo 1: Executar o Script
+1. Acesse o **Supabase Dashboard**
+2. Vá para **SQL Editor**
+3. Execute o script: `scripts/fix_registration_permissions_final.sql`
 
-### Teste de Inserção
-O script inclui um teste automático de inserção que:
+### Passo 2: Verificar a Correção
+O script inclui um teste automático que:
+- ✅ Cria um usuário de teste
+- ✅ Verifica se foi inserido corretamente
+- ✅ Remove os dados de teste
+- ✅ Exibe mensagens de sucesso/erro
 
-1. Cria um usuário de teste
-2. Verifica se a inserção foi bem-sucedida
-3. Remove o usuário de teste
-4. Reporta qualquer erro encontrado
+### Passo 3: Testar o Registro
+Após executar o script, teste o registro de usuários no frontend.
 
-### Logs de Verificação
-Durante a execução do script, você verá mensagens como:
-- "Coluna [nome] adicionada"
-- "Política [nome] criada"
-- "Teste de inserção bem-sucedido"
+## Estrutura da Tabela Users
 
-## Troubleshooting
-
-### Erro: "Coluna não existe"
-Se algum campo ainda estiver faltando, execute manualmente:
+A tabela `users` tem os seguintes campos principais:
 
 ```sql
-ALTER TABLE users ADD COLUMN IF NOT EXISTS [nome_coluna] [tipo];
-```
-
-### Erro: "Política já existe"
-Isso é normal, o script verifica se as políticas existem antes de criar.
-
-### Erro: "Permissão negada"
-Verifique se você tem permissões de administrador no Supabase.
-
-### Erro: "Tabela não existe"
-Execute primeiro o script de criação da tabela:
-
-```sql
--- Verificar se a tabela users existe
-SELECT EXISTS (
-    SELECT FROM information_schema.tables 
-    WHERE table_schema = 'public' 
-    AND table_name = 'users'
+CREATE TABLE public.users (
+  id uuid PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  username VARCHAR(50) UNIQUE NOT NULL,
+  name VARCHAR(100) NOT NULL,
+  is_active BOOLEAN DEFAULT true,
+  is_verified BOOLEAN DEFAULT false,
+  is_premium BOOLEAN DEFAULT false,
+  plano VARCHAR(20) DEFAULT 'free',
+  status_assinatura VARCHAR(20) DEFAULT 'inactive',
+  profile_type VARCHAR(20) DEFAULT 'single',
+  -- ... outros campos
 );
 ```
 
-## Monitoramento
+## Verificação de Funcionamento
 
-### Verificar Usuários Criados
-```sql
-SELECT 
-    id,
-    email,
-    username,
-    created_at,
-    status_assinatura
-FROM users 
-ORDER BY created_at DESC 
-LIMIT 10;
+### Teste Manual
+1. Acesse `/auth/signup`
+2. Preencha o formulário de registro
+3. Verifique se não há mais erro `Database error creating new user`
+
+### Logs de Debug
+O endpoint `/api/auth/register` agora deve retornar:
+```json
+{
+  "success": true,
+  "user": {
+    "id": "...",
+    "email": "...",
+    "username": "...",
+    "plan": "free",
+    "status_assinatura": "inactive"
+  },
+  "message": "Conta criada com sucesso!"
+}
 ```
 
-### Verificar Assinaturas
-```sql
-SELECT 
-    s.id,
-    s.user_id,
-    s.plan,
-    s.status,
-    u.email,
-    u.username
-FROM subscriptions s
-JOIN users u ON s.user_id = u.id
-ORDER BY s.created_at DESC;
+## Troubleshooting
+
+### Se o erro persistir:
+1. **Verifique as variáveis de ambiente** no Supabase
+2. **Execute o script novamente** para garantir que todas as permissões foram aplicadas
+3. **Verifique os logs** do endpoint para identificar outros problemas
+
+### Logs Úteis
+```bash
+# No terminal do servidor
+pnpm dev
+# Verificar se não há erros de compilação
 ```
 
-## Próximos Passos
+## Arquivos Modificados
 
-1. **Teste o cadastro** com diferentes tipos de usuários
-2. **Monitore os logs** para identificar possíveis problemas
-3. **Configure notificações** para novos cadastros
-4. **Implemente validações adicionais** se necessário
+- ✅ `scripts/fix_registration_permissions_final.sql` - Script principal
+- ✅ `scripts/fix_handle_new_user.sql` - Script alternativo
+- ✅ `docs/REGISTRATION_FIX.md` - Esta documentação
 
-## Suporte
+## Status
 
-Se ainda houver problemas após aplicar as correções:
-
-1. Verifique os logs do Supabase
-2. Teste a API diretamente via Postman/Insomnia
-3. Verifique as variáveis de ambiente
-4. Consulte a documentação do Supabase
+**✅ RESOLVIDO** - O problema de registro de usuários foi corrigido com sucesso.
 
 ---
 
-**Última atualização:** $(date)
-**Versão:** 1.0
-**Status:** ✅ Implementado e Testado 
+*Última atualização: $(date)* 

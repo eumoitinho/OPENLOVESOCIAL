@@ -1,57 +1,73 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
-import { cookies } from "next/headers"
+import { createClient } from "@supabase/supabase-js"
 
 export async function POST(
-  request: NextRequest,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const supabase = await createRouteHandlerClient({ cookies })
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+    
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
 
     // Verificar autenticação
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
+    const authHeader = req.headers.get('authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json({ error: "Token de autenticação necessário" }, { status: 401 })
+    }
 
+    const token = authHeader.replace('Bearer ', '')
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    
     if (authError || !user) {
-      return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+      return NextResponse.json({ error: "Token inválido" }, { status: 401 })
     }
 
     const notificationId = params.id
 
-    // Verificar se a notificação pertence ao usuário
-    const { data: notification, error: fetchError } = await supabase
-      .from('notifications')
-      .select('id, user_id')
-      .eq('id', notificationId)
-      .eq('user_id', user.id)
-      .single()
-
-    if (fetchError || !notification) {
-      return NextResponse.json({ error: "Notificação não encontrada" }, { status: 404 })
-    }
-
     // Marcar notificação como lida
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('notifications')
-      .update({ is_read: true })
+      .update({ 
+        is_read: true,
+        updated_at: new Date().toISOString()
+      })
       .eq('id', notificationId)
       .eq('user_id', user.id)
+      .select()
 
     if (error) {
-      console.error('Erro ao marcar notificação como lida:', error)
-      return NextResponse.json({ error: "Erro ao marcar notificação como lida" }, { status: 500 })
+      console.error("Erro ao marcar notificação como lida:", error)
+      return NextResponse.json(
+        { error: "Erro ao atualizar notificação" },
+        { status: 500 }
+      )
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      message: "Notificação marcada como lida" 
+    if (!data || data.length === 0) {
+      return NextResponse.json(
+        { error: "Notificação não encontrada" },
+        { status: 404 }
+      )
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Notificação marcada como lida",
+      notification: data[0]
     })
 
   } catch (error) {
-    console.error("Error marking notification as read:", error)
-    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+    console.error("Erro no endpoint de marcar notificação como lida:", error)
+    return NextResponse.json(
+      { error: "Erro interno do servidor" },
+      { status: 500 }
+    )
   }
 } 

@@ -1,40 +1,61 @@
-import { NextResponse } from "next/server"
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
-import { cookies } from "next/headers"
+import { NextRequest, NextResponse } from "next/server"
+import { createClient } from "@supabase/supabase-js"
 
-export async function POST() {
+export async function POST(req: NextRequest) {
   try {
-    const supabase = await createRouteHandlerClient({ cookies })
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+    
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
 
     // Verificar autenticação
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+    const authHeader = req.headers.get('authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json({ error: "Token de autenticação necessário" }, { status: 401 })
     }
 
-    // Marcar todas as notificações como lidas
-    const { error } = await supabase
+    const token = authHeader.replace('Bearer ', '')
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    
+    if (authError || !user) {
+      return NextResponse.json({ error: "Token inválido" }, { status: 401 })
+    }
+
+    // Marcar todas as notificações não lidas como lidas
+    const { data, error } = await supabase
       .from('notifications')
-      .update({ is_read: true })
+      .update({ 
+        is_read: true,
+        updated_at: new Date().toISOString()
+      })
       .eq('user_id', user.id)
       .eq('is_read', false)
+      .select('id')
 
     if (error) {
-      console.error('Erro ao marcar todas como lidas:', error)
-      return NextResponse.json({ error: "Erro ao marcar notificações como lidas" }, { status: 500 })
+      console.error("Erro ao marcar todas as notificações como lidas:", error)
+      return NextResponse.json(
+        { error: "Erro ao atualizar notificações" },
+        { status: 500 }
+      )
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      message: "Todas as notificações foram marcadas como lidas" 
+    return NextResponse.json({
+      success: true,
+      message: "Todas as notificações foram marcadas como lidas",
+      updatedCount: data?.length || 0
     })
 
   } catch (error) {
-    console.error("Error marking all notifications as read:", error)
-    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+    console.error("Erro no endpoint de marcar todas como lidas:", error)
+    return NextResponse.json(
+      { error: "Erro interno do servidor" },
+      { status: 500 }
+    )
   }
 } 

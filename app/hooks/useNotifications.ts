@@ -1,89 +1,95 @@
 import { useState, useEffect, useCallback } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { useAuth } from '@/app/components/auth/AuthProvider'
-import { useToast } from '@/hooks/use-toast'
+import { createClient } from '@supabase/supabase-js'
+import { toast } from 'sonner'
 
-interface Notification {
+export interface Notification {
   id: string
-  type: 'like' | 'comment' | 'follow' | 'mention' | 'message' | 'post' | 'system'
+  type: string
   title: string
-  content: string
-  user_id: string
-  related_id?: string
+  message: string
+  data: any
   is_read: boolean
   created_at: string
-  user?: {
-    username: string
-    full_name: string
-    avatar_url?: string
-  }
 }
 
-interface NotificationStats {
+export interface NotificationStats {
   total: number
   unread: number
-  byType: Record<string, number>
+  by_type: Record<string, { total: number; unread: number }>
 }
 
-export function useNotifications() {
+export const useNotifications = () => {
   const [notifications, setNotifications] = useState<Notification[]>([])
-  const [unreadCount, setUnreadCount] = useState(0)
   const [stats, setStats] = useState<NotificationStats>({
     total: 0,
     unread: 0,
-    byType: {}
+    by_type: {}
   })
-  const [isLoading, setIsLoading] = useState(false)
-  const { user } = useAuth()
-  const supabase = createClientComponentClient()
-  const { toast } = useToast()
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
 
   // Buscar notificações
-  const fetchNotifications = useCallback(async (limit = 50) => {
-    if (!user) return
-
-    setIsLoading(true)
+  const fetchNotifications = useCallback(async () => {
     try {
+      setLoading(true)
       const { data, error } = await supabase
         .from('notifications')
-        .select(`
-          *,
-          user:profiles!notifications_user_id_fkey(
-            username,
-            full_name,
-            avatar_url
-          )
-        `)
-        .eq('user_id', user.id)
+        .select('*')
         .order('created_at', { ascending: false })
-        .limit(limit)
+        .limit(50)
 
-      if (error) {
-        console.error('Erro ao buscar notificações:', error)
-        return
-      }
+      if (error) throw error
 
       setNotifications(data || [])
-      
-      // Calcular estatísticas
-      const unread = data?.filter(n => !n.is_read).length || 0
-      const byType = data?.reduce((acc, n) => {
-        acc[n.type] = (acc[n.type] || 0) + 1
-        return acc
-      }, {} as Record<string, number>) || {}
-
-      setStats({
-        total: data?.length || 0,
-        unread,
-        byType
-      })
-      setUnreadCount(unread)
-    } catch (error) {
-      console.error('Erro ao buscar notificações:', error)
+      updateStats(data || [])
+    } catch (err) {
+      console.error('Erro ao buscar notificações:', err)
+      setError(err instanceof Error ? err.message : 'Erro desconhecido')
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
-  }, [user, supabase])
+  }, [supabase])
+
+  // Buscar estatísticas
+  const fetchStats = useCallback(async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data, error } = await supabase
+        .rpc('get_notification_stats', { p_user_id: user.id })
+
+      if (error) throw error
+
+      setStats(data || { total: 0, unread: 0, by_type: {} })
+    } catch (err) {
+      console.error('Erro ao buscar estatísticas:', err)
+    }
+  }, [supabase])
+
+  // Atualizar estatísticas baseado nas notificações locais
+  const updateStats = useCallback((notifs: Notification[]) => {
+    const total = notifs.length
+    const unread = notifs.filter(n => !n.is_read).length
+    const by_type: Record<string, { total: number; unread: number }> = {}
+
+    notifs.forEach(notif => {
+      if (!by_type[notif.type]) {
+        by_type[notif.type] = { total: 0, unread: 0 }
+      }
+      by_type[notif.type].total++
+      if (!notif.is_read) {
+        by_type[notif.type].unread++
+      }
+    })
+
+    setStats({ total, unread, by_type })
+  }, [])
 
   // Marcar notificação como lida
   const markAsRead = useCallback(async (notificationId: string) => {
@@ -93,10 +99,7 @@ export function useNotifications() {
         .update({ is_read: true })
         .eq('id', notificationId)
 
-      if (error) {
-        console.error('Erro ao marcar como lida:', error)
-        return false
-      }
+      if (error) throw error
 
       // Atualizar estado local
       setNotifications(prev => 
@@ -104,18 +107,13 @@ export function useNotifications() {
           n.id === notificationId ? { ...n, is_read: true } : n
         )
       )
-      setUnreadCount(prev => Math.max(0, prev - 1))
-      setStats(prev => ({
-        ...prev,
-        unread: Math.max(0, prev.unread - 1)
-      }))
-
-      return true
-    } catch (error) {
-      console.error('Erro ao marcar como lida:', error)
-      return false
+      updateStats(notifications.map(n => 
+        n.id === notificationId ? { ...n, is_read: true } : n
+      ))
+    } catch (err) {
+      console.error('Erro ao marcar notificação como lida:', err)
     }
-  }, [supabase])
+  }, [supabase, notifications, updateStats])
 
   // Marcar todas como lidas
   const markAllAsRead = useCallback(async () => {
@@ -123,37 +121,20 @@ export function useNotifications() {
       const { error } = await supabase
         .from('notifications')
         .update({ is_read: true })
-        .eq('user_id', user?.id)
         .eq('is_read', false)
 
-      if (error) {
-        console.error('Erro ao marcar todas como lidas:', error)
-        return false
-      }
+      if (error) throw error
 
+      // Atualizar estado local
       setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
-      setUnreadCount(0)
-      setStats(prev => ({
-        ...prev,
-        unread: 0
-      }))
-
-      toast({
-        title: "Notificações marcadas como lidas",
-        description: "Todas as notificações foram marcadas como lidas.",
-      })
-
-      return true
-    } catch (error) {
-      console.error('Erro ao marcar todas como lidas:', error)
-      return false
+      updateStats(notifications.map(n => ({ ...n, is_read: true })))
+    } catch (err) {
+      console.error('Erro ao marcar todas como lidas:', err)
     }
-  }, [user?.id, supabase, toast])
+  }, [supabase, notifications, updateStats])
 
   // Configurar real-time para novas notificações
   useEffect(() => {
-    if (!user) return
-
     const channel = supabase
       .channel('notifications')
       .on(
@@ -161,52 +142,28 @@ export function useNotifications() {
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${user.id}`
+          table: 'notifications'
         },
         (payload) => {
           const newNotification = payload.new as Notification
           
-          // Adicionar nova notificação ao topo
+          // Adicionar nova notificação ao início da lista
           setNotifications(prev => [newNotification, ...prev])
-          setUnreadCount(prev => prev + 1)
-          setStats(prev => ({
-            ...prev,
-            total: prev.total + 1,
-            unread: prev.unread + 1,
-            byType: {
-              ...prev.byType,
-              [newNotification.type]: (prev.byType[newNotification.type] || 0) + 1
-            }
-          }))
+          updateStats([newNotification, ...notifications])
 
           // Mostrar toast para notificações importantes
-          if (['like', 'comment', 'follow', 'mention', 'message'].includes(newNotification.type)) {
-            toast({
-              title: newNotification.title,
-              description: newNotification.content,
-              duration: 4000,
+          if (['new_message', 'new_match', 'mention'].includes(newNotification.type)) {
+            toast(newNotification.title, {
+              description: newNotification.message,
+              action: {
+                label: 'Ver',
+                onClick: () => {
+                  // Aqui você pode navegar para a notificação ou abrir o centro de notificações
+                  console.log('Navegar para notificação:', newNotification.id)
+                }
+              }
             })
           }
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${user.id}`
-        },
-        (payload) => {
-          const updatedNotification = payload.new as Notification
-          
-          // Atualizar notificação existente
-          setNotifications(prev => 
-            prev.map(n => 
-              n.id === updatedNotification.id ? updatedNotification : n
-            )
-          )
         }
       )
       .subscribe()
@@ -214,20 +171,21 @@ export function useNotifications() {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [user, supabase, toast])
+  }, [supabase, notifications, updateStats])
 
-  // Buscar notificações iniciais
+  // Buscar dados iniciais
   useEffect(() => {
     fetchNotifications()
-  }, [fetchNotifications])
+    fetchStats()
+  }, [fetchNotifications, fetchStats])
 
   return {
     notifications,
-    unreadCount,
     stats,
-    isLoading,
-    fetchNotifications,
+    loading,
+    error,
     markAsRead,
-    markAllAsRead
+    markAllAsRead,
+    refetch: fetchNotifications
   }
 } 
