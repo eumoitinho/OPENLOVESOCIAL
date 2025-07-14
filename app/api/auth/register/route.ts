@@ -3,6 +3,11 @@ import { createClient } from "@supabase/supabase-js"
 
 export async function POST(req: NextRequest) {
   try {
+    console.log("=== INÍCIO DO REGISTRO ===")
+    
+    const body = await req.json()
+    console.log("Dados recebidos:", { ...body, password: '[HIDDEN]' })
+    
     const {
       firstName,
       lastName,
@@ -21,7 +26,7 @@ export async function POST(req: NextRequest) {
       longitude,
       plan,
       partner
-    } = await req.json()
+    } = body
 
     // Validar dados obrigatórios
     if (!email || !password || !username || !firstName || !lastName) {
@@ -34,6 +39,10 @@ export async function POST(req: NextRequest) {
     // Verificar se as variáveis de ambiente estão configuradas
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    console.log("=== VERIFICAÇÃO DE VARIÁVEIS DE AMBIENTE ===")
+    console.log("SUPABASE_URL configurado:", !!supabaseUrl)
+    console.log("SERVICE_ROLE_KEY configurado:", !!supabaseServiceKey)
 
     if (!supabaseUrl || !supabaseServiceKey) {
       console.error("Variáveis de ambiente do Supabase não configuradas")
@@ -277,9 +286,17 @@ export async function POST(req: NextRequest) {
     })
 
   } catch (error) {
-    console.error("Erro no registro:", error)
+    console.error("=== ERRO NO REGISTRO ===")
+    console.error("Tipo de erro:", typeof error)
+    console.error("Mensagem:", (error as Error).message)
+    console.error("Stack:", (error as Error).stack)
+    
+    // Garantir que sempre retornamos um JSON válido
     return NextResponse.json(
-      { error: "Erro interno do servidor: " + (error as Error).message },
+      { 
+        error: "Erro interno do servidor: " + (error as Error).message,
+        details: process.env.NODE_ENV === 'development' ? (error as Error).stack : undefined
+      },
       { status: 500 }
     )
   }

@@ -334,7 +334,9 @@ export default function OpenLoveRegister() {
         body: JSON.stringify(formData),
       })
 
-      const result = await response.json()
+      // Verificar se a resposta tem conteúdo antes de tentar fazer .json()
+      const text = await response.text()
+      const result = text ? JSON.parse(text) : {}
 
       if (!response.ok) {
         throw new Error(result.error || "Erro ao criar conta")
