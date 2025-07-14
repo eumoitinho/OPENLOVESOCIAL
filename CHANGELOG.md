@@ -1,3 +1,13 @@
+## [0.3.0-alpha.2] - 2025-07-14
+
+### 🐛 Fixes
+
+- fix: corrigir formatação do badge no README [alpha] (ef1a65a)
+
+### 🔧 Chores
+
+- chore: atualizar versão para 0.3.0-alpha.1 e documentar mudanças no CHANGELOG (38660e2)
+
 ## [0.3.0-alpha.1] - 2025-07-14
 
 ### ✨ Features

@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![OpenLove Logo](https://img.shields.io/badge/OpenLove-v0.3.0--alpha.1-pink?style=for-the-badge&logo=heart&logoColor=white)
+![OpenLove Logo](https://img.shields.io/badge/OpenLove-v0-3-0--alpha--2-pink?style=for-the-badge&logo=heart&logoColor=white)
 
 **Uma plataforma social moderna para casais e pessoas que buscam conexões autênticas, eventos locais e uma comunidade segura com abordagem liberal e familiar.**
 
