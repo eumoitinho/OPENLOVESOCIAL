@@ -1,6 +1,106 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
+// Mapeamento de nomes de estados para siglas
+const UF_MAPPING: { [key: string]: string } = {
+  'ACRE': 'AC',
+  'ALAGOAS': 'AL',
+  'AMAPÁ': 'AP',
+  'AMAZONAS': 'AM',
+  'BAHIA': 'BA',
+  'CEARÁ': 'CE',
+  'DISTRITO FEDERAL': 'DF',
+  'ESPÍRITO SANTO': 'ES',
+  'GOIÁS': 'GO',
+  'MARANHÃO': 'MA',
+  'MATO GROSSO': 'MT',
+  'MATO GROSSO DO SUL': 'MS',
+  'MINAS GERAIS': 'MG',
+  'PARÁ': 'PA',
+  'PARAÍBA': 'PB',
+  'PARANÁ': 'PR',
+  'PERNAMBUCO': 'PE',
+  'PIAUÍ': 'PI',
+  'RIO DE JANEIRO': 'RJ',
+  'RIO GRANDE DO NORTE': 'RN',
+  'RIO GRANDE DO SUL': 'RS',
+  'RONDÔNIA': 'RO',
+  'RORAIMA': 'RR',
+  'SANTA CATARINA': 'SC',
+  'SÃO PAULO': 'SP',
+  'SERGIPE': 'SE',
+  'TOCANTINS': 'TO'
+}
+
+// Função para normalizar UF
+function normalizeUF(uf: string): string | null {
+  if (!uf) return null
+  
+  // Se já é uma sigla válida (2 letras), retornar em maiúsculo
+  if (uf.length === 2 && /^[A-Za-z]{2}$/.test(uf)) {
+    return uf.toUpperCase()
+  }
+  
+  // Se é um nome completo, buscar no mapeamento
+  const normalizedUF = uf.toUpperCase().trim()
+  return UF_MAPPING[normalizedUF] || uf.substring(0, 2).toUpperCase()
+}
+
+// Função para processar imagem base64 e fazer upload
+async function processImageUpload(supabase: any, imageBase64: string, userId: string, type: 'avatar' | 'cover' = 'avatar'): Promise<string | null> {
+  try {
+    console.log(`Iniciando upload de ${type} para usuário ${userId}`)
+    
+    // Remover o prefixo data:image/...;base64, se existir
+    const base64Data = imageBase64.replace(/^data:image\/[a-z]+;base64,/, '')
+    
+    // Converter base64 para buffer
+    const buffer = Buffer.from(base64Data, 'base64')
+    
+    // Determinar extensão baseada no tipo de imagem
+    let fileExt = 'jpg'
+    if (imageBase64.startsWith('data:image/png')) {
+      fileExt = 'png'
+    } else if (imageBase64.startsWith('data:image/gif')) {
+      fileExt = 'gif'
+    } else if (imageBase64.startsWith('data:image/webp')) {
+      fileExt = 'webp'
+    }
+    
+    const fileName = `${userId}/${type}.${fileExt}`
+    const bucketName = type === 'avatar' ? 'avatars' : 'covers'
+    
+    console.log(`Fazendo upload para bucket: ${bucketName}, arquivo: ${fileName}`)
+    
+    // Upload para o Supabase Storage
+    const { data, error } = await supabase.storage
+      .from(bucketName)
+      .upload(fileName, buffer, {
+        contentType: `image/${fileExt}`,
+        cacheControl: '3600',
+        upsert: true
+      })
+
+    if (error) {
+      console.error(`Erro no upload da ${type}:`, error)
+      return null
+    }
+
+    console.log(`Upload de ${type} bem-sucedido:`, data)
+
+    // Obter URL pública
+    const { data: { publicUrl } } = supabase.storage
+      .from(bucketName)
+      .getPublicUrl(fileName)
+
+    console.log(`URL pública da ${type}:`, publicUrl)
+    return publicUrl
+  } catch (error) {
+    console.error(`Erro ao processar upload da ${type}:`, error)
+    return null
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     console.log("=== INÍCIO DO REGISTRO ===")
@@ -25,7 +125,9 @@ export async function POST(req: NextRequest) {
       latitude,
       longitude,
       plan,
-      partner
+      partner,
+      avatar_url,
+      cover_url
     } = body
 
     // Validar dados obrigatórios
@@ -123,6 +225,10 @@ export async function POST(req: NextRequest) {
     const selectedPlan = plan && validPlans.includes(plan) ? plan : 'free';
     const subscriptionStatus = selectedPlan === 'free' ? 'authorized' : 'pending';
 
+    // Normalizar UF
+    const normalizedUF = normalizeUF(uf)
+    console.log(`UF original: "${uf}", UF normalizada: "${normalizedUF}"`)
+
     // 3. Criar usuário no Supabase Auth com TODOS os dados nos metadados
     console.log("Criando usuário no Supabase Auth...")
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
@@ -144,13 +250,15 @@ export async function POST(req: NextRequest) {
         other_interest: otherInterest || null,
         bio: bio || null,
         location: city || null,
-        uf: uf ? uf.substring(0, 2).toUpperCase() : null,
+        uf: normalizedUF,
         latitude: latitude ? parseFloat(latitude) : null,
         longitude: longitude ? parseFloat(longitude) : null,
         plano: selectedPlan,
         status_assinatura: subscriptionStatus,
         partner: profileType === "couple" && partner ? partner : null,
-        is_premium: selectedPlan !== 'free'
+        is_premium: selectedPlan !== 'free',
+        avatar_url: avatar_url || null,
+        cover_url: cover_url || null
       }
     })
 
@@ -183,10 +291,24 @@ export async function POST(req: NextRequest) {
 
     console.log("Usuário criado no Auth com sucesso:", authData.user.id)
 
-    // 4. Aguardar um pouco para o trigger processar (opcional)
+    // 4. Processar upload da imagem se fornecida
+    let avatarUrl = null
+    let coverUrl = null
+    if (avatar_url && authData.user.id) {
+      console.log("Processando upload da imagem de perfil...")
+      avatarUrl = await processImageUpload(supabase, avatar_url, authData.user.id, 'avatar')
+      console.log("Upload da imagem de perfil concluído:", avatarUrl)
+    }
+    if (cover_url && authData.user.id) {
+      console.log("Processando upload da imagem de capa...")
+      coverUrl = await processImageUpload(supabase, cover_url, authData.user.id, 'cover')
+      console.log("Upload da imagem de capa concluído:", coverUrl)
+    }
+
+    // 5. Aguardar um pouco para o trigger processar (opcional)
     await new Promise(resolve => setTimeout(resolve, 1000))
 
-    // 5. Verificar se o perfil foi criado pelo trigger e atualizá-lo se necessário
+    // 6. Verificar se o perfil foi criado pelo trigger e atualizá-lo se necessário
     console.log("Verificando e atualizando perfil...")
     
     const updateData = {
@@ -201,7 +323,7 @@ export async function POST(req: NextRequest) {
       other_interest: otherInterest || null,
       bio: bio || null,
       location: city || null,
-      uf: uf ? uf.substring(0, 2).toUpperCase() : null,
+      uf: normalizedUF,
       latitude: latitude ? parseFloat(latitude) : null,
       longitude: longitude ? parseFloat(longitude) : null,
       plano: selectedPlan,
@@ -210,6 +332,8 @@ export async function POST(req: NextRequest) {
       is_premium: selectedPlan !== 'free',
       is_verified: false,
       is_active: true,
+      avatar_url: avatarUrl,
+      cover_url: coverUrl,
       privacy_settings: {
         profile_visibility: "public",
         show_age: true,

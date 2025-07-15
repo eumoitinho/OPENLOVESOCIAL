@@ -74,20 +74,18 @@ export function AvatarBadge({
     <div className={cn('relative inline-block', className)}>
       <div
         className={cn(
-          "relative rounded-full overflow-hidden", // Garante que o avatar seja sempre redondo
+          "relative rounded-full overflow-hidden bg-transparent", // Adicionado bg-transparent
           sizeClasses[size],
-          onClick && "cursor-pointer"
+          onClick && "cursor-pointer hover:ring-2 hover:ring-pink-500 transition-all duration-200" // Ring apenas aqui
         )}
         onClick={onClick}
-        style={{ display: "inline-block" }}
       >
         <Avatar
           className={cn(
-            "w-full h-full rounded-full overflow-hidden", // Garante o formato redondo
-            onClick && "hover:ring-2 hover:ring-pink-500 transition-all duration-200"
+            "w-full h-full rounded-full overflow-hidden" // Removido hover:ring daqui
           )}
         >
-          <AvatarImage src={src} alt={alt} className="rounded-full object-cover w-full h-full" />
+          <AvatarImage src={src} alt={alt} className="rounded-md object-cover w-full h-full" />
           <AvatarFallback className="bg-gradient-to-br from-pink-500 to-purple-500 text-white font-semibold rounded-full w-full h-full flex items-center justify-center">
             {fallback || 'U'}
           </AvatarFallback>

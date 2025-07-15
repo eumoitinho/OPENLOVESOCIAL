@@ -237,3 +237,64 @@ Para dúvidas ou suporte, abra uma issue no GitHub ou entre em contato através 
 ---
 
 **🎉 OpenLove - Conectando pessoas através da tecnologia moderna!**
+
+## 📸 **Upload de Foto no Registro**
+
+O sistema agora suporta upload de foto de perfil e foto de capa durante o registro:
+
+### **Funcionalidades:**
+- ✅ Upload de foto de perfil no formulário de registro
+- ✅ Upload de foto de capa no formulário de registro
+- ✅ Preview das imagens selecionadas
+- ✅ Validação de tipo e tamanho (perfil: 5MB, capa: 10MB)
+- ✅ Suporte para JPG, PNG, GIF e WebP
+- ✅ Processamento automático na API
+- ✅ Armazenamento no Supabase Storage
+- ✅ URLs públicas geradas automaticamente
+
+### **Como usar:**
+1. Acesse `/auth/signup`
+2. Na etapa 1, clique em "Escolher Foto" para foto de perfil
+3. Clique em "Escolher Capa" para foto de capa
+4. Selecione as imagens (máximo 5MB para perfil, 10MB para capa)
+5. Visualize os previews
+6. Continue com o registro normalmente
+7. As fotos serão salvas automaticamente no perfil
+
+### **Configuração do Storage:**
+Execute os seguintes scripts no Supabase para configurar os buckets:
+- `scripts/037_create_avatars_bucket.sql` - Para fotos de perfil
+- `scripts/038_create_covers_bucket.sql` - Para fotos de capa
+
+---
+
+## 📍 **Sistema de Localização Padronizada**
+
+O sistema agora possui localização padronizada com API de cidades/estados:
+
+### **Funcionalidades:**
+- ✅ Busca de cidades usando API do IBGE
+- ✅ Autocompletar com dropdown de resultados
+- ✅ Coordenadas automáticas para cada cidade
+- ✅ Validação e padronização de dados
+- ✅ Cálculo de distância entre usuários
+- ✅ Filtros por proximidade geográfica
+- ✅ Interface intuitiva de busca
+
+### **Componentes Criados:**
+- **LocationSearch:** Busca de cidades com autocompletar
+- **DistanceFilter:** Filtro por distância máxima
+- **API de Coordenadas:** `/api/location/coordinates`
+- **Utilitários:** `app/lib/location.ts`
+
+### **Como Usar:**
+1. No registro, use o campo "Localização" com busca automática
+2. Digite o nome da cidade e selecione da lista
+3. As coordenadas são obtidas automaticamente
+4. Use filtros de distância para encontrar usuários próximos
+
+### **APIs Utilizadas:**
+- **IBGE:** Busca de cidades brasileiras
+- **Coordenadas:** Mapeamento por UF e cidade
+
+---

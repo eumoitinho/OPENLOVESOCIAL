@@ -555,8 +555,33 @@ export default function OpenLoveLanding() {
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 py-8 text-center text-gray-500 dark:text-white/50">
-        <p>© 2025 OpenLove. Todos os direitos reservados.</p>
+      <footer className="relative z-10 py-8 text-center">
+        <div className="max-w-4xl mx-auto px-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
+            <div className="text-gray-500 dark:text-white/50">
+              <p>© 2025 OpenLove. Todos os direitos reservados.</p>
+            </div>
+            <div className="flex items-center gap-6 text-sm">
+              <Link 
+                href="/privacy" 
+                className="text-gray-500 dark:text-white/50 hover:text-gray-700 dark:hover:text-white/80 transition-colors duration-200"
+              >
+                Política de Privacidade
+              </Link>
+              <Link 
+                href="/terms" 
+                className="text-gray-500 dark:text-white/50 hover:text-gray-700 dark:hover:text-white/80 transition-colors duration-200"
+              >
+                Termos de Serviço
+              </Link>
+            </div>
+          </div>
+          <div className="border-t border-gray-200 dark:border-white/10 pt-6">
+            <p className="text-xs text-gray-400 dark:text-white/30">
+              OpenLove - Conectando pessoas através de experiências autênticas
+            </p>
+          </div>
+        </div>
       </footer>
     </div>
   )

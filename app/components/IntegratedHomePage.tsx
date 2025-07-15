@@ -6,12 +6,14 @@ import { NotificationSystem } from "@/app/components/notifications/NotificationS
 import { PostToast } from "@/app/components/notifications/PostToast"
 import { ChatInterface } from "@/app/components/chat/ChatInterface"
 import { MobileNavigation } from "@/app/components/navigation/MobileNavigation"
-import { UserProfile } from "@/app/components/profile/UserProfile"
+import UserProfile from "@/app/components/profile/UserProfile"
 import { AdvancedSearch } from "@/app/components/search/AdvancedSearch"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 export function IntegratedHomePage() {
   const [showChat, setShowChat] = useState(false)
   const [selectedFilters, setSelectedFilters] = useState<string[]>([])
+  const isMobile = useIsMobile()
 
   // Exemplo de opções para o FilterSelector
   const filterOptions = [
@@ -115,9 +117,7 @@ export function IntegratedHomePage() {
       <PostToast />
 
       {/* Mobile Navigation */}
-      <div className="md:hidden">
-        <MobileNavigation />
-      </div>
+      {isMobile && <MobileNavigation />}
 
       {/* Instructions */}
       <div className="fixed bottom-4 left-4 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 max-w-sm">

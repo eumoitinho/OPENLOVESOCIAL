@@ -9,8 +9,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { ArrowLeft, ArrowRight, Check, Crown, Star, Zap } from "lucide-react"
+import { ArrowLeft, ArrowRight, Check, Crown, Star, Zap, Upload, X, Camera } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { LocationSearch } from "@/app/components/location/LocationSearch"
 import type { Database } from "@/app/lib/database.types"
 // Substituir o tipo User por um tipo manual baseado no schema SQL
 
@@ -114,6 +115,17 @@ const PLANS = [
 export default function SignUp() {
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
+  const [profileImage, setProfileImage] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [coverImage, setCoverImage] = useState<File | null>(null)
+  const [coverPreview, setCoverPreview] = useState<string | null>(null)
+  const [selectedLocation, setSelectedLocation] = useState<{
+    id: number
+    nome: string
+    uf: string
+    latitude: number
+    longitude: number
+  } | null>(null)
   const [formData, setFormData] = useState({
     // Etapa 1
     email: "",
@@ -139,6 +151,78 @@ export default function SignUp() {
   // Usar instância única do client
   const supabase = createClient()
 
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      // Validar tipo de arquivo
+      if (!file.type.startsWith('image/')) {
+        alert('Por favor, selecione apenas arquivos de imagem.')
+        return
+      }
+
+      // Validar tamanho (máximo 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('A imagem deve ter no máximo 5MB.')
+        return
+      }
+
+      setProfileImage(file)
+      
+      // Criar preview
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const removeImage = () => {
+    setProfileImage(null)
+    setImagePreview(null)
+  }
+
+  const handleCoverUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      // Validar tipo de arquivo
+      if (!file.type.startsWith('image/')) {
+        alert('Por favor, selecione apenas arquivos de imagem.')
+        return
+      }
+
+      // Validar tamanho (máximo 10MB para capa)
+      if (file.size > 10 * 1024 * 1024) {
+        alert('A imagem de capa deve ter no máximo 10MB.')
+        return
+      }
+
+      setCoverImage(file)
+      
+      // Criar preview
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setCoverPreview(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const removeCover = () => {
+    setCoverImage(null)
+    setCoverPreview(null)
+  }
+
+  const handleLocationSelect = (location: {
+    id: number
+    nome: string
+    uf: string
+    latitude: number
+    longitude: number
+  }) => {
+    setSelectedLocation(location)
+    handleInputChange("location", `${location.nome}, ${location.uf}`)
+  }
 
   const handleInputChange = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -188,64 +272,84 @@ export default function SignUp() {
 
     setLoading(true)
     try {
-      // 1. Criar conta no Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            full_name: formData.fullName,
-          },
+      // 1. Converter imagem para base64 se existir
+      let avatarBase64 = null
+      let coverBase64 = null
+      if (profileImage) {
+        const reader = new FileReader()
+        avatarBase64 = await new Promise<string>((resolve) => {
+          reader.onload = () => resolve(reader.result as string)
+          reader.readAsDataURL(profileImage)
+        })
+      }
+      if (coverImage) {
+        const reader = new FileReader()
+        coverBase64 = await new Promise<string>((resolve) => {
+          reader.onload = () => resolve(reader.result as string)
+          reader.readAsDataURL(coverImage)
+        })
+      }
+
+      // 2. Enviar dados para a API de registro
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          firstName: formData.fullName.split(' ')[0],
+          lastName: formData.fullName.split(' ').slice(1).join(' '),
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+          birthDate: null, // Será adicionado na etapa 2
+          profileType: formData.profileType,
+          seeking: [],
+          interests: formData.interests,
+          otherInterest: null,
+          bio: formData.bio,
+          city: selectedLocation?.nome || formData.location?.split(',')[0]?.trim(),
+          uf: selectedLocation?.uf || formData.location?.split(',')[1]?.trim(),
+          latitude: selectedLocation?.latitude || null,
+          longitude: selectedLocation?.longitude || null,
+          plan: formData.selectedPlan,
+          partner: null,
+          avatar_url: avatarBase64,
+          cover_url: coverBase64
+        }),
       })
 
-      if (authError) throw authError
+      const result = await response.json()
 
-      if (authData.user) {
-        // 2. Criar perfil na tabela users
-        const userData: User = {
-          id: authData.user.id,
-          email: formData.email,
-          username: formData.username || authData.user.email?.split("@")[0] || "user_" + authData.user.id.substring(0, 8),
-          name: formData.fullName,
-          bio: formData.bio || null,
-          location: formData.location || null,
-          age: formData.age ? Number(formData.age) : null,
-          interests: formData.interests,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }
-
-        const { error: userError } = await supabase.from("users").insert([userData])
-
-        if (userError) throw userError
-
-        // 3. Se não for plano gratuito, redirecionar para pagamento
-        if (formData.selectedPlan !== "free") {
-          const priceIds = {
-            premium: "price_premium_monthly", // Substituir pelos IDs reais do Stripe
-            pro: "price_pro_monthly",
-          }
-
-          const response = await fetch("/api/mercadopago/subscribe", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              priceId: priceIds[formData.selectedPlan as keyof typeof priceIds],
-              userId: authData.user.id,
-            }),
-          })
-
-          const { url } = await response.json()
-          if (url) {
-            window.location.href = url
-            return
-          }
-        }
-
-        // 4. Redirecionar para dashboard
-        router.push("/dashboard")
+      if (!response.ok) {
+        throw new Error(result.error || 'Erro ao criar conta')
       }
+
+      // 3. Se não for plano gratuito, redirecionar para pagamento
+      if (formData.selectedPlan !== "free") {
+        const priceIds = {
+          premium: "price_premium_monthly",
+          pro: "price_pro_monthly",
+        }
+
+        const paymentResponse = await fetch("/api/mercadopago/subscribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            priceId: priceIds[formData.selectedPlan as keyof typeof priceIds],
+            userId: result.user.id,
+          }),
+        })
+
+        const { url } = await paymentResponse.json()
+        if (url) {
+          window.location.href = url
+          return
+        }
+      }
+
+      // 4. Redirecionar para dashboard
+      router.push("/dashboard")
     } catch (error) {
       console.error("Erro no cadastro:", error)
       alert("Erro ao criar conta. Tente novamente.")
@@ -301,6 +405,104 @@ export default function SignUp() {
                   placeholder="seu_usuario"
                 />
                 <p className="text-xs text-gray-500">Este será seu @username no OpenLove</p>
+              </div>
+
+              {/* Upload de Foto de Perfil */}
+              <div className="space-y-2">
+                <Label>Foto de Perfil (Opcional)</Label>
+                <div className="flex items-center gap-4">
+                  {/* Preview da imagem */}
+                  {imagePreview ? (
+                    <div className="relative">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={removeImage}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-20 h-20 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
+                      <Camera className="w-8 h-8 text-gray-400" />
+                    </div>
+                  )}
+
+                  {/* Botão de upload */}
+                  <div className="flex-1">
+                    <input
+                      type="file"
+                      id="profileImage"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                    <label
+                      htmlFor="profileImage"
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600 transition-colors"
+                    >
+                      <Upload className="w-4 h-4" />
+                      {imagePreview ? "Trocar Foto" : "Escolher Foto"}
+                    </label>
+                    <p className="text-xs text-gray-500 mt-1">
+                      JPG, PNG ou GIF até 5MB
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Upload de Foto de Capa */}
+              <div className="space-y-2">
+                <Label>Foto de Capa (Opcional)</Label>
+                <div className="flex items-center gap-4">
+                  {/* Preview da imagem de capa */}
+                  {coverPreview ? (
+                    <div className="relative">
+                      <img
+                        src={coverPreview}
+                        alt="Preview Capa"
+                        className="w-32 h-20 rounded-lg object-cover border-2 border-gray-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={removeCover}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-32 h-20 rounded-lg bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
+                      <Camera className="w-8 h-8 text-gray-400" />
+                    </div>
+                  )}
+
+                  {/* Botão de upload */}
+                  <div className="flex-1">
+                    <input
+                      type="file"
+                      id="coverImage"
+                      accept="image/*"
+                      onChange={handleCoverUpload}
+                      className="hidden"
+                    />
+                    <label
+                      htmlFor="coverImage"
+                      className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg cursor-pointer hover:bg-green-600 transition-colors"
+                    >
+                      <Upload className="w-4 h-4" />
+                      {coverPreview ? "Trocar Capa" : "Escolher Capa"}
+                    </label>
+                    <p className="text-xs text-gray-500 mt-1">
+                      JPG, PNG ou GIF até 10MB
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -368,12 +570,11 @@ export default function SignUp() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="location">Localização</Label>
-                  <Input
-                    id="location"
-                    value={formData.location}
-                    onChange={(e) => handleInputChange("location", e.target.value)}
-                    placeholder="Cidade, Estado"
+                  <Label>Localização</Label>
+                  <LocationSearch
+                    onLocationSelect={handleLocationSelect}
+                    placeholder="Buscar sua cidade..."
+                    initialValue={formData.location}
                   />
                 </div>
               </div>

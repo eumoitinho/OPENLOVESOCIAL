@@ -128,7 +128,6 @@ export default function RecommendedPostCard({
                 isPremium={post.user?.premium}
                 createdAt={post.timestamp}
                 onClick={() => onViewProfile?.(post.user?.username?.replace('@', '') || 'usuario')}
-                className="border-2 border-gray-200 dark:border-gray-700 cursor-pointer hover:opacity-80 transition-opacity"
               />
               <div className="flex flex-col">
                 <div className="flex items-center gap-2">

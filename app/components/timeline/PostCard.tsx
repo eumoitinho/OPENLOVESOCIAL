@@ -369,7 +369,7 @@ export default function PostCard({
                 isVerified={post.user?.verified}
                 isPremium={post.user?.premium}
                 createdAt={post.timestamp}
-                className="relative ring-2 ring-transparent group-hover/avatar:ring-pink-500 transition-all duration-300"
+                
               />
             </motion.div>
             
@@ -386,9 +386,21 @@ export default function PostCard({
                 )}
               </CardTitle>
               <CardDescription className="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                <span className="font-medium text-xs">{post.user?.username || "@usuario"}</span>
+                <span className="font-medium text-xs">{`@${post.user?.username || "@usuario"}`}</span>
                 <span className="hidden sm:inline">•</span>
-                <span className="hidden sm:inline text-gray-400 text-xs">{post.timestamp}</span>
+                <span className="hidden sm:inline text-gray-400 text-xs">
+                  {post.timestamp
+                    ? new Date(post.timestamp).toLocaleString("pt-BR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                        hour12: false
+                      }).replace(",", "")
+                    : ""}
+                </span>
                 <span className="hidden md:inline">•</span>
                 <span className="flex items-center gap-1 text-gray-400">
                   <MapPin className="w-3 h-3" />

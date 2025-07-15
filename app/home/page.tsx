@@ -103,6 +103,7 @@ import { useNotifications } from "@/app/hooks/useNotifications";
 import { useConversations } from "@/app/hooks/useConversations";
 import { usePostToast } from "@/app/hooks/usePostToast";
 import { useAppState } from "@/app/hooks/useAppState";
+import { useIsMobile } from "@/hooks/use-mobile"
 
 // --- Tipos e Dados para a Sidebar ---
 type NavigationItem = {
@@ -186,6 +187,7 @@ const ProfileView = ({ username }: { username?: string }) => {
 export default function HomePage() {
   const { user, profile, loading: authLoading, session } = useAuth();
   const router = useRouter();
+  const isMobile = useIsMobile();
 
   const {
     recommendations,
@@ -305,9 +307,10 @@ export default function HomePage() {
       name: user?.user_metadata?.full_name || "Você",
       username: user?.user_metadata?.username || "@voce",
       avatar:
-        profile?.avatar_url ||
+        // Corrigido: user?.avatar_url não existe, buscar em user_metadata ou usar padrão
+        user?.user_metadata?.avatar_url ||
         "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-16.png",
-      plano: profile?.plano || "free",
+      plano: user?.user_metadata?.plano || "free",
       id: user?.id,
     }),
     [user, profile]
@@ -925,80 +928,7 @@ export default function HomePage() {
                       </div>
                     </Card>
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-                      {[
-                        {
-                          id: "1",
-                          name: "Fernanda & Roberto",
-                          username: "@fernandaroberto",
-                          profileImage:
-                            "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-8.png",
-                          backgroundImage:
-                            "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=400&h=200&fit=crop",
-                          location: "São Paulo, SP",
-                          distance: "7km",
-                          followers: 1560,
-                          verified: true,
-                          premium: true,
-                          rating: 4.8,
-                          tags: ["fotografia", "moda", "lifestyle"],
-                          description:
-                            "Casal criativo apaixonado por fotografia e moda. Sempre em busca de inspiração.",
-                        },
-                        {
-                          id: "2",
-                          name: "Diego Costa",
-                          username: "@diego_livre",
-                          profileImage:
-                            "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-9.png",
-                          backgroundImage:
-                            "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=200&fit=crop",
-                          location: "São Paulo, SP",
-                          distance: "12km",
-                          followers: 780,
-                          verified: false,
-                          premium: false,
-                          rating: 4.3,
-                          tags: ["tecnologia", "games", "anime"],
-                          description:
-                            "Desenvolvedor e gamer. Apaixonado por tecnologia e cultura geek.",
-                        },
-                        {
-                          id: "3",
-                          name: "Patrícia & André",
-                          username: "@patriciaandre",
-                          profileImage:
-                            "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-10.png",
-                          backgroundImage:
-                            "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=400&h=200&fit=crop",
-                          location: "São Paulo, SP",
-                          distance: "15km",
-                          followers: 2300,
-                          verified: true,
-                          premium: true,
-                          rating: 4.9,
-                          tags: ["yoga", "meditação", "bem-estar"],
-                          description:
-                            "Casal espiritual focado em bem-estar e desenvolvimento pessoal.",
-                        },
-                        {
-                          id: "4",
-                          name: "Ricardo Silva",
-                          username: "@ricardo_livre",
-                          profileImage:
-                            "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-11.png",
-                          backgroundImage:
-                            "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=200&fit=crop",
-                          location: "São Paulo, SP",
-                          distance: "8km",
-                          followers: 1100,
-                          verified: false,
-                          premium: true,
-                          rating: 4.6,
-                          tags: ["música", "produção", "festivais"],
-                          description:
-                            "Produtor musical e DJ. Sempre em busca de novas conexões musicais.",
-                        },
-                      ].map((profile) => (
+                      {user?.user_metadata?.profiles?.map((profile: any) => (
                         <ProfileCard key={profile.id} profile={profile} />
                       ))}
                     </div>
@@ -1088,23 +1018,23 @@ export default function HomePage() {
       </div>
 
       {/* Mobile Navigation - APENAS DESKTOP */}
-      <div className="hidden 2xl:block">
-      <MobileNav
-        onProfileClick={() => setActiveView("profile")}
-        onSettingsClick={() => setActiveView("settings")}
-        onMessagesClick={() => setActiveView("messages")}
-        onNotificationsClick={() => setActiveView("notifications")}
-        onEventsClick={() => setActiveView("events")}
-        onCommunitiesClick={() => setActiveView("communities")}
-        onSavedContentClick={() => setActiveView("saved")}
-        onProfileSearchClick={() => setActiveView("explore")}
-        onCreatePostClick={() => setPostModalOpen(true)}
-        onNavigateToSettings={navigateToSettings}
-        onNavigateToProfiles={navigateToProfiles}
-        activeView={activeView}
-        setActiveView={setActiveView}
-      />
-      </div>
+      {isMobile && (
+        <MobileNav
+          onProfileClick={() => setActiveView("profile")}
+          onSettingsClick={() => setActiveView("settings")}
+          onMessagesClick={() => setActiveView("messages")}
+          onNotificationsClick={() => setActiveView("notifications")}
+          onEventsClick={() => setActiveView("events")}
+          onCommunitiesClick={() => setActiveView("communities")}
+          onSavedContentClick={() => setActiveView("saved")}
+          onProfileSearchClick={() => setActiveView("explore")}
+          onCreatePostClick={() => setPostModalOpen(true)}
+          onNavigateToSettings={navigateToSettings}
+          onNavigateToProfiles={navigateToProfiles}
+          activeView={activeView}
+          setActiveView={setActiveView}
+        />
+      )}
 
       {/* Modais e componentes flutuantes avançados */}
       
