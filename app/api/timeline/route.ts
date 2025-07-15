@@ -1,4 +1,4 @@
-// /app/api/timeline/route.ts - CORRIGIDO
+// /app/api/timeline/route.ts - MELHORADO
 import { type NextRequest, NextResponse } from "next/server"
 import { createRouteHandlerClient } from "@/app/lib/supabase-server"
 import { cookies } from "next/headers"
@@ -11,19 +11,24 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "20")
     const offset = (page - 1) * limit
 
-    // Buscar usuário autenticado
+    console.log("🚀 [Timeline] Iniciando busca de posts...")
+    console.log("📊 [Timeline] Parâmetros:", { page, limit, offset })
+
+    // Buscar usuário autenticado (opcional para posts públicos)
     const {
       data: { user },
       error: userError,
     } = await supabase.auth.getUser()
 
     if (userError) {
-      console.error("Timeline auth error:", userError)
+      console.log("⚠️ [Timeline] Usuário não autenticado, mas continuando...")
+    } else {
+      console.log("✅ [Timeline] Usuário autenticado:", user?.id)
     }
 
-    console.log("[Timeline] Buscando posts, página:", page, "limit:", limit)
-
-    // Step 1: Fetch posts with basic data
+    // Step 1: Fetch ALL public posts from ALL users
+    console.log("🔍 [Timeline] Buscando posts públicos...")
+    
     const { data: posts, error: postsError } = await supabase
       .from("posts")
       .select(`
@@ -43,34 +48,47 @@ export async function GET(request: NextRequest) {
         stats,
         created_at
       `)
-      .eq("visibility", "public")
+      .eq("visibility", "public") // ✅ Apenas posts públicos
       .order("created_at", { ascending: false })
       .range(offset, offset + limit - 1)
 
     if (postsError) {
-      console.error("Timeline posts error:", postsError)
-      return NextResponse.json({ error: "Failed to fetch posts" }, { status: 500 })
+      console.error("❌ [Timeline] Erro ao buscar posts:", postsError)
+      return NextResponse.json({ 
+        error: "Failed to fetch posts", 
+        details: postsError.message 
+      }, { status: 500 })
     }
 
-    console.log("[Timeline] Posts encontrados:", (posts || []).length)
+    console.log("✅ [Timeline] Posts encontrados:", (posts || []).length)
 
     if (!posts || posts.length === 0) {
+      console.log("📭 [Timeline] Nenhum post encontrado")
       return NextResponse.json({
         data: [],
         hasMore: false,
         page,
         limit,
+        total: 0
       })
     }
 
     // Step 2: Get all unique author IDs
     const authorIds = [...new Set((posts || []).map((post) => post.user_id))]
+    console.log("👥 [Timeline] Autores únicos encontrados:", authorIds.length)
 
     // Step 3: Fetch author profiles
-    const { data: authors } = await supabase
+    console.log("👤 [Timeline] Buscando perfis dos autores...")
+    const { data: authors, error: authorsError } = await supabase
       .from("users")
-      .select("id, username, name, avatar_url, is_verified, is_premium, location")
+      .select("id, username, name, avatar_url, is_verified, is_premium, location, bio")
       .in("id", authorIds)
+
+    if (authorsError) {
+      console.error("❌ [Timeline] Erro ao buscar autores:", authorsError)
+    } else {
+      console.log("✅ [Timeline] Autores carregados:", (authors || []).length)
+    }
 
     // Create author lookup map
     const authorMap = new Map()
@@ -79,11 +97,12 @@ export async function GET(request: NextRequest) {
         id: author.id,
         name: author.name || "Usuário",
         username: author.username || "unknown",
-        avatar: author.avatar_url, // ✅ CORRIGIDO: usar avatar_url
+        avatar: author.avatar_url,
         verified: author.is_verified || false,
         type: "single",
         location: author.location || "Localização não informada",
         premium: author.is_premium || false,
+        bio: author.bio || "",
         relationshipType: "single",
         isPrivate: false,
       })
@@ -91,13 +110,20 @@ export async function GET(request: NextRequest) {
 
     // Step 4: Get post IDs for likes and comments
     const postIds = (posts || []).map((post) => post.id)
+    console.log("💬 [Timeline] Buscando interações para", postIds.length, "posts")
 
     // Step 5: Fetch likes
-    const { data: likes } = await supabase
+    const { data: likes, error: likesError } = await supabase
       .from("likes")
       .select("target_id, user_id")
       .eq("target_type", "post")
       .in("target_id", postIds)
+
+    if (likesError) {
+      console.error("❌ [Timeline] Erro ao buscar likes:", likesError)
+    } else {
+      console.log("👍 [Timeline] Likes carregados:", (likes || []).length)
+    }
 
     // Group likes by post
     const likesMap = new Map()
@@ -108,8 +134,9 @@ export async function GET(request: NextRequest) {
       likesMap.get(like.target_id).push(like.user_id)
     })
 
-    // Step 6: Fetch comments with author info using JOIN
-    const { data: comments } = await supabase
+    // Step 6: Fetch comments with author info
+    console.log("💭 [Timeline] Buscando comentários...")
+    const { data: comments, error: commentsError } = await supabase
       .from("comments")
       .select(`
         id,
@@ -129,7 +156,13 @@ export async function GET(request: NextRequest) {
       .in("post_id", postIds)
       .order("created_at", { ascending: true })
 
-    // Group comments by post with correct author mapping
+    if (commentsError) {
+      console.error("❌ [Timeline] Erro ao buscar comentários:", commentsError)
+    } else {
+      console.log("💬 [Timeline] Comentários carregados:", (comments || []).length)
+    }
+
+    // Group comments by post
     const commentsMap = new Map()
     ;(comments || []).forEach((comment: any) => {
       if (!commentsMap.has(comment.post_id)) {
@@ -143,7 +176,7 @@ export async function GET(request: NextRequest) {
           id: comment.users.id,
           name: comment.users.name || "Usuário",
           username: comment.users.username || "unknown",
-          avatar: comment.users.avatar_url, // ✅ CORRIGIDO: usar avatar_url
+          avatar: comment.users.avatar_url,
           verified: comment.users.is_verified || false,
         },
         likes: comment.stats?.likes || 0,
@@ -151,6 +184,7 @@ export async function GET(request: NextRequest) {
     })
 
     // Step 7: Combine all data
+    console.log("🔧 [Timeline] Processando dados dos posts...")
     const timelinePosts = (posts || []).map((post) => {
       const author = authorMap.get(post.user_id)
       const postLikes = likesMap.get(post.id) || []
@@ -161,6 +195,7 @@ export async function GET(request: NextRequest) {
         content: post.content,
         mediaUrl: post.media_urls?.[0] || null,
         mediaType: post.media_types?.[0] || null,
+        mediaUrls: post.media_urls || [],
         visibility: post.visibility,
         createdAt: post.created_at,
         user: author || {
@@ -172,24 +207,27 @@ export async function GET(request: NextRequest) {
           type: "single",
           location: "Localização não informada",
           premium: false,
+          bio: "",
           relationshipType: "single",
           isPrivate: false,
         },
         likes: postLikes,
-        // ✅ CORRIGIDO: usar JavaScript em vez de SQL
-        likesCount: (post.stats?.likes) || 0,
-        isLiked: postLikes.includes(user?.id || ''),
+        likesCount: postLikes.length,
+        isLiked: user ? postLikes.includes(user.id) : false,
         comments: postComments,
-        // ✅ CORRIGIDO: usar JavaScript em vez de SQL
-        commentsCount: (post.stats?.comments) || 0,
+        commentsCount: postComments.length,
         images: post.media_urls || [],
-        video: null,
-        event: null,
-        // ✅ CORRIGIDO: usar JavaScript em vez de SQL
+        video: post.media_types?.includes('video') ? post.media_urls?.[0] : null,
+        event: post.is_event ? post.event_details : null,
         shares: (post.stats?.shares) || 0,
         reposts: 0,
         saved: false,
         timestamp: post.created_at,
+        hashtags: post.hashtags || [],
+        mentions: post.mentions || [],
+        location: post.location,
+        isPremium: post.is_premium_content || false,
+        price: post.price || null,
       }
     })
 
@@ -198,12 +236,25 @@ export async function GET(request: NextRequest) {
       hasMore: (posts || []).length === limit,
       page,
       limit,
+      total: timelinePosts.length,
+      debug: {
+        postsFound: (posts || []).length,
+        authorsFound: (authors || []).length,
+        likesFound: (likes || []).length,
+        commentsFound: (comments || []).length,
+        userAuthenticated: !!user
+      }
     }
 
-    console.log("[Timeline] Retornando", timelinePosts.length, "posts processados")
+    console.log("✅ [Timeline] Retornando", timelinePosts.length, "posts processados")
+    console.log("📊 [Timeline] Debug info:", result.debug)
+    
     return NextResponse.json(result)
   } catch (error) {
-    console.error("Timeline fetch error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    console.error("❌ [Timeline] Erro geral:", error)
+    return NextResponse.json({ 
+      error: "Internal server error",
+      details: error instanceof Error ? error.message : "Unknown error"
+    }, { status: 500 })
   }
 }
