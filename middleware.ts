@@ -37,7 +37,7 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   // Rotas públicas que não precisam de autenticação
-  const publicRoutes = ['/', '/auth/signin', '/auth/signup', '/auth/callback', '/auth/confirm-email']
+  const publicRoutes = ['/', '/auth/signin', '/auth/signup', '/auth/callback', '/auth/confirm-email', '/privacy', '/terms']
   const isPublicRoute = publicRoutes.includes(request.nextUrl.pathname)
 
   // Se não está autenticado e tenta acessar rota protegida
