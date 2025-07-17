@@ -7,6 +7,13 @@ O OpenLove é uma rede social moderna e completa, desenvolvida com Next.js 14, T
 ### 🚀 Context Engineering Implementado
 O projeto agora conta com um sistema completo de **Context Engineering** para desenvolvimento assistido por IA, reduzindo em até 90% o uso de tokens e aumentando drasticamente a produtividade. Veja [AI_CONTEXT_QUICK_START.md](docs/AI_CONTEXT_QUICK_START.md) para começar.
 
+### ⚡ Otimizações de Performance Aplicadas
+- ✅ **Correção de 4 vazamentos de memória** identificados
+- ✅ **Implementação de throttle** para eventos frequentes
+- ✅ **Otimização de bundle** com code splitting
+- ✅ **Hooks otimizados** (useThrottle, useIsMounted)
+- 📊 Veja o [Relatório Completo](PERFORMANCE_OPTIMIZATION_REPORT.md)
+
 ---
 
 ## ✨ Funcionalidades Principais
