@@ -15,7 +15,8 @@
     "changelog": "node scripts/generate-changelog.js",
     "auto-release:check": "node scripts/auto-release.js --check",
     "auto-release": "node scripts/auto-release.js --release",
-    "auto-release:help": "node scripts/auto-release.js --help"
+    "auto-release:help": "node scripts/auto-release.js --help",
+    "context": "node scripts/context-tools.js"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "latest",
