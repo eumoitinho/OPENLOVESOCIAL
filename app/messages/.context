@@ -1,0 +1,60 @@
+{
+  "module": "chat",
+  "description": "Sistema de chat em tempo real com suporte a arquivos e WebRTC",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "@supabase/realtime-js",
+    "webrtc-adapter"
+  ],
+  "key_files": [
+    "app/messages/page.tsx",
+    "app/messages/[userId]/page.tsx",
+    "app/api/messages/route.ts",
+    "app/api/messages/[id]/route.ts",
+    "lib/webrtc/client.ts",
+    "lib/webrtc/peer-connection.ts"
+  ],
+  "database_tables": [
+    "messages",
+    "conversations",
+    "message_reads",
+    "typing_indicators"
+  ],
+  "patterns": [
+    "real-time-updates",
+    "optimistic-ui",
+    "websocket-connection",
+    "file-upload",
+    "webrtc-signaling"
+  ],
+  "related_modules": [
+    "notifications",
+    "auth",
+    "profiles"
+  ],
+  "key_features": {
+    "messaging": "Envio e recebimento de mensagens em tempo real",
+    "file_sharing": "Upload e compartilhamento de arquivos até 10MB",
+    "typing_indicators": "Indicadores de digitação em tempo real",
+    "read_receipts": "Confirmação de leitura de mensagens",
+    "webrtc_calls": "Chamadas de vídeo/áudio via WebRTC"
+  },
+  "common_issues": [
+    "Sincronização de estado entre múltiplas abas",
+    "Reconexão após perda de conexão",
+    "Gerenciamento de memória em conversas longas",
+    "Latência em uploads de arquivos grandes"
+  ],
+  "performance_considerations": [
+    "Paginação de mensagens antigas",
+    "Lazy loading de imagens/vídeos",
+    "Debounce em typing indicators",
+    "Cache local com IndexedDB"
+  ],
+  "security_notes": [
+    "Validação de arquivos no servidor",
+    "RLS policies para acesso a mensagens",
+    "Sanitização de conteúdo HTML",
+    "Rate limiting em envio de mensagens"
+  ]
+}

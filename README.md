@@ -4,6 +4,9 @@
 
 O OpenLove é uma rede social moderna e completa, desenvolvida com Next.js 14, TypeScript, Tailwind CSS e Supabase. O sistema inclui funcionalidades avançadas de localização padronizada, sistema de posts com áudio e enquetes para assinantes, chat em tempo real, notificações e muito mais.
 
+### 🚀 Context Engineering Implementado
+O projeto agora conta com um sistema completo de **Context Engineering** para desenvolvimento assistido por IA, reduzindo em até 90% o uso de tokens e aumentando drasticamente a produtividade. Veja [AI_CONTEXT_QUICK_START.md](docs/AI_CONTEXT_QUICK_START.md) para começar.
+
 ---
 
 ## ✨ Funcionalidades Principais
@@ -307,6 +310,35 @@ vercel --prod
 - Habilitar SSL
 - Configurar CORS no Supabase
 - Backup automático do banco
+
+---
+
+## 🤖 Context Engineering
+
+O projeto implementa **Context Engineering** para desenvolvimento assistido por IA, uma evolução do prompt engineering que foca em gerenciar o contexto ao invés de apenas melhorar prompts.
+
+### **Benefícios**
+- ✅ **90% menos tokens** usados com IAs
+- ✅ **Desenvolvimento mais rápido** e preciso
+- ✅ **Contexto modular** por funcionalidade
+- ✅ **Perfis automáticos** no Cursor
+
+### **Como Usar**
+```bash
+# Ver comandos disponíveis
+npm run context help
+
+# Analisar módulo de chat
+npm run context analyze messages
+
+# Gerar contexto comprimido
+npm run context compress posts
+```
+
+### **Documentação**
+- [Guia Rápido](docs/AI_CONTEXT_QUICK_START.md) - Comece em 5 minutos
+- [Documentação Completa](docs/AI_CONTEXT_ENGINEERING.md) - Teoria e implementação
+- [Templates](docs/ai-instructions/templates/) - Templates prontos para uso
 
 ---
 
