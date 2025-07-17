@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
+import { useIsMounted } from "@/hooks/use-is-mounted"
 import { motion, AnimatePresence } from "framer-motion"
 import { Send, Paperclip, Smile, MoreVertical, Phone, Video, Search, X, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -31,6 +32,8 @@ export function ChatInterface({ className, isOpen = false, onClose }: ChatInterf
     markAsRead,
     setTyping 
   } = useConversations(user?.id)
+  
+  const isMounted = useIsMounted()
 
   const [message, setMessage] = useState("")
   const [isTyping, setIsTyping] = useState(false)
@@ -65,8 +68,11 @@ export function ChatInterface({ className, isOpen = false, onClose }: ChatInterf
       setTyping(activeConversation, true)
       
       typingTimeout = setTimeout(() => {
-        setIsTyping(false)
-        setTyping(activeConversation, false)
+        // Verificar se componente ainda está montado antes de atualizar estado
+        if (isMounted.current) {
+          setIsTyping(false)
+          setTyping(activeConversation, false)
+        }
       }, 3000)
     } else if (!isTyping && activeConversation) {
       setTyping(activeConversation, false)

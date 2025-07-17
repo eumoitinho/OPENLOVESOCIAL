@@ -1,60 +1,69 @@
+import { withSentryConfig } from "@sentry/nextjs";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Configurações de produção
-  output: "standalone",
-
-  // Configurações de imagem
+  reactStrictMode: true,
+  swcMinify: true,
+  
+  // Otimizações de imagem
   images: {
-    domains: [
-      "localhost",
-      // Adicionar domínios do Supabase Storage quando configurado
-      "supabase.co",
-      "supabase.in",
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+  },
+  
+  // Otimizações de build
+  experimental: {
+    optimizeCss: true,
+    optimizePackageImports: [
+      '@heroui/react',
+      '@radix-ui/react-*',
+      'lucide-react',
+      'framer-motion'
     ],
-    formats: ["image/webp", "image/avif"],
-    unoptimized: true,
   },
-
-  // Headers de segurança
-  async headers() {
-    return [
-      {
-        source: "/(.*)",
-        headers: [
-          {
-            key: "X-Frame-Options",
-            value: "DENY",
+  
+  // Webpack optimizations
+  webpack: (config, { isServer }) => {
+    // Tree shaking
+    config.optimization.usedExports = true;
+    
+    // Split chunks
+    if (!isServer) {
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          default: false,
+          vendors: false,
+          vendor: {
+            name: 'vendor',
+            chunks: 'all',
+            test: /node_modules/,
+            priority: 20
           },
-          {
-            key: "X-Content-Type-Options",
-            value: "nosniff",
-          },
-          {
-            key: "Referrer-Policy",
-            value: "origin-when-cross-origin",
-          },
-        ],
-      },
-    ]
-  },
-
-  // Configurações de webpack para otimização
-  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
-    // Otimizações para produção
-    if (!dev && !isServer) {
-      config.optimization.splitChunks.chunks = "all"
+          common: {
+            name: 'common',
+            minChunks: 2,
+            chunks: 'async',
+            priority: 10,
+            reuseExistingChunk: true,
+            enforce: true
+          }
+        }
+      };
     }
-
-    return config
+    
+    return config;
   },
+};
 
-  // Configurações de build
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-}
+// Configuração do Sentry (se estiver usando)
+const sentryWebpackPluginOptions = {
+  silent: true,
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+};
 
-export default nextConfig
+export default process.env.SENTRY_DSN 
+  ? withSentryConfig(nextConfig, sentryWebpackPluginOptions)
+  : nextConfig;

@@ -1,0 +1,75 @@
+{
+  "timestamp": "2025-07-17T02:06:43.066Z",
+  "issues": {
+    "memoryLeaks": [
+      {
+        "file": "app/page.tsx",
+        "line": "35-67",
+        "issue": "Event listeners (scroll e mousemove) com debounce usando setTimeout",
+        "fix": "Os timeouts estão sendo limpos corretamente no cleanup, mas podem ser otimizados com throttle ao invés de debounce"
+      },
+      {
+        "file": "app/components/media/OptimizedMediaUpload.tsx",
+        "line": "93",
+        "issue": "setInterval pode não ser limpo se houver erro antes do clearInterval",
+        "fix": "Adicionar clearInterval no bloco catch e usar useRef para garantir limpeza"
+      },
+      {
+        "file": "app/components/chat/ChatInterface.tsx",
+        "line": "66",
+        "issue": "setTimeout para typing indicator sem verificação se componente ainda está montado",
+        "fix": "Usar useRef para verificar se componente está montado antes de setState"
+      },
+      {
+        "file": "app/auth/signup/page.tsx",
+        "line": "192",
+        "issue": "window.usernameTimeout global pode causar vazamento",
+        "fix": "Usar useRef local ao invés de variável global window"
+      }
+    ],
+    "performanceIssues": [
+      {
+        "file": "app/page.tsx",
+        "issue": "Animações CSS complexas com will-change em múltiplos elementos",
+        "fix": "Reduzir uso de will-change e usar transform: translateZ(0) apenas quando necessário"
+      },
+      {
+        "file": "app/home/page.tsx",
+        "issue": "Múltiplos useEffects que podem causar re-renders desnecessários",
+        "fix": "Combinar useEffects relacionados e usar useMemo/useCallback para otimizar"
+      },
+      {
+        "file": "middleware.ts",
+        "issue": "Middleware executa em todas as rotas, criando cliente Supabase a cada request",
+        "fix": "Cachear cliente Supabase ou excluir mais rotas do middleware"
+      },
+      {
+        "file": "pnpm-lock.yaml",
+        "issue": "Arquivo muito grande (436KB) pode afetar instalação de dependências",
+        "fix": "Revisar e remover dependências não utilizadas"
+      }
+    ],
+    "optimization": [
+      {
+        "area": "Bundle Size",
+        "issue": "Muitas dependências com \"latest\" podem trazer código desnecessário",
+        "fix": "Fixar versões específicas e usar dynamic imports para componentes pesados"
+      },
+      {
+        "area": "Imagens",
+        "issue": "Não há menção a otimização de imagens com next/image",
+        "fix": "Usar next/image com lazy loading e formatos modernos (WebP/AVIF)"
+      },
+      {
+        "area": "Estado Global",
+        "issue": "Zustand pode estar causando re-renders desnecessários",
+        "fix": "Implementar selectors específicos e usar shallow comparison"
+      }
+    ]
+  },
+  "summary": {
+    "memoryLeaks": 4,
+    "performanceIssues": 4,
+    "optimizations": 3
+  }
+}

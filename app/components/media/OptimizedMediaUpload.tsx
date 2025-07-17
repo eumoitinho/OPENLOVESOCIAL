@@ -87,14 +87,19 @@ export default function OptimizedMediaUpload({
     setIsUploading(true)
     setUploadProgress(0)
 
+    let progressInterval: NodeJS.Timeout | null = null
+
     try {
       const optimizedFiles = getOptimizedFiles()
       
       // Simular progresso de upload
-      const progressInterval = setInterval(() => {
+      progressInterval = setInterval(() => {
         setUploadProgress(prev => {
           if (prev >= 90) {
-            clearInterval(progressInterval)
+            if (progressInterval) {
+              clearInterval(progressInterval)
+              progressInterval = null
+            }
             return prev
           }
           return prev + 10
@@ -103,7 +108,10 @@ export default function OptimizedMediaUpload({
 
       await onUpload(optimizedFiles)
 
-      clearInterval(progressInterval)
+      if (progressInterval) {
+        clearInterval(progressInterval)
+        progressInterval = null
+      }
       setUploadProgress(100)
 
       // Mostrar estatísticas finais
@@ -128,6 +136,12 @@ export default function OptimizedMediaUpload({
       }, 2000)
 
     } catch (error) {
+      // Limpar interval em caso de erro
+      if (progressInterval) {
+        clearInterval(progressInterval)
+        progressInterval = null
+      }
+      
       setIsUploading(false)
       setUploadProgress(0)
       toast({

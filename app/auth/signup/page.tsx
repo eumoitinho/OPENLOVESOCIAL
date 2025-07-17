@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Moon, Sun, MapPin, Camera, ArrowRight, ArrowLeft, Mail, Lock, User, AtSign, Calendar, StarIcon, GemIcon, CrownIcon, CheckIcon } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
@@ -91,6 +91,7 @@ export default function OpenLoveRegister() {
   const [checkoutPlan, setCheckoutPlan] = useState<"gold" | "diamante" | "diamante_anual" | null>(null)
   const [paymentData, setPaymentData] = useState<any>(null)
   const [checkoutError, setCheckoutError] = useState<string | null>(null)
+  const usernameTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const router = useRouter()
 
@@ -99,6 +100,15 @@ export default function OpenLoveRegister() {
     if (typeof window !== "undefined") {
       setIsDarkMode(false) // Forçar tema claro como padrão
       document.documentElement.classList.remove("dark")
+    }
+  }, [])
+
+  // Limpar timeout do username quando componente for desmontado
+  useEffect(() => {
+    return () => {
+      if (usernameTimeoutRef.current) {
+        clearTimeout(usernameTimeoutRef.current)
+      }
     }
   }, [])
 
@@ -187,10 +197,10 @@ export default function OpenLoveRegister() {
         setFormData((prev) => ({ ...prev, username: cleanUsername }))
         if (cleanUsername !== value) return // Prevent checking invalid characters
 
-        if (window.usernameTimeout) {
-          clearTimeout(window.usernameTimeout)
+        if (usernameTimeoutRef.current) {
+          clearTimeout(usernameTimeoutRef.current)
         }
-        window.usernameTimeout = setTimeout(() => {
+        usernameTimeoutRef.current = setTimeout(() => {
           checkUsernameAvailability(cleanUsername)
         }, 500)
       }
