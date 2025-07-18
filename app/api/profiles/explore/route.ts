@@ -127,16 +127,24 @@ export async function GET(request: NextRequest) {
       }, { status: 401 })
     }
 
-    // Buscar perfil do usuário atual para obter localização
+    // Buscar perfil do usuário atual para obter localização e interesses
     const { data: currentUserProfile } = await supabase
       .from("users")
-      .select("location, interests, birth_date, gender")
+      .select(`
+        location, 
+        interests, 
+        birth_date, 
+        gender, 
+        latitude, 
+        longitude,
+        profile_type
+      `)
       .eq("id", user.id)
       .single()
 
     console.log("👤 [Explore] Perfil do usuário atual:", currentUserProfile)
 
-    // Construir query base (apenas campos que existem)
+    // Construir query base com todos os campos necessários
     let query = supabase
       .from("users")
       .select(`
@@ -147,20 +155,29 @@ export async function GET(request: NextRequest) {
         bio,
         location,
         birth_date,
+        gender,
+        profile_type,
+        interests,
+        latitude,
+        longitude,
         is_verified,
         is_premium,
-        created_at
+        last_seen,
+        created_at,
+        stats
       `)
       .neq("id", user.id) // Excluir usuário atual
+      .eq("is_active", true) // Apenas usuários ativos
 
-    // Filtros comentados até validar estrutura da tabela
-    // if (gender !== "all") {
-    //   query = query.eq("gender", gender)
-    // }
+    // Filtros por gênero
+    if (gender !== "all") {
+      query = query.eq("gender", gender)
+    }
 
-    // if (relationshipType !== "all") {
-    //   query = query.eq("relationship_type", relationshipType)
-    // }
+    // Filtros por tipo de relacionamento
+    if (relationshipType !== "all") {
+      query = query.eq("profile_type", relationshipType)
+    }
 
     // Filtro por verificado
     if (verified) {
@@ -182,11 +199,30 @@ export async function GET(request: NextRequest) {
       query = query.ilike("location", `%${location}%`)
     }
 
-    // Ordenar por data de criação
+    // Filtro por interesses se especificado
+    if (interests.length > 0) {
+      // Buscar usuários que tenham pelo menos um interesse em comum
+      const interestFilters = interests.map(interest => `interests.cs.["${interest}"]`).join(',')
+      query = query.or(interestFilters)
+    }
+
+    // Filtro por idade (aplicado no lado do servidor se possível)
+    if (minAge > 18 || maxAge < 65) {
+      const currentYear = new Date().getFullYear()
+      const maxBirthYear = currentYear - minAge
+      const minBirthYear = currentYear - maxAge
+      
+      query = query
+        .gte("birth_date", `${minBirthYear}-01-01`)
+        .lte("birth_date", `${maxBirthYear}-12-31`)
+    }
+
+    // Ordenar por atividade recente e criação
+    query = query.order("last_seen", { ascending: false, nullsFirst: false })
     query = query.order("created_at", { ascending: false })
 
     // Executar query com paginação
-    console.log("🔍 [Explore] Executando query...")
+    console.log("🔍 [Explore] Executando query melhorada...")
     const { data: profiles, error: profilesError } = await query
       .range(offset, offset + limit - 1)
 
@@ -223,32 +259,96 @@ export async function GET(request: NextRequest) {
         ? new Date().getFullYear() - new Date(profile.birth_date).getFullYear()
         : null
 
-      // Calcular compatibilidade de interesses (simulado)
-      const userInterests = currentUserProfile?.interests || []
-      const profileInterests = [] // Simulado até validar estrutura
-      const commonInterests = []
-      const compatibilityScore = Math.floor(Math.random() * 100)
+      // Calcular compatibilidade de interesses (REAL)
+      const userInterests = Array.isArray(currentUserProfile?.interests) 
+        ? currentUserProfile.interests 
+        : []
+      
+      const profileInterests = Array.isArray(profile.interests) 
+        ? profile.interests 
+        : []
 
-      // Calcular distância (simulada - em um caso real, usaria geolocalização)
-      const distance = Math.floor(Math.random() * maxDistance) + 1
+      // Calcular interesses comuns
+      const commonInterests = userInterests.filter(interest => 
+        profileInterests.includes(interest)
+      )
 
-      // Status online (simulado)
-      const lastSeen = null
-      const isOnline = Math.random() > 0.7 // 30% chance de estar online
+      // Calcular pontuação de compatibilidade baseada em interesses
+      let compatibilityScore = 0
+      
+      if (userInterests.length > 0 && profileInterests.length > 0) {
+        // Pontuação baseada em interesses comuns
+        const commonInterestsRatio = commonInterests.length / Math.max(userInterests.length, profileInterests.length)
+        compatibilityScore += commonInterestsRatio * 60 // Máximo 60 pontos por interesses
+        
+        // Bonus por ter muitos interesses em comum
+        if (commonInterests.length >= 3) {
+          compatibilityScore += 20
+        } else if (commonInterests.length >= 2) {
+          compatibilityScore += 10
+        }
+        
+        // Bonus por diversidade de interesses
+        if (profileInterests.length >= 5) {
+          compatibilityScore += 10
+        }
+        
+        // Bonus por perfil completo
+        if (profile.bio && profile.bio.length > 50) {
+          compatibilityScore += 5
+        }
+        
+        // Bonus por verificação
+        if (profile.is_verified) {
+          compatibilityScore += 5
+        }
+      } else {
+        // Se não há interesses, dar pontuação base
+        compatibilityScore = 20
+      }
+
+      // Calcular distância baseada em coordenadas se disponíveis
+      let distance = null
+      if (currentUserProfile?.latitude && currentUserProfile?.longitude && 
+          profile.latitude && profile.longitude) {
+        // Fórmula de Haversine para calcular distância
+        const R = 6371 // Raio da Terra em km
+        const dLat = (profile.latitude - currentUserProfile.latitude) * Math.PI / 180
+        const dLon = (profile.longitude - currentUserProfile.longitude) * Math.PI / 180
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(currentUserProfile.latitude * Math.PI / 180) * 
+                  Math.cos(profile.latitude * Math.PI / 180) *
+                  Math.sin(dLon/2) * Math.sin(dLon/2)
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+        distance = Math.round(R * c)
+      } else {
+        // Distância simulada se não há coordenadas
+        distance = Math.floor(Math.random() * maxDistance) + 1
+      }
+
+      // Status online baseado em last_seen se disponível
+      const lastSeen = profile.last_seen ? new Date(profile.last_seen) : null
+      const isOnline = lastSeen ? 
+        (new Date().getTime() - lastSeen.getTime()) < 15 * 60 * 1000 : // 15 minutos
+        Math.random() > 0.7 // Fallback simulado
+
+      // Extrair gênero e tipo de relacionamento dos dados reais
+      const gender = profile.gender || "não informado"
+      const relationshipType = profile.profile_type || "single"
 
       return {
         id: profile.id,
-        name: profile.full_name || "Usuário",
+        name: profile.name || profile.full_name || "Usuário",
         username: profile.username || "usuario",
         avatar: profile.avatar_url,
         bio: profile.bio || "",
         location: profile.location || "Localização não informada",
         age,
-        gender: "unknown", // Simplificado
-        relationshipType: "single", // Simplificado
+        gender,
+        relationshipType,
         interests: profileInterests,
         commonInterests,
-        compatibilityScore: Math.round(compatibilityScore),
+        compatibilityScore: Math.round(Math.min(compatibilityScore, 100)), // Máximo 100
         distance,
         isVerified: profile.is_verified || false,
         isPremium: profile.is_premium || false,
@@ -256,46 +356,117 @@ export async function GET(request: NextRequest) {
         lastSeen: lastSeen,
         memberSince: profile.created_at,
         stats: {
-          followers: Math.floor(Math.random() * 1000), // Simulado
-          following: Math.floor(Math.random() * 500), // Simulado
-          posts: Math.floor(Math.random() * 100), // Simulado
-          likes: Math.floor(Math.random() * 5000) // Simulado
+          followers: profile.stats?.followers || 0,
+          following: profile.stats?.following || 0,
+          posts: profile.stats?.posts || 0,
+          likes: profile.stats?.likes_received || 0
         }
       }
     })
 
-    // Filtrar por idade
+    // Filtrar por idade (aplicado no cliente para maior precisão)
     const filteredByAge = processedProfiles.filter(profile => {
       if (!profile.age) return true
       return profile.age >= minAge && profile.age <= maxAge
     })
 
-    // Filtrar por distância
-    const filteredByDistance = filteredByAge.filter(profile => 
-      profile.distance <= maxDistance
-    )
+    // Filtrar por distância (apenas se temos coordenadas)
+    const filteredByDistance = filteredByAge.filter(profile => {
+      if (!profile.distance) return true
+      return profile.distance <= maxDistance
+    })
 
-    // Filtrar por interesses
+    // Filtrar por interesses (aplicado no cliente para maior precisão)
     const filteredByInterests = interests.length > 0 
       ? filteredByDistance.filter(profile => 
-          profile.commonInterests.length > 0
+          profile.commonInterests.length > 0 || 
+          profile.interests.some((interest: string) => interests.includes(interest))
         )
       : filteredByDistance
 
-    // Ordenar por compatibilidade e atividade
-    const sortedProfiles = filteredByInterests.sort((a, b) => {
-      // Priorizar usuários online
+    // Filtrar por gênero (aplicado no cliente como backup)
+    const filteredByGender = gender !== "all" 
+      ? filteredByInterests.filter(profile => profile.gender === gender)
+      : filteredByInterests
+
+    // Filtrar por tipo de relacionamento (aplicado no cliente como backup)
+    const filteredByRelationship = relationshipType !== "all"
+      ? filteredByGender.filter(profile => profile.relationshipType === relationshipType)
+      : filteredByGender
+
+    // Ordenar por algoritmo de recomendação inteligente
+    const sortedProfiles = filteredByRelationship.sort((a, b) => {
+      // 1. Priorizar usuários com interesses em comum
+      const aCommonInterests = a.commonInterests.length
+      const bCommonInterests = b.commonInterests.length
+      if (aCommonInterests !== bCommonInterests) {
+        return bCommonInterests - aCommonInterests
+      }
+      
+      // 2. Priorizar usuários online
       if (a.isOnline && !b.isOnline) return -1
       if (!a.isOnline && b.isOnline) return 1
       
-      // Depois por compatibilidade
+      // 3. Priorizar usuários verificados
+      if (a.isVerified && !b.isVerified) return -1
+      if (!a.isVerified && b.isVerified) return 1
+      
+      // 4. Ordenar por compatibilidade
       if (b.compatibilityScore !== a.compatibilityScore) {
         return b.compatibilityScore - a.compatibilityScore
       }
       
-      // Por último, por distância
-      return a.distance - b.distance
+      // 5. Priorizar usuários com perfil mais completo
+      const aCompleteness = (a.bio ? 1 : 0) + (a.interests.length > 0 ? 1 : 0) + (a.avatar ? 1 : 0)
+      const bCompleteness = (b.bio ? 1 : 0) + (b.interests.length > 0 ? 1 : 0) + (b.avatar ? 1 : 0)
+      if (aCompleteness !== bCompleteness) {
+        return bCompleteness - aCompleteness
+      }
+      
+      // 6. Por último, por distância (mais próximos primeiro)
+      if (a.distance && b.distance) {
+        return a.distance - b.distance
+      }
+      
+      // 7. Por atividade recente
+      const aLastSeen = a.lastSeen ? new Date(a.lastSeen).getTime() : 0
+      const bLastSeen = b.lastSeen ? new Date(b.lastSeen).getTime() : 0
+      return bLastSeen - aLastSeen
     })
+
+    // Calcular estatísticas avançadas
+    const stats = {
+      totalFound: profiles.length,
+      afterAgeFilter: filteredByAge.length,
+      afterDistanceFilter: filteredByDistance.length,
+      afterInterestsFilter: filteredByInterests.length,
+      afterGenderFilter: filteredByGender.length,
+      afterRelationshipFilter: filteredByRelationship.length,
+      finalResults: sortedProfiles.length,
+      onlineUsers: sortedProfiles.filter(p => p.isOnline).length,
+      verifiedUsers: sortedProfiles.filter(p => p.isVerified).length,
+      premiumUsers: sortedProfiles.filter(p => p.isPremium).length,
+      usersWithCommonInterests: sortedProfiles.filter(p => p.commonInterests.length > 0).length,
+      avgCompatibility: sortedProfiles.length > 0 
+        ? Math.round(sortedProfiles.reduce((sum, p) => sum + p.compatibilityScore, 0) / sortedProfiles.length)
+        : 0,
+      avgDistance: sortedProfiles.length > 0 && sortedProfiles.some(p => p.distance)
+        ? Math.round(sortedProfiles.filter(p => p.distance).reduce((sum, p) => sum + p.distance, 0) / sortedProfiles.filter(p => p.distance).length)
+        : null,
+      topCommonInterests: interests.length > 0 
+        ? sortedProfiles.flatMap(p => p.commonInterests)
+            .reduce((acc, interest) => {
+              acc[interest] = (acc[interest] || 0) + 1
+              return acc
+            }, {} as Record<string, number>)
+        : {},
+      ageDistribution: {
+        "18-25": sortedProfiles.filter(p => p.age && p.age >= 18 && p.age <= 25).length,
+        "26-35": sortedProfiles.filter(p => p.age && p.age >= 26 && p.age <= 35).length,
+        "36-45": sortedProfiles.filter(p => p.age && p.age >= 36 && p.age <= 45).length,
+        "46+": sortedProfiles.filter(p => p.age && p.age >= 46).length,
+      }
+    }
 
     const result = {
       data: sortedProfiles,
@@ -307,17 +478,19 @@ export async function GET(request: NextRequest) {
         gender, relationshipType, minAge, maxAge, maxDistance, 
         interests, location, verified, premium, search
       },
-      stats: {
-        totalFound: profiles.length,
-        afterAgeFilter: filteredByAge.length,
-        afterDistanceFilter: filteredByDistance.length,
-        afterInterestsFilter: filteredByInterests.length,
-        onlineUsers: sortedProfiles.filter(p => p.isOnline).length,
-        verifiedUsers: sortedProfiles.filter(p => p.isVerified).length,
-        premiumUsers: sortedProfiles.filter(p => p.isPremium).length,
-        avgCompatibility: sortedProfiles.length > 0 
-          ? Math.round(sortedProfiles.reduce((sum, p) => sum + p.compatibilityScore, 0) / sortedProfiles.length)
-          : 0
+      stats,
+      recommendations: {
+        message: sortedProfiles.length === 0 
+          ? "Nenhum perfil encontrado com os filtros atuais. Tente expandir seus critérios de busca."
+          : sortedProfiles.length < 5
+          ? "Poucos perfis encontrados. Considere expandir a distância ou ajustar os filtros."
+          : `${sortedProfiles.length} perfis encontrados! ${stats.usersWithCommonInterests} têm interesses em comum com você.`,
+        suggestedFilters: sortedProfiles.length === 0 ? {
+          expandDistance: maxDistance < 100,
+          expandAge: (maxAge - minAge) < 20,
+          removeInterests: interests.length > 3,
+          removeLocation: !!location
+        } : null
       }
     }
 
