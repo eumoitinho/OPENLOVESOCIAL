@@ -32,7 +32,8 @@
       "Bash(tasklist:*)",
       "Bash(npm run build:*)",
       "Bash(pnpm dev:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }
