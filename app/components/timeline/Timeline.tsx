@@ -6,7 +6,7 @@ import { Button } from "../../../components/ui/button"
 import { Badge } from "../../../components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../../components/ui/card"
-import { Tabs, TabsList, TabsTrigger } from "../../../components/ui/motion-tabs"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "../../../components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select"
 import {
@@ -61,6 +61,8 @@ import Logo from "../Logo" // Certifique-se que o caminho está correto
 import { TimelineSidebar } from "./TimelineSidebar"
 import ProfileSearch from "./ProfileSearch"
 import { MessagesContent } from "./MessagesContent"
+import TimelineAdCard from '@/app/components/ads/TimelineAdCard'
+import { useCanAccess } from '@/lib/plans/hooks'
 
 // --- Tipos e Dados para a Nova Sidebar ---
 
@@ -114,6 +116,7 @@ const NavHeader = ({ title }: { title: string }) => (
 
 export default function Timeline() {
   const { user, loading: authLoading } = useAuth()
+  const canAccess = useCanAccess()
   
 
   const [isDarkMode, setIsDarkMode] = useState(true)
@@ -129,19 +132,33 @@ export default function Timeline() {
   const [posts, setPosts] = useState<any[]>([])
   const [loadingPosts, setLoadingPosts] = useState(true)
   const [errorPosts, setErrorPosts] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<'all' | 'following' | 'for-you'>('all')
 
   console.log("Timeline render - User:", user?.id, "Loading:", authLoading)
 
-  // Atualiza timeline
-  const fetchPosts = async () => {
+  // Atualiza timeline baseado na tab ativa
+  const fetchPosts = async (tab: 'all' | 'following' | 'for-you' = activeTab) => {
+    console.log('fetchPosts called with tab:', tab)
     setLoadingPosts(true)
     setErrorPosts(null)
+    
+    let endpoint = "/api/timeline"
+    if (tab === 'following') {
+      endpoint = "/api/timeline/following"
+    } else if (tab === 'for-you') {
+      endpoint = "/api/timeline/for-you"
+    }
+
+    console.log('Fetching from endpoint:', endpoint)
+
     try {
-      const res = await fetch("/api/timeline")
+      const res = await fetch(endpoint)
       if (!res.ok) throw new Error("Erro ao buscar timeline")
       const json = await res.json()
+      console.log('Posts received:', json.data?.length || 0)
       setPosts(json.data || [])
     } catch (err: any) {
+      console.error('Error fetching posts:', err)
       setErrorPosts(err.message || "Erro desconhecido")
     } finally {
       setLoadingPosts(false)
@@ -152,7 +169,14 @@ export default function Timeline() {
     if (!authLoading) {
       fetchPosts()
     }
-  }, [authLoading])
+  }, [authLoading, activeTab])
+
+  // Função para trocar de tab
+  const handleTabChange = (tab: 'all' | 'following' | 'for-you') => {
+    console.log('Changing tab to:', tab)
+    setActiveTab(tab)
+    fetchPosts(tab)
+  }
 
   // Ad tracking
   const handleAdClick = (adId: string) => {
@@ -220,8 +244,11 @@ export default function Timeline() {
     )
   }
 
-  const handleFollow = (postId: number, isPrivate: boolean) => {
-    // Remover vestígios de followStates
+  const handleFollow = async (postId: number, isPrivate: boolean) => {
+    // Refresh the posts after following/unfollowing
+    setTimeout(() => {
+      fetchPosts(activeTab)
+    }, 500) // Small delay to allow the follow action to complete
   }
 
   const handleComment = (postId: number) => {
@@ -276,7 +303,7 @@ export default function Timeline() {
       setPostContent("")
       setPostLoading(false)
       setPostModalOpen(false)
-      fetchPosts() // Atualiza timeline
+      fetchPosts(activeTab) // Atualiza timeline
     } catch (error) {
       console.error("Erro ao criar post:", error)
       setPostLoading(false)
@@ -642,6 +669,23 @@ export default function Timeline() {
     )
   }
 
+  // Função para inserir ads na timeline
+  const insertAdsInTimeline = (posts: any[]) => {
+    if (canAccess.plan !== 'free') return posts
+    
+    const postsWithAds = [...posts]
+    
+    // Inserir ad a cada 5 posts
+    for (let i = 5; i < postsWithAds.length; i += 6) {
+      postsWithAds.splice(i, 0, {
+        id: `ad-${i}`,
+        type: 'ad',
+        plan: Math.random() > 0.5 ? 'gold' : 'diamante'
+      })
+    }
+    
+    return postsWithAds
+  }
 
 
   return (
@@ -706,66 +750,95 @@ export default function Timeline() {
             {(() => {
               switch (activeView) {
                 case "home":
-                  if (loadingPosts) {
-                    return (
-                      <div className="text-center py-8">
-                        <p>Carregando posts...</p>
+                  return (
+                    <div className="space-y-6">
+                      {/* Timeline Tabs */}
+                      <div className="sticky top-0 z-10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 pb-4">
+                        <Tabs value={activeTab} onValueChange={handleTabChange}>
+                          <TabsList className="grid w-full grid-cols-3 bg-gray-100 dark:bg-gray-800">
+                            <TabsTrigger value="all" className="data-[state=active]:bg-white data-[state=active]:text-gray-900 dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white">
+                              <Home className="w-4 h-4 mr-2" />
+                              Todos
+                            </TabsTrigger>
+                            <TabsTrigger value="following" className="data-[state=active]:bg-white data-[state=active]:text-gray-900 dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white">
+                              <Users className="w-4 h-4 mr-2" />
+                              Seguindo
+                            </TabsTrigger>
+                            <TabsTrigger value="for-you" className="data-[state=active]:bg-white data-[state=active]:text-gray-900 dark:data-[state=active]:bg-gray-700 dark:data-[state=active]:text-white">
+                              <TrendingUp className="w-4 h-4 mr-2" />
+                              Para Você
+                            </TabsTrigger>
+                          </TabsList>
+                        </Tabs>
                       </div>
-                    )
-                  }
-                  if (errorPosts) {
-                    return (
-                      <div className="text-center py-8 text-red-500">
-                        Erro ao carregar posts: {errorPosts}
+
+                      {/* Timeline Content */}
+                      <div>
+                        {(() => {
+                          if (loadingPosts) {
+                            return (
+                              <div className="text-center py-8">
+                                <p>Carregando posts...</p>
+                              </div>
+                            )
+                          }
+                          if (errorPosts) {
+                            return (
+                              <div className="text-center py-8 text-red-500">
+                                Erro ao carregar posts: {errorPosts}
+                              </div>
+                            )
+                          }
+                          if ((posts || []).length === 0) {
+                            return (
+                              <div className="text-center py-8">
+                                <p>
+                                  {activeTab === 'following' 
+                                    ? "Você ainda não segue ninguém. Explore e siga pessoas para ver seus posts aqui!"
+                                    : activeTab === 'for-you'
+                                    ? "Explore e interaja com posts para personalizar sua timeline!"
+                                    : "Nenhum post encontrado. Seja o primeiro a criar um!"
+                                  }
+                                </p>
+                              </div>
+                            )
+                          }
+                          return (
+                            <div className="space-y-6">
+                              {insertAdsInTimeline(posts).map((post, index) => {
+                                if (post.type === 'ad') {
+                                  return (
+                                    <TimelineAdCard 
+                                      key={post.id}
+                                      plan={post.plan}
+                                      onDismiss={() => {
+                                        // Remove this ad from timeline
+                                        setPosts(prev => prev.filter(p => p.id !== post.id))
+                                      }}
+                                    />
+                                  )
+                                }
+                                
+                                return (
+                                  <PostCard 
+                                    key={post.id}
+                                    post={post}
+                                    onLike={handleLike}
+                                    onSave={handleSave}
+                                    onFollow={handleFollow}
+                                    onComment={handleComment}
+                                    onShare={handleShare}
+                                    onViewMedia={handleViewMedia}
+                                    currentUser={currentUser}
+                                  />
+                                )
+                              })}
+                            </div>
+                          )
+                        })()}
                       </div>
-                    )
-                  }
-                  if ((posts || []).length === 0) {
-                    return (
-                      <div className="text-center py-8">
-                        <p>Nenhum post encontrado. Seja o primeiro a criar um!</p>
-                      </div>
-                    )
-                  }
-                  return posts.map((post, index) => (
-                    <div key={post.id}>
-                      <PostCard 
-                        post={post}
-                        onLike={handleLike}
-                        onSave={handleSave}
-                        onFollow={handleFollow}
-                        onComment={handleComment}
-                        onShare={handleShare}
-                        onViewMedia={handleViewMedia}
-                        currentUser={currentUser}
-                      />
-                      
-                      {/* Insert ads after every 3 posts */}
-                      {(index + 1) % 3 === 0 && (
-                        <div className="my-6">
-                          <Advertisement 
-                            type="timeline"
-                            onAdClick={handleAdClick}
-                            onAdImpression={handleAdImpression}
-                          />
-                        </div>
-                      )}
-                      
-                      {/* Insert profile cards after every 2 posts */}
-                      {(index + 1) % 2 === 0 && (
-                        <div className="my-6">
-                          <h3 className="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">
-                            Pessoas que você pode conhecer
-                          </h3>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {posts.map((profile) => (
-                              <ProfileCard key={profile.id} profile={profile} />
-                            ))}
-                          </div>
-                        </div>
-                      )}
                     </div>
-                  ))
+                  )
                 case "explore":
                   return <ProfileSearch />
                 case "profile":

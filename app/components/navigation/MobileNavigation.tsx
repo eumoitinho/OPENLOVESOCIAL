@@ -19,6 +19,7 @@ import { Badge } from "@heroui/react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from "@/app/components/auth/AuthProvider"
 import { useNotifications } from "@/app/hooks/useNotifications"
+import { useMessageStats } from "@/app/hooks/useMessageStats"
 import { NotificationSystem } from "@/app/components/notifications/NotificationSystem"
 
 interface MobileNavigationProps {
@@ -28,6 +29,7 @@ interface MobileNavigationProps {
 export function MobileNavigation({ className }: MobileNavigationProps) {
   const { user, profile, signOut } = useAuth()
   const { stats } = useNotifications(user?.id)
+  const { stats: messageStats } = useMessageStats(user?.id)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeTab, setActiveTab] = useState("home")
 
@@ -52,7 +54,7 @@ export function MobileNavigation({ className }: MobileNavigationProps) {
   const navigationItems = [
     { id: "home", label: "Início", icon: Home, href: "/" },
     { id: "search", label: "Buscar", icon: Search, href: "/search" },
-    { id: "messages", label: "Mensagens", icon: MessageCircle, href: "/messages", badge: stats?.unread || 0, badgeColor: "primary" },
+    { id: "messages", label: "Mensagens", icon: MessageCircle, href: "/messages", badge: messageStats?.unreadCount || 0, badgeColor: "primary" },
     { id: "profile", label: "Perfil", icon: User, href: `/profile/${profile?.username}` }
   ]
 

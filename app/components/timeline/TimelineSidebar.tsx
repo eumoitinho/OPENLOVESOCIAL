@@ -3,6 +3,7 @@
 import { Button } from "../../../components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../../components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar"
+import { Badge } from "@heroui/react"
 import {
   Heart,
   Moon,
@@ -42,6 +43,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useAuth } from "@/app/components/auth/AuthProvider"
+import { useNotifications } from "@/app/hooks/useNotifications"
+import { useMessageStats } from "@/app/hooks/useMessageStats"
 
 interface TimelineSidebarProps {
   isDarkMode: boolean
@@ -86,8 +89,8 @@ export function TimelineSidebar({
   onShowProfileEditor
 }: TimelineSidebarProps) {
   const { user, signOut } = useAuth()
-  
-
+  const { stats } = useNotifications(user?.id)
+  const { stats: messageStats } = useMessageStats(user?.id)
 
   const handleLogout = async () => {
     try {
@@ -268,16 +271,18 @@ export function TimelineSidebar({
             )}
             onClick={() => setActiveView("notifications")}
           > 
-            <div className="relative">
-            <Bell className={cn(
-              "w-5 h-5 xs:w-6 xs:h-6 transition-colors",
-              activeView === "notifications" ? "text-pink-600 dark:text-pink-400" : "text-gray-600 dark:text-gray-400"
-            )} /> 
-              {/* Badge de notificações */}
-              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-pink-500 rounded-full flex items-center justify-center">
-                <span className="text-[10px] text-white font-medium">2</span>
-              </div>
-            </div>
+            <Badge 
+              color="danger" 
+              content={stats.unread > 99 ? '99+' : stats.unread} 
+              isInvisible={stats.unread === 0} 
+              shape="circle"
+              size="sm"
+            >
+              <Bell className={cn(
+                "w-5 h-5 xs:w-6 xs:h-6 transition-colors",
+                activeView === "notifications" ? "text-pink-600 dark:text-pink-400" : "text-gray-600 dark:text-gray-400"
+              )} /> 
+            </Badge>
             <span className={cn(
               "text-base xs:text-lg transition-all hidden lg:inline",
               activeView === "notifications" ? "font-bold text-gray-900 dark:text-white" : "font-normal text-gray-600 dark:text-gray-400"
@@ -292,16 +297,18 @@ export function TimelineSidebar({
             )}
             onClick={() => setActiveView("messages")}
           > 
-            <div className="relative">
-            <Mail className={cn(
-              "w-5 h-5 xs:w-6 xs:h-6 transition-colors",
-              activeView === "messages" ? "text-pink-600 dark:text-pink-400" : "text-gray-600 dark:text-gray-400"
-            )} /> 
-              {/* Badge de mensagens */}
-              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-pink-500 rounded-full flex items-center justify-center">
-                <span className="text-[10px] text-white font-medium">1</span>
-              </div>
-            </div>
+            <Badge 
+              color="primary" 
+              content={messageStats.unreadCount > 99 ? '99+' : messageStats.unreadCount} 
+              isInvisible={messageStats.unreadCount === 0} 
+              shape="circle"
+              size="sm"
+            >
+              <Mail className={cn(
+                "w-5 h-5 xs:w-6 xs:h-6 transition-colors",
+                activeView === "messages" ? "text-pink-600 dark:text-pink-400" : "text-gray-600 dark:text-gray-400"
+              )} /> 
+            </Badge>
             <span className={cn(
               "text-base xs:text-lg transition-all hidden lg:inline",
               activeView === "messages" ? "font-bold text-gray-900 dark:text-white" : "font-normal text-gray-600 dark:text-gray-400"

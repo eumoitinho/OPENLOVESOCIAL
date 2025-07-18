@@ -6,15 +6,15 @@ import { createClient } from "@/app/lib/supabase-browser"
 interface Notification {
   id: string
   user_id: string
+  sender_id?: string
   title: string
-  content: string
-  type: 'like' | 'comment' | 'follow' | 'message' | 'mention' | 'event'
+  type: 'like' | 'comment' | 'follow' | 'message' | 'mention' | 'event' | 'system'
   is_read: boolean
   data?: any
   sender?: {
     id: string
     name: string
-    username: string
+    username?: string
     avatar_url?: string
   }
   created_at: string
@@ -54,7 +54,7 @@ export function useNotifications(userId?: string) {
         .from('notifications')
         .select(`
           *,
-          sender:users!notifications_sender_id_fkey(
+          sender:users!sender_id(
             id,
             name,
             username,

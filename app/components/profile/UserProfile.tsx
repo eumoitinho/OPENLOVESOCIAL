@@ -19,29 +19,37 @@ import {
   Badge
 } from "@heroui/react"
 import { AvatarBadge } from "@/app/components/ui/avatar-badge"
+import { RobustAvatar } from "@/app/components/ui/robust-avatar"
+import MediaGallery from '@/app/components/profile/MediaGallery'
+import ProfileStats from '@/app/components/profile/ProfileStats'
+import PrivateContentGuard from '@/app/components/profile/PrivateContentGuard'
 import { useAuth } from '@/app/components/auth/AuthProvider'
 import { toast } from 'sonner'
+import PlanAdCard from '@/app/components/ads/PlanAdCard'
+import PremiumAction from '@/app/components/premium/PremiumAction'
+import { useCanAccess } from '@/lib/plans/hooks'
 
 interface Profile {
   id: string
   username: string
-  name: string
-  first_name?: string
-  last_name?: string
+  full_name: string
   bio?: string
   avatar_url?: string
-  cover_url?: string
-  location?: string
-  birth_date?: string
-  interests?: string[]
-  created_at: string
-  is_premium?: boolean
   is_verified?: boolean
+  is_premium?: boolean
+  is_active?: boolean
+  last_seen?: string
+  created_at: string
+  plano?: string
   stats?: {
     posts?: number
     followers?: number
     following?: number
     profile_views?: number
+  }
+  privacy?: {
+    is_own_profile: boolean
+    can_view_private_content: boolean
   }
 }
 
@@ -50,10 +58,25 @@ interface Post {
   content: string
   media_urls?: string[]
   media_types?: string[]
+  hashtags?: string[]
+  visibility: 'public' | 'friends_only' | 'private'
+  location?: string
+  is_premium_content?: boolean
+  stats: {
+    likes?: number
+    comments?: number
+    shares?: number
+    views?: number
+  }
   created_at: string
-  likes_count: number
-  comments_count: number
-  is_liked?: boolean
+  updated_at: string
+}
+
+interface MediaPost {
+  id: string
+  media_urls: string[]
+  media_types: string[]
+  created_at: string
 }
 
 interface UserProfileProps {
@@ -69,11 +92,15 @@ export default function UserProfile({ username, isView = false }: UserProfilePro
 
   const [profile, setProfile] = useState<Profile | null>(null)
   const [posts, setPosts] = useState<Post[]>([])
+  const [mediaPosts, setMediaPosts] = useState<MediaPost[]>([])
   const [isFollowing, setIsFollowing] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("posts")
   const [isOwnProfile, setIsOwnProfile] = useState(false)
+  const [canViewPrivateContent, setCanViewPrivateContent] = useState(false)
+
+  const canAccess = useCanAccess()
 
   useEffect(() => {
     if (profileUsername) {
@@ -94,8 +121,10 @@ export default function UserProfile({ username, isView = false }: UserProfilePro
       const data = await response.json()
       setProfile(data.profile)
       setPosts(data.posts || [])
+      setMediaPosts(data.media_posts || [])
       setIsFollowing(data.is_following || false)
-      setIsOwnProfile(currentUser?.id === data.profile?.id)
+      setIsOwnProfile(data.is_own_profile || false)
+      setCanViewPrivateContent(data.can_view_private_content || false)
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -198,30 +227,20 @@ export default function UserProfile({ username, isView = false }: UserProfilePro
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div className="relative">
-                  {profile?.avatar_url ? (
-                    <img
-                      className="h-20 w-20 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow-lg"
-                      src={profile.avatar_url}
-                      alt={profile?.name || "Foto de perfil"}
-                    />
-                  ) : (
-                    <div className="h-20 w-20 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 flex items-center justify-center border-4 border-white dark:border-gray-700 shadow-lg">
-                      <Icon icon="lucide:user" className="h-10 w-10 text-white" />
-                    </div>
-                  )}
-                  {profile?.is_verified && (
-                    <div className="absolute -top-1 -right-1 bg-blue-500 rounded-full p-1">
-                      <Icon icon="lucide:check" className="w-3 h-3 text-white" />
-                    </div>
-                  )}
-                  {profile?.is_premium && (
-                    <div className="absolute -bottom-1 -right-1 bg-yellow-500 rounded-full p-1">
-                      <Icon icon="lucide:crown" className="w-3 h-3 text-white" />
-                    </div>
-                  )}
+                  <RobustAvatar
+                    src={profile?.avatar_url}
+                    email={currentUser?.email}
+                    name={profile?.name}
+                    username={profile?.username}
+                    size="lg"
+                    isVerified={profile?.is_verified}
+                    isPremium={profile?.is_premium}
+                    createdAt={profile?.created_at}
+                    className="h-20 w-20 border-4 border-white dark:border-gray-700 shadow-lg"
+                  />
                 </div>
                 <div>
-                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">{profile.name}</h1>
+                  <h1 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">{profile.full_name}</h1>
                   <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">@{profile.username}</p>
                   {profile.bio && (
                     <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 mt-2">{profile.bio}</p>
@@ -322,8 +341,9 @@ export default function UserProfile({ username, isView = false }: UserProfilePro
                           </div>
                         )}
                         <div className="flex items-center gap-4 text-xs text-gray-500">
-                          <span>{post.likes_count} curtidas</span>
-                          <span>{post.comments_count} comentários</span>
+                          <span>{post.stats?.likes || 0} curtidas</span>
+                          <span>{post.stats?.comments || 0} comentários</span>
+                          {post.stats?.shares && <span>{post.stats.shares} compartilhamentos</span>}
                         </div>
                       </div>
                     </div>
@@ -354,19 +374,44 @@ export default function UserProfile({ username, isView = false }: UserProfilePro
                 removeWrapper
                 alt="Profile cover"
                 className="object-cover w-full h-full"
-                src={profile.cover_url || "https://img.heroui.chat/image/landscape?w=1200&h=400&u=1"}
+                src={profile.avatar_url ? 
+                  `https://img.heroui.chat/image/landscape?w=1200&h=400&u=${profile.id}` : 
+                  "https://img.heroui.chat/image/landscape?w=1200&h=400&u=1"
+                }
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+              
+              {/* Overlay de informações */}
+              <div className="absolute bottom-4 left-4 right-4">
+                <div className="flex items-center gap-2 text-white">
+                  {profile.is_premium && (
+                    <Badge color="warning" variant="flat" size="sm" className="bg-yellow-500/20 text-yellow-200">
+                      Premium
+                    </Badge>
+                  )}
+                  {profile.is_verified && (
+                    <Badge color="primary" variant="flat" size="sm" className="bg-blue-500/20 text-blue-200">
+                      Verificado
+                    </Badge>
+                  )}
+                  {!profile.is_active && (
+                    <Badge color="default" variant="flat" size="sm" className="bg-gray-500/20 text-gray-200">
+                      Inativo
+                    </Badge>
+                  )}
+                </div>
+              </div>
             </div>
             
             {/* Profile Info */}
             <div className="px-3 sm:px-4 pb-4">
               <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
                 <div className="flex items-end">
-                  <AvatarBadge
-                    src={profile.avatar_url || "https://img.heroui.chat/image/avatar?w=200&h=200&u=1"}
-                    alt={profile.name}
-                    fallback={profile.name?.split(' ').map((n: string) => n[0]).join('') || 'U'}
+                  <RobustAvatar
+                    src={profile.avatar_url}
+                    email={currentUser?.email}
+                    name={profile.name}
+                    username={profile.username}
                     size="xl"
                     isVerified={profile.is_verified}
                     isPremium={profile.is_premium}
@@ -375,7 +420,7 @@ export default function UserProfile({ username, isView = false }: UserProfilePro
                   />
                   <div className="ml-3 sm:ml-4">
                     <div className="flex items-center gap-2">
-                      <h1 className="text-xl sm:text-2xl font-bold">{profile.name}</h1>
+                      <h1 className="text-xl sm:text-2xl font-bold">{profile.full_name}</h1>
                       {profile.is_verified && (
                         <Badge color="success" variant="flat" size="sm">
                           <Icon icon="lucide:check" className="w-3 h-3" />
@@ -487,10 +532,11 @@ export default function UserProfile({ username, isView = false }: UserProfilePro
                     {posts.map((post) => (
                       <div key={post.id} className="border-b border-default-200 pb-4 last:border-b-0">
                         <div className="flex items-start gap-3">
-                          <AvatarBadge
+                          <RobustAvatar
                             src={profile.avatar_url}
-                            alt={profile.name}
-                            fallback={profile.name?.split(' ').map((n: string) => n[0]).join('') || 'U'}
+                            email={currentUser?.email}
+                            name={profile.full_name}
+                            username={profile.username}
                             size="sm"
                             isVerified={profile.is_verified}
                             isPremium={profile.is_premium}
@@ -499,7 +545,7 @@ export default function UserProfile({ username, isView = false }: UserProfilePro
                           />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="font-medium text-sm">{profile.name}</span>
+                              <span className="font-medium text-sm">{profile.full_name}</span>
                               <span className="text-xs text-default-500">
                                 {formatDate(post.created_at)}
                               </span>
@@ -515,8 +561,9 @@ export default function UserProfile({ username, isView = false }: UserProfilePro
                               </div>
                             )}
                             <div className="flex items-center gap-4 text-xs text-default-500">
-                              <span>{post.likes_count} curtidas</span>
-                              <span>{post.comments_count} comentários</span>
+                              <span>{post.stats?.likes || 0} curtidas</span>
+                              <span>{post.stats?.comments || 0} comentários</span>
+                              {post.stats?.shares && <span>{post.stats.shares} compartilhamentos</span>}
                             </div>
                           </div>
                         </div>
@@ -533,20 +580,36 @@ export default function UserProfile({ username, isView = false }: UserProfilePro
             </Card>
           </Tab>
           
+          <Tab key="media" title="Galeria">
+            <Card>
+              <CardBody>
+                <MediaGallery 
+                  mediaPosts={mediaPosts}
+                  canViewPrivateContent={canViewPrivateContent}
+                />
+              </CardBody>
+            </Card>
+          </Tab>
+          
+          <Tab key="stats" title="Estatísticas">
+            <Card>
+              <CardBody>
+                <ProfileStats 
+                  profile={profile}
+                  canViewPrivateContent={canViewPrivateContent}
+                />
+              </CardBody>
+            </Card>
+          </Tab>
+          
           <Tab key="about" title="Sobre">
             <Card>
               <CardBody>
                 <div className="space-y-4">
-                  {profile.interests && profile.interests.length > 0 && (
+                  {profile.bio && (
                     <div>
-                      <h3 className="font-semibold mb-2">Interesses</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {profile.interests.map((interest, index) => (
-                          <Chip key={index} variant="flat" color="primary" size="sm">
-                            {interest}
-                          </Chip>
-                        ))}
-                      </div>
+                      <h3 className="font-semibold mb-2">Sobre</h3>
+                      <p className="text-sm text-default-700">{profile.bio}</p>
                     </div>
                   )}
                   
@@ -559,12 +622,20 @@ export default function UserProfile({ username, isView = false }: UserProfilePro
                       </div>
                       <div className="flex justify-between">
                         <span className="text-default-500">Status:</span>
-                        <span className="text-success">Ativo</span>
+                        <span className={profile.is_active ? "text-success" : "text-default-500"}>
+                          {profile.is_active ? "Ativo" : "Inativo"}
+                        </span>
                       </div>
                       {profile.is_premium && (
                         <div className="flex justify-between">
                           <span className="text-default-500">Tipo de conta:</span>
                           <span className="text-warning">Premium</span>
+                        </div>
+                      )}
+                      {profile.plano && profile.plano !== 'free' && (
+                        <div className="flex justify-between">
+                          <span className="text-default-500">Plano:</span>
+                          <span className="text-primary capitalize">{profile.plano}</span>
                         </div>
                       )}
                     </div>

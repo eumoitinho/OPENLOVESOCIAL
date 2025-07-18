@@ -21,6 +21,7 @@ import {
 } from "@heroui/react"
 import { useAuth } from '@/app/components/auth/AuthProvider'
 import { toast } from 'sonner'
+import SimpleProfileFix from '@/app/components/profile/SimpleProfileFix'
 
 interface Profile {
   id: string
@@ -151,18 +152,7 @@ export default function UserProfile() {
   }
 
   if (error || !profile) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Icon icon="lucide:user-x" className="w-16 h-16 mx-auto text-default-400 mb-4" />
-          <h2 className="text-xl font-semibold text-default-900 mb-2">Perfil não encontrado</h2>
-          <p className="text-default-500 mb-4">{error || "Este usuário não existe ou foi removido."}</p>
-          <Button color="primary" onPress={() => router.push("/home")}>
-            Voltar para Home
-          </Button>
-        </div>
-      </div>
-    )
+    return <SimpleProfileFix username={username} />
   }
 
   const formatDate = (dateString: string) => {
@@ -365,42 +355,23 @@ export default function UserProfile() {
             </Card>
           </Tab>
           
-          <Tab key="about" title="Sobre">
+          <Tab key="media" title="Mídia">
             <Card>
               <CardBody>
-                <div className="space-y-4">
-                  {profile.interests && profile.interests.length > 0 && (
-                    <div>
-                      <h3 className="font-semibold mb-2">Interesses</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {profile.interests.map((interest, index) => (
-                          <Chip key={index} variant="flat" color="primary" size="sm">
-                            {interest}
-                          </Chip>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  
-                  <div>
-                    <h3 className="font-semibold mb-2">Informações da Conta</h3>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-default-500">Membro desde:</span>
-                        <span>{formatDate(profile.created_at)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-default-500">Status:</span>
-                        <span className="text-success">Ativo</span>
-                      </div>
-                      {profile.is_premium && (
-                        <div className="flex justify-between">
-                          <span className="text-default-500">Tipo de conta:</span>
-                          <span className="text-warning">Premium</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                <div className="text-center py-8">
+                  <Icon icon="lucide:image" className="w-12 h-12 mx-auto text-default-400 mb-4" />
+                  <p className="text-default-500">Nenhuma mídia ainda</p>
+                </div>
+              </CardBody>
+            </Card>
+          </Tab>
+          
+          <Tab key="likes" title="Curtidas">
+            <Card>
+              <CardBody>
+                <div className="text-center py-8">
+                  <Icon icon="lucide:heart" className="w-12 h-12 mx-auto text-default-400 mb-4" />
+                  <p className="text-default-500">Nenhuma curtida ainda</p>
                 </div>
               </CardBody>
             </Card>

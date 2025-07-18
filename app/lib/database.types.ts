@@ -240,6 +240,367 @@ export interface Database {
           updated_at?: string
         }
       }
+      posts: {
+        Row: {
+          id: string
+          user_id: string
+          content: string
+          media_urls: string[] | null
+          media_types: string[] | null
+          hashtags: string[] | null
+          mentions: string[] | null
+          visibility: 'public' | 'friends_only' | 'private'
+          is_event: boolean
+          event_details: Json | null
+          location: string | null
+          is_premium_content: boolean
+          price: number | null
+          stats: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          content: string
+          media_urls?: string[] | null
+          media_types?: string[] | null
+          hashtags?: string[] | null
+          mentions?: string[] | null
+          visibility?: 'public' | 'friends_only' | 'private'
+          is_event?: boolean
+          event_details?: Json | null
+          location?: string | null
+          is_premium_content?: boolean
+          price?: number | null
+          stats?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          content?: string
+          media_urls?: string[] | null
+          media_types?: string[] | null
+          hashtags?: string[] | null
+          mentions?: string[] | null
+          visibility?: 'public' | 'friends_only' | 'private'
+          is_event?: boolean
+          event_details?: Json | null
+          location?: string | null
+          is_premium_content?: boolean
+          price?: number | null
+          stats?: Json
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      post_likes: {
+        Row: {
+          id: string
+          post_id: string
+          user_id: string
+          reaction_type: 'like' | 'love' | 'laugh' | 'wow' | 'sad' | 'angry'
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          post_id: string
+          user_id: string
+          reaction_type?: 'like' | 'love' | 'laugh' | 'wow' | 'sad' | 'angry'
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          post_id?: string
+          user_id?: string
+          reaction_type?: 'like' | 'love' | 'laugh' | 'wow' | 'sad' | 'angry'
+          created_at?: string
+        }
+      }
+      comments: {
+        Row: {
+          id: string
+          post_id: string
+          user_id: string
+          content: string
+          parent_id: string | null
+          stats: Json
+          is_edited: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          post_id: string
+          user_id: string
+          content: string
+          parent_id?: string | null
+          stats?: Json
+          is_edited?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          post_id?: string
+          user_id?: string
+          content?: string
+          parent_id?: string | null
+          stats?: Json
+          is_edited?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      comment_likes: {
+        Row: {
+          id: string
+          comment_id: string
+          user_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          comment_id: string
+          user_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          comment_id?: string
+          user_id?: string
+          created_at?: string
+        }
+      }
+      saved_posts: {
+        Row: {
+          id: string
+          post_id: string
+          user_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          post_id: string
+          user_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          post_id?: string
+          user_id?: string
+          created_at?: string
+        }
+      }
+      post_views: {
+        Row: {
+          id: string
+          post_id: string
+          user_id: string
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          post_id: string
+          user_id: string
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          post_id?: string
+          user_id?: string
+          viewed_at?: string
+        }
+      }
+      post_shares: {
+        Row: {
+          id: string
+          post_id: string
+          user_id: string
+          shared_at: string
+        }
+        Insert: {
+          id?: string
+          post_id: string
+          user_id: string
+          shared_at?: string
+        }
+        Update: {
+          id?: string
+          post_id?: string
+          user_id?: string
+          shared_at?: string
+        }
+      }
+      follows: {
+        Row: {
+          id: string
+          follower_id: string
+          following_id: string
+          status: 'pending' | 'accepted' | 'declined'
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          follower_id: string
+          following_id: string
+          status?: 'pending' | 'accepted' | 'declined'
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          follower_id?: string
+          following_id?: string
+          status?: 'pending' | 'accepted' | 'declined'
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      polls: {
+        Row: {
+          id: string
+          post_id: string
+          question: string
+          options: Json
+          total_votes: number
+          expires_at: string | null
+          allow_multiple_votes: boolean
+          is_voting_closed: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          post_id: string
+          question: string
+          options: Json
+          total_votes?: number
+          expires_at?: string | null
+          allow_multiple_votes?: boolean
+          is_voting_closed?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          post_id?: string
+          question?: string
+          options?: Json
+          total_votes?: number
+          expires_at?: string | null
+          allow_multiple_votes?: boolean
+          is_voting_closed?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      poll_votes: {
+        Row: {
+          id: string
+          poll_id: string
+          user_id: string
+          option_ids: string[]
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          poll_id: string
+          user_id: string
+          option_ids: string[]
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          poll_id?: string
+          user_id?: string
+          option_ids?: string[]
+          created_at?: string
+        }
+      }
+      users: {
+        Row: {
+          id: string
+          email: string
+          username: string
+          full_name: string
+          avatar_url: string | null
+          is_verified: boolean
+          is_premium: boolean
+          is_active: boolean
+          last_seen: string | null
+          created_at: string
+          updated_at: string
+          // Campos de assinatura
+          plano: 'free' | 'gold' | 'diamante' | 'diamante_anual'
+          status_assinatura: 'inactive' | 'pending' | 'authorized' | 'cancelled' | 'suspended'
+          ultimo_pagamento: string | null
+          proximo_pagamento: string | null
+          // Mercado Pago
+          mp_customer_id: string | null
+          mp_subscription_id: string | null
+          // Stripe
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          stripe_price_id: string | null
+          payment_provider: 'mercadopago' | 'stripe'
+        }
+        Insert: {
+          id: string
+          email: string
+          username: string
+          full_name: string
+          avatar_url?: string | null
+          is_verified?: boolean
+          is_premium?: boolean
+          is_active?: boolean
+          last_seen?: string | null
+          created_at?: string
+          updated_at?: string
+          // Campos de assinatura
+          plano?: 'free' | 'gold' | 'diamante' | 'diamante_anual'
+          status_assinatura?: 'inactive' | 'pending' | 'authorized' | 'cancelled' | 'suspended'
+          ultimo_pagamento?: string | null
+          proximo_pagamento?: string | null
+          // Mercado Pago
+          mp_customer_id?: string | null
+          mp_subscription_id?: string | null
+          // Stripe
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          stripe_price_id?: string | null
+          payment_provider?: 'mercadopago' | 'stripe'
+        }
+        Update: {
+          id?: string
+          email?: string
+          username?: string
+          full_name?: string
+          avatar_url?: string | null
+          is_verified?: boolean
+          is_premium?: boolean
+          is_active?: boolean
+          last_seen?: string | null
+          created_at?: string
+          updated_at?: string
+          // Campos de assinatura
+          plano?: 'free' | 'gold' | 'diamante' | 'diamante_anual'
+          status_assinatura?: 'inactive' | 'pending' | 'authorized' | 'cancelled' | 'suspended'
+          ultimo_pagamento?: string | null
+          proximo_pagamento?: string | null
+          // Mercado Pago
+          mp_customer_id?: string | null
+          mp_subscription_id?: string | null
+          // Stripe
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          stripe_price_id?: string | null
+          payment_provider?: 'mercadopago' | 'stripe'
+        }
+      }
     }
     Views: {
       [_ in never]: never

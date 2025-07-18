@@ -18,6 +18,11 @@ interface Profile {
   created_at: string
   updated_at: string
   plano?: string
+  is_verified?: boolean
+  is_premium?: boolean
+  profile_type?: 'single' | 'couple' | 'trans' | 'other'
+  location?: string
+  city?: string
 }
 
 interface AuthContextType {
@@ -49,6 +54,28 @@ const supabase = createBrowserClient<Database>(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
+// Função para gerar avatar padrão
+const generateDefaultAvatar = (email: string, fullName: string): string => {
+  // Usar initials como fallback
+  const initials = fullName.split(' ').map(n => n[0]).join('').toUpperCase()
+  
+  // Gerar cor baseada no email/id
+  const colors = [
+    '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+    '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
+  ]
+  
+  let hash = 0
+  for (let i = 0; i < email.length; i++) {
+    hash = email.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  
+  const color = colors[Math.abs(hash) % colors.length]
+  
+  // Retornar URL do avatar gerado
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=${color.replace('#', '')}&color=fff&size=200&font-size=0.4`
+}
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -71,9 +98,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return null
       }
       
-      setProfile(data)
-      console.log("[AuthProvider] Perfil encontrado:", data)
-      return data
+      // Garantir que o avatar_url está definido - usar gravatar ou default
+      const profileData = {
+        ...data,
+        avatar_url: data.avatar_url || generateDefaultAvatar(data.email || userId, data.full_name || 'User')
+      }
+      
+      setProfile(profileData)
+      console.log("[AuthProvider] Perfil encontrado:", profileData)
+      return profileData
     } catch (error) {
       console.error("[AuthProvider] Erro ao buscar perfil:", error)
       setProfile(null)

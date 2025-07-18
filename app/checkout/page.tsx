@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/app/components/auth/AuthProvider"
-import CheckoutForm from "@/app/components/CheckoutForm"
+import PaymentProvider from "@/app/components/PaymentProvider"
 import { Shield, CreditCard, CheckCircle } from "lucide-react"
 
 export default function CheckoutPage() {
@@ -13,7 +13,7 @@ export default function CheckoutPage() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
-  const plano = searchParams.get("plano") as "gold" | "diamante"
+  const plano = searchParams.get("plano") as "gold" | "diamante" | "diamante_anual"
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -21,7 +21,7 @@ export default function CheckoutPage() {
       return
     }
 
-    if (!plano || (plano !== "gold" && plano !== "diamante")) {
+    if (!plano || !["gold", "diamante", "diamante_anual"].includes(plano)) {
       setError("Plano inválido")
       return
     }
@@ -85,14 +85,18 @@ export default function CheckoutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Formulário de Pagamento */}
           <div className="lg:col-span-2">
-            <CheckoutForm
-              user={user}
-              plano={plano}
-              onSuccess={(data) => {
+            <PaymentProvider
+              planType={plano}
+              userEmail={user.email}
+              userId={user.id}
+              onSuccess={() => {
                 setSuccess(true)
-                // O redirecionamento será feito pelo próprio CheckoutForm
+                // Redirecionar para página de sucesso
+                setTimeout(() => {
+                  router.push(`/planoativado/${plano}`)
+                }, 2000)
               }}
-              onError={(error) => setError(error)}
+              onError={(error: string) => setError(error)}
             />
           </div>
 
@@ -105,13 +109,15 @@ export default function CheckoutPage() {
                 <div className="flex justify-between">
                   <span>Plano:</span>
                   <span className="font-medium">
-                    {plano === "gold" ? "Open Ouro" : "Open Diamante"}
+                    {plano === "gold" ? "Open Ouro" : 
+                     plano === "diamante" ? "Open Diamante" : "Open Diamante Anual"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Valor:</span>
                   <span className="font-medium">
-                    R$ {plano === "gold" ? "25,00" : "45,90"} /mês
+                    R$ {plano === "gold" ? "25,00" : 
+                        plano === "diamante" ? "45,90" : "459,00"} /{plano === "diamante_anual" ? "ano" : "mês"}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -186,7 +192,7 @@ export default function CheckoutPage() {
               </p>
               <div className="flex items-center">
                 <CreditCard className="w-4 h-4 text-gray-400 mr-2" />
-                <span className="text-xs text-gray-500">Mercado Pago</span>
+                <span className="text-xs text-gray-500">Stripe & Mercado Pago</span>
               </div>
             </div>
           </div>

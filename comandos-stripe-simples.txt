@@ -1,0 +1,30 @@
+# Comandos Stripe - Execute um por vez
+
+# 1. Verificar se Stripe CLI está instalado
+stripe --version
+
+# 2. Fazer login no Stripe
+stripe login
+
+# 3. Criar produto Open Ouro (execute em uma linha)
+stripe products create --name "Open Ouro" --description "Mais recursos para quem quer se destacar e interagir mais" --metadata plan_type=gold --metadata max_images=5 --metadata max_video_size=25MB --metadata max_videos_monthly=10 --metadata max_communities=3 --metadata max_events_monthly=2
+
+# 4. Criar produto Open Diamante (execute em uma linha)
+stripe products create --name "Open Diamante" --description "Para quem quer o máximo de liberdade, alcance e recursos" --metadata plan_type=diamante --metadata max_images=unlimited --metadata max_video_size=50MB --metadata max_videos_monthly=unlimited --metadata max_communities=5 --metadata max_events_monthly=10
+
+# 5. Após obter os Product IDs dos comandos acima, substitua nos comandos abaixo:
+
+# Criar preço Open Ouro Mensal (R$ 25,00)
+stripe prices create --product GOLD_PRODUCT_ID --currency brl --unit-amount 2500 --recurring-interval month --nickname "Open Ouro Mensal"
+
+# Criar preço Open Diamante Mensal (R$ 45,90)
+stripe prices create --product DIAMOND_PRODUCT_ID --currency brl --unit-amount 4590 --recurring-interval month --nickname "Open Diamante Mensal"
+
+# Criar preço Open Diamante Anual (R$ 459,00)
+stripe prices create --product DIAMOND_PRODUCT_ID --currency brl --unit-amount 45900 --recurring-interval year --nickname "Open Diamante Anual"
+
+# 6. Listar produtos criados para verificar
+stripe products list
+
+# 7. Listar preços criados para verificar
+stripe prices list 

@@ -3,8 +3,7 @@ import { withSentryConfig } from "@sentry/nextjs";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
-  
+
   // Otimizações de imagem
   images: {
     formats: ['image/avif', 'image/webp'],
@@ -25,9 +24,6 @@ const nextConfig = {
   
   // Webpack optimizations
   webpack: (config, { isServer }) => {
-    // Tree shaking
-    config.optimization.usedExports = true;
-    
     // Split chunks
     if (!isServer) {
       config.optimization.splitChunks = {

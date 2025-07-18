@@ -35,44 +35,56 @@ import {
   Image as ImageIcon,
   Lock,
   X,
+  Shield,
+  CheckCircle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useCanAccess } from '@/lib/plans/hooks'
+import { useRouter } from 'next/navigation'
 
 interface Event {
   id: string
   title: string
   description: string
-  date: string
-  time: string
+  event_date: string
   location: string
   category: string
-  image: string
-  attendees: number
-  maxAttendees: number
-  isPrivate: boolean
-  isPremium: boolean
-  organizer: {
-    name: string
-    avatar: string
-    username: string
-  }
-  tags: string[]
-  isLiked: boolean
-  isAttending: boolean
+  image_url: string
+  current_attendees: number
+  max_attendees: number
+  is_private: boolean
+  is_verified: boolean
   price?: string
+  creator_id: string
+  profiles: {
+    id: string
+    username: string
+    full_name: string
+    avatar_url: string
+    is_verified: boolean
+  }
+  tags?: string[]
+  isLiked?: boolean
+  isAttending?: boolean
 }
 
 export function EventsContent() {
-  const [events, setEvents] = useState<any[]>([])
+  const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const canAccess = useCanAccess()
+  const router = useRouter()
 
   useEffect(() => {
     const fetchEvents = async () => {
       setLoading(true)
       setError(null)
       try {
-        const res = await fetch("/api/events")
+        // Se o usuário só pode ver eventos verificados, adicionar filtro
+        const verifiedOnly = canAccess.canJoinVerifiedOnly
+        const url = verifiedOnly ? "/api/events?verified=true" : "/api/events"
+        
+        const res = await fetch(url)
         if (!res.ok) throw new Error("Erro ao buscar eventos")
         const json = await res.json()
         setEvents(json.data || [])
@@ -83,7 +95,7 @@ export function EventsContent() {
       }
     }
     fetchEvents()
-  }, [])
+  }, [canAccess.canJoinVerifiedOnly])
 
   const [createEventOpen, setCreateEventOpen] = useState(false)
   const [activeTab, setActiveTab] = useState("upcoming")
@@ -118,7 +130,7 @@ export function EventsContent() {
           ? {
               ...event,
               isAttending: !event.isAttending,
-              attendees: event.isAttending ? event.attendees - 1 : event.attendees + 1
+              current_attendees: event.isAttending ? event.current_attendees - 1 : event.current_attendees + 1
             }
           : event
       )
@@ -128,7 +140,13 @@ export function EventsContent() {
   const filteredEvents = events.filter(event => {
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          event.description.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCategory = selectedCategory === "all" || event.category.toLowerCase() === selectedCategory
+    const matchesCategory = selectedCategory === "all" || event.category?.toLowerCase() === selectedCategory
+    
+    // Se o usuário só pode ver eventos verificados, filtra apenas verificados
+    if (canAccess.canJoinVerifiedOnly) {
+      return matchesSearch && matchesCategory && event.is_verified
+    }
+    
     return matchesSearch && matchesCategory
   })
 
@@ -321,7 +339,16 @@ export function EventsContent() {
             Descubra e participe de eventos incríveis
           </p>
         </div>
-        <Button onClick={() => setCreateEventOpen(true)}>
+        <Button 
+          onClick={() => {
+            if (canAccess.canCreateEvents) {
+              router.push('/events/create')
+            } else {
+              router.push('/pricing')
+            }
+          }}
+          disabled={!canAccess.canCreateEvents}
+        >
           <Plus className="w-4 h-4 mr-2" />
           Criar Evento
         </Button>
@@ -369,12 +396,12 @@ export function EventsContent() {
               <Card key={event.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="relative h-48">
                   <img
-                    src={event.image}
+                    src={event.image_url || '/placeholder-event.jpg'}
                     alt={event.title}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute top-2 right-2">
-                    {event.isPrivate ? (
+                  <div className="absolute top-2 right-2 flex gap-2">
+                    {event.is_private ? (
                       <Badge variant="secondary" className="bg-black/50 text-white">
                         <Lock className="w-3 h-3 mr-1" />
                         Privado
@@ -385,12 +412,18 @@ export function EventsContent() {
                         Público
                       </Badge>
                     )}
+                    {event.is_verified && (
+                      <Badge variant="secondary" className="bg-blue-500/20 text-blue-600">
+                        <Shield className="w-3 h-3 mr-1" />
+                        Verificado
+                      </Badge>
+                    )}
                   </div>
-                  {event.isPremium && (
+                  {event.profiles.is_verified && (
                     <div className="absolute top-2 left-2">
                       <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-600">
-                        <Star className="w-3 h-3 mr-1" />
-                        Premium
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        Criador Verificado
                       </Badge>
                     </div>
                   )}
@@ -419,7 +452,7 @@ export function EventsContent() {
                   <div className="space-y-2 mb-3">
                     <div className="flex items-center gap-2 text-sm">
                       <Calendar className="w-4 h-4 text-muted-foreground" />
-                      <span>{event.date} às {event.time}</span>
+                      <span>{new Date(event.event_date).toLocaleDateString('pt-BR')}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <MapPin className="w-4 h-4 text-muted-foreground" />
@@ -427,7 +460,7 @@ export function EventsContent() {
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Users className="w-4 h-4 text-muted-foreground" />
-                      <span>{event.attendees}/{event.maxAttendees} participantes</span>
+                      <span>{event.current_attendees}/{event.max_attendees} participantes</span>
                     </div>
                   </div>
 

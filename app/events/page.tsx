@@ -1,6 +1,10 @@
 "use client"
 
 import { useState } from "react"
+import { useCanAccess, usePlanUsage } from '@/lib/plans/hooks'
+import { usePaywall } from '@/lib/plans/paywall'
+import PaywallModal from '@/components/plan-limits/PaywallModal'
+import PlanIndicator from '@/components/plan-limits/PlanIndicator'
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -110,6 +114,11 @@ interface User {
 }
 
 export default function EventsPage() {
+  // Hooks para verificação de planos
+  const canAccess = useCanAccess()
+  const usage = usePlanUsage()
+  const { paywall, requireFeature, closePaywall } = usePaywall()
+  
   const [events, setEvents] = useState<Event[]>([
     {
       id: "1",

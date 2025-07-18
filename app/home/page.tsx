@@ -5,6 +5,7 @@ import { useAuth } from "@/app/components/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { RobustAvatar } from "@/app/components/ui/robust-avatar";
 import {
   Card,
   CardContent,
@@ -90,6 +91,9 @@ import { useRecommendationAlgorithm } from "@/app/hooks/useRecommendationAlgorit
 import RecommendedPostCard from "@/app/components/timeline/RecommendedPostCard";
 import { OpenDatesStack } from "@/app/components/timeline/OpenDatesStack";
 import UserProfile from "@/app/components/profile/UserProfile";
+import { ProfileEditor } from "@/app/components/profile/ProfileEditor";
+import ForYouTimeline from "@/app/components/timeline/ForYouTimeline";
+import { ExploreProfiles } from "@/app/components/explore/ExploreProfiles";
 
 import { useRouter } from "next/navigation";
 
@@ -304,14 +308,15 @@ export default function HomePage() {
   // Current user data - definido após profile estar disponível
   const currentUser = useMemo(
     () => ({
-      name: user?.user_metadata?.full_name || "Você",
-      username: user?.user_metadata?.username || "@voce",
-      avatar:
-        // Corrigido: user?.avatar_url não existe, buscar em user_metadata ou usar padrão
-        user?.user_metadata?.avatar_url ||
-        "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-16.png",
-      plano: user?.user_metadata?.plano || "free",
+      name: profile?.full_name || user?.user_metadata?.full_name || "Você",
+      username: profile?.username || user?.user_metadata?.username || "@voce",
+      avatar: profile?.avatar_url || user?.user_metadata?.avatar_url || null,
+      plano: profile?.plano || user?.user_metadata?.plano || "free",
       id: user?.id,
+      email: user?.email,
+      is_verified: profile?.is_verified || false,
+      is_premium: profile?.is_premium || false,
+      created_at: profile?.created_at || user?.created_at
     }),
     [user, profile]
   );
@@ -438,18 +443,13 @@ export default function HomePage() {
       </div>
       <CardContent className="relative px-3 sm:px-4 pb-3 sm:pb-4">
         <div className="flex justify-center -mt-4 sm:-mt-6 mb-2 sm:mb-3">
-          <Avatar className="w-10 h-10 sm:w-12 sm:h-12 border-3 border-white shadow-lg">
-            <AvatarImage
-              src={profile.profileImage || "/placeholder.svg"}
-              alt={profile.name}
-            />
-            <AvatarFallback className="text-xs sm:text-sm font-semibold">
-              {profile.name
-                .split(" ")
-                .map((n: string) => n[0])
-                .join("")}
-            </AvatarFallback>
-          </Avatar>
+          <RobustAvatar
+            src={profile.profileImage}
+            name={profile.name}
+            size="md"
+            className="w-10 h-10 sm:w-12 sm:h-12 border-3 border-white shadow-lg"
+            isVerified={profile.verified}
+          />
         </div>
         <div className="text-center space-y-1 sm:space-y-1.5 mb-2 sm:mb-3">
           <div className="flex items-center justify-center gap-1 sm:gap-1.5">
@@ -788,156 +788,44 @@ export default function HomePage() {
                   )}
                 </TabsContent>
                 <TabsContent value="para-voce" className="space-y-6">
-                  {loadingRecommendations ? (
-                    <div className="text-center py-8">
-                      <p>Analisando suas preferências...</p>
-                    </div>
-                  ) : errorRecommendations ? (
-                    <div className="text-center py-8 text-red-500">
-                      Erro ao carregar recomendações: {errorRecommendations}
-                    </div>
-                  ) : (
-                    <>
-                      {/* Header da seção Para Você */}
-                      <div className="bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 rounded-lg p-4 mb-6">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center">
-                            <Star className="w-4 h-4 text-white" />
-                          </div>
-                          <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-                            Para Você
-                          </h2>
-                        </div>
-                      </div>
-
-                      {/* Timeline de Posts Recomendados */}
-                      <div className="space-y-6">
-                        {recommendations.map((post) => (
-                          <div key={post.id} className="relative">
-                            <RecommendedPostCard
-                              post={post}
-                              onLike={handleLike}
-                              onSave={handleSave}
-                              onFollow={handleFollow}
-                              onComment={handleComment}
-                              onShare={handleShare}
-                              onViewMedia={handleViewMedia}
-                              onViewProfile={navigateToProfile}
-                              currentUser={currentUser}
-                            />
-
-                            {/* Badge de Recomendação */}
-                            <div className="absolute top-4 right-4 z-10">
-                              <Badge
-                                variant={
-                                  post.engagement === "high"
-                                    ? "default"
-                                    : "secondary"
-                                }
-                                className={cn(
-                                  "text-xs",
-                                  post.engagement === "high" &&
-                                    "bg-gradient-to-r from-pink-500 to-purple-500 text-white",
-                                  post.engagement === "medium" &&
-                                    "bg-orange-100 text-orange-700 dark:bg-orange-900/50 dark:text-orange-300"
-                                )}
-                              >
-                                {post.engagement === "high" ? (
-                                  <>
-                                    <TrendingUp className="w-3 h-3 mr-1" />
-                                    Alta Recomendação
-                                  </>
-                                ) : (
-                                  <>
-                                    <Star className="w-3 h-3 mr-1" />
-                                    Recomendado
-                                  </>
-                                )}
-                              </Badge>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  )}
+                  <ForYouTimeline
+                    currentUser={currentUser}
+                    onLike={handleLike}
+                    onSave={handleSave}
+                    onFollow={handleFollow}
+                    onComment={handleComment}
+                    onShare={handleShare}
+                    onViewMedia={handleViewMedia}
+                    onViewProfile={navigateToProfile}
+                  />
                 </TabsContent>
                 <TabsContent value="explorar" className="space-y-6">
-                  <div className="space-y-4">
-                    <div className="text-center py-4">
-                      <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                        Explorar Perfis
-                      </h2>
-                      <p className="text-gray-600 dark:text-gray-400 mb-6">
-                        Encontre pessoas baseado em suas preferências
-                      </p>
-                    </div>
-                    <Card className="p-4">
-                      <div className="flex flex-wrap gap-4 items-center">
-                        <div className="flex-1 min-w-[200px]">
-                          <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                            <input
-                              type="text"
-                              placeholder="Buscar por nome, tags, localização..."
-                              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                            />
-                          </div>
-                        </div>
-                        <Select>
-                          <SelectTrigger className="w-40">
-                            <SelectValue placeholder="Tipo" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="casal">Casal</SelectItem>
-                            <SelectItem value="solteiro">Solteiro</SelectItem>
-                            <SelectItem value="todos">Todos</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Select>
-                          <SelectTrigger className="w-40">
-                            <SelectValue placeholder="Distância" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="5km">Até 5km</SelectItem>
-                            <SelectItem value="10km">Até 10km</SelectItem>
-                            <SelectItem value="20km">Até 20km</SelectItem>
-                            <SelectItem value="50km">Até 50km</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Select>
-                          <SelectTrigger className="w-40">
-                            <SelectValue placeholder="Interesses" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="fotografia">
-                              Fotografia
-                            </SelectItem>
-                            <SelectItem value="musica">Música</SelectItem>
-                            <SelectItem value="gastronomia">
-                              Gastronomia
-                            </SelectItem>
-                            <SelectItem value="esportes">Esportes</SelectItem>
-                            <SelectItem value="arte">Arte</SelectItem>
-                            <SelectItem value="viagens">Viagens</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Button className="bg-pink-600 hover:bg-pink-700">
-                          <Search className="w-4 h-4 mr-2" />
-                          Buscar
-                        </Button>
-                      </div>
-                    </Card>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-                      {user?.user_metadata?.profiles?.map((profile: any) => (
-                        <ProfileCard key={profile.id} profile={profile} />
-                      ))}
-                    </div>
-                  </div>
+                  <ExploreProfiles
+                    currentUser={currentUser}
+                    onMessageUser={(userId) => {
+                      console.log("Mensagem para usuário:", userId);
+                      setActiveView("messages");
+                    }}
+                    onViewProfile={(userId) => {
+                      console.log("Visualizar perfil:", userId);
+                      navigateToProfile(userId);
+                    }}
+                  />
                 </TabsContent>
               </Tabs>
             )}
             {activeView === "explore" && (
-              <ProfileSearch onProfileClick={() => {}} />
+              <ExploreProfiles
+                currentUser={currentUser}
+                onMessageUser={(userId) => {
+                  console.log("Mensagem para usuário:", userId);
+                  setActiveView("messages");
+                }}
+                onViewProfile={(userId) => {
+                  console.log("Visualizar perfil:", userId);
+                  navigateToProfile(userId);
+                }}
+              />
             )}
             {activeView === "notifications" && <NotificationsContent />}
             {activeView === "messages" && <MessagesContent />}
@@ -1287,54 +1175,13 @@ export default function HomePage() {
 
       {/* Editor de Perfil */}
       {showProfileEditor && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-2xl h-[90vh] flex flex-col">
-            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-              <h3 className="text-lg font-semibold">Editar Perfil</h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowProfileEditor(false)}
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-            <div className="flex-1 overflow-auto p-4">
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold">Editar Perfil</h2>
-                <div className="space-y-4">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Informações Básicas</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Nome</label>
-                        <input
-                          type="text"
-                          defaultValue={profile?.full_name || ""}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Bio</label>
-                        <textarea
-                          defaultValue={profile?.bio || ""}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg"
-                          rows={3}
-                        />
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <div className="flex gap-2">
-                    <Button>Salvar Alterações</Button>
-                    <Button variant="outline">Cancelar</Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ProfileEditor
+          onSave={(data) => {
+            console.log("Perfil salvo:", data)
+            setShowProfileEditor(false)
+          }}
+          onCancel={() => setShowProfileEditor(false)}
+        />
       )}
 
       {/* Toast para novos posts */}

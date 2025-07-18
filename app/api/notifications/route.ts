@@ -115,9 +115,59 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { action, notificationIds, settings } = body
+    const { action, notificationIds, settings, type, title, content, targetUserId, relatedPostId, relatedCommentId, relatedUserId } = body
 
     switch (action) {
+      case 'create':
+        if (!type || !title || !targetUserId) {
+          return NextResponse.json(
+            { error: "Tipo, título e usuário de destino são obrigatórios" },
+            { status: 400 }
+          )
+        }
+
+        // Não criar notificação se o usuário está notificando a si mesmo
+        if (targetUserId === user.id) {
+          return NextResponse.json({ success: true, message: "Não criou notificação para si mesmo" })
+        }
+
+        // Buscar ID do usuário de destino se foi passado username
+        let finalTargetUserId = targetUserId
+        if (typeof targetUserId === 'string' && targetUserId.includes('@')) {
+          const { data: targetUser } = await supabase
+            .from('users')
+            .select('id')
+            .eq('username', targetUserId.replace('@', ''))
+            .single()
+          
+          if (targetUser) {
+            finalTargetUserId = targetUser.id
+          }
+        }
+
+        const { error: createError } = await supabase
+          .from('notifications')
+          .insert({
+            user_id: finalTargetUserId,
+            sender_id: user.id,
+            type: type,
+            title: title,
+            content: content,
+            related_post_id: relatedPostId,
+            related_comment_id: relatedCommentId,
+            related_user_id: relatedUserId,
+            is_read: false
+          })
+
+        if (createError) {
+          console.error("Erro ao criar notificação:", createError)
+          return NextResponse.json(
+            { error: "Erro ao criar notificação" },
+            { status: 500 }
+          )
+        }
+
+        return NextResponse.json({ success: true, message: "Notificação criada" })
       case 'mark_read':
         if (!notificationIds || !Array.isArray(notificationIds)) {
           return NextResponse.json(

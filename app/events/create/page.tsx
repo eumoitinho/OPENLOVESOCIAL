@@ -10,6 +10,12 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "@/components/ui/use-toast"
 import { ArrowLeft } from "lucide-react"
+import { useCanAccess, usePlanUsage } from '@/lib/plans/hooks'
+import { usePaywall } from '@/lib/plans/paywall'
+import PaywallModal from '@/components/plan-limits/PaywallModal'
+import PlanIndicator from '@/components/plan-limits/PlanIndicator'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Info } from 'lucide-react'
 
 export default function CreateEventPage() {
   const { profile } = useAuth()
@@ -21,6 +27,10 @@ export default function CreateEventPage() {
     event_date: "",
     location: "",
   })
+  
+  const canAccess = useCanAccess()
+  const usage = usePlanUsage()
+  const { paywall, requireFeature, closePaywall } = usePaywall()
 
   if (!profile) {
     // Redirect to signin if not authenticated, or show a message
@@ -34,14 +44,36 @@ export default function CreateEventPage() {
     )
   }
 
-  if (!profile.is_premium) {
+  // Verificar se pode criar eventos usando o sistema de planos
+  if (!canAccess.canCreateEvents) {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
         <h1 className="text-2xl font-bold">Funcionalidade Premium</h1>
-        <p className="mt-2">Apenas usuários premium podem criar eventos.</p>
-        <Button onClick={() => router.push("/pricing")} className="mt-4">
-          Ver Planos Premium
-        </Button>
+        <p className="mt-2">Apenas assinantes podem criar eventos.</p>
+        <div className="mt-4 space-y-4">
+          <PlanIndicator variant="detailed" />
+          <Button onClick={() => router.push("/pricing")}>
+            Ver Planos Premium
+          </Button>
+        </div>
+      </div>
+    )
+  }
+  
+  // Verificar se ainda pode criar mais eventos este mês
+  if (!usage.canCreateMoreEvents) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <h1 className="text-2xl font-bold">Limite de Eventos Atingido</h1>
+        <p className="mt-2">
+          Você já criou {usage.eventsCreatedThisMonth} de {usage.maxEventsPerMonth} eventos este mês.
+        </p>
+        <div className="mt-4 space-y-4">
+          <PlanIndicator variant="detailed" />
+          <Button onClick={() => router.push("/pricing")}>
+            Fazer Upgrade
+          </Button>
+        </div>
       </div>
     )
   }
@@ -80,17 +112,33 @@ export default function CreateEventPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" size="icon" onClick={() => router.back()}>
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <h1 className="text-3xl font-bold">Criar Novo Evento</h1>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => router.back()}>
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <h1 className="text-3xl font-bold">Criar Novo Evento</h1>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-gray-600">
+            {usage.eventsCreatedThisMonth} / {usage.maxEventsPerMonth === -1 ? '∞' : usage.maxEventsPerMonth} eventos este mês
+          </div>
+          <PlanIndicator variant="compact" />
+        </div>
       </div>
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
           <CardTitle>Detalhes do Evento</CardTitle>
         </CardHeader>
         <CardContent>
+          <Alert className="mb-6">
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              Eventos criados não são verificados automaticamente. Após criar seu evento, você pode solicitar verificação 
+              para aumentar a confiança e visibilidade. {canAccess.currentPlan === 'free' && 'Usuários gratuitos só podem ver eventos verificados.'}
+            </AlertDescription>
+          </Alert>
+          
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <Label htmlFor="title">Título do Evento</Label>
@@ -118,6 +166,18 @@ export default function CreateEventPage() {
           </form>
         </CardContent>
       </Card>
+      
+      {/* Paywall Modal */}
+      {paywall.config && (
+        <PaywallModal
+          isOpen={paywall.isOpen}
+          onClose={closePaywall}
+          feature={paywall.config.feature}
+          title={paywall.config.title}
+          description={paywall.config.description}
+          requiredPlan={paywall.config.requiredPlan}
+        />
+      )}
     </div>
   )
 }

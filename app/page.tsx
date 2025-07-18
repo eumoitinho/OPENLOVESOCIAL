@@ -6,6 +6,8 @@ import { ArrowRight, Heart, Moon, Sun, MessageSquare, Calendar, Lock, Search, St
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import Logo from "./components/Logo"
+import PlanAdCard from '@/app/components/ads/PlanAdCard'
+import { useCanAccess } from '@/lib/plans/hooks'
 
 export default function OpenLoveLanding() {
   const [isDarkMode, setIsDarkMode] = useState(true)
@@ -15,6 +17,7 @@ export default function OpenLoveLanding() {
   const [sessionExpired, setSessionExpired] = useState(false)
   const scrollRef = useRef<NodeJS.Timeout | null>(null)
   const mouseRef = useRef<NodeJS.Timeout | null>(null)
+  const canAccess = useCanAccess()
 
   // Check system preference on initial load and session status
   useEffect(() => {

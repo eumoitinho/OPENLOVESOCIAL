@@ -1,0 +1,128 @@
+{
+  "module": "posts",
+  "description": "Sistema de posts com timeline, likes, comentários, enquetes e compartilhamento de mídia",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "@supabase/realtime-js",
+    "react-hook-form",
+    "zod"
+  ],
+  "key_files": [
+    "app/api/posts/route.ts",
+    "app/api/posts/[id]/comments/route.ts",
+    "app/api/posts/save/route.ts",
+    "app/api/posts/poll/route.ts",
+    "app/api/posts/audio/route.ts",
+    "app/api/timeline/route.ts",
+    "app/components/timeline/PostCard.tsx",
+    "app/components/timeline/CreatePost.tsx",
+    "app/components/timeline/CommentsDialog.tsx",
+    "app/components/timeline/Timeline.tsx",
+    "app/components/media/MediaUpload.tsx",
+    "app/components/media/MediaGallery.tsx"
+  ],
+  "database_tables": [
+    "posts",
+    "post_likes",
+    "comments",
+    "comment_likes",
+    "saved_posts",
+    "post_views",
+    "polls",
+    "poll_votes",
+    "hashtags",
+    "post_hashtags",
+    "mentions"
+  ],
+  "patterns": [
+    "optimistic-ui",
+    "infinite-scroll",
+    "real-time-updates",
+    "media-upload",
+    "content-moderation",
+    "engagement-tracking"
+  ],
+  "related_modules": [
+    "timeline",
+    "notifications",
+    "auth",
+    "profiles",
+    "media",
+    "search"
+  ],
+  "key_features": {
+    "post_creation": "Criação de posts com texto, mídia, localização e enquetes",
+    "media_support": "Upload de imagens, vídeos e áudio com otimização automática",
+    "engagement": "Sistema de likes, comentários e compartilhamentos",
+    "timeline": "Feed personalizado com algoritmo de recomendação",
+    "polls": "Criação e votação em enquetes interativas",
+    "hashtags_mentions": "Suporte para hashtags e menções de usuários",
+    "save_posts": "Salvamento de posts favoritos para visualização posterior",
+    "visibility_control": "Controle de visibilidade (público, amigos, privado)",
+    "premium_content": "Suporte para conteúdo premium monetizado"
+  },
+  "common_issues": [
+    "Otimização de carregamento de mídia pesada",
+    "Sincronização de contadores de engajamento",
+    "Gerenciamento de cache para timeline infinita",
+    "Detecção e prevenção de spam",
+    "Moderação de conteúdo inadequado"
+  ],
+  "performance_considerations": [
+    "Lazy loading de imagens e vídeos",
+    "Paginação eficiente da timeline",
+    "Cache de posts populares",
+    "Otimização de queries com índices apropriados",
+    "Compressão de imagens antes do upload",
+    "Debounce em atualizações de engajamento"
+  ],
+  "security_notes": [
+    "Validação de tipo e tamanho de arquivos",
+    "RLS policies para controle de acesso a posts",
+    "Sanitização de conteúdo HTML/Markdown",
+    "Rate limiting para criação de posts",
+    "Verificação de permissões para posts premium",
+    "Proteção contra XSS em comentários"
+  ],
+  "api_endpoints": {
+    "POST /api/posts": "Criar novo post",
+    "GET /api/posts": "Listar posts com filtros",
+    "GET /api/posts/[id]": "Obter post específico",
+    "PUT /api/posts/[id]": "Atualizar post",
+    "DELETE /api/posts/[id]": "Deletar post",
+    "POST /api/posts/[id]/like": "Curtir/descurtir post",
+    "GET /api/posts/[id]/comments": "Listar comentários",
+    "POST /api/posts/[id]/comments": "Adicionar comentário",
+    "POST /api/posts/save": "Salvar/remover post dos favoritos",
+    "POST /api/posts/poll": "Criar enquete",
+    "POST /api/posts/poll/[id]/vote": "Votar em enquete",
+    "GET /api/timeline": "Obter timeline personalizada"
+  },
+  "data_models": {
+    "post": {
+      "id": "UUID",
+      "user_id": "UUID (FK to users)",
+      "content": "Text",
+      "media_urls": "Array<string>",
+      "media_types": "Array<string>",
+      "hashtags": "Array<string>",
+      "mentions": "Array<UUID>",
+      "location": "JSON {lat, lng, name}",
+      "visibility": "Enum (public, friends, private)",
+      "is_premium_content": "Boolean",
+      "price": "Decimal",
+      "stats": "JSON {likes, comments, shares, views}",
+      "created_at": "Timestamp",
+      "updated_at": "Timestamp"
+    },
+    "comment": {
+      "id": "UUID",
+      "post_id": "UUID (FK to posts)",
+      "user_id": "UUID (FK to users)",
+      "content": "Text",
+      "parent_id": "UUID (self-reference for replies)",
+      "stats": "JSON {likes}",
+      "created_at": "Timestamp"
+    }
+  }
+}

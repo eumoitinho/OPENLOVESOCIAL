@@ -43,7 +43,18 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Erro interno" }, { status: 500 })
       }
 
-      return NextResponse.json({ success: true, following: false })
+      // Se havia uma relação de amizade, também removê-la
+      const { error: friendError } = await supabase
+        .from("friends")
+        .delete()
+        .or(`and(user_id.eq.${user.id},friend_id.eq.${following_id}),and(user_id.eq.${following_id},friend_id.eq.${user.id})`)
+        .eq("status", "accepted")
+
+      if (friendError) {
+        console.warn("Erro ao remover amizade:", friendError)
+      }
+
+      return NextResponse.json({ success: true, following: false, mutualFriends: false })
     } else {
       // Seguir
       const { error: insertError } = await supabase
@@ -58,7 +69,52 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Erro interno" }, { status: 500 })
       }
 
-      return NextResponse.json({ success: true, following: true })
+      // Verificar se o usuário também segue de volta (seguimento mútuo)
+      const { data: mutualFollow } = await supabase
+        .from("follows")
+        .select("id")
+        .eq("follower_id", following_id)
+        .eq("following_id", user.id)
+        .single()
+
+      let mutualFriends = false
+
+      if (mutualFollow) {
+        console.log("Seguimento mútuo detectado! Criando relação de amizade...")
+        
+        // Verificar se já existe uma relação de amizade
+        const { data: existingFriendship } = await supabase
+          .from("friends")
+          .select("id")
+          .or(`and(user_id.eq.${user.id},friend_id.eq.${following_id}),and(user_id.eq.${following_id},friend_id.eq.${user.id})`)
+          .single()
+
+        if (!existingFriendship) {
+          // Criar nova relação de amizade
+          const { error: friendshipError } = await supabase
+            .from("friends")
+            .insert({
+              user_id: user.id,
+              friend_id: following_id,
+              status: "accepted"
+            })
+
+          if (friendshipError) {
+            console.error("Erro ao criar amizade:", friendshipError)
+          } else {
+            console.log("Amizade criada com sucesso!")
+            mutualFriends = true
+          }
+        } else {
+          mutualFriends = true
+        }
+      }
+
+      return NextResponse.json({ 
+        success: true, 
+        following: true, 
+        mutualFriends: mutualFriends 
+      })
     }
   } catch (error) {
     console.error("Erro na API de follows:", error)

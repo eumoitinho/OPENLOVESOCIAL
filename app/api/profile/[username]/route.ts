@@ -16,18 +16,15 @@ export async function GET(
       .select(`
         id,
         username,
-        name,
-        first_name,
-        last_name,
+        full_name,
         bio,
         avatar_url,
-        cover_url,
-        location,
-        birth_date,
-        interests,
-        created_at,
+        is_verified,
         is_premium,
-        is_verified
+        is_active,
+        last_seen,
+        created_at,
+        plano
       `)
       .eq('username', username)
       .single()
@@ -39,19 +36,58 @@ export async function GET(
       )
     }
 
-    // Buscar estatísticas
-    const { data: stats, error: statsError } = await supabase
-      .from('users')
-      .select(`
-        posts:posts(count),
-        followers:follows!follows_followed_id_fkey(count),
-        following:follows!follows_follower_id_fkey(count),
-        profile_views:profile_views(count)
-      `)
-      .eq('username', username)
-      .single()
+    // Verificar se o usuário atual está seguindo este perfil
+    const { data: { user: currentUser } } = await supabase.auth.getUser()
+    let isFollowing = false
+    let isOwnProfile = false
+    let canViewPrivateContent = false
 
-    // Buscar posts do usuário
+    if (currentUser) {
+      isOwnProfile = currentUser.id === user.id
+      
+      if (!isOwnProfile) {
+        const { data: followData } = await supabase
+          .from('follows')
+          .select('*')
+          .eq('follower_id', currentUser.id)
+          .eq('following_id', user.id)
+          .eq('status', 'accepted')
+          .single()
+
+        isFollowing = !!followData
+      }
+    }
+
+    // Determinar se pode ver conteúdo privado
+    canViewPrivateContent = isOwnProfile || isFollowing
+
+    // Buscar estatísticas
+    const [postsCount, followersCount, followingCount, profileViewsCount] = await Promise.all([
+      supabase
+        .from('posts')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .in('visibility', canViewPrivateContent ? ['public', 'friends_only'] : ['public']),
+      
+      supabase
+        .from('follows')
+        .select('id', { count: 'exact', head: true })
+        .eq('following_id', user.id)
+        .eq('status', 'accepted'),
+      
+      supabase
+        .from('follows')
+        .select('id', { count: 'exact', head: true })
+        .eq('follower_id', user.id)
+        .eq('status', 'accepted'),
+      
+      supabase
+        .from('profile_views')
+        .select('id', { count: 'exact', head: true })
+        .eq('viewed_profile_id', user.id)
+    ])
+
+    // Buscar posts do usuário (respeitando privacidade)
     const { data: posts, error: postsError } = await supabase
       .from('posts')
       .select(`
@@ -59,28 +95,33 @@ export async function GET(
         content,
         media_urls,
         media_types,
+        hashtags,
+        visibility,
+        location,
+        is_premium_content,
+        stats,
         created_at,
-        likes_count,
-        comments_count
+        updated_at
       `)
       .eq('user_id', user.id)
+      .in('visibility', canViewPrivateContent ? ['public', 'friends_only'] : ['public'])
       .order('created_at', { ascending: false })
-      .limit(10)
+      .limit(20)
 
-    // Verificar se o usuário atual está seguindo este perfil
-    const { data: { user: currentUser } } = await supabase.auth.getUser()
-    let isFollowing = false
-
-    if (currentUser && currentUser.id !== user.id) {
-      const { data: followData } = await supabase
-        .from('follows')
-        .select('*')
-        .eq('follower_id', currentUser.id)
-        .eq('followed_id', user.id)
-        .single()
-
-      isFollowing = !!followData
-    }
+    // Buscar posts com mídia para galeria
+    const { data: mediaPosts } = await supabase
+      .from('posts')
+      .select(`
+        id,
+        media_urls,
+        media_types,
+        created_at
+      `)
+      .eq('user_id', user.id)
+      .in('visibility', canViewPrivateContent ? ['public', 'friends_only'] : ['public'])
+      .not('media_urls', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(12)
 
     // Incrementar visualização do perfil
     if (currentUser && currentUser.id !== user.id) {
@@ -88,7 +129,7 @@ export async function GET(
         .from('profile_views')
         .insert({
           viewer_id: currentUser.id,
-          viewed_user_id: user.id
+          viewed_profile_id: user.id
         })
         .select()
     }
@@ -96,17 +137,24 @@ export async function GET(
     const profileData = {
       ...user,
       stats: {
-        posts: stats?.posts?.[0]?.count || 0,
-        followers: stats?.followers?.[0]?.count || 0,
-        following: stats?.following?.[0]?.count || 0,
-        profile_views: stats?.profile_views?.[0]?.count || 0
+        posts: postsCount.count || 0,
+        followers: followersCount.count || 0,
+        following: followingCount.count || 0,
+        profile_views: profileViewsCount.count || 0
+      },
+      privacy: {
+        is_own_profile: isOwnProfile,
+        can_view_private_content: canViewPrivateContent
       }
     }
 
     return NextResponse.json({
       profile: profileData,
       posts: posts || [],
-      is_following: isFollowing
+      media_posts: mediaPosts || [],
+      is_following: isFollowing,
+      is_own_profile: isOwnProfile,
+      can_view_private_content: canViewPrivateContent
     })
 
   } catch (error) {

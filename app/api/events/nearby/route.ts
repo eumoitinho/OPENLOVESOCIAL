@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
         description,
         date,
         location,
-        max_attendees,
+        max_participants,
         category,
         image_url,
         created_by,
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
         date: new Date(event.date).toLocaleDateString('pt-BR'),
         location: event.location || 'Local não informado',
         attendees: 0, // Será calculado separadamente
-        maxAttendees: event.max_attendees || 50,
+        maxAttendees: event.max_participants || 50,
         image: event.image_url || '/placeholder.jpg',
         category: event.category || 'Geral',
         sharedBy: {

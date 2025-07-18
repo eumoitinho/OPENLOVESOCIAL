@@ -3,7 +3,7 @@ import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 import type { Database } from "@/app/lib/database.types"
 
-export async function DELETE(request: Request, { params }: { params: { userId: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ userId: string }> }) {
   const supabase = await createRouteHandlerClient()
   const {
     data: { user },
@@ -13,7 +13,7 @@ export async function DELETE(request: Request, { params }: { params: { userId: s
     return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 })
   }
 
-  const friendId = params.userId
+  const { userId: friendId } = await params
 
   if (!friendId) {
     return new NextResponse(JSON.stringify({ error: "Friend ID is required" }), { status: 400 })

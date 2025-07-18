@@ -26,6 +26,9 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 import Compressor from "compressorjs"
+import { usePaywall } from '@/lib/plans/paywall'
+import PaywallModal from '@/components/plan-limits/PaywallModal'
+import { useCanAccess } from '@/lib/plans/hooks'
 
 interface PostOption {
   id: string
@@ -108,6 +111,10 @@ export default function CreatePost(props: CreatePostProps) {
   const AUDIO_MAX_SIZE = 25 * 1024 * 1024
   const getMaxVideoSize = (plano: string) => (plano === "gold" ? 25 * 1024 * 1024 : 50 * 1024 * 1024)
 
+  // Hooks para verificação de planos
+  const { paywall, requireFeature, closePaywall } = usePaywall()
+  const canAccess = useCanAccess()
+  
   const userPlan = profile?.plano || "free"
   const isPremium = userPlan !== "free"
 
@@ -276,8 +283,6 @@ export default function CreatePost(props: CreatePostProps) {
 
   const handleVideoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
-    const maxSize = getMaxVideoSize(userPlan)
-
     if (!file) return
 
     if (!["video/mp4"].includes(file.type)) {
@@ -285,13 +290,15 @@ export default function CreatePost(props: CreatePostProps) {
       return
     }
 
-    if (userPlan === "free") {
-      toast.error("Upload de vídeos disponível apenas para planos Open Ouro e Open Diamante")
+    // Verificar se pode fazer upload de vídeo
+    if (!canAccess.canUploadVideos) {
+      requireFeature('upload_video')
       return
     }
-
+    
+    const maxSize = canAccess.limits.maxVideoSize
     if (file.size > maxSize) {
-      toast.error(`Vídeo muito grande. Máximo ${userPlan === "gold" ? "25MB" : "50MB"} para seu plano`)
+      toast.error(`Vídeo muito grande. Máximo ${Math.round(maxSize / (1024 * 1024))}MB para seu plano`)
       return
     }
 
@@ -834,6 +841,18 @@ export default function CreatePost(props: CreatePostProps) {
           </form>
         </CardContent>
       </Card>
+      
+      {/* Paywall Modal */}
+      {paywall.config && (
+        <PaywallModal
+          isOpen={paywall.isOpen}
+          onClose={closePaywall}
+          feature={paywall.config.feature}
+          title={paywall.config.title}
+          description={paywall.config.description}
+          requiredPlan={paywall.config.requiredPlan}
+        />
+      )}
     </div>
   )
 }

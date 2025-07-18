@@ -24,6 +24,8 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Advertisement from "../ads/Advertisement"
+import PlanAdCard from '@/app/components/ads/PlanAdCard'
+import { useCanAccess } from '@/lib/plans/hooks'
 
 interface TrendingTopic {
   id: string
@@ -92,6 +94,8 @@ export function TimelineRightSidebar({
     users: true,
     events: true
   })
+
+  const canAccess = useCanAccess()
 
   // Buscar dados reais
   useEffect(() => {
@@ -208,6 +212,18 @@ export function TimelineRightSidebar({
 
   return (
     <aside className="hidden xl:block w-[350px] p-3 xs:p-4 sticky top-0 h-screen overflow-y-auto overflow-x-hidden scrollbar-hide space-y-4 xs:space-y-6">
+      {/* Plan Ad Card - Only show for free users */}
+      {canAccess.plan === 'free' && (
+        <PlanAdCard 
+          plan="gold" 
+          position="sidebar"
+          onDismiss={() => {
+            // Store dismissal in localStorage
+            localStorage.setItem('planAdDismissed', 'true')
+          }}
+        />
+      )}
+
       {/* Search Bar */}
       <form onSubmit={handleSearch}>
         <div className="relative">

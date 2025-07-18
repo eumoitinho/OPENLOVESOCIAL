@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { createRouteHandlerClient } from "@/app/lib/supabase-server"
 import { verifyAuth } from "@/app/lib/auth-helpers"
 import { createClient } from '@supabase/supabase-js'
+import { planValidator } from '@/lib/plans/server'
 
 export async function POST(request: NextRequest) {
   try {
@@ -53,21 +54,29 @@ export async function POST(request: NextRequest) {
     let visibility = "public"
     let mediaUrls: string[] = []
     let mediaTypes: string[] = []
+    let pollOptions: string[] = []
 
     if (request.headers.get("content-type")?.includes("multipart/form-data")) {
       const formData = await request.formData()
       content = formData.get("content")?.toString() || ""
       visibility = formData.get("visibility")?.toString() || "public"
 
-      const userPlan = userRow?.plano || 'free'
-      const maxImages = userPlan === 'gold' ? 5 : userPlan === 'diamond' ? 10 : 0
-      const maxVideoSize = userPlan === 'gold' ? 25 * 1024 * 1024 : userPlan === 'diamond' ? 50 * 1024 * 1024 : 0
-
       // Processar arquivos de imagem
       const images = formData.getAll("images")
-      if (images.length > maxImages) {
-        return NextResponse.json({ error: `Máximo de ${maxImages} imagens permitido` }, { status: 400 })
+      const videoFile = formData.get("video")
+      const audioFile = formData.get("audio")
+      const pollData = formData.get("poll")
+      
+      // Verificar limitações de upload usando o novo sistema
+      const uploadValidation = await planValidator.canUploadMedia(user.id, images.length, videoFile?.size || 0)
+      
+      if (!uploadValidation.allowed) {
+        return NextResponse.json({ error: uploadValidation.reason }, { status: 400 })
       }
+      
+      console.log("Validação de upload aprovada para usuário:", user.id)
+      
+      // Processar imagens
       for (const img of images) {
         if (typeof img === "object" && "name" in img && "type" in img) {
           if (!['image/jpeg', 'image/png'].includes(img.type)) {
@@ -78,7 +87,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Imagem muito grande. Máximo 10MB por arquivo." }, { status: 400 })
           }
           const fileExt = img.name.split('.').pop()
-          const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`
+          const fileName = `images/${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`
           const { data, error } = await supabaseStorage.storage
             .from('media')
             .upload(fileName, img, { upsert: false, contentType: img.type })
@@ -95,19 +104,21 @@ export async function POST(request: NextRequest) {
       }
 
       // Processar vídeo
-      const video = formData.get("video")
-      if (video && typeof video === "object" && "name" in video && "type" in video) {
-        if (video.type !== 'video/mp4') {
+      if (videoFile && typeof videoFile === "object" && "name" in videoFile && "type" in videoFile) {
+        if (videoFile.type !== 'video/mp4') {
           return NextResponse.json({ error: "Apenas vídeos MP4 são aceitos" }, { status: 400 })
         }
-        if (video.size > maxVideoSize) {
-          return NextResponse.json({ error: `Vídeo muito grande. Máximo ${maxVideoSize / (1024 * 1024)}MB` }, { status: 400 })
+        // Verificar se pode fazer upload de vídeo
+        const videoValidation = await planValidator.validateVideoUpload(user.id)
+        
+        if (!videoValidation.allowed) {
+          return NextResponse.json({ error: videoValidation.reason }, { status: 400 })
         }
-        const fileExt = video.name.split('.').pop()
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`
+        const fileExt = videoFile.name.split('.').pop()
+        const fileName = `videos/${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`
         const { data, error } = await supabaseStorage.storage
           .from('media')
-          .upload(fileName, video, { upsert: false, contentType: video.type })
+          .upload(fileName, videoFile, { upsert: false, contentType: videoFile.type })
         if (error) {
           console.error("Erro ao enviar vídeo:", error)
           return NextResponse.json({ error: "Erro ao enviar vídeo" }, { status: 500 })
@@ -118,12 +129,66 @@ export async function POST(request: NextRequest) {
           mediaTypes.push("video")
         }
       }
+
+      // Processar áudio
+      if (audioFile && typeof audioFile === "object" && "name" in audioFile && "type" in audioFile) {
+        if (!['audio/mp3', 'audio/wav', 'audio/m4a', 'audio/webm'].includes(audioFile.type)) {
+          return NextResponse.json({ error: "Apenas arquivos de áudio MP3, WAV, M4A e WebM são aceitos" }, { status: 400 })
+        }
+        // Limite de 25MB para áudio
+        if (audioFile.size > 25 * 1024 * 1024) {
+          return NextResponse.json({ error: "Arquivo de áudio muito grande. Máximo 25MB." }, { status: 400 })
+        }
+        
+        // Verificar se pode fazer upload de áudio (recurso premium)
+        const audioValidation = await planValidator.validateAudioUpload(user.id)
+        
+        if (!audioValidation.allowed) {
+          return NextResponse.json({ error: audioValidation.reason }, { status: 400 })
+        }
+        
+        const fileExt = audioFile.name.split('.').pop()
+        const fileName = `audio/${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`
+        const { data, error } = await supabaseStorage.storage
+          .from('media')
+          .upload(fileName, audioFile, { upsert: false, contentType: audioFile.type })
+        if (error) {
+          console.error("Erro ao enviar áudio:", error)
+          return NextResponse.json({ error: "Erro ao enviar áudio" }, { status: 500 })
+        }
+        const publicUrl = supabaseStorage.storage.from('media').getPublicUrl(fileName).data.publicUrl
+        if (publicUrl) {
+          mediaUrls.push(publicUrl)
+          mediaTypes.push("audio")
+        }
+      }
+
+      // Processar enquete
+      if (pollData) {
+        try {
+          const pollOptionsData = JSON.parse(pollData.toString())
+          if (Array.isArray(pollOptionsData) && pollOptionsData.length >= 2) {
+            // Verificar se pode criar enquetes (recurso premium)
+            const pollValidation = await planValidator.validatePollCreation(user.id)
+            
+            if (!pollValidation.allowed) {
+              return NextResponse.json({ error: pollValidation.reason }, { status: 400 })
+            }
+            
+            pollOptions = pollOptionsData.filter(option => option.trim()).slice(0, 4)
+            console.log("Enquete processada com", pollOptions.length, "opções")
+          }
+        } catch (error) {
+          console.error("Erro ao processar enquete:", error)
+        }
+      }
     } else {
       const body = await request.json()
       content = body.content
       visibility = body.visibility || "public"
       if (body.mediaUrl) mediaUrls.push(body.mediaUrl)
       if (body.mediaType) mediaTypes.push(body.mediaType)
+      if (body.pollOptions) pollOptions = body.pollOptions
     }
 
     console.log("Dados do post:", { content, mediaUrls, mediaTypes, visibility })
@@ -141,6 +206,7 @@ export async function POST(request: NextRequest) {
       media_urls: mediaUrls,
       media_types: mediaTypes,
       visibility,
+      poll_options: pollOptions.length > 0 ? pollOptions : null,
     }
     
     console.log("Dados para inserção:", postData)
@@ -171,7 +237,10 @@ export async function POST(request: NextRequest) {
       content: post.content,
       mediaUrl: post.media_urls?.[0] || null,
       mediaType: post.media_types?.[0] || null,
+      mediaUrls: post.media_urls || [],
+      mediaTypes: post.media_types || [],
       visibility: post.visibility,
+      pollOptions: post.poll_options || null,
       createdAt: post.created_at,
       author: {
         id: user.id,

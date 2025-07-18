@@ -45,8 +45,19 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ error: "Failed to unlike post" }, { status: 500 })
         }
 
+        // Buscar contador atualizado
+        const { count: likesCount } = await supabase
+          .from("likes")
+          .select("id", { count: "exact" })
+          .eq("target_type", "post")
+          .eq("target_id", postId)
+
         console.log("[Interactions API] Post descurtido")
-        return NextResponse.json({ action: "unliked" })
+        return NextResponse.json({ 
+          action: "unliked", 
+          likesCount: likesCount || 0,
+          isLiked: false
+        })
       } else {
         // Like
         const { error: insertError } = await supabase
@@ -62,8 +73,19 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ error: "Failed to like post" }, { status: 500 })
         }
 
+        // Buscar contador atualizado
+        const { count: likesCount } = await supabase
+          .from("likes")
+          .select("id", { count: "exact" })
+          .eq("target_type", "post")
+          .eq("target_id", postId)
+
         console.log("[Interactions API] Post curtido")
-        return NextResponse.json({ action: "liked" })
+        return NextResponse.json({ 
+          action: "liked", 
+          likesCount: likesCount || 0,
+          isLiked: true
+        })
       }
     }
 

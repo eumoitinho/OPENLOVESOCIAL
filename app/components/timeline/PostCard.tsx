@@ -36,6 +36,7 @@ import { ShareDialog } from "./ShareDialog"
 import { ProfileViewer } from "./ProfileViewer"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
+import PlanBadge from "@/components/plan-limits/PlanBadge"
 
 interface PostUser {
   name: string
@@ -152,37 +153,51 @@ export default function PostCard({
   const handleAddComment = async (content: string) => {
     try {
       console.log("[PostCard] Adicionando comentário:", content)
-      const response = await fetch("/api/interactions", {
+      const response = await fetch(`/api/posts/${post.id}/comments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          type: "comment", 
-          postId: post.id, 
-          content 
-        })
+        body: JSON.stringify({ content })
       })
       
       if (response.ok) {
         const result = await response.json()
         
         // Adicionar novo comentário à lista
-        const newComment = {
-          id: result.data.id,
-          content: result.data.content,
-          timestamp: result.data.createdAt,
-          likes: 0,
-          isLiked: false,
-          author: result.data.author
-        }
+        const newComment = result.data
         
         setLoadedComments(prev => [...prev, newComment])
         console.log("[PostCard] Comentário adicionado com sucesso")
         
+        // Atualizar contador de comentários localmente
+        post.comments = (post.comments || 0) + 1
+        
+        // Criar notificação para o autor do post
+        if (post.user?.username) {
+          try {
+            await fetch("/api/notifications", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                action: "create",
+                type: "comment",
+                title: "Comentou em seu post",
+                content: `@${currentUser.username} comentou: "${content.substring(0, 50)}${content.length > 50 ? '...' : ''}"`,
+                targetUserId: post.user.id || post.user.username,
+                relatedPostId: post.id,
+                relatedCommentId: newComment.id
+              })
+            })
+          } catch (notifError) {
+            console.warn("Erro ao criar notificação:", notifError)
+          }
+        }
+        
         // Chamar callback do componente pai se existir
         onComment?.(post.id)
       } else {
-        console.error("Erro ao adicionar comentário")
-        throw new Error("Erro ao adicionar comentário")
+        const error = await response.json()
+        console.error("Erro ao adicionar comentário:", error)
+        throw new Error(error.error || "Erro ao adicionar comentário")
       }
     } catch (error) {
       console.error("Erro ao adicionar comentário:", error)
@@ -194,28 +209,26 @@ export default function PostCard({
   const handleLikeComment = async (commentId: string) => {
     try {
       console.log("[PostCard] Curtindo comentário:", commentId)
-      const response = await fetch("/api/interactions", {
+      const response = await fetch(`/api/comments/${commentId}/like`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          type: "like", 
-          postId: commentId,
-          targetType: "comment"
-        })
+        headers: { "Content-Type": "application/json" }
       })
       
       if (response.ok) {
+        const result = await response.json()
         console.log("[PostCard] Comentário curtido com sucesso")
+        
         // Atualizar estado local do comentário
         setLoadedComments(prev => 
           prev.map(comment => 
             comment.id === commentId 
-              ? { ...comment, isLiked: !comment.isLiked, likes: comment.isLiked ? comment.likes - 1 : comment.likes + 1 }
+              ? { ...comment, isLiked: result.isLiked, likes: result.likes }
               : comment
           )
         )
       } else {
-        console.error("Erro ao curtir comentário")
+        const error = await response.json()
+        console.error("Erro ao curtir comentário:", error)
       }
     } catch (error) {
       console.error("Erro ao curtir comentário:", error)
@@ -267,7 +280,34 @@ export default function PostCard({
       })
       
       if (response.ok) {
+        const result = await response.json()
         console.log("[PostCard] Like processado com sucesso")
+        
+        // Atualizar contador com dados do servidor
+        if (result.likesCount !== undefined) {
+          setLocalLikesCount(result.likesCount)
+        }
+        
+        // Criar notificação se curtiu (não descurtiu)
+        if (result.action === "liked" && post.user?.username) {
+          try {
+            await fetch("/api/notifications", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                action: "create",
+                type: "like",
+                title: "Curtiu seu post",
+                content: `@${currentUser.username} curtiu seu post`,
+                targetUserId: post.user.id || post.user.username,
+                relatedPostId: post.id
+              })
+            })
+          } catch (notifError) {
+            console.warn("Erro ao criar notificação:", notifError)
+          }
+        }
+        
         onLike?.(post.id)
       } else {
         // Reverter em caso de erro
@@ -309,8 +349,58 @@ export default function PostCard({
     }
   }
 
-  const handleFollow = () => {
-    onFollow?.(post.id, post.user?.isPrivate || false)
+  const handleFollow = async () => {
+    if (!post.user?.username) return
+    
+    try {
+      // Buscar o ID do usuário pelo username
+      const userResponse = await fetch(`/api/users/by-username/${post.user.username}`)
+      if (!userResponse.ok) {
+        console.error("Erro ao buscar usuário")
+        return
+      }
+      
+      const userData = await userResponse.json()
+      const userId = userData.id
+      
+      // Seguir/deixar de seguir
+      const response = await fetch("/api/follows", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ following_id: userId })
+      })
+      
+      if (response.ok) {
+        const result = await response.json()
+        console.log(`[PostCard] ${result.following ? 'Seguindo' : 'Deixou de seguir'} usuário`)
+        
+        // Criar notificação se começou a seguir
+        if (result.following && post.user?.username) {
+          try {
+            await fetch("/api/notifications", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                action: "create",
+                type: "follow",
+                title: "Novo seguidor",
+                content: `@${currentUser.username} começou a seguir você`,
+                targetUserId: userId,
+                relatedUserId: currentUser.id
+              })
+            })
+          } catch (notifError) {
+            console.warn("Erro ao criar notificação:", notifError)
+          }
+        }
+        
+        onFollow?.(post.id, post.user?.isPrivate || false)
+      } else {
+        console.error("Erro ao processar follow")
+      }
+    } catch (error) {
+      console.error("Erro ao seguir usuário:", error)
+    }
   }
 
   const handleComment = () => {
@@ -379,11 +469,11 @@ export default function PostCard({
                 onClick={handleViewProfile}
               >
                 {post.user?.name || "Usuário"}
-                {post.user?.premium && (
-                  <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold px-2 py-0.5">
-                    Premium
-                  </Badge>
-                )}
+                <PlanBadge 
+                  plan={post.user?.premium ? 'diamante' : 'free'} 
+                  verified={post.user?.verified}
+                  variant="compact"
+                />
               </CardTitle>
               <CardDescription className="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                 <span className="font-medium text-xs">{`@${post.user?.username || "@usuario"}`}</span>

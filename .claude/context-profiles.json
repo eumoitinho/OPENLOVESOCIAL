@@ -1,0 +1,148 @@
+{
+  "profiles": {
+    "chat": {
+      "name": "Chat/Mensagens",
+      "description": "Desenvolvimento do sistema de chat e mensagens",
+      "include": [
+        "app/messages/**",
+        "app/api/messages/**",
+        "lib/webrtc/**",
+        "types/chat.ts",
+        "docs/modules/chat/**"
+      ],
+      "exclude": [
+        "app/posts/**",
+        "app/admin/**",
+        "app/pricing/**"
+      ],
+      "context_files": [
+        "app/messages/.context",
+        "docs/context/architecture.md",
+        "docs/context/conventions.md"
+      ]
+    },
+    "posts": {
+      "name": "Posts/Timeline",
+      "description": "Sistema de posts e timeline",
+      "include": [
+        "app/content/**",
+        "app/timeline/**",
+        "app/api/posts/**",
+        "types/post.ts",
+        "docs/modules/posts/**"
+      ],
+      "exclude": [
+        "app/messages/**",
+        "app/admin/**",
+        "app/settings/**"
+      ],
+      "context_files": [
+        "app/content/.context",
+        "docs/context/architecture.md",
+        "docs/context/conventions.md"
+      ]
+    },
+    "auth": {
+      "name": "Autenticação",
+      "description": "Sistema de autenticação e perfis",
+      "include": [
+        "app/auth/**",
+        "app/api/auth/**",
+        "app/profile/**",
+        "middleware.ts",
+        "types/auth.ts",
+        "docs/modules/auth/**"
+      ],
+      "exclude": [
+        "app/messages/**",
+        "app/posts/**",
+        "app/admin/**"
+      ],
+      "context_files": [
+        "app/auth/.context",
+        "docs/context/architecture.md",
+        "docs/context/conventions.md"
+      ]
+    },
+    "ui": {
+      "name": "UI/Components",
+      "description": "Componentes de interface e design system",
+      "include": [
+        "components/**",
+        "app/globals.css",
+        "tailwind.config.ts",
+        "styles/**"
+      ],
+      "exclude": [
+        "app/api/**",
+        "server/**",
+        "lib/webrtc/**"
+      ],
+      "context_files": [
+        "docs/context/conventions.md"
+      ]
+    },
+    "database": {
+      "name": "Banco de Dados",
+      "description": "Schemas, migrations e queries",
+      "include": [
+        "supabase/**",
+        "types/database.ts",
+        "lib/supabase.ts",
+        "docs/modules/database/**"
+      ],
+      "exclude": [
+        "app/components/**",
+        "styles/**"
+      ],
+      "context_files": [
+        "docs/context/architecture.md",
+        "DATABASE_UPDATE_GUIDE.md"
+      ]
+    },
+    "full": {
+      "name": "Projeto Completo",
+      "description": "Contexto completo do projeto (usar com moderação)",
+      "include": [
+        "app/**",
+        "components/**",
+        "lib/**",
+        "types/**",
+        "docs/**"
+      ],
+      "exclude": [
+        "node_modules/**",
+        ".next/**",
+        "dist/**",
+        ".git/**"
+      ],
+      "context_files": [
+        "docs/context/architecture.md",
+        "docs/context/conventions.md",
+        "README.md"
+      ]
+    }
+  },
+  "default_profile": "full",
+  "auto_switch": {
+    "enabled": true,
+    "rules": [
+      {
+        "pattern": "app/messages/**",
+        "profile": "chat"
+      },
+      {
+        "pattern": "app/(content|timeline)/**",
+        "profile": "posts"
+      },
+      {
+        "pattern": "app/auth/**",
+        "profile": "auth"
+      },
+      {
+        "pattern": "components/**",
+        "profile": "ui"
+      }
+    ]
+  }
+}

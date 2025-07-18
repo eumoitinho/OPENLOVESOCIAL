@@ -130,8 +130,22 @@ export async function POST(req: NextRequest) {
       cover_url
     } = body
 
+    console.log("=== VALIDAÇÃO DE DADOS ===")
+    console.log("Email:", email)
+    console.log("Password:", password ? "PRESENTE" : "AUSENTE")
+    console.log("Username:", username)
+    console.log("FirstName:", firstName)
+    console.log("LastName:", lastName)
+
     // Validar dados obrigatórios
     if (!email || !password || !username || !firstName || !lastName) {
+      console.log("=== ERRO: DADOS OBRIGATÓRIOS FALTANDO ===")
+      console.log("Email válido:", !!email)
+      console.log("Password válido:", !!password)
+      console.log("Username válido:", !!username)
+      console.log("FirstName válido:", !!firstName)
+      console.log("LastName válido:", !!lastName)
+      
       return NextResponse.json(
         { error: "Dados obrigatórios não fornecidos" },
         { status: 400 }
@@ -161,6 +175,7 @@ export async function POST(req: NextRequest) {
       }
     })
 
+    console.log("=== VERIFICANDO USERNAME ===")
     // 1. Verificar se o username já existe
     const { data: existingUser, error: checkError } = await supabase
       .from('users')
@@ -177,12 +192,14 @@ export async function POST(req: NextRequest) {
     }
 
     if (existingUser) {
+      console.log("Username já existe:", username)
       return NextResponse.json(
         { error: "Nome de usuário já está em uso" },
         { status: 400 }
       )
     }
 
+    console.log("=== VERIFICANDO EMAIL ===")
     // 2. Verificar se o email já existe
     const { data: existingEmail, error: emailCheckError } = await supabase
       .from('users')
@@ -199,6 +216,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (existingEmail) {
+      console.log("Email já existe:", email)
       return NextResponse.json(
         { error: "Email já está em uso" },
         { status: 400 }
@@ -229,6 +247,7 @@ export async function POST(req: NextRequest) {
     const normalizedUF = normalizeUF(uf)
     console.log(`UF original: "${uf}", UF normalizada: "${normalizedUF}"`)
 
+    console.log("=== CRIANDO USUÁRIO NO AUTH ===")
     // 3. Criar usuário no Supabase Auth com TODOS os dados nos metadados
     console.log("Criando usuário no Supabase Auth...")
     const { data: authData, error: authError } = await supabase.auth.admin.createUser({
@@ -263,6 +282,7 @@ export async function POST(req: NextRequest) {
     })
 
     if (authError) {
+      console.error("=== ERRO NO AUTH ===")
       console.error("Erro detalhado do Auth:", {
         message: authError.message,
         status: authError.status,
@@ -283,6 +303,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (!authData.user) {
+      console.error("=== ERRO: USUÁRIO NÃO CRIADO ===")
       return NextResponse.json(
         { error: "Falha ao criar usuário" },
         { status: 500 }
@@ -308,6 +329,7 @@ export async function POST(req: NextRequest) {
     // 5. Aguardar um pouco para o trigger processar (opcional)
     await new Promise(resolve => setTimeout(resolve, 1000))
 
+    console.log("=== ATUALIZANDO PERFIL ===")
     // 6. Verificar se o perfil foi criado pelo trigger e atualizá-lo se necessário
     console.log("Verificando e atualizando perfil...")
     
@@ -353,6 +375,8 @@ export async function POST(req: NextRequest) {
       updated_at: new Date().toISOString()
     }
 
+    console.log("Dados para atualização:", updateData)
+
     const { data: updateResult, error: updateError } = await supabase
       .from('users')
       .update(updateData)
@@ -360,6 +384,7 @@ export async function POST(req: NextRequest) {
       .select()
 
     if (updateError) {
+      console.error("=== ERRO AO ATUALIZAR PERFIL ===")
       console.error("Erro ao atualizar perfil:", updateError)
       
       // Tentar deletar o usuário criado no Auth
@@ -396,6 +421,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    console.log("=== REGISTRO CONCLUÍDO COM SUCESSO ===")
     // 7. Retornar sucesso
     return NextResponse.json({
       success: true,

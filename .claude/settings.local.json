@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run context:*)",
+      "Bash(pnpm add:*)",
+      "Bash(supabase db:*)",
+      "Bash(npx supabase:*)",
+      "Bash(find:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(npm run lint)",
+      "Bash(npx next lint:*)",
+      "Bash(grep:*)",
+      "Bash(dir:*)",
+      "Bash(mv:*)",
+      "Bash(set PGPASSWORD=RvTWuOAOuode8tom)",
+      "Bash(ls:*)",
+      "Bash(npm run dev:*)",
+      "Bash(psql:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm typecheck:*)",
+      "Bash(curl:*)",
+      "Bash(npx tsc:*)",
+      "Bash(rm:*)",
+      "Bash(node:*)",
+      "Bash(pnpm typecheck:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(pnpm typecheck:*)",
+      "Bash(pnpm build:*)",
+      "Bash(npm run:*)",
+      "WebFetch(domain:docs.abacatepay.com)",
+      "Bash(pnpm typecheck:*)",
+      "Bash(tasklist:*)",
+      "Bash(npm run build:*)",
+      "Bash(pnpm dev:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": []
+  }
+}

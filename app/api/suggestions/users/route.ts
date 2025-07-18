@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
       `)
       .neq('id', user.id) // Excluir o próprio usuário
       .not('id', 'in', `(
-        SELECT followed_id 
+        SELECT following_id 
         FROM follows 
         WHERE follower_id = '${user.id}'
       )`) // Excluir usuários já seguidos
