@@ -1,4 +1,4 @@
-# 🔧 Fix para Erro de Follow - Instruções
+# 🔧 Fix COMPLETO para Erro de Follow - Instruções
 
 ## ❌ Problema
 ```
@@ -8,16 +8,28 @@ Erro ao seguir usuário: {
 }
 ```
 
-## 🔍 Causa
-O trigger `update_user_follows_stats` estava tentando acessar um campo `user_id` que não existe na tabela `follows`. A tabela `follows` tem os campos `follower_id` e `following_id`, não `user_id`.
+## 🔍 Causa REAL
+**MÚLTIPLOS TRIGGERS** estavam tentando acessar um campo `user_id` que não existe na tabela `follows`:
 
-## 🛠️ Solução
+1. **`update_user_follows_stats`** - Tentava acessar `NEW.user_id` 
+2. **`create_smart_notification_follows`** - Também tentava acessar `NEW.user_id`
+3. Outros triggers de notificação problemáticos
+
+A tabela `follows` tem os campos `follower_id` e `following_id`, não `user_id`.
+
+## 🛠️ Solução COMPLETA
+
+### ⚠️ IMPORTANTE: Use o Fix Completo
+
+**NÃO use o arquivo `fix-follows-trigger.sql`**
+
+**✅ Use o arquivo `fix-follows-complete.sql`**
 
 ### Opção 1: Executar SQL Direto no Supabase (RECOMENDADO)
 
 1. **Acesse o Supabase Dashboard**
 2. **Vá para SQL Editor**
-3. **Cole e execute o conteúdo do arquivo `fix-follows-trigger.sql`**
+3. **Cole e execute o conteúdo do arquivo `fix-follows-complete.sql`**
 
 ### Opção 2: Usar Migration
 
@@ -28,13 +40,22 @@ Se preferir usar o sistema de migrações:
 supabase db push
 ```
 
-## ✅ O que o Fix Faz
+## ✅ O que o Fix COMPLETO Faz
 
-1. **Remove o trigger problemático**
-2. **Cria uma função específica para a tabela follows**
-3. **Cria um novo trigger correto**
+1. **Remove TODOS os triggers problemáticos**:
+   - `update_user_follows_stats`
+   - `create_smart_notification_follows`
+   - `create_follow_notification`
+   - `trigger_new_follower`
+
+2. **Cria funções específicas corretas**:
+   - `update_user_follows_stats()` - usa `follower_id` e `following_id`
+   - `create_follow_notification()` - usa `follower_id` e `following_id`
+
+3. **Cria triggers corretos**
 4. **Garante que os usuários tenham estatísticas corretas**
 5. **Configura as políticas RLS adequadas**
+6. **Cria configurações de notificação padrão**
 
 ## 🧪 Como Testar
 
