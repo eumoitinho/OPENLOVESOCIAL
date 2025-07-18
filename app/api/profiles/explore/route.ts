@@ -142,7 +142,7 @@ export async function GET(request: NextRequest) {
       .select(`
         id,
         username,
-        full_name,
+        name,
         avatar_url,
         bio,
         location,
@@ -174,7 +174,7 @@ export async function GET(request: NextRequest) {
 
     // Filtro por busca (nome ou username)
     if (search) {
-      query = query.or(`full_name.ilike.%${search}%,username.ilike.%${search}%`)
+      query = query.or(`name.ilike.%${search}%,username.ilike.%${search}%`)
     }
 
     // Filtro por localização

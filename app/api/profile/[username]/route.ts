@@ -16,7 +16,7 @@ export async function GET(
       .select(`
         id,
         username,
-        full_name,
+        name,
         bio,
         avatar_url,
         is_verified,
