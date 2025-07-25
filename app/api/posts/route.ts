@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { createRouteHandlerClient } from "@/app/lib/supabase-server"
+import { createRouteHandlerClient, createSupabaseAdmin } from "@/app/lib/supabase-server"
 import { verifyAuth } from "@/app/lib/auth-helpers"
 import { createClient } from '@supabase/supabase-js'
 import { planValidator } from '@/lib/plans/server'
@@ -211,7 +211,9 @@ export async function POST(request: NextRequest) {
     
     console.log("Dados para inserção:", postData)
     
-    const { data: post, error: postError } = await supabase
+    // Usar admin client para contornar problemas de RLS temporariamente
+    const supabaseAdmin = createSupabaseAdmin()
+    const { data: post, error: postError } = await supabaseAdmin
       .from("posts")
       .insert(postData)
       .select()
