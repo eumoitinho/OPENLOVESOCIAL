@@ -101,7 +101,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Garantir que o avatar_url está definido - usar gravatar ou default
       const profileData = {
         ...data,
-        avatar_url: data.avatar_url || generateDefaultAvatar(data.email || userId, data.full_name || 'User')
+        // Normalizar campos de nome
+        full_name: data.full_name || data.name || 'User',
+        avatar_url: data.avatar_url || generateDefaultAvatar(data.email || userId, data.full_name || data.name || 'User')
       }
       
       setProfile(profileData)

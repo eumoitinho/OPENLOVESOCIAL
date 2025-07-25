@@ -242,43 +242,39 @@ export default function CreatePost(props: CreatePostProps) {
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || [])
-    const imageFiles = files.filter((file) => ["image/jpeg", "image/png"].includes(file.type))
-    const maxImages = userPlan === "gold" ? 5 : 10
-
-    if (userPlan === "free") {
-      toast.error("Upload de imagens disponível apenas para planos Open Ouro e Open Diamante")
+    const imageFiles = files.filter((file) => ["image/jpeg", "image/png", "image/gif", "image/webp"].includes(file.type))
+    
+    if (imageFiles.length === 0) {
+      toast.error("Por favor, selecione apenas arquivos de imagem válidos (JPG, PNG, GIF, WEBP)")
       return
     }
 
+    // Verificar tamanho dos arquivos
     for (const file of imageFiles) {
       if (file.size > IMAGE_MAX_SIZE) {
-        toast.error(`Imagem muito grande. Máximo 10MB por arquivo.`)
+        toast.error(`Imagem "${file.name}" muito grande. Máximo 10MB por arquivo.`)
         return
       }
     }
 
+    // Verificar limites do plano
+    const maxImages = userPlan === "free" ? 1 : userPlan === "gold" ? 5 : 10
+    
     if (images.length + imageFiles.length > maxImages) {
       toast.error(`Máximo de ${maxImages} imagens permitido para seu plano`)
       return
     }
 
-    // Processar imagens sem compressão para debug
-    const processedImages: File[] = []
-    let processedCount = 0
+    // Processar e adicionar imagens imediatamente
+    setImages((prev) => [...prev, ...imageFiles])
     
-    imageFiles.forEach((file, index) => {
-      // Para debug, vamos usar o arquivo original sem compressão
-      processedImages[index] = file
-      processedCount++
-      
-      if (processedCount === imageFiles.length) {
-        setImages((prev) => [...prev, ...processedImages])
-        // Adicionar à lista de opções selecionadas
-        setSelectedOptions((prev) => 
-          prev.includes("image") ? prev : [...prev, "image"]
-        )
-      }
-    })
+    // Adicionar à lista de opções selecionadas
+    setSelectedOptions((prev) => 
+      prev.includes("image") ? prev : [...prev, "image"]
+    )
+
+    // Mostrar notificação de sucesso
+    toast.success(`${imageFiles.length} imagem${imageFiles.length > 1 ? 's' : ''} adicionada${imageFiles.length > 1 ? 's' : ''}!`)
   }
 
   const handleVideoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -311,7 +307,14 @@ export default function CreatePost(props: CreatePostProps) {
   }
 
   const removeImage = (index: number) => {
-    setImages((prev) => prev.filter((_, i) => i !== index))
+    setImages((prev) => {
+      const newImages = prev.filter((_, i) => i !== index)
+      // Se não há mais imagens, remover da lista de opções selecionadas
+      if (newImages.length === 0) {
+        setSelectedOptions((prevOptions) => prevOptions.filter((id) => id !== "image"))
+      }
+      return newImages
+    })
   }
 
   const removeVideo = () => {
@@ -586,25 +589,43 @@ export default function CreatePost(props: CreatePostProps) {
 
                 {/* Media Preview */}
                 {(images.length > 0 || video || audio) && (
-                  <div className="space-y-2">
+                  <div className="space-y-3 p-3 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                      <ImageIcon className="w-4 h-4" />
+                      Mídia selecionada
+                    </div>
+                    
                     {images.length > 0 && (
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         {images.map((image, index) => (
-                          <div key={index} className="relative aspect-square">
+                          <div key={`${image.name}-${index}`} className="relative aspect-square group">
                             <img
-                              src={URL.createObjectURL(image) || "/placeholder.svg"}
+                              src={URL.createObjectURL(image)}
                               alt={`Preview ${index + 1}`}
-                              className="w-full h-full object-cover rounded-lg protected-image"
+                              className="w-full h-full object-cover rounded-lg border border-gray-300 dark:border-gray-600 shadow-sm"
+                              onLoad={(e) => {
+                                // Garantir que a imagem foi carregada
+                                console.log(`Imagem ${index + 1} carregada:`, image.name)
+                              }}
+                              onError={(e) => {
+                                console.error(`Erro ao carregar imagem ${index + 1}:`, image.name)
+                              }}
                             />
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              size="sm"
-                              className="absolute top-1 right-1 h-6 w-6 p-0"
-                              onClick={() => removeImage(index)}
-                            >
-                              <X size={12} />
-                            </Button>
+                            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded-lg flex items-center justify-center">
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 shadow-lg"
+                                onClick={() => removeImage(index)}
+                                title="Remover imagem"
+                              >
+                                <X size={14} />
+                              </Button>
+                            </div>
+                            <div className="absolute bottom-1 left-1 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
+                              {(image.size / (1024 * 1024)).toFixed(1)}MB
+                            </div>
                           </div>
                         ))}
                       </div>

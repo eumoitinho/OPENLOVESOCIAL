@@ -48,6 +48,11 @@ export default function CheckoutFormAbacatePay({
       const data = await response.json()
 
       if (!response.ok) {
+        // Verificar se é erro de configuração de URLs
+        if (data.details && (data.details.solution || data.details.current_urls)) {
+          const errorMessage = `${data.error}\n\n${data.details.solution || 'Configure NEXT_PUBLIC_APP_URL para uma URL pública.'}`
+          throw new Error(errorMessage)
+        }
         throw new Error(data.error || 'Erro ao processar pagamento')
       }
 
@@ -64,7 +69,14 @@ export default function CheckoutFormAbacatePay({
 
     } catch (error) {
       console.error('Erro no pagamento:', error)
-      onError?.(error instanceof Error ? error.message : 'Erro desconhecido')
+      
+      // Mostrar instruções específicas para erros de configuração
+      let errorMessage = error instanceof Error ? error.message : 'Erro desconhecido'
+      if (errorMessage.includes('URLs públicas') || errorMessage.includes('ngrok')) {
+        errorMessage += '\n\nPara resolver:\n1. Execute: npm run setup:dev-urls\n2. Siga as instruções para configurar ngrok'
+      }
+      
+      onError?.(errorMessage)
     } finally {
       setLoading(false)
     }

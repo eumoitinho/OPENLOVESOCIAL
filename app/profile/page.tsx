@@ -15,9 +15,9 @@ export default async function ProfilePage() {
     redirect("/auth/signin")
   }
   const supabase = await createServerComponentClient()
-  // Buscar perfil do usuário na tabela profiles
+  // Buscar perfil do usuário na tabela users
   const { data: profile } = await supabase
-    .from("profiles")
+    .from("users")
     .select("*")
     .eq("id", user.id)
     .single()

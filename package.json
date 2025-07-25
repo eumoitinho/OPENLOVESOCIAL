@@ -16,7 +16,8 @@
     "auto-release:check": "node scripts/auto-release.js --check",
     "auto-release": "node scripts/auto-release.js --release",
     "auto-release:help": "node scripts/auto-release.js --help",
-    "context": "node scripts/context-tools.js"
+    "context": "node scripts/context-tools.js",
+    "setup:dev-urls": "node scripts/setup-dev-urls.js"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "latest",
@@ -38,7 +39,6 @@
     "@radix-ui/react-label": "latest",
     "@radix-ui/react-menubar": "latest",
     "@radix-ui/react-navigation-menu": "latest",
-    "react-easy-crop": "^5.0.4",
     "@radix-ui/react-popover": "latest",
     "@radix-ui/react-progress": "latest",
     "@radix-ui/react-radio-group": "latest",
@@ -89,6 +89,7 @@
     "react-big-calendar": "latest",
     "react-day-picker": "latest",
     "react-dom": "^19.1.0",
+    "react-easy-crop": "^5.5.0",
     "react-hook-form": "^7.60.0",
     "react-resizable-panels": "latest",
     "recharts": "^3.1.0",

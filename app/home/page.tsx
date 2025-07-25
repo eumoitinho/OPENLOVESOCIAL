@@ -171,6 +171,101 @@ const NavHeader = ({ title }: { title: string }) => (
   </li>
 );
 
+// --- Componente MyProfileView para o próprio perfil ---
+const MyProfileView = () => {
+  const { user, profile } = useAuth();
+  const [profileData, setProfileData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchOwnProfile = async () => {
+      try {
+        const response = await fetch('/api/profile');
+        if (!response.ok) {
+          throw new Error('Erro ao carregar perfil');
+        }
+        const data = await response.json();
+        setProfileData(data);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchOwnProfile();
+    }
+  }, [user]);
+
+  if (loading) {
+    return (
+      <div className="text-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600 mx-auto mb-4"></div>
+        <p>Carregando perfil...</p>
+      </div>
+    );
+  }
+
+  if (error || !profileData) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-500">Erro ao carregar perfil: {error}</p>
+        <Button onClick={() => window.location.reload()} className="mt-4">
+          Tentar novamente
+        </Button>
+      </div>
+    );
+  }
+
+  // Usar o ProfileContent que já existe na página /profile
+  return (
+    <div className="space-y-6">
+      <Card className="p-6">
+        <div className="flex items-center gap-4 mb-6">
+          <Avatar className="w-20 h-20">
+            <AvatarImage src={profileData.avatar_url} alt={profileData.name} />
+            <AvatarFallback>
+              {profileData.name?.charAt(0) || user?.email?.charAt(0)?.toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1">
+            <h1 className="text-2xl font-bold">{profileData.name || 'Seu Nome'}</h1>
+            <p className="text-gray-600">@{profileData.username || user?.email?.split('@')[0]}</p>
+            <p className="text-gray-600">{profileData.email || user?.email}</p>
+          </div>
+          <Button onClick={() => window.location.href = '/profile/edit'}>
+            Editar Perfil
+          </Button>
+        </div>
+        
+        {profileData.bio && (
+          <div className="mb-4">
+            <h3 className="font-semibold mb-2">Bio</h3>
+            <p className="text-gray-700">{profileData.bio}</p>
+          </div>
+        )}
+        
+        <div className="grid grid-cols-3 gap-4 text-center">
+          <div>
+            <div className="font-bold text-xl">0</div>
+            <div className="text-gray-600 text-sm">Posts</div>
+          </div>
+          <div>
+            <div className="font-bold text-xl">0</div>
+            <div className="text-gray-600 text-sm">Seguidores</div>
+          </div>
+          <div>
+            <div className="font-bold text-xl">0</div>
+            <div className="text-gray-600 text-sm">Seguindo</div>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
 // --- Componente ProfileView para a Home ---
 const ProfileView = ({ username }: { username?: string }) => {
   const { user, profile } = useAuth();
@@ -183,9 +278,13 @@ const ProfileView = ({ username }: { username?: string }) => {
     );
   }
 
-  const profileUsername = username || profile?.username || user.email?.split('@')[0] || 'user';
-  
-  return <UserProfile username={profileUsername} isView={true} />;
+  // Se é "Meu Perfil" (sem username), usar o próprio perfil direto
+  if (!username) {
+    return <MyProfileView />;
+  }
+
+  // Se tem username específico, usar o UserProfile normal
+  return <UserProfile username={username} isView={true} />;
 };
 
 export default function HomePage() {

@@ -24,7 +24,7 @@ export async function GET(
         is_active,
         last_seen,
         created_at,
-        plano
+        premium_type
       `)
       .eq('username', username)
       .single()

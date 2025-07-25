@@ -65,10 +65,66 @@ export async function POST(request: NextRequest) {
     const userName = userData?.name || `${userData?.first_name || ''} ${userData?.last_name || ''}`.trim() || 'Usuário OpenLove'
     const userEmail = userData?.email || email
 
-    // Determinar URLs corretas
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    // Determinar URLs corretas - AbacatePay precisa de URLs públicas válidas
+    let baseUrl = process.env.NEXT_PUBLIC_APP_URL
+    
+    // Se não configurado ou for localhost, usar ngrok ou URL temporária para desenvolvimento
+    if (!baseUrl || baseUrl.includes('localhost') || baseUrl.includes('127.0.0.1')) {
+      // Para desenvolvimento, usar um serviço de túnel público ou URL temporária
+      // Em produção, NEXT_PUBLIC_APP_URL deve estar configurado corretamente
+      console.warn('NEXT_PUBLIC_APP_URL não configurado ou é localhost. AbacatePay requer URLs públicas.')
+      
+      // Tentar detectar se está em desenvolvimento
+      if (process.env.NODE_ENV === 'development') {
+        // Usar webhook.site temporário para testes ou solicitar configuração de ngrok
+        baseUrl = 'https://webhook.site/unique-id-here'
+        console.log('⚠️ AVISO: Usando URL temporária para desenvolvimento. Configure ngrok para testes reais.')
+      } else {
+        return NextResponse.json(
+          { 
+            error: 'Configure NEXT_PUBLIC_APP_URL com uma URL pública válida. AbacatePay não aceita URLs localhost.',
+            details: 'Para desenvolvimento, use ngrok: npx ngrok http 3000'
+          },
+          { status: 500 }
+        )
+      }
+    }
+    
     const returnUrl = successUrl || `${baseUrl}/timeline?payment=success`
     const webhookUrl = `${baseUrl}/api/abacatepay/webhook`
+    
+    // Verificar se as URLs são válidas e públicas
+    try {
+      const returnUrlObj = new URL(returnUrl)
+      const webhookUrlObj = new URL(webhookUrl)
+      
+      // Verificar se não são URLs locais
+      const isLocalUrl = (url: URL) => {
+        return url.hostname === 'localhost' || 
+               url.hostname === '127.0.0.1' || 
+               url.hostname.endsWith('.local')
+      }
+      
+      if (isLocalUrl(returnUrlObj) || isLocalUrl(webhookUrlObj)) {
+        return NextResponse.json(
+          { 
+            error: 'AbacatePay requer URLs públicas. Configure NEXT_PUBLIC_APP_URL ou use ngrok para desenvolvimento.',
+            details: {
+              current_urls: { returnUrl, webhookUrl },
+              solution: 'Para desenvolvimento: npx ngrok http 3000, depois configure NEXT_PUBLIC_APP_URL=https://xxxx.ngrok.io'
+            }
+          },
+          { status: 500 }
+        )
+      }
+      
+    } catch (error) {
+      console.error('URLs inválidas:', { returnUrl, webhookUrl, error })
+      return NextResponse.json(
+        { error: 'URLs malformadas. Verifique NEXT_PUBLIC_APP_URL.' },
+        { status: 500 }
+      )
+    }
     
     console.log('URLs configuradas:', { baseUrl, returnUrl, webhookUrl })
 
@@ -83,13 +139,13 @@ export async function POST(request: NextRequest) {
         price: planConfig.price! // Preço em centavos
       }],
       returnUrl: returnUrl,
+      completionUrl: webhookUrl,
       customer: {
         name: userName,
         email: userEmail,
         cellphone: "+5511999999999", // Placeholder - idealmente vir do cadastro
         taxId: "09240529020" // Placeholder - idealmente vir do cadastro
       }
-      // Removendo completionUrl temporariamente para testar
     })
 
     console.log('AbacatePay Billing Response:', JSON.stringify(billing, null, 2))

@@ -21,6 +21,9 @@ pnpm typecheck
 # Build
 pnpm build
 
+# Setup URLs para desenvolvimento (AbacatePay)
+pnpm setup:dev-urls
+
 # Context Tools
 node scripts/context-tools.js compress <module>
 node scripts/context-tools.js analyze
@@ -48,6 +51,7 @@ node scripts/context-tools.js analyze
 
 ## Configurações
 - Stripe configured
+- AbacatePay (PIX) configurado - requer NEXT_PUBLIC_APP_URL público para webhooks
 
 ## Análise
 - Memória: Adicionar camada de análise de memórias usando IA para enriquecer contexto afetivo

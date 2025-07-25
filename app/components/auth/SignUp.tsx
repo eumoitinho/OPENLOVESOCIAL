@@ -159,67 +159,6 @@ export default function SignUp() {
   // Usar instância única do client
   const supabase = createClient()
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      // Validar tipo de arquivo
-      if (!file.type.startsWith('image/')) {
-        alert('Por favor, selecione apenas arquivos de imagem.')
-        return
-      }
-
-      // Validar tamanho (máximo 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert('A imagem deve ter no máximo 5MB.')
-        return
-      }
-
-      setProfileImage(file)
-      
-      // Criar preview
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
-  const removeImage = () => {
-    setProfileImage(null)
-    setImagePreview(null)
-  }
-
-  const handleCoverUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      // Validar tipo de arquivo
-      if (!file.type.startsWith('image/')) {
-        alert('Por favor, selecione apenas arquivos de imagem.')
-        return
-      }
-
-      // Validar tamanho (máximo 10MB para capa)
-      if (file.size > 10 * 1024 * 1024) {
-        alert('A imagem de capa deve ter no máximo 10MB.')
-        return
-      }
-
-      setCoverImage(file)
-      
-      // Criar preview
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setCoverPreview(e.target?.result as string)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
-  const removeCover = () => {
-    setCoverImage(null)
-    setCoverPreview(null)
-  }
 
   const handleLocationSelect = (location: {
     id: number
@@ -280,23 +219,6 @@ export default function SignUp() {
 
     setLoading(true)
     try {
-      // 1. Converter imagem para base64 se existir
-      let avatarBase64 = null
-      let coverBase64 = null
-      if (profileImage) {
-        const reader = new FileReader()
-        avatarBase64 = await new Promise<string>((resolve) => {
-          reader.onload = () => resolve(reader.result as string)
-          reader.readAsDataURL(profileImage)
-        })
-      }
-      if (coverImage) {
-        const reader = new FileReader()
-        coverBase64 = await new Promise<string>((resolve) => {
-          reader.onload = () => resolve(reader.result as string)
-          reader.readAsDataURL(coverImage)
-        })
-      }
 
       // 2. Enviar dados para a API de registro
       const response = await fetch('/api/auth/register', {
@@ -323,8 +245,8 @@ export default function SignUp() {
           longitude: selectedLocation?.longitude || null,
           plan: formData.selectedPlan,
           partner: null,
-          profilePicture: avatarBase64 ? { base64: avatarBase64 } : {},
-          coverPicture: coverBase64 ? { base64: coverBase64 } : {}
+          avatar_url: profileImageUrl,
+          cover_url: coverImageUrl
         }),
       })
 
@@ -420,102 +342,26 @@ export default function SignUp() {
               </div>
 
               {/* Upload de Foto de Perfil */}
-              <div className="space-y-2">
-                <Label>Foto de Perfil (Opcional)</Label>
-                <div className="flex items-center gap-4">
-                  {/* Preview da imagem */}
-                  {imagePreview ? (
-                    <div className="relative">
-                      <img
-                        src={imagePreview}
-                        alt="Preview"
-                        className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
-                      />
-                      <button
-                        type="button"
-                        onClick={removeImage}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="w-20 h-20 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
-                      <Camera className="w-8 h-8 text-gray-400" />
-                    </div>
-                  )}
-
-                  {/* Botão de upload */}
-                  <div className="flex-1">
-                    <input
-                      type="file"
-                      id="profileImage"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
-                    <label
-                      htmlFor="profileImage"
-                      className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer hover:bg-blue-600 transition-colors"
-                    >
-                      <Upload className="w-4 h-4" />
-                      {imagePreview ? "Trocar Foto" : "Escolher Foto"}
-                    </label>
-                    <p className="text-xs text-gray-500 mt-1">
-                      JPG, PNG ou GIF até 5MB
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <EnhancedImageUpload
+                label="Foto de Perfil (Opcional)"
+                value={profileImageUrl}
+                onChange={setProfileImageUrl}
+                aspectRatio={1}
+                circularCrop={true}
+                maxSizeMB={5}
+                placeholder="JPG, PNG ou GIF até 5MB"
+              />
 
               {/* Upload de Foto de Capa */}
-              <div className="space-y-2">
-                <Label>Foto de Capa (Opcional)</Label>
-                <div className="flex items-center gap-4">
-                  {/* Preview da imagem de capa */}
-                  {coverPreview ? (
-                    <div className="relative">
-                      <img
-                        src={coverPreview}
-                        alt="Preview Capa"
-                        className="w-32 h-20 rounded-lg object-cover border-2 border-gray-200"
-                      />
-                      <button
-                        type="button"
-                        onClick={removeCover}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="w-32 h-20 rounded-lg bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center">
-                      <Camera className="w-8 h-8 text-gray-400" />
-                    </div>
-                  )}
-
-                  {/* Botão de upload */}
-                  <div className="flex-1">
-                    <input
-                      type="file"
-                      id="coverImage"
-                      accept="image/*"
-                      onChange={handleCoverUpload}
-                      className="hidden"
-                    />
-                    <label
-                      htmlFor="coverImage"
-                      className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg cursor-pointer hover:bg-green-600 transition-colors"
-                    >
-                      <Upload className="w-4 h-4" />
-                      {coverPreview ? "Trocar Capa" : "Escolher Capa"}
-                    </label>
-                    <p className="text-xs text-gray-500 mt-1">
-                      JPG, PNG ou GIF até 10MB
-                    </p>
-                  </div>
-                </div>
-              </div>
+              <EnhancedImageUpload
+                label="Foto de Capa (Opcional)"
+                value={coverImageUrl}
+                onChange={setCoverImageUrl}
+                aspectRatio={16/9}
+                circularCrop={false}
+                maxSizeMB={10}
+                placeholder="JPG, PNG ou GIF até 10MB"
+              />
 
               <div className="space-y-2">
                 <Label htmlFor="password">Senha</Label>
