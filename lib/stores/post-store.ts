@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
+import { PLAN_LIMITS, PlanType } from '@/lib/plans/config'
 import type {
   Post,
   PostId,
@@ -18,9 +19,45 @@ import type {
   UserId
 } from '@/types/post'
 
+// Helper function to validate post creation based on plan limits
+const validatePostCreation = (data: PostCreate, userPlan: PlanType, userId?: string): { valid: boolean; error?: string } => {
+  const limits = PLAN_LIMITS[userPlan || 'free']
+  
+  // Validate video upload
+  if (data.mediaType === 'video') {
+    if (limits.maxVideoSize === 0) {
+      return { valid: false, error: 'Posts de vídeo requerem plano Ouro ou superior' }
+    }
+    if (data.fileSize && data.fileSize > limits.maxVideoSize) {
+      const maxMB = Math.floor(limits.maxVideoSize / (1024 * 1024))
+      return { valid: false, error: `Tamanho máximo para vídeos: ${maxMB}MB` }
+    }
+  }
+  
+  // Validate audio upload
+  if (data.mediaType === 'audio' && !limits.canUploadAudio) {
+    return { valid: false, error: 'Posts de áudio requerem plano Ouro ou superior' }
+  }
+  
+  // Validate image count
+  if (data.images && data.images.length > limits.maxImages) {
+    return { 
+      valid: false, 
+      error: `Máximo ${limits.maxImages} ${limits.maxImages === 1 ? 'imagem' : 'imagens'} por post no seu plano` 
+    }
+  }
+  
+  // Validate polls
+  if (data.type === 'poll' && !limits.canCreatePolls) {
+    return { valid: false, error: 'Enquetes requerem plano Diamante' }
+  }
+  
+  return { valid: true }
+}
+
 interface PostActions {
   // Post CRUD operations
-  createPost: (data: PostCreate) => Promise<Post>
+  createPost: (data: PostCreate, userPlan?: PlanType) => Promise<Post>
   updatePost: (id: PostId, data: PostUpdate) => Promise<Post>
   deletePost: (id: PostId) => Promise<void>
   fetchPost: (id: PostId) => Promise<Post>
@@ -113,13 +150,19 @@ export const usePostStore = create<PostStore>()(
       ...initialState,
       
       // ===== POST CRUD OPERATIONS =====
-      createPost: async (data: PostCreate) => {
+      createPost: async (data: PostCreate, userPlan: PlanType = 'free') => {
         set((state) => {
           state.loading.creating = true
           state.errors.creating = undefined
         })
         
         try {
+          // Validate post creation based on plan limits
+          const validation = validatePostCreation(data, userPlan)
+          if (!validation.valid) {
+            throw new Error(validation.error || 'Post validation failed')
+          }
+          
           const response = await fetch('/api/posts', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

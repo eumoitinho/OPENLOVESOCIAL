@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
         sender_id,
         type,
         is_read,
-        profiles!inner(
+        users!inner(
           username,
           full_name,
           avatar_url
@@ -75,8 +75,8 @@ export async function GET(request: NextRequest) {
       content: msg.content,
       timestamp: msg.created_at,
       senderId: msg.sender_id,
-      senderName: (msg.profiles as any).full_name || (msg.profiles as any).username,
-      senderAvatar: (msg.profiles as any).avatar_url,
+      senderName: (msg.users as any).full_name || (msg.users as any).username,
+      senderAvatar: (msg.users as any).avatar_url,
       type: msg.type,
       isOwn: msg.sender_id === user.id,
       isRead: msg.is_read
@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
         sender_id,
         type,
         is_read,
-        profiles!inner(
+        users!inner(
           username,
           full_name,
           avatar_url
@@ -156,8 +156,8 @@ export async function POST(request: NextRequest) {
       content: newMessage.content,
       timestamp: newMessage.created_at,
       senderId: newMessage.sender_id,
-      senderName: (newMessage.profiles as any).full_name || (newMessage.profiles as any).username,
-      senderAvatar: (newMessage.profiles as any).avatar_url,
+      senderName: (newMessage.users as any).full_name || (newMessage.users as any).username,
+      senderAvatar: (newMessage.users as any).avatar_url,
       type: newMessage.type,
       isOwn: true,
       isRead: false

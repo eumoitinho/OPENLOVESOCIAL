@@ -10,8 +10,8 @@ import { useRouter } from 'next/navigation'
 import { useCanAccess } from '@/lib/plans/hooks'
 
 interface ChatRestrictionProps {
-  recipientPlan?: 'free' | 'gold' | 'diamante'
-  messageType?: 'direct' | 'group'
+  recipientPlan?: 'free' | 'gold' | 'diamond'
+  messageType?: 'direct' | 'group' | 'video_call' | 'voice_call'
   onUpgrade?: () => void
 }
 
@@ -32,23 +32,54 @@ export default function ChatRestriction({
   }
 
   const getRestrictionMessage = () => {
+    // ✅ CORRIGIDO: Gratuito não pode enviar mensagens
     if (canAccess.plan === 'free') {
       return {
-        title: 'Mensagens Limitadas',
-        description: 'Usuários gratuitos podem enviar apenas 5 mensagens por dia.',
+        title: 'Mensagens Premium',
+        description: 'Upgrade para enviar mensagens e se conectar com outros usuários.',
         requiredPlan: 'gold' as const,
         icon: Crown,
-        color: 'from-yellow-400 to-yellow-600'
+        color: 'from-yellow-400 to-yellow-600',
+        features: [
+          'Mensagens ilimitadas',
+          'Mensagens de voz',
+          'Chamadas de voz',
+          'Upload de arquivos'
+        ]
       }
     }
 
+    // ✅ NOVO: Ouro não pode fazer chamadas de vídeo
+    if (messageType === 'video_call' && canAccess.plan === 'gold') {
+      return {
+        title: 'Chamadas de Vídeo Premium',
+        description: 'Chamadas de vídeo requerem Open Diamante.',
+        requiredPlan: 'diamond' as const,
+        icon: Star,
+        color: 'from-blue-400 to-purple-600',
+        features: [
+          'Chamadas de vídeo ilimitadas',
+          'Qualidade HD',
+          'Gravação de chamadas',
+          'Chamadas em grupo'
+        ]
+      }
+    }
+
+    // ✅ NOVO: Ouro não pode criar grupos
     if (messageType === 'group' && canAccess.plan === 'gold') {
       return {
         title: 'Grupos Premium',
-        description: 'Grupos com mais de 10 pessoas requerem Open Diamante.',
-        requiredPlan: 'diamante' as const,
-        icon: Star,
-        color: 'from-blue-400 to-purple-600'
+        description: 'Criação de grupos requer Open Diamante.',
+        requiredPlan: 'diamond' as const,
+        icon: Users,
+        color: 'from-blue-400 to-purple-600',
+        features: [
+          'Criar grupos ilimitados',
+          'Grupos com até 100 pessoas',
+          'Moderação avançada',
+          'Grupos privados'
+        ]
       }
     }
 
@@ -82,20 +113,17 @@ export default function ChatRestriction({
           {restriction.description}
         </p>
 
-        <div className="space-y-2">
-          <div className="flex items-center justify-center gap-2 text-sm">
-            <MessageCircle className="w-4 h-4 text-gray-500" />
-            <span className="text-gray-700 dark:text-gray-300">
-              {restriction.requiredPlan === 'gold' ? 'Mensagens ilimitadas' : 'Grupos ilimitados'}
-            </span>
+        {/* ✅ NOVO: Lista de recursos do plano */}
+        {restriction.features && (
+          <div className="space-y-2">
+            {restriction.features.map((feature, index) => (
+              <div key={index} className="flex items-center justify-center gap-2 text-sm">
+                <MessageCircle className="w-4 h-4 text-gray-500" />
+                <span className="text-gray-700 dark:text-gray-300">{feature}</span>
+              </div>
+            ))}
           </div>
-          <div className="flex items-center justify-center gap-2 text-sm">
-            <Users className="w-4 h-4 text-gray-500" />
-            <span className="text-gray-700 dark:text-gray-300">
-              {restriction.requiredPlan === 'gold' ? 'Suporte prioritário' : 'Chamadas de voz/vídeo'}
-            </span>
-          </div>
-        </div>
+        )}
 
         <Button 
           onClick={handleUpgrade}

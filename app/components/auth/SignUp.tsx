@@ -139,6 +139,7 @@ export default function SignUp() {
     interests: [] as string[],
     bio: "",
     age: "",
+    birthDate: "",
     location: "",
     canSellContent: false,
     offersPrograms: false,
@@ -249,7 +250,7 @@ export default function SignUp() {
           formData.password === formData.confirmPassword
         )
       case 2:
-        return formData.profileType && formData.age && formData.location
+        return formData.profileType && formData.age && formData.birthDate && formData.location
       case 3:
         return formData.selectedPlan
       default:
@@ -302,7 +303,7 @@ export default function SignUp() {
           username: formData.username,
           email: formData.email,
           password: formData.password,
-          birthDate: null, // Será adicionado na etapa 2
+          birthDate: formData.birthDate,
           profileType: formData.profileType,
           seeking: [],
           interests: formData.interests,
@@ -570,13 +571,25 @@ export default function SignUp() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Localização</Label>
-                  <LocationSearch
-                    onLocationSelect={handleLocationSelect}
-                    placeholder="Buscar sua cidade..."
-                    initialValue={formData.location}
+                  <Label htmlFor="birthDate">Data de Nascimento *</Label>
+                  <Input
+                    id="birthDate"
+                    type="date"
+                    value={formData.birthDate}
+                    onChange={(e) => handleInputChange("birthDate", e.target.value)}
+                    max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
                   />
+                  <p className="text-xs text-gray-500">Você deve ter pelo menos 18 anos</p>
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Localização *</Label>
+                <LocationSearch
+                  onLocationSelect={handleLocationSelect}
+                  placeholder="Buscar sua cidade..."
+                  initialValue={formData.location}
+                />
               </div>
 
               <div className="space-y-2">

@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     // Garantir que o usuário existe na tabela users
     const { data: userRow, error: userRowError } = await supabase
       .from("users")
-      .select("id, plano")
+      .select("id, premium_type")
       .eq("id", user.id)
       .single()
     
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
           name: user.user_metadata?.full_name || "Usuário",
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-          plano: 'free'
+          premium_type: null
         })
       if (insertError) {
         console.error("Erro ao criar perfil na tabela users:", insertError)

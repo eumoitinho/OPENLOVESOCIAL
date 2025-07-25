@@ -1,5 +1,11 @@
 // Configuração de planos e suas limitações
-export type PlanType = 'free' | 'gold' | 'diamante' | 'diamante_anual'
+export type PlanType = 'free' | 'gold' | 'diamond' | 'diamond_annual'
+
+// Mapeamento para compatibilidade
+export const PLAN_LEGACY_MAPPING: Record<string, PlanType> = {
+  'diamante': 'diamond',
+  'diamante_anual': 'diamond_annual'
+}
 
 export interface PlanLimits {
   // Uploads
@@ -39,13 +45,13 @@ export interface PlanLimits {
 export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
   free: {
     // Uploads
-    maxImages: 0,
+    maxImages: 1,
     maxVideoSize: 0,
-    maxVideosPerMonth: 1,
+    maxVideosPerMonth: 0,
     canUploadAudio: false,
     
     // Comunidades
-    maxCommunities: 0, // Só pode participar de verificadas
+    maxCommunities: 0,
     canCreateCommunities: false,
     canJoinVerifiedOnly: true,
     
@@ -80,20 +86,20 @@ export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
     canUploadAudio: true,
     
     // Comunidades
-    maxCommunities: 3,
-    canCreateCommunities: false,
+    maxCommunities: 1,
+    canCreateCommunities: true,
     canJoinVerifiedOnly: false,
     
     // Eventos
-    maxEventsPerMonth: 2,
+    maxEventsPerMonth: 3,
     canCreateEvents: true,
     canJoinVerifiedOnly: false,
     
     // Mensagens
     canSendMessages: true,
     canSendMedia: true,
-    canSendAudio: false,
-    canMakeVoiceCalls: false,
+    canSendAudio: true,
+    canMakeVoiceCalls: true,
     canMakeVideoCalls: false,
     
     // Funcionalidades
@@ -107,7 +113,7 @@ export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
     badgeType: 'premium'
   },
   
-  diamante: {
+  diamond: {
     // Uploads
     maxImages: 10,
     maxVideoSize: 50 * 1024 * 1024, // 50MB
@@ -142,8 +148,8 @@ export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
     badgeType: 'verified'
   },
   
-  diamante_anual: {
-    // Mesmo que diamante, mas com desconto anual
+  diamond_annual: {
+    // Mesmo que diamond, mas com desconto anual
     maxImages: 10,
     maxVideoSize: 50 * 1024 * 1024,
     maxVideosPerMonth: -1,
@@ -176,15 +182,15 @@ export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
 export const PLAN_NAMES: Record<PlanType, string> = {
   free: 'Gratuito',
   gold: 'Open Ouro',
-  diamante: 'Open Diamante',
-  diamante_anual: 'Open Diamante Anual'
+  diamond: 'Open Diamante',
+  diamond_annual: 'Open Diamante Anual'
 }
 
 export const PLAN_PRICES: Record<PlanType, { monthly: number; currency: string }> = {
   free: { monthly: 0, currency: 'BRL' },
   gold: { monthly: 25.00, currency: 'BRL' },
-  diamante: { monthly: 45.90, currency: 'BRL' },
-  diamante_anual: { monthly: 38.25, currency: 'BRL' } // R$ 459/ano = R$ 38,25/mês
+  diamond: { monthly: 45.90, currency: 'BRL' },
+  diamond_annual: { monthly: 38.25, currency: 'BRL' } // R$ 459/ano = R$ 38,25/mês
 }
 
 // Função para verificar se o plano é ativo

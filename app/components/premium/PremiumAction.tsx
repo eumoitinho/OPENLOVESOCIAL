@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils'
 interface PremiumActionProps {
   children: ReactNode
   feature: string
-  requiredPlan?: 'gold' | 'diamante'
+  requiredPlan?: 'gold' | 'diamond'
   fallback?: ReactNode
   className?: string
   disabled?: boolean
@@ -34,8 +34,8 @@ export default function PremiumAction({
     // Verificar se o usuário tem acesso ao recurso
     const hasAccess = canAccess.plan !== 'free' && (
       requiredPlan === 'gold' ? 
-        ['gold', 'diamante'].includes(canAccess.plan) :
-        canAccess.plan === 'diamante'
+        ['gold', 'diamond', 'diamond_annual'].includes(canAccess.plan) :
+        ['diamond', 'diamond_annual'].includes(canAccess.plan)
     )
 
     if (hasAccess) {
@@ -47,8 +47,8 @@ export default function PremiumAction({
 
   const isAccessible = canAccess.plan !== 'free' && (
     requiredPlan === 'gold' ? 
-      ['gold', 'diamante'].includes(canAccess.plan) :
-      canAccess.plan === 'diamante'
+      ['gold', 'diamond', 'diamond_annual'].includes(canAccess.plan) :
+      ['diamond', 'diamond_annual'].includes(canAccess.plan)
   )
 
   // Se o usuário não tem acesso e há um fallback, mostrar o fallback

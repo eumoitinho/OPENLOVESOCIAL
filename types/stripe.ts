@@ -4,8 +4,8 @@ export interface StripeConfig {
   webhookSecret: string
   priceIds: {
     gold: string
-    diamante: string
-    diamante_anual: string
+    diamond: string
+    diamond_annual: string
   }
 }
 
@@ -40,21 +40,21 @@ export const STRIPE_PRODUCTS = {
   gold: {
     name: 'Gold',
     priceId: process.env.STRIPE_GOLD_PRICE_ID || '',
-    price: 9.99,
+    price: 25.00,
     currency: 'BRL',
     interval: 'month'
   },
-  diamante: {
-    name: 'Diamante',
-    priceId: process.env.STRIPE_DIAMANTE_PRICE_ID || '',
-    price: 19.99,
+  diamond: {
+    name: 'Diamond',
+    priceId: process.env.STRIPE_DIAMOND_PRICE_ID || '',
+    price: 45.90,
     currency: 'BRL',
     interval: 'month'
   },
-  diamante_anual: {
-    name: 'Diamante Anual',
-    priceId: process.env.STRIPE_DIAMANTE_ANUAL_PRICE_ID || '',
-    price: 199.99,
+  diamond_annual: {
+    name: 'Diamond Annual',
+    priceId: process.env.STRIPE_DIAMOND_ANNUAL_PRICE_ID || '',
+    price: 459.00,
     currency: 'BRL',
     interval: 'year'
   }

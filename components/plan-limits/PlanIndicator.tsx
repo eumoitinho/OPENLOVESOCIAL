@@ -19,8 +19,8 @@ export default function PlanIndicator({ variant = 'compact', showUpgrade = true 
   
   const getPlanIcon = () => {
     switch (canAccess.currentPlan) {
-      case 'diamante':
-      case 'diamante_anual':
+      case 'diamond':
+      case 'diamond_annual':
         return <Crown className="w-4 h-4 text-purple-500" />
       case 'gold':
         return <Star className="w-4 h-4 text-amber-500" />
@@ -31,8 +31,8 @@ export default function PlanIndicator({ variant = 'compact', showUpgrade = true 
   
   const getPlanColor = () => {
     switch (canAccess.currentPlan) {
-      case 'diamante':
-      case 'diamante_anual':
+      case 'diamond':
+      case 'diamond_annual':
         return 'secondary'
       case 'gold':
         return 'warning'
@@ -52,7 +52,7 @@ export default function PlanIndicator({ variant = 'compact', showUpgrade = true 
     if (canAccess.currentPlan === 'free') {
       router.push('/checkout?plano=gold')
     } else if (canAccess.currentPlan === 'gold') {
-      router.push('/checkout?plano=diamante')
+      router.push('/checkout?plano=diamond')
     }
   }
   
@@ -67,7 +67,7 @@ export default function PlanIndicator({ variant = 'compact', showUpgrade = true 
           {PLAN_NAMES[canAccess.currentPlan]}
         </Badge>
         
-        {showUpgrade && canAccess.currentPlan !== 'diamante' && canAccess.currentPlan !== 'diamante_anual' && (
+        {showUpgrade && canAccess.currentPlan !== 'diamond' && canAccess.currentPlan !== 'diamond_annual' && (
           <Button
             size="sm"
             color="primary"
@@ -156,7 +156,7 @@ export default function PlanIndicator({ variant = 'compact', showUpgrade = true 
         </div>
         
         {/* Botão de upgrade */}
-        {showUpgrade && canAccess.currentPlan !== 'diamante' && canAccess.currentPlan !== 'diamante_anual' && (
+        {showUpgrade && canAccess.currentPlan !== 'diamond' && canAccess.currentPlan !== 'diamond_annual' && (
           <Button
             color="primary"
             variant="flat"

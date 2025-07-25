@@ -239,9 +239,9 @@ export async function POST(req: NextRequest) {
     };
 
     // Validar plano
-    const validPlans = ['free', 'gold', 'diamante', 'diamante_anual'];
+    const validPlans = ['free', 'gold', 'diamond', 'diamond_annual'];
     const selectedPlan = plan && validPlans.includes(plan) ? plan : 'free';
-    const subscriptionStatus = selectedPlan === 'free' ? 'authorized' : 'pending';
+    const subscriptionStatus = selectedPlan === 'free' ? 'active' : 'pending';
 
     // Normalizar UF
     const normalizedUF = normalizeUF(uf)
@@ -272,8 +272,8 @@ export async function POST(req: NextRequest) {
         uf: normalizedUF,
         latitude: latitude ? parseFloat(latitude) : null,
         longitude: longitude ? parseFloat(longitude) : null,
-        plano: selectedPlan,
-        status_assinatura: subscriptionStatus,
+        premium_type: selectedPlan === 'free' ? null : selectedPlan,
+        premium_status: subscriptionStatus,
         partner: profileType === "couple" && partner ? partner : null,
         is_premium: selectedPlan !== 'free',
         avatar_url: avatar_url || null,
@@ -348,8 +348,8 @@ export async function POST(req: NextRequest) {
       uf: normalizedUF,
       latitude: latitude ? parseFloat(latitude) : null,
       longitude: longitude ? parseFloat(longitude) : null,
-      plano: selectedPlan,
-      status_assinatura: subscriptionStatus,
+      premium_type: selectedPlan === 'free' ? null : selectedPlan,
+      premium_status: subscriptionStatus,
       partner: profileType === "couple" && partner ? partner : null,
       is_premium: selectedPlan !== 'free',
       is_verified: false,

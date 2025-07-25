@@ -48,3 +48,9 @@ node scripts/context-tools.js analyze
 
 ## Configurações
 - Stripe configured
+
+## Análise
+- Memória: Adicionar camada de análise de memórias usando IA para enriquecer contexto afetivo
+
+## Memórias de Desenvolvimento
+- Nunca sugerir soluções simples, sempre usar consertos robustos, complexos e funcionais
