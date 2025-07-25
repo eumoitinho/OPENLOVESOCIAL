@@ -19,12 +19,13 @@ import {
   MessageCircle,
   BadgeCheckIcon,
   Clock,
+  Music,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export interface MediaItem {
   id: string
-  type: "image" | "video"
+  type: "image" | "video" | "audio"
   url: string
   thumbnail?: string
 }
@@ -202,6 +203,30 @@ export function MediaViewer({
                 {/* Watermark */}
                 <div className="absolute bottom-4 right-4 text-white/70 text-sm font-medium bg-black/40 px-2 py-1 rounded">
                   Visualizado por {currentUser.name}
+                </div>
+              </div>
+            ) : currentMedia && currentMedia.type === "audio" ? (
+              <div className="relative w-full h-full flex items-center justify-center">
+                <div className="bg-gradient-to-br from-purple-600 to-pink-600 rounded-3xl p-8 shadow-2xl max-w-md">
+                  <div className="flex items-center justify-center mb-6">
+                    <div className="bg-white/20 rounded-full p-4">
+                      <Music className="w-16 h-16 text-white" />
+                    </div>
+                  </div>
+                  <div className="text-center mb-6">
+                    <h3 className="text-white font-semibold text-lg mb-2">Áudio</h3>
+                    <p className="text-white/80 text-sm">Clique para reproduzir o áudio</p>
+                  </div>
+                  <audio
+                    src={currentMedia.url}
+                    controls
+                    className="w-full bg-white/10 rounded-lg"
+                    style={{ filter: 'invert(1) hue-rotate(180deg)' }}
+                  />
+                  {/* Watermark */}
+                  <div className="absolute bottom-4 right-4 text-white/70 text-sm font-medium bg-black/40 px-2 py-1 rounded">
+                    Visualizado por {currentUser.name}
+                  </div>
                 </div>
               </div>
             ) : null}

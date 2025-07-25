@@ -27,6 +27,8 @@ import {
   MoreHorizontal,
   Bookmark,
   BookmarkCheck,
+  Music,
+  BarChart3,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../../../components/ui/carousel"
@@ -63,6 +65,20 @@ interface Post {
   content: string
   images: string[] | null
   video: string | null
+  audio: string | null
+  poll: {
+    id: string
+    question: string
+    options: Array<{
+      id: string
+      text: string
+      votes: number
+      percentage?: number
+    }>
+    totalVotes: number
+    userVote?: string
+    expiresAt?: string
+  } | null
   event: PostEvent | null
   likes: number
   likesCount: number
@@ -434,6 +450,38 @@ export default function PostCard({
     }
   }
 
+  const handleVotePoll = async (optionId: string) => {
+    if (!post.poll || post.poll.userVote) return
+    
+    try {
+      const response = await fetch(`/api/posts/${post.id}/poll/vote`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ optionId })
+      })
+      
+      if (response.ok) {
+        const result = await response.json()
+        console.log("[PostCard] Voto registrado com sucesso")
+        
+        // Atualizar o estado local do poll
+        if (post.poll) {
+          post.poll.userVote = optionId
+          post.poll.totalVotes += 1
+          post.poll.options = post.poll.options.map(opt => 
+            opt.id === optionId 
+              ? { ...opt, votes: opt.votes + 1 }
+              : opt
+          )
+        }
+      } else {
+        console.error("Erro ao votar na enquete")
+      }
+    } catch (error) {
+      console.error("Erro ao votar na enquete:", error)
+    }
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -595,6 +643,99 @@ export default function PostCard({
               </div>
             </motion.div>
           )}
+          
+          {/* Áudio */}
+          {post.audio && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1 }}
+              className="w-full"
+            >
+              <div className="bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl p-4 border border-gray-200/50 dark:border-gray-700/50">
+                <div className="flex items-center gap-3">
+                  <div className="bg-white dark:bg-gray-800 rounded-full p-3 shadow-md">
+                    <Music className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <audio 
+                    controls 
+                    className="flex-1"
+                    style={{ filter: 'hue-rotate(290deg)' }}
+                  >
+                    <source src={post.audio} type="audio/mpeg" />
+                    <source src={post.audio} type="audio/ogg" />
+                    Seu navegador não suporta o elemento de áudio.
+                  </audio>
+                </div>
+              </div>
+            </motion.div>
+          )}
+          
+          {/* Enquete */}
+          {post.poll && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1 }}
+              className="w-full"
+            >
+              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 border border-gray-200/50 dark:border-gray-700/50 space-y-3">
+                <div className="flex items-center gap-2 mb-3">
+                  <BarChart3 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  <h4 className="font-semibold text-gray-800 dark:text-gray-200">{post.poll.question}</h4>
+                </div>
+                
+                <div className="space-y-2">
+                  {post.poll.options.map((option) => {
+                    const percentage = post.poll!.totalVotes > 0 
+                      ? Math.round((option.votes / post.poll!.totalVotes) * 100) 
+                      : 0
+                    const isVoted = post.poll!.userVote === option.id
+                    
+                    return (
+                      <div 
+                        key={option.id} 
+                        className="relative cursor-pointer group"
+                        onClick={() => handleVotePoll(option.id)}
+                      >
+                        <div className="relative bg-white dark:bg-gray-700 rounded-lg p-3 border border-gray-200 dark:border-gray-600 overflow-hidden transition-all duration-200 hover:border-blue-400 dark:hover:border-blue-500">
+                          <div 
+                            className="absolute inset-0 bg-gradient-to-r from-blue-100 to-blue-50 dark:from-blue-900/20 dark:to-blue-800/10 transition-all duration-500"
+                            style={{ width: `${percentage}%` }}
+                          />
+                          <div className="relative flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                              {option.text}
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                                {percentage}%
+                              </span>
+                              {isVoted && (
+                                <CheckCircle className="w-4 h-4 text-green-500" />
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+                
+                <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {post.poll.totalVotes} {post.poll.totalVotes === 1 ? 'voto' : 'votos'}
+                  </span>
+                  {post.poll.expiresAt && (
+                    <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      Expira em {new Date(post.poll.expiresAt).toLocaleDateString('pt-BR')}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          )}
         </CardContent>
         
         {/* Footer com Ações */}
@@ -706,11 +847,23 @@ export default function PostCard({
           <MediaViewer 
             isOpen={mediaViewerOpen} 
             onClose={() => setMediaViewerOpen(false)}
-            media={(post.images || (post.video ? [post.video] : [])).map((url, index) => ({ 
-              id: `${post.id}-${index}`, 
-              type: url.endsWith('.mp4') ? 'video' : 'image', 
-              url 
-            }))}
+            media={[
+              ...(post.images || []).map((url, index) => ({ 
+                id: `${post.id}-img-${index}`, 
+                type: 'image' as const, 
+                url 
+              })),
+              ...(post.video ? [{ 
+                id: `${post.id}-video`, 
+                type: 'video' as const, 
+                url: post.video 
+              }] : []),
+              ...(post.audio ? [{ 
+                id: `${post.id}-audio`, 
+                type: 'audio' as const, 
+                url: post.audio 
+              }] : [])
+            ]}
             initialIndex={selectedMediaIndex} 
             postAuthor={post.user || { name: "Usuário", username: "@usuario", avatar: "/placeholder.svg" }}
             postContent={post.content}

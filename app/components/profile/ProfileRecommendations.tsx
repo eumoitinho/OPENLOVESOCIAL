@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAuth } from "@/app/components/auth/AuthProvider"
+import { useRouter } from "next/navigation"
 
 interface RecommendedProfile {
   id: string
@@ -51,6 +52,7 @@ interface ProfileRecommendationsProps {
 
 export default function ProfileRecommendations({ className }: ProfileRecommendationsProps) {
   const { user } = useAuth()
+  const router = useRouter()
   const [recommendations, setRecommendations] = useState<RecommendedProfile[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -86,6 +88,15 @@ export default function ProfileRecommendations({ className }: ProfileRecommendat
 
   const handleInteraction = async (targetUserId: string, interactionType: string) => {
     try {
+      // Navegar para o perfil se for view_profile
+      if (interactionType === 'view_profile') {
+        const profile = recommendations.find(r => r.id === targetUserId)
+        if (profile) {
+          router.push(`/profile/${profile.username}`)
+        }
+        return
+      }
+
       const response = await fetch('/api/profiles/interactions', {
         method: 'POST',
         headers: {

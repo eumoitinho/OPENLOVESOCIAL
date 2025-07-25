@@ -76,7 +76,7 @@ export function ProfileCard({
   }
 
   const handleViewProfile = () => {
-    onViewProfile?.(profile.id)
+    onViewProfile?.(profile.username)
   }
 
   const getCompatibilityColor = (score: number) => {
