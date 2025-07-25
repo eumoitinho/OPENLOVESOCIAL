@@ -83,7 +83,7 @@ export function PostCard({ post, index, onLike, onComment, onShare, onToggleFoll
               <Avatar className="w-10 h-10 ring-2 ring-openlove-200">
                 <AvatarImage src={post.author.avatar} alt={post.author.name} />
                 <AvatarFallback className="bg-gradient-to-r from-openlove-400 to-openlove-500 text-white">
-                  <Heart className="w-5 h-5" />
+                  {post.author.name?.[0]?.toUpperCase() || <Heart className="w-5 h-5" />}
                 </AvatarFallback>
               </Avatar>
               {post.author.isPremium && (

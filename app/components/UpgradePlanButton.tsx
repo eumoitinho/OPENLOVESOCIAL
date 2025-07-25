@@ -1,66 +1,73 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { Crown, ArrowUp } from "lucide-react"
+import PlanUpgradeModal from "@/app/components/upgrade/PlanUpgradeModal"
 
 interface UpgradePlanButtonProps {
   currentPlan?: string
-  targetPlan: "gold" | "diamante"
+  targetPlan?: "gold" | "diamond" | "diamond_annual"
   className?: string
+  variant?: 'button' | 'modal'
 }
 
-export default function UpgradePlanButton({ currentPlan, targetPlan, className = "" }: UpgradePlanButtonProps) {
-  const router = useRouter()
-  const [loading, setLoading] = useState(false)
+export default function UpgradePlanButton({ 
+  currentPlan = 'free', 
+  targetPlan, 
+  className = "",
+  variant = 'modal'
+}: UpgradePlanButtonProps) {
+  const [showModal, setShowModal] = useState(false)
 
-  const handleUpgrade = async () => {
-    setLoading(true)
-    try {
-      // Redirecionar para a página de checkout com o plano selecionado
-      router.push(`/checkout?plano=${targetPlan}`)
-    } catch (error) {
-      console.error("Erro ao redirecionar:", error)
-    } finally {
-      setLoading(false)
+  const handleClick = () => {
+    if (variant === 'modal') {
+      setShowModal(true)
     }
   }
 
   const getButtonText = () => {
-    if (currentPlan === "gold" && targetPlan === "diamante") {
-      return "Upgrade para Diamante"
+    if (currentPlan === "gold" && targetPlan === "diamond") {
+      return "Upgrade para Diamond"
     }
     if (currentPlan === "free" && targetPlan === "gold") {
-      return "Assinar Open Ouro"
+      return "Assinar Gold"
     }
-    if (currentPlan === "free" && targetPlan === "diamante") {
-      return "Assinar Open Diamante"
+    if (currentPlan === "free" && targetPlan === "diamond") {
+      return "Assinar Diamond"
     }
-    return `Assinar ${targetPlan === "gold" ? "Open Ouro" : "Open Diamante"}`
+    if (targetPlan === "diamond_annual") {
+      return "Assinar Diamond Anual"
+    }
+    return "Fazer Upgrade"
   }
 
   const getButtonColor = () => {
     if (targetPlan === "gold") {
       return "bg-yellow-500 hover:bg-yellow-600"
+    } else if (targetPlan === "diamond_annual") {
+      return "bg-purple-500 hover:bg-purple-600"
     }
     return "bg-blue-500 hover:bg-blue-600"
   }
 
   return (
-    <button
-      onClick={handleUpgrade}
-      disabled={loading}
-      className={`flex items-center justify-center space-x-2 px-4 py-2 text-white font-medium rounded-lg transition-colors ${getButtonColor()} disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
-    >
-      {loading ? (
-        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-      ) : (
-        <>
-          <Crown className="w-4 h-4" />
-          <ArrowUp className="w-4 h-4" />
-        </>
+    <>
+      <button
+        onClick={handleClick}
+        className={`flex items-center justify-center space-x-2 px-4 py-2 text-white font-medium rounded-lg transition-colors ${getButtonColor()} hover:shadow-lg ${className}`}
+      >
+        <Crown className="w-4 h-4" />
+        <ArrowUp className="w-4 h-4" />
+        <span>{getButtonText()}</span>
+      </button>
+
+      {variant === 'modal' && (
+        <PlanUpgradeModal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          currentPlan={currentPlan}
+        />
       )}
-      <span>{getButtonText()}</span>
-    </button>
+    </>
   )
 } 

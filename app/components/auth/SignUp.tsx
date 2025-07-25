@@ -10,8 +10,10 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { ArrowLeft, ArrowRight, Check, Crown, Star, Zap, Upload, X, Camera } from "lucide-react"
+import { EnhancedImageUpload } from '@/app/components/ui/enhanced-image-upload'
 import { useRouter } from "next/navigation"
 import { LocationSearch } from "@/app/components/location/LocationSearch"
+import PlanSelection from "@/app/components/auth/PlanSelection"
 import type { Database } from "@/app/lib/database.types"
 // Substituir o tipo User por um tipo manual baseado no schema SQL
 
@@ -67,25 +69,30 @@ const PLANS = [
     name: "Gratuito",
     price: "R$ 0",
     period: "/mês",
-    description: "Perfeito para começar",
-    features: ["5 curtidas por dia", "Mensagens limitadas", "Perfil básico", "Anúncios"],
-    icon: Star,
+    description: "Ideal para começar e explorar recursos básicos",
+    features: [
+      "Participar de comunidades verificadas",
+      "Upload ilimitado de fotos",
+      "Upload de 1 vídeo",
+      "Perfil básico"
+    ],
+    icon: Zap,
     color: "text-gray-500",
     bgColor: "bg-gray-50",
   },
   {
     id: "gold",
-    name: "Gold",
+    name: "Open Gold",
     price: "R$ 25,00",
     period: "/mês",
-    description: "Mais recursos e visibilidade",
+    description: "Mais recursos para quem quer se destacar",
     features: [
-      "Curtidas ilimitadas",
-      "Mensagens ilimitadas",
-      "Ver quem visitou seu perfil",
-      "Filtros avançados",
-      "Sem anúncios",
-      "Boost no perfil",
+      "Participar de até 3 comunidades",
+      "Criar até 2 eventos por mês",
+      "Mensagens privadas com fotos",
+      "Upload ilimitado de fotos e vídeos",
+      "Perfil com destaque visual",
+      "Suporte prioritário"
     ],
     icon: Crown,
     color: "text-yellow-500",
@@ -94,19 +101,19 @@ const PLANS = [
   },
   {
     id: "diamond",
-    name: "Diamond",
+    name: "Open Diamond",
     price: "R$ 45,90",
     period: "/mês",
-    description: "Experiência completa e exclusiva",
+    description: "Para quem quer o máximo de recursos",
     features: [
-      "Tudo do Gold",
-      "Destaque Super Boost",
-      "Acesso prioritário",
-      "Chat com IA personalizada",
-      "Análise de compatibilidade",
-      "Eventos VIP",
+      "Participar de até 5 comunidades",
+      "Criar até 10 eventos por mês",
+      "Mensagens com fotos, vídeos e áudios",
+      "Chamadas de voz e vídeo",
+      "Perfil super destacado + badge verificado",
+      "Criar comunidades privadas"
     ],
-    icon: Zap,
+    icon: Star,
     color: "text-blue-500",
     bgColor: "bg-blue-50",
   },
@@ -115,10 +122,10 @@ const PLANS = [
 export default function SignUp() {
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
-  const [profileImage, setProfileImage] = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
-  const [coverImage, setCoverImage] = useState<File | null>(null)
-  const [coverPreview, setCoverPreview] = useState<string | null>(null)
+  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null)
+  const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null)
+  const [createdUser, setCreatedUser] = useState<{ id: string; email: string } | null>(null)
+  const [showPayment, setShowPayment] = useState(false)
   const [selectedLocation, setSelectedLocation] = useState<{
     id: number
     nome: string
@@ -303,6 +310,7 @@ export default function SignUp() {
           username: formData.username,
           email: formData.email,
           password: formData.password,
+          confirmPassword: formData.confirmPassword,
           birthDate: formData.birthDate,
           profileType: formData.profileType,
           seeking: [],
@@ -315,8 +323,8 @@ export default function SignUp() {
           longitude: selectedLocation?.longitude || null,
           plan: formData.selectedPlan,
           partner: null,
-          avatar_url: avatarBase64,
-          cover_url: coverBase64
+          profilePicture: avatarBase64 ? { base64: avatarBase64 } : {},
+          coverPicture: coverBase64 ? { base64: coverBase64 } : {}
         }),
       })
 
@@ -326,29 +334,21 @@ export default function SignUp() {
         throw new Error(result.error || 'Erro ao criar conta')
       }
 
-      // 3. Se não for plano gratuito, redirecionar para pagamento
-      if (formData.selectedPlan !== "free") {
-        const paymentResponse = await fetch("/api/stripe/checkout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            plan: formData.selectedPlan,
-            userId: result.user.id,
-            email: formData.email,
-            successUrl: `${window.location.origin}/timeline?payment=success`,
-            cancelUrl: `${window.location.origin}/timeline?payment=cancelled`,
-          }),
-        })
+      // 3. Armazenar dados do usuário criado
+      setCreatedUser({
+        id: result.userId || result.user?.id,
+        email: formData.email
+      })
 
-        const data = await paymentResponse.json()
-        if (data.url) {
-          window.location.href = data.url
-          return
-        }
+      // 4. Se for plano gratuito, redirecionar direto para timeline
+      if (formData.selectedPlan === "free") {
+        router.push("/timeline")
+        return
       }
 
-      // 4. Redirecionar para timeline
-      router.push("/timeline")
+      // 5. Para planos pagos, ir para próxima etapa de pagamento
+      setStep(4) // Nova etapa de pagamento
+
     } catch (error) {
       console.error("Erro no cadastro:", error)
       alert("Erro ao criar conta. Tente novamente.")
@@ -357,14 +357,27 @@ export default function SignUp() {
     }
   }
 
-  const progress = (step / 3) * 100
+  const progress = (step / 4) * 100
+  
+  const handlePlanSelect = (planId: string) => {
+    setFormData(prev => ({ ...prev, selectedPlan: planId }))
+  }
+  
+  const handlePaymentSuccess = () => {
+    router.push("/timeline?payment=success")
+  }
+  
+  const handlePaymentError = (error: string) => {
+    console.error("Erro no pagamento:", error)
+    alert("Erro no pagamento: " + error)
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-2xl">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-gray-900">Criar Conta - Openlove</CardTitle>
-          <CardDescription>Etapa {step} de 3</CardDescription>
+          <CardDescription>Etapa {step} de {formData.selectedPlan === 'free' ? 3 : 4}</CardDescription>
           <Progress value={progress} className="mt-4" />
         </CardHeader>
 
@@ -689,6 +702,29 @@ export default function SignUp() {
             </div>
           )}
 
+          {/* Etapa 4: Pagamento */}
+          {step === 4 && createdUser && (
+            <div className="space-y-6">
+              <div className="text-center">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  Finalize sua assinatura
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Complete o pagamento para ativar seu plano {PLANS.find(p => p.id === formData.selectedPlan)?.name}
+                </p>
+              </div>
+
+              <PlanSelection
+                onPlanSelect={handlePlanSelect}
+                selectedPlan={formData.selectedPlan}
+                userEmail={createdUser.email}
+                userId={createdUser.id}
+                onPaymentSuccess={handlePaymentSuccess}
+                onPaymentError={handlePaymentError}
+              />
+            </div>
+          )}
+
           {/* Botões de Navegação */}
           <div className="flex justify-between pt-6">
             <Button
@@ -706,11 +742,14 @@ export default function SignUp() {
                 Próximo
                 <ArrowRight className="h-4 w-4" />
               </Button>
-            ) : (
+            ) : step === 3 ? (
               <Button onClick={handleSubmit} disabled={!validateStep(3) || loading} className="flex items-center gap-2">
                 {loading ? "Criando conta..." : "Criar Conta"}
                 <Check className="h-4 w-4" />
               </Button>
+            ) : (
+              // Etapa 4 - botões são gerenciados pelo PlanSelection
+              <div></div>
             )}
           </div>
         </CardContent>

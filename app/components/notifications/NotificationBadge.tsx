@@ -28,19 +28,35 @@ const NotificationIcon = ({ size = 24, ...props }: { size?: number; [key: string
 interface NotificationBadgeProps {
   className?: string
   onClick?: () => void
+  showTooltip?: boolean
+  userId?: string
 }
 
-export function NotificationBadge({ className, onClick }: NotificationBadgeProps) {
-  const { stats } = useNotifications()
+export function NotificationBadge({ className, onClick, showTooltip = true, userId }: NotificationBadgeProps) {
+  const { stats, loading } = useNotifications(userId)
   const hasUnread = stats.unread > 0
+
+  if (loading) {
+    return (
+      <div 
+        className={cn(
+          'relative inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer',
+          className
+        )}
+      >
+        <NotificationIcon className="w-5 h-5 text-gray-400 dark:text-gray-500 animate-pulse" />
+      </div>
+    )
+  }
 
   return (
     <div 
       className={cn(
-        'relative inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer',
+        'relative inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer group',
         className
       )}
       onClick={onClick}
+      title={hasUnread ? `${stats.unread} notificação${stats.unread > 1 ? 's' : ''} não lida${stats.unread > 1 ? 's' : ''}` : 'Notificações'}
     >
       <Badge 
         color="danger" 
@@ -49,13 +65,41 @@ export function NotificationBadge({ className, onClick }: NotificationBadgeProps
         shape="circle"
         size="sm"
       >
-        <NotificationIcon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+        <NotificationIcon 
+          className={cn(
+            'w-5 h-5 transition-colors',
+            hasUnread 
+              ? 'text-pink-600 dark:text-pink-400' 
+              : 'text-gray-700 dark:text-gray-300'
+          )} 
+        />
       </Badge>
       
-      {/* Tooltip */}
-      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-        {hasUnread ? `${stats.unread} notificação${stats.unread > 1 ? 's' : ''} não lida${stats.unread > 1 ? 's' : ''}` : 'Notificações'}
-      </div>
+      {/* Enhanced Tooltip */}
+      {showTooltip && (
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-xs text-white bg-gray-900 dark:bg-gray-800 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 shadow-lg">
+          {hasUnread ? (
+            <div className="space-y-1">
+              <div className="font-semibold">
+                {stats.unread} notificação{stats.unread > 1 ? 's' : ''} não lida{stats.unread > 1 ? 's' : ''}
+              </div>
+              <div className="text-xs text-gray-300 dark:text-gray-400 space-y-0.5">
+                {stats.interactions > 0 && <div>• {stats.interactions} interações</div>}
+                {stats.messages > 0 && <div>• {stats.messages} mensagens</div>}
+                {stats.mentions > 0 && <div>• {stats.mentions} menções</div>}
+                {stats.events > 0 && <div>• {stats.events} eventos</div>}
+                {stats.premium > 0 && <div>• {stats.premium} plano</div>}
+                {stats.system > 0 && <div>• {stats.system} sistema</div>}
+              </div>
+            </div>
+          ) : (
+            'Nenhuma notificação nova'
+          )}
+          
+          {/* Tooltip arrow */}
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900 dark:border-t-gray-800"></div>
+        </div>
+      )}
     </div>
   )
 } 

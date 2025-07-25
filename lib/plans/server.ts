@@ -8,7 +8,7 @@ export class PlanValidator {
   async getUserPlan(userId: string): Promise<{ plan: PlanType; status: string; limits: PlanLimits }> {
     const { data: user, error } = await this.supabase
       .from('users')
-      .select('plano, status_assinatura')
+      .select('premium_type, premium_status')
       .eq('id', userId)
       .single()
     
@@ -16,11 +16,11 @@ export class PlanValidator {
       return { plan: 'free', status: 'inactive', limits: PLAN_LIMITS.free }
     }
     
-    const effectivePlan = getEffectivePlan(user.plano as PlanType, user.status_assinatura)
+    const effectivePlan = getEffectivePlan(user.premium_type as PlanType, user.premium_status)
     
     return {
       plan: effectivePlan,
-      status: user.status_assinatura,
+      status: user.premium_status,
       limits: PLAN_LIMITS[effectivePlan]
     }
   }
@@ -150,6 +150,14 @@ export class PlanValidator {
     return { allowed: true }
   }
   
+  async validatePollCreation(userId: string): Promise<{ allowed: boolean; reason?: string }> {
+    return this.canCreatePoll(userId)
+  }
+  
+  async validateAudioUpload(userId: string): Promise<{ allowed: boolean; reason?: string }> {
+    return this.canUploadAudio(userId)
+  }
+  
   async canUploadAudio(userId: string): Promise<{ allowed: boolean; reason?: string }> {
     const { limits } = await this.getUserPlan(userId)
     
@@ -178,8 +186,9 @@ export class PlanValidator {
       const { count } = await this.supabase
         .from('posts')
         .select('*', { count: 'exact', head: true })
-        .eq('author_id', userId)
-        .not('video_url', 'is', null)
+        .eq('user_id', userId)
+        .not('media_urls', 'is', null)
+        .contains('media_types', '["video"]')
         .gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString())
       
       if (count && count >= limits.maxVideosPerMonth) {
@@ -204,8 +213,9 @@ export class PlanValidator {
       this.supabase
         .from('posts')
         .select('*', { count: 'exact', head: true })
-        .eq('author_id', userId)
-        .not('video_url', 'is', null)
+        .eq('user_id', userId)
+        .not('media_urls', 'is', null)
+        .contains('media_types', '["video"]')
         .gte('created_at', firstDayOfMonth),
       
       this.supabase

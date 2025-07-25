@@ -30,12 +30,24 @@ interface NotificationItemProps {
 function NotificationItem({ notification, onMarkAsRead, onDelete }: NotificationItemProps) {
   const getIcon = () => {
     switch (notification.type) {
-      case "like": return <Heart className="w-4 h-4 text-pink-500" />
-      case "comment": return <MessageCircle className="w-4 h-4 text-blue-500" />
+      case "post_like": return <Heart className="w-4 h-4 text-pink-500" />
+      case "comment_like": return <Heart className="w-4 h-4 text-pink-400" />
+      case "post_comment": return <MessageCircle className="w-4 h-4 text-blue-500" />
+      case "comment_reply": return <MessageCircle className="w-4 h-4 text-blue-400" />
       case "follow": return <UserPlus className="w-4 h-4 text-green-500" />
       case "message": return <MessageCircle className="w-4 h-4 text-purple-500" />
       case "mention": return <AtSign className="w-4 h-4 text-orange-500" />
-      case "event": return <Calendar className="w-4 h-4 text-indigo-500" />
+      case "post_share": return <div className="w-4 h-4 text-blue-600">🔄</div>
+      case "event_invitation": return <Calendar className="w-4 h-4 text-indigo-500" />
+      case "event_reminder": return <Calendar className="w-4 h-4 text-indigo-400" />
+      case "community_post": return <div className="w-4 h-4 text-green-600">👥</div>
+      case "community_invitation": return <div className="w-4 h-4 text-green-500">👥</div>
+      case "subscription_expiring": return <div className="w-4 h-4 text-yellow-500">👑</div>
+      case "payment_success": return <div className="w-4 h-4 text-green-500">💳</div>
+      case "payment_failed": return <div className="w-4 h-4 text-red-500">💳</div>
+      case "verification_approved": return <div className="w-4 h-4 text-green-500">✅</div>
+      case "verification_rejected": return <div className="w-4 h-4 text-red-500">❌</div>
+      case "system": return <Settings className="w-4 h-4 text-gray-500" />
       default: return <Bell className="w-4 h-4 text-gray-500" />
     }
   }
@@ -57,11 +69,16 @@ function NotificationItem({ notification, onMarkAsRead, onDelete }: Notification
       onMarkAsRead(notification.id)
     }
     
-    // Navegar baseado no tipo de notificação
-    if (notification.data?.post_id) {
-      window.location.href = `/posts/${notification.data.post_id}`
-    } else if (notification.data?.user_id) {
-      window.location.href = `/profile/${notification.data.user_id}`
+    // Use action_url if available, otherwise fallback to data navigation
+    if (notification.action_url) {
+      window.location.href = notification.action_url
+    } else if (notification.related_data?.post_id) {
+      window.location.href = `/posts/${notification.related_data.post_id}`
+    } else if (notification.related_data?.user_id || notification.sender_id) {
+      const userId = notification.related_data?.user_id || notification.sender_id
+      window.location.href = `/profile/${userId}`
+    } else if (notification.related_data?.conversation_id) {
+      window.location.href = `/messages/${notification.related_data.conversation_id}`
     }
   }
 
@@ -91,7 +108,7 @@ function NotificationItem({ notification, onMarkAsRead, onDelete }: Notification
               </h4>
               
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 leading-5">
-                {notification.title}
+                {notification.content || notification.title}
               </p>
               
               <div className="flex items-center gap-2 mt-2">
@@ -153,9 +170,15 @@ export function NotificationsContent() {
       case "mentions":
         return notification.type === "mention"
       case "events":
-        return notification.type === "event"
+        return ["event_invitation", "event_reminder"].includes(notification.type)
       case "interactions":
-        return ["like", "comment", "follow"].includes(notification.type)
+        return ["post_like", "post_comment", "comment_like", "comment_reply", "post_share", "follow"].includes(notification.type)
+      case "messages":
+        return notification.type === "message"
+      case "premium":
+        return ["payment_success", "payment_failed", "subscription_expiring"].includes(notification.type)
+      case "system":
+        return ["system", "verification_approved", "verification_rejected"].includes(notification.type)
       default:
         return true
     }
@@ -204,7 +227,7 @@ export function NotificationsContent() {
       {/* Tabs */}
       <div className="border-b border-gray-200 dark:border-gray-700">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="all" className="text-xs">
               Todas
               {stats.total > 0 && (
@@ -221,6 +244,22 @@ export function NotificationsContent() {
                 </Badge>
               )}
             </TabsTrigger>
+            <TabsTrigger value="interactions" className="text-xs">
+              Interações
+              {stats.interactions > 0 && (
+                <Badge variant="secondary" className="ml-1 text-xs">
+                  {stats.interactions}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="messages" className="text-xs">
+              Mensagens
+              {stats.messages > 0 && (
+                <Badge variant="secondary" className="ml-1 text-xs">
+                  {stats.messages}
+                </Badge>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="mentions" className="text-xs">
               Menções
               {stats.mentions > 0 && (
@@ -229,19 +268,19 @@ export function NotificationsContent() {
                 </Badge>
               )}
             </TabsTrigger>
+            <TabsTrigger value="premium" className="text-xs">
+              Plano
+              {stats.premium > 0 && (
+                <Badge variant="secondary" className="ml-1 text-xs">
+                  {stats.premium}
+                </Badge>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="events" className="text-xs">
               Eventos
               {stats.events > 0 && (
                 <Badge variant="secondary" className="ml-1 text-xs">
                   {stats.events}
-                </Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="interactions" className="text-xs">
-              Interações
-              {stats.interactions > 0 && (
-                <Badge variant="secondary" className="ml-1 text-xs">
-                  {stats.interactions}
                 </Badge>
               )}
             </TabsTrigger>

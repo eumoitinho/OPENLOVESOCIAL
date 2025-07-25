@@ -370,11 +370,11 @@ export const ABACATEPAY_STATUS_MAP: Record<AbacatePayStatus, string> = {
 // Configurações por ambiente
 export const ABACATEPAY_ENVIRONMENTS = {
   sandbox: {
-    baseUrl: 'https://api.sandbox.abacatepay.com',
-    checkoutUrl: 'https://checkout.sandbox.abacatepay.com'
+    baseUrl: 'https://api.abacatepay.com/v1',
+    checkoutUrl: 'https://checkout.abacatepay.com'
   },
   production: {
-    baseUrl: 'https://api.abacatepay.com',
+    baseUrl: 'https://api.abacatepay.com/v1',
     checkoutUrl: 'https://checkout.abacatepay.com'
   }
 } as const

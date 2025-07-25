@@ -425,9 +425,9 @@ export default function CreatePost(props: CreatePostProps) {
           <form onSubmit={handlePostSubmit}>
             <div className="flex gap-2 sm:gap-3">
               <Avatar className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0">
-                <AvatarImage src={profile?.avatar || "/placeholder.svg"} alt={profile?.name} />
+                <AvatarImage src={profile?.avatar_url || "/placeholder.svg"} alt={profile?.full_name || profile?.name} />
                 <AvatarFallback className="bg-gradient-to-br from-pink-500 to-purple-600 text-white text-xs sm:text-sm">
-                  {profile?.name?.[0] || "U"}
+                  {(profile?.full_name || profile?.name)?.[0]?.toUpperCase() || "U"}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 space-y-3 min-w-0">

@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { 
-  ABACATEPAY_PRODUCTS, 
-  ABACATEPAY_ENVIRONMENTS,
-  CreateAbacatePayTransactionRequest,
-  type AbacatePayResponse,
-  type AbacatePayTransaction,
-  type PaymentMethod
-} from '@/types/abacatepay'
+import AbacatePaySDK from 'abacatepay-nodejs-sdk'
+import * as AbacatePay from '@/types/abacatepay'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -20,102 +14,29 @@ const supabase = createClient(
   }
 )
 
-const ABACATEPAY_CONFIG = {
-  apiKey: process.env.ABACATEPAY_API_KEY!,
-  environment: (process.env.NODE_ENV === 'production' ? 'production' : 'sandbox') as 'production' | 'sandbox'
-}
-
-class AbacatePayAPI {
-  private baseUrl: string
-  private apiKey: string
-
-  constructor() {
-    this.apiKey = ABACATEPAY_CONFIG.apiKey
-    this.baseUrl = ABACATEPAY_ENVIRONMENTS[ABACATEPAY_CONFIG.environment].baseUrl
-  }
-
-  private async request<T = any>(
-    endpoint: string, 
-    options: RequestInit = {}
-  ): Promise<AbacatePayResponse<T>> {
-    const url = `${this.baseUrl}${endpoint}`
-    
-    const response = await fetch(url, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.apiKey}`,
-        ...options.headers
-      }
-    })
-
-    const data = await response.json()
-    
-    if (!response.ok) {
-      return {
-        success: false,
-        error: {
-          code: data.error?.code || 'unknown_error',
-          message: data.error?.message || 'Erro desconhecido',
-          details: data.error?.details
-        }
-      }
-    }
-
-    return {
-      success: true,
-      data
-    }
-  }
-
-  async createCustomer(customerData: {
-    name: string
-    email: string
-    document?: string
-    phone?: string
-  }) {
-    return this.request('/customers', {
-      method: 'POST',
-      body: JSON.stringify({
-        name: customerData.name,
-        email: customerData.email,
-        document: customerData.document || '000.000.000-00', // CPF placeholder
-        phone: customerData.phone || '11999999999',
-        address: {
-          street: 'Rua Exemplo',
-          number: '123',
-          neighborhood: 'Centro',
-          city: 'São Paulo',
-          state: 'SP',
-          zipcode: '01000-000',
-          country: 'BR'
-        }
-      })
-    })
-  }
-
-  async createTransaction(transactionData: CreateAbacatePayTransactionRequest) {
-    return this.request<AbacatePayTransaction>('/transactions', {
-      method: 'POST',
-      body: JSON.stringify(transactionData)
-    })
-  }
-
-  async getTransaction(transactionId: string) {
-    return this.request<AbacatePayTransaction>(`/transactions/${transactionId}`)
-  }
-}
+// Inicializar SDK do AbacatePay
+const abacatePaySDK = AbacatePaySDK(process.env.ABACATEPAY_API_KEY || '')
 
 export async function POST(request: NextRequest) {
   try {
+    // Verificar se AbacatePay está configurado
+    if (!process.env.ABACATEPAY_API_KEY) {
+      console.error('ABACATEPAY_API_KEY não configurada')
+      return NextResponse.json(
+        { error: 'AbacatePay não está configurado. Configure ABACATEPAY_API_KEY nas variáveis de ambiente.' },
+        { status: 503 }
+      )
+    }
+
     const { 
       plan, 
       userId, 
       email,
-      paymentMethod = 'pix',
       successUrl,
       cancelUrl 
     } = await request.json()
+
+    console.log('AbacatePay configurado, processando pagamento para plano:', plan)
 
     // Validar entrada
     if (!plan || !userId || !email) {
@@ -126,7 +47,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar se o plano existe
-    const planConfig = ABACATEPAY_PRODUCTS[plan as keyof typeof ABACATEPAY_PRODUCTS]
+    const planConfig = AbacatePay.ABACATEPAY_PRODUCTS[plan as keyof typeof AbacatePay.ABACATEPAY_PRODUCTS]
     if (!planConfig) {
       return NextResponse.json(
         { error: 'Plano inválido' },
@@ -134,96 +55,58 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verificar método de pagamento
-    const validPaymentMethods: PaymentMethod[] = ['pix', 'credit_card', 'boleto']
-    if (!validPaymentMethods.includes(paymentMethod)) {
-      return NextResponse.json(
-        { error: 'Método de pagamento inválido' },
-        { status: 400 }
-      )
-    }
-
-    const abacatePay = new AbacatePayAPI()
-
-    // Tentar buscar usuário no banco
+    // Buscar dados do usuário
     const { data: userData } = await supabase
       .from('users')
-      .select('abacatepay_customer_id, name, email')
+      .select('name, email, first_name, last_name')
       .eq('id', userId)
       .single()
 
-    let customerId = userData?.abacatepay_customer_id
+    const userName = userData?.name || `${userData?.first_name || ''} ${userData?.last_name || ''}`.trim() || 'Usuário OpenLove'
+    const userEmail = userData?.email || email
 
-    // Criar cliente no AbacatePay se não existir
-    if (!customerId) {
-      const customerResult = await abacatePay.createCustomer({
-        name: userData?.name || 'Usuário OpenLove',
-        email: userData?.email || email
-      })
+    // Determinar URLs corretas
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const returnUrl = successUrl || `${baseUrl}/timeline?payment=success`
+    const webhookUrl = `${baseUrl}/api/abacatepay/webhook`
+    
+    console.log('URLs configuradas:', { baseUrl, returnUrl, webhookUrl })
 
-      if (!customerResult.success) {
-        return NextResponse.json(
-          { error: `Erro ao criar cliente: ${customerResult.error?.message}` },
-          { status: 400 }
-        )
+    // Criar cobrança usando o SDK oficial
+    const billing = await abacatePaySDK.billing.create({
+      frequency: "ONE_TIME",
+      methods: ["PIX"],
+      products: [{
+        externalId: `PLAN_${plan.toUpperCase()}`,
+        name: planConfig.name,
+        quantity: 1,
+        price: planConfig.price! // Preço em centavos
+      }],
+      returnUrl: returnUrl,
+      customer: {
+        name: userName,
+        email: userEmail,
+        cellphone: "+5511999999999", // Placeholder - idealmente vir do cadastro
+        taxId: "09240529020" // Placeholder - idealmente vir do cadastro
       }
+      // Removendo completionUrl temporariamente para testar
+    })
 
-      customerId = customerResult.data.id
+    console.log('AbacatePay Billing Response:', JSON.stringify(billing, null, 2))
 
-      // Atualizar o banco se o usuário existir
-      if (userData) {
-        await supabase
-          .from('users')
-          .update({ 
-            abacatepay_customer_id: customerId,
-            payment_provider: 'abacatepay'
-          })
-          .eq('id', userId)
-      }
-    }
-
-    // Criar transação
-    const transactionRequest: CreateAbacatePayTransactionRequest = {
-      customer_id: customerId,
-      amount: planConfig.price!,
-      currency: 'BRL',
-      description: `${planConfig.name} - ${planConfig.description}`,
-      external_reference: `openlove_${userId}_${Date.now()}`,
-      payment_method: paymentMethod,
-      expires_in_minutes: paymentMethod === 'pix' ? 30 : undefined,
-      return_url: successUrl || `${process.env.NEXT_PUBLIC_APP_URL}/timeline?payment=success`,
-      notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/abacatepay/webhook`,
-      metadata: {
-        user_id: userId,
-        plan: plan,
-        environment: ABACATEPAY_CONFIG.environment
-      }
-    }
-
-    const transactionResult = await abacatePay.createTransaction(transactionRequest)
-
-    if (!transactionResult.success) {
-      return NextResponse.json(
-        { error: `Erro ao criar transação: ${transactionResult.error?.message}` },
-        { status: 400 }
-      )
-    }
-
-    const transaction = transactionResult.data
-
-    // Salvar transação no banco (opcional)
+    // Salvar transação no banco
     try {
       await supabase
         .from('transactions')
         .insert({
-          id: transaction.id,
+          id: billing.id,
           user_id: userId,
           provider: 'abacatepay',
-          provider_transaction_id: transaction.id,
-          amount: transaction.amount,
-          currency: transaction.currency,
-          status: transaction.status,
-          payment_method: transaction.payment_method,
+          provider_transaction_id: billing.id,
+          amount: planConfig.price!,
+          currency: 'BRL',
+          status: 'pending',
+          payment_method: 'pix',
           plan: plan,
           created_at: new Date().toISOString()
         })
@@ -232,32 +115,27 @@ export async function POST(request: NextRequest) {
       // Não falhar a operação por causa disso
     }
 
-    // Preparar resposta baseada no método de pagamento
-    const response: any = {
+    // Verificar se a URL de pagamento foi retornada
+    const paymentUrl = billing.url || billing.payment_url || billing.checkoutUrl || billing.checkout_url
+    
+    if (!paymentUrl) {
+      console.error('URL de pagamento não encontrada na resposta:', billing)
+      return NextResponse.json(
+        { error: 'Erro ao gerar URL de pagamento. Verifique a configuração do AbacatePay.' },
+        { status: 500 }
+      )
+    }
+
+    // Retornar resposta com URL de pagamento
+    return NextResponse.json({
       success: true,
-      transaction_id: transaction.id,
-      status: transaction.status,
-      amount: transaction.amount,
-      currency: transaction.currency,
-      payment_method: transaction.payment_method,
-      expires_at: transaction.expires_at
-    }
-
-    if (paymentMethod === 'pix' && transaction.pix_qr_code) {
-      response.pix = {
-        qr_code: transaction.pix_qr_code,
-        qr_code_base64: transaction.pix_qr_code_base64,
-        copy_paste_code: transaction.payment_details?.method === 'pix' 
-          ? (transaction.payment_details as any).copy_paste_code 
-          : null
-      }
-    }
-
-    if (transaction.checkout_url) {
-      response.checkout_url = transaction.checkout_url
-    }
-
-    return NextResponse.json(response)
+      billing_id: billing.id,
+      payment_url: paymentUrl,
+      amount: planConfig.price!,
+      currency: 'BRL',
+      plan: plan,
+      status: 'pending'
+    })
 
   } catch (error) {
     console.error('Erro no checkout AbacatePay:', error)
@@ -272,32 +150,25 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const transactionId = searchParams.get('transaction_id')
+    const billingId = searchParams.get('billing_id')
     
-    if (!transactionId) {
+    if (!billingId) {
       return NextResponse.json(
-        { error: 'ID da transação é obrigatório' },
+        { error: 'ID da cobrança é obrigatório' },
         { status: 400 }
       )
     }
 
-    const abacatePay = new AbacatePayAPI()
-    const result = await abacatePay.getTransaction(transactionId)
-
-    if (!result.success) {
-      return NextResponse.json(
-        { error: result.error?.message },
-        { status: 400 }
-      )
-    }
+    // Buscar informações da cobrança usando o SDK
+    const billing = await abacatePaySDK.billing.retrieve(billingId)
 
     return NextResponse.json({
       success: true,
-      transaction: result.data
+      billing: billing
     })
 
   } catch (error) {
-    console.error('Erro ao buscar transação:', error)
+    console.error('Erro ao buscar cobrança:', error)
     
     return NextResponse.json(
       { error: 'Erro interno do servidor' },

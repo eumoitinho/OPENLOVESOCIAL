@@ -11,8 +11,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
+    // Primeiro, buscar os IDs dos usuários que o usuário atual já segue
+    const { data: followingIds } = await supabase
+      .from('follows')
+      .select('following_id')
+      .eq('follower_id', user.id)
+
+    const excludeIds = [user.id, ...(followingIds?.map(f => f.following_id) || [])]
+
     // Buscar usuários que o usuário atual não segue
-    const { data: suggestedUsers, error } = await supabase
+    let query = supabase
       .from('users')
       .select(`
         id,
@@ -27,14 +35,17 @@ export async function GET(request: NextRequest) {
         created_at
       `)
       .neq('id', user.id) // Excluir o próprio usuário
-      .not('id', 'in', `(
-        SELECT following_id 
-        FROM follows 
-        WHERE follower_id = '${user.id}'
-      )`) // Excluir usuários já seguidos
       .eq('is_active', true)
       .order('created_at', { ascending: false })
       .limit(10)
+
+    // Se há usuários sendo seguidos, excluir da consulta
+    if (followingIds && followingIds.length > 0) {
+      const followingIdsList = followingIds.map(f => f.following_id)
+      query = query.not('id', 'in', `(${followingIdsList.map(id => `'${id}'`).join(',')})`)
+    }
+
+    const { data: suggestedUsers, error } = await query
 
     if (error) {
       console.error('Erro ao buscar usuários sugeridos:', error)

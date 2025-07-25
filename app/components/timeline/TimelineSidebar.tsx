@@ -88,7 +88,7 @@ export function TimelineSidebar({
   onShowModeration,
   onShowProfileEditor
 }: TimelineSidebarProps) {
-  const { user, signOut } = useAuth()
+  const { user, profile, signOut } = useAuth()
   const { stats } = useNotifications(user?.id)
   const { stats: messageStats } = useMessageStats(user?.id)
 
@@ -441,20 +441,20 @@ export function TimelineSidebar({
                     className="w-full justify-start gap-3 xs:gap-4 text-left h-12 xs:h-14 px-3 xs:px-4 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200"
                   >
                     <Avatar className="w-8 h-8 xs:w-10 xs:h-10 border-2 border-gray-200 dark:border-gray-600">
-                      <AvatarImage src={user.user_metadata?.avatar_url || "/placeholder-user.jpg"} alt={user.user_metadata?.full_name || user.email} />
+                      <AvatarImage src={profile?.avatar_url || user.user_metadata?.avatar_url || "/placeholder-user.jpg"} alt={profile?.full_name || user.user_metadata?.full_name || user.email} />
                       <AvatarFallback className="text-xs xs:text-sm font-semibold">
-                        {user.user_metadata?.full_name 
-                          ? user.user_metadata.full_name.split(' ').map((n: string) => n[0]).join('')
+                        {(profile?.full_name || user.user_metadata?.full_name)
+                          ? (profile?.full_name || user.user_metadata.full_name).split(' ').map((n: string) => n[0]).join('')
                           : user.email?.charAt(0).toUpperCase()
                         }
                       </AvatarFallback>
                     </Avatar>
                     <div className="hidden lg:flex flex-col items-start text-left">
                       <span className="text-sm font-semibold text-gray-900 dark:text-white truncate max-w-[150px]">
-                        {user.user_metadata?.full_name || 'Usuário'}
+                        {profile?.full_name || user.user_metadata?.full_name || 'Usuário'}
                       </span>
                       <span className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[150px]">
-                        @{user.user_metadata?.username || user.email?.split('@')[0]}
+                        @{profile?.username || user.user_metadata?.username || user.email?.split('@')[0]}
                       </span>
                     </div>
                     <ChevronDown className="hidden lg:block w-4 h-4 text-gray-500 dark:text-gray-400 ml-auto" />
@@ -462,9 +462,9 @@ export function TimelineSidebar({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-56">
                   <div className="px-2 py-1.5">
-                    <p className="text-sm font-medium">{user.user_metadata?.full_name || 'Usuário'}</p>
+                    <p className="text-sm font-medium">{profile?.full_name || user.user_metadata?.full_name || 'Usuário'}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      @{user.user_metadata?.username || user.email?.split('@')[0]}
+                      @{profile?.username || user.user_metadata?.username || user.email?.split('@')[0]}
                     </p>
                   </div>
                   <DropdownMenuSeparator />

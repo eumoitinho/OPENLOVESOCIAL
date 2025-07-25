@@ -16,6 +16,7 @@ export default function CheckoutPage() {
   const plano = searchParams.get("plano") as "gold" | "diamond" | "diamond_annual"
   const userId = searchParams.get("userId")
   const email = searchParams.get("email")
+  const isUpgrade = searchParams.get("upgrade") === "true"
 
   useEffect(() => {
     // Se não tiver userId e email (vindo do signup), verificar se o usuário está logado
@@ -92,10 +93,13 @@ export default function CheckoutPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Finalizar Assinatura
+            {isUpgrade ? "Upgrade de Plano" : "Finalizar Assinatura"}
           </h1>
           <p className="text-gray-600">
-            Complete seu pagamento para acessar o plano {plano === "gold" ? "Gold" : plano === "diamond" ? "Diamond" : "Diamond Anual"}
+            {isUpgrade 
+              ? `Faça o upgrade para o plano ${plano === "gold" ? "Gold" : plano === "diamond" ? "Diamond" : "Diamond Anual"}`
+              : `Complete seu pagamento para acessar o plano ${plano === "gold" ? "Gold" : plano === "diamond" ? "Diamond" : "Diamond Anual"}`
+            }
           </p>
         </div>
 
@@ -106,11 +110,12 @@ export default function CheckoutPage() {
               planType={plano}
               userEmail={currentEmail}
               userId={currentUserId}
+              isUpgrade={isUpgrade}
               onSuccess={() => {
                 setSuccess(true)
                 // Redirecionar para timeline após sucesso
                 setTimeout(() => {
-                  router.push('/timeline?payment=success')
+                  router.push('/timeline?payment=success&upgrade=' + isUpgrade)
                 }, 2000)
               }}
               onError={(error: string) => setError(error)}

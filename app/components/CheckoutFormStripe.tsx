@@ -12,11 +12,12 @@ interface CheckoutFormStripeProps {
   planType: keyof typeof STRIPE_PRODUCTS
   userEmail: string
   userId: string
+  isUpgrade?: boolean
   onSuccess?: () => void
   onError?: (error: string) => void
 }
 
-function CheckoutFormContent({ planType, userEmail, userId, onSuccess, onError }: CheckoutFormStripeProps) {
+function CheckoutFormContent({ planType, userEmail, userId, isUpgrade = false, onSuccess, onError }: CheckoutFormStripeProps) {
   const stripe = useStripe()
   const elements = useElements()
   const [loading, setLoading] = useState(false)
