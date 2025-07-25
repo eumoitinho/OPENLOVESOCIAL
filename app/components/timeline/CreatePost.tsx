@@ -782,26 +782,45 @@ export default function CreatePost(props: CreatePostProps) {
                                   : "",
                               )}
                             />
-                          <AnimatePresence initial={false}>
-                            {(selectedOptions.includes(option.id) ||
-                              (option.id === "image" && images.length > 0) ||
-                              (option.id === "video" && video) ||
-                              (option.id === "audio" && (audio || showAudioRecorder)) ||
-                              (option.id === "enquete" && showPoll)) && (
-                              <motion.span
-                                variants={spanVariants as any}
-                                initial="initial"
-                                animate="animate"
-                                exit="exit"
-                                transition={transition as any}
-                                className="overflow-hidden text-pink-600 dark:text-pink-400 ml-1"
-                              >
-                                {option.title}
-                              </motion.span>
-                            )}
-                          </AnimatePresence>
-                        </motion.button>
-                      ))}
+                            <AnimatePresence initial={false}>
+                              {isSelected && (
+                                <motion.span
+                                  variants={spanVariants as any}
+                                  initial="initial"
+                                  animate="animate"
+                                  exit="exit"
+                                  transition={transition as any}
+                                  className="overflow-hidden text-pink-600 dark:text-pink-400 ml-1"
+                                >
+                                  {option.title}
+                                </motion.span>
+                              )}
+                            </AnimatePresence>
+                          </motion.button>
+                        )
+
+                        // Aplicar badge premium para funcionalidades premium
+                        if (option.premium && !isPremium) {
+                          const featureMap: { [key: string]: any } = {
+                            'audio': 'canSendAudio',
+                            'enquete': 'hasAdvancedAnalytics'  // ou outra feature apropriada
+                          }
+                          
+                          return (
+                            <PremiumLockBadge
+                              key={option.id}
+                              feature={featureMap[option.id] || 'canSendMedia'}
+                              size="sm"
+                              disabled={true}
+                              onUpgradeClick={() => window.location.href = '/upgrade'}
+                            >
+                              {ButtonComponent}
+                            </PremiumLockBadge>
+                          )
+                        }
+
+                        return ButtonComponent
+                      })}
                     </div>
 
                     <div className="flex items-center gap-2">

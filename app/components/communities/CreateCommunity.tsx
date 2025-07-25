@@ -20,6 +20,7 @@ import {
 import { useAuth } from '@/components/auth/AuthProvider'
 import { useCanAccess } from '@/lib/plans/hooks'
 import LocationPicker from '../location/LocationPicker'
+import PremiumLockBadge from '@/app/components/premium/PremiumLockBadge'
 
 interface CreateCommunityProps {
   onClose: () => void

@@ -27,6 +27,8 @@ const supabase = await createRouteHandlerClient()
         name: user.user_metadata?.full_name || "Usuário",
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
+        is_active: true,
+        premium_type: 'free'
       })
       .select()
       .single()

@@ -41,7 +41,8 @@ export async function POST(request: NextRequest) {
           name: user.user_metadata?.full_name || "Usuário",
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-          premium_type: 'free'
+          premium_type: 'free',
+          is_active: true
         })
       if (insertError) {
         console.error("Erro ao criar perfil na tabela users:", insertError)
