@@ -7,19 +7,20 @@ export const metadata: Metadata = {
 }
 
 interface SearchPageProps {
-  searchParams: {
+  searchParams: Promise<{
     q?: string
     type?: string
     interests?: string
-  }
+  }>
 }
 
-export default function SearchPage({ searchParams }: SearchPageProps) {
+export default async function SearchPage({ searchParams }: SearchPageProps) {
+  const params = await searchParams
   return (
     <SearchContent
-      initialQuery={searchParams.q || ""}
-      initialType={searchParams.type || "users"}
-      initialInterests={searchParams.interests?.split(",") || []}
+      initialQuery={params.q || ""}
+      initialType={params.type || "users"}
+      initialInterests={params.interests?.split(",") || []}
     />
   )
 }
