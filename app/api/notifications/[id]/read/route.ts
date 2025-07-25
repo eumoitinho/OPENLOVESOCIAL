@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createClient(
@@ -31,7 +31,7 @@ export async function POST(
       )
     }
 
-    const notificationId = params.id
+    const { id: notificationId } = await params
 
     // Marcar notificação específica como lida
     const { data, error } = await supabase
