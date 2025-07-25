@@ -16,10 +16,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    // Get user from database
+    const { data: currentUser, error: dbUserError } = await supabase
+      .from('users')
+      .select('id, username, name, avatar_url, is_verified, is_premium')
+      .eq('auth_id', user.id)
+      .single()
+
+    if (dbUserError || !currentUser) {
+      return NextResponse.json({ error: "User not found in database" }, { status: 404 })
+    }
+
     const body = await request.json()
     const { type, postId, content } = body
 
-    console.log("[Interactions API] Tipo:", type, "PostId:", postId)
+    console.log("[Interactions API] Tipo:", type, "PostId:", postId, "UserId:", currentUser.id)
 
     if (type === "like") {
       // Check if already liked
@@ -28,7 +39,7 @@ export async function POST(request: NextRequest) {
         .select("id")
         .eq("target_type", "post")
         .eq("target_id", postId)
-        .eq("user_id", user.id)
+        .eq("user_id", currentUser.id)
         .single()
 
       if (existingLike) {
@@ -38,7 +49,7 @@ export async function POST(request: NextRequest) {
           .delete()
           .eq("target_type", "post")
           .eq("target_id", postId)
-          .eq("user_id", user.id)
+          .eq("user_id", currentUser.id)
 
         if (deleteError) {
           console.error("Error unliking post:", deleteError)
@@ -65,7 +76,7 @@ export async function POST(request: NextRequest) {
           .insert({
             target_type: "post",
             target_id: postId,
-            user_id: user.id,
+            user_id: currentUser.id,
           })
 
         if (insertError) {
@@ -101,7 +112,7 @@ export async function POST(request: NextRequest) {
         .from("comments")
         .insert({
           post_id: postId,
-          user_id: user.id, // ✅ Usar user_id conforme seu banco
+          user_id: currentUser.id,
           content: content.trim(),
         })
         .select()
@@ -112,24 +123,17 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Failed to create comment" }, { status: 500 })
       }
 
-      // Get author profile
-      const { data: profile } = await supabase
-        .from("users")
-        .select("username, name, avatar_url") // ✅ Usar 'name' não 'full_name'
-        .eq("id", user.id)
-        .single()
-
       const formattedComment = {
         id: comment.id,
         content: comment.content,
         createdAt: comment.created_at,
         author: {
-          id: user.id,
-          name: profile?.name || "Usuário", // ✅ Usar 'name'
-          username: profile?.username || "unknown",
-          avatar: profile?.avatar_url || "/placeholder.svg", // ✅ Usar avatar_url
-          verified: false, // TODO: Buscar is_verified se necessário
-          premium: false,  // TODO: Buscar is_premium se necessário
+          id: currentUser.id,
+          name: currentUser.name || "Usuário",
+          username: currentUser.username || "unknown",
+          avatar: currentUser.avatar_url || "/placeholder.svg",
+          verified: currentUser.is_verified || false,
+          premium: currentUser.is_premium || false,
         },
       }
 

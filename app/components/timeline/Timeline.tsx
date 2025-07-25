@@ -1217,11 +1217,10 @@ export default function Timeline() {
 // Componente para editar perfil inline
 interface MyProfileEditorProps {
   user: any
-  authLoading: boolean
   goBack: () => void
 }
 
-const MyProfileEditor = ({ user, authLoading, goBack }: MyProfileEditorProps) => {
+const MyProfileEditor = ({ user, goBack }: MyProfileEditorProps) => {
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(false)
   const [profile, setProfile] = useState<any>(null)
@@ -1250,10 +1249,10 @@ const MyProfileEditor = ({ user, authLoading, goBack }: MyProfileEditorProps) =>
 
   // Buscar dados do perfil ao carregar
   useEffect(() => {
-    if (user && !authLoading) {
+    if (user) {
       fetchProfile()
     }
-  }, [user, authLoading])
+  }, [user])
 
   const fetchProfile = async () => {
     try {
@@ -1270,8 +1269,8 @@ const MyProfileEditor = ({ user, authLoading, goBack }: MyProfileEditorProps) =>
             lastName: data.last_name || "",
             birthDate: data.birth_date || "",
             profileType: data.profile_type || "single",
-            seeking: data.seeking ? JSON.parse(data.seeking) : [],
-            interests: data.interests ? JSON.parse(data.interests) : [],
+            seeking: data.seeking ? (typeof data.seeking === 'string' ? JSON.parse(data.seeking) : data.seeking) : [],
+            interests: data.interests ? (typeof data.interests === 'string' ? JSON.parse(data.interests) : data.interests) : [],
             otherInterest: data.other_interest || "",
             bio: data.bio || "",
             partner: {
@@ -1384,59 +1383,10 @@ const MyProfileEditor = ({ user, authLoading, goBack }: MyProfileEditorProps) =>
     }
   }
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen">
-        <div className="flex items-center mb-4">
-          <Button variant="ghost" onClick={goBack} className="mr-4">
-            ← Voltar
-          </Button>
-          <h1 className="text-2xl font-bold">Meu Perfil</h1>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500 mx-auto mb-4"></div>
-            <p className="text-gray-600 dark:text-gray-400">Carregando perfil...</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen">
-        <div className="flex items-center mb-4">
-          <Button variant="ghost" onClick={goBack} className="mr-4">
-            ← Voltar
-          </Button>
-          <h1 className="text-2xl font-bold">Meu Perfil</h1>
-        </div>
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
-          <div className="text-center">
-            <User className="h-16 w-16 mx-auto mb-4 text-gray-400" />
-            <h2 className="text-xl font-bold mb-2">Usuário não autenticado</h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Faça login para ver seu perfil
-            </p>
-            <Button onClick={() => window.location.href = '/auth/signin'}>
-              Fazer Login
-            </Button>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="min-h-screen">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center">
-          <Button variant="ghost" onClick={goBack} className="mr-4">
-            ← Voltar
-          </Button>
-          <h1 className="text-2xl font-bold">Meu Perfil</h1>
-        </div>
+    <div className="space-y-6">
+      {/* Header with Edit Button */}
+      <div className="flex items-center justify-between">
         <Button 
           variant={isEditing ? "outline" : "default"}
           onClick={() => {
