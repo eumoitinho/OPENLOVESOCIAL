@@ -18,16 +18,16 @@ export async function GET(request: NextRequest) {
         id,
         title,
         description,
-        event_date,
-        location,
+        start_date,
+        location_name,
         max_participants,
         category,
-        image_url,
+        cover_image_url,
         created_by,
         created_at
       `)
-      .gte('event_date', new Date().toISOString()) // Eventos futuros
-      .order('event_date', { ascending: true })
+      .gte('start_date', new Date().toISOString()) // Eventos futuros
+      .order('start_date', { ascending: true })
       .limit(5)
 
     if (error) {
@@ -50,11 +50,11 @@ export async function GET(request: NextRequest) {
       return {
         id: event.id,
         title: event.title || 'Evento',
-        date: new Date(event.event_date).toLocaleDateString('pt-BR'),
-        location: event.location || 'Local não informado',
+        date: new Date(event.start_date).toLocaleDateString('pt-BR'),
+        location: event.location_name || 'Local não informado',
         attendees: 0, // Será calculado separadamente
         maxAttendees: event.max_participants || 50,
-        image: event.image_url || '/placeholder.jpg',
+        image: event.cover_image_url || '/placeholder.jpg',
         category: event.category || 'Geral',
         sharedBy: {
           name: creator?.name || 'Usuário',

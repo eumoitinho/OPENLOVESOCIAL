@@ -6,6 +6,8 @@ export class PlanValidator {
   private supabase = createSupabaseAdmin()
   
   async getUserPlan(userId: string): Promise<{ plan: PlanType; status: string; limits: PlanLimits }> {
+    console.log('🔍 Buscando plano para usuário:', userId)
+    
     const { data: user, error } = await this.supabase
       .from('users')
       .select('premium_type, premium_status')
@@ -13,20 +15,64 @@ export class PlanValidator {
       .single()
     
     if (error || !user) {
+      console.log('❌ Erro ou usuário não encontrado:', error?.message || 'Usuário não encontrado')
       return { plan: 'free', status: 'inactive', limits: PLAN_LIMITS.free }
     }
     
-    const effectivePlan = getEffectivePlan(user.premium_type as PlanType, user.premium_status)
+    console.log('👤 Dados do usuário encontrados:', { 
+      premium_type: user.premium_type, 
+      premium_status: user.premium_status 
+    })
+    
+    // Garantir que premium_type seja válido
+    const userPlanType = user.premium_type as PlanType
+    const planType = userPlanType && PLAN_LIMITS[userPlanType] ? userPlanType : 'free'
+    
+    const effectivePlan = getEffectivePlan(planType, user.premium_status || 'inactive')
+    const limits = PLAN_LIMITS[effectivePlan]
+    
+    if (!limits) {
+      console.error('❌ Limites não encontrados para plano:', effectivePlan)
+      return { plan: 'free', status: 'inactive', limits: PLAN_LIMITS.free }
+    }
+    
+    console.log('✅ Plano efetivo determinado:', { 
+      plan: effectivePlan, 
+      status: user.premium_status,
+      limits: {
+        maxImages: limits.maxImages,
+        maxVideoSize: limits.maxVideoSize
+      }
+    })
     
     return {
       plan: effectivePlan,
-      status: user.premium_status,
-      limits: PLAN_LIMITS[effectivePlan]
+      status: user.premium_status || 'inactive',
+      limits
     }
   }
   
   async canUploadMedia(userId: string, imageCount: number, videoSize: number): Promise<{ allowed: boolean; reason?: string }> {
-    const { limits } = await this.getUserPlan(userId)
+    console.log('🔍 Validando upload de mídia para usuário:', userId, { imageCount, videoSize })
+    
+    const planData = await this.getUserPlan(userId)
+    const { limits } = planData
+    
+    if (!limits) {
+      console.error('❌ Limites não encontrados, usando padrão free')
+      const freeLimits = PLAN_LIMITS.free
+      return { 
+        allowed: false, 
+        reason: `Máximo de ${freeLimits.maxImages} imagens permitido para plano gratuito` 
+      }
+    }
+    
+    console.log('📊 Verificando limites:', {
+      imageCount,
+      maxImages: limits.maxImages,
+      videoSize,
+      maxVideoSize: limits.maxVideoSize
+    })
     
     if (imageCount > limits.maxImages) {
       return { 
@@ -42,6 +88,7 @@ export class PlanValidator {
       }
     }
     
+    console.log('✅ Upload aprovado')
     return { allowed: true }
   }
   

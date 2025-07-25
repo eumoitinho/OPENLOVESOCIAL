@@ -219,6 +219,19 @@ export default function SignUp() {
 
     setLoading(true)
     try {
+      // 1. Converter imagens para base64 se existirem
+      let avatarBase64 = null
+      let coverBase64 = null
+      
+      if (profileImageUrl) {
+        console.log("Enviando avatar:", profileImageUrl.substring(0, 50) + "...")
+        avatarBase64 = profileImageUrl
+      }
+      
+      if (coverImageUrl) {
+        console.log("Enviando capa:", coverImageUrl.substring(0, 50) + "...")
+        coverBase64 = coverImageUrl
+      }
 
       // 2. Enviar dados para a API de registro
       const response = await fetch('/api/auth/register', {
@@ -245,8 +258,8 @@ export default function SignUp() {
           longitude: selectedLocation?.longitude || null,
           plan: formData.selectedPlan,
           partner: null,
-          avatar_url: profileImageUrl,
-          cover_url: coverImageUrl
+          avatar_url: avatarBase64,
+          cover_url: coverBase64
         }),
       })
 

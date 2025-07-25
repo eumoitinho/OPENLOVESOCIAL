@@ -46,16 +46,68 @@ function normalizeUF(uf: string): string | null {
   return UF_MAPPING[normalizedUF] || uf.substring(0, 2).toUpperCase()
 }
 
+// Função para garantir que os buckets existem
+async function ensureBucketsExist(supabase: any) {
+  const buckets = ['avatars', 'covers']
+  
+  for (const bucketName of buckets) {
+    try {
+      // Verificar se o bucket existe
+      const { data: existingBuckets, error: listError } = await supabase.storage.listBuckets()
+      
+      if (listError) {
+        console.error('Erro ao listar buckets:', listError)
+        continue
+      }
+      
+      const bucketExists = existingBuckets?.some((bucket: any) => bucket.name === bucketName)
+      
+      if (!bucketExists) {
+        console.log(`Criando bucket: ${bucketName}`)
+        const { data, error } = await supabase.storage.createBucket(bucketName, {
+          public: true,
+          allowedMimeTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+          fileSizeLimit: 10485760, // 10MB
+        })
+        
+        if (error) {
+          console.error(`Erro ao criar bucket ${bucketName}:`, error)
+        } else {
+          console.log(`Bucket ${bucketName} criado com sucesso`)
+        }
+      } else {
+        console.log(`Bucket ${bucketName} já existe`)
+      }
+    } catch (error) {
+      console.error(`Erro ao verificar/criar bucket ${bucketName}:`, error)
+    }
+  }
+}
+
 // Função para processar imagem base64 e fazer upload
 async function processImageUpload(supabase: any, imageBase64: string, userId: string, type: 'avatar' | 'cover' = 'avatar'): Promise<string | null> {
   try {
     console.log(`Iniciando upload de ${type} para usuário ${userId}`)
+    console.log(`Dados recebidos (${type}):`, imageBase64?.substring(0, 50) + '...')
+    
+    if (!imageBase64) {
+      console.log(`Nenhuma imagem fornecida para ${type}`)
+      return null
+    }
+    
+    // Verificar se é uma URL base64 válida
+    if (!imageBase64.startsWith('data:image/')) {
+      console.error(`Formato inválido para ${type}. Esperado data:image/...`)
+      return null
+    }
     
     // Remover o prefixo data:image/...;base64, se existir
     const base64Data = imageBase64.replace(/^data:image\/[a-z]+;base64,/, '')
     
     // Converter base64 para buffer
     const buffer = Buffer.from(base64Data, 'base64')
+    
+    console.log(`Buffer criado para ${type}, tamanho:`, buffer.length, 'bytes')
     
     // Determinar extensão baseada no tipo de imagem
     let fileExt = 'jpg'
@@ -72,6 +124,9 @@ async function processImageUpload(supabase: any, imageBase64: string, userId: st
     
     console.log(`Fazendo upload para bucket: ${bucketName}, arquivo: ${fileName}`)
     
+    // Garantir que os buckets existem
+    await ensureBucketsExist(supabase)
+    
     // Upload para o Supabase Storage
     const { data, error } = await supabase.storage
       .from(bucketName)
@@ -83,6 +138,7 @@ async function processImageUpload(supabase: any, imageBase64: string, userId: st
 
     if (error) {
       console.error(`Erro no upload da ${type}:`, error)
+      console.error(`Detalhes do erro:`, JSON.stringify(error, null, 2))
       return null
     }
 
@@ -97,6 +153,7 @@ async function processImageUpload(supabase: any, imageBase64: string, userId: st
     return publicUrl
   } catch (error) {
     console.error(`Erro ao processar upload da ${type}:`, error)
+    console.error(`Stack trace:`, (error as Error).stack)
     return null
   }
 }
@@ -234,7 +291,7 @@ export async function POST(req: NextRequest) {
         uf: normalizedUF,
         latitude: latitude ? parseFloat(latitude) : null,
         longitude: longitude ? parseFloat(longitude) : null,
-        premium_type: selectedPlan === 'free' ? null : selectedPlan,
+        premium_type: selectedPlan || 'free',
         premium_status: subscriptionStatus,
         partner: profileType === "couple" && partner ? partner : null,
         is_premium: selectedPlan !== 'free',
@@ -310,7 +367,7 @@ export async function POST(req: NextRequest) {
       uf: normalizedUF,
       latitude: latitude ? parseFloat(latitude) : null,
       longitude: longitude ? parseFloat(longitude) : null,
-      premium_type: selectedPlan === 'free' ? null : selectedPlan,
+      premium_type: selectedPlan || 'free',
       premium_status: subscriptionStatus,
       partner: profileType === "couple" && partner ? partner : null,
       is_premium: selectedPlan !== 'free',

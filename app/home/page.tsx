@@ -382,18 +382,28 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-    if (authLoading) return;
+    // Aguardar o AuthProvider terminar de carregar
+    if (authLoading) {
+      console.log("HomePage: AuthProvider ainda carregando, aguardando...");
+      return;
+    }
 
-    // Se o contexto já garante usuário autenticado, não é necessário redirecionar aqui
-    if (user && !user.email_confirmed_at) {
+    // Se não há usuário após carregar, não fazer nada (middleware deve redirecionar)
+    if (!user) {
+      console.log("HomePage: Nenhum usuário encontrado após AuthProvider carregar");
+      return;
+    }
+
+    // Verificar se email está confirmado
+    if (!user.email_confirmed_at) {
+      console.log("HomePage: Email não confirmado, redirecionando...");
       router.push("/auth/signin?email=unconfirmed");
       return;
     }
 
-    if (user) {
-      fetchPosts();
-    }
-  }, [authLoading, user, router, session]);
+    console.log("HomePage: Usuário autenticado, carregando posts...", user.email);
+    fetchPosts();
+  }, [authLoading, user, router]);
 
   // Ad tracking
   const handleAdClick = (adId: string) => {
