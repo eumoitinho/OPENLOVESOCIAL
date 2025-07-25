@@ -63,6 +63,7 @@ export async function GET(request: NextRequest) {
         content,
         media_urls,
         media_types,
+        poll_options,
         hashtags,
         mentions,
         visibility,
@@ -237,8 +238,22 @@ export async function GET(request: NextRequest) {
         liked: postLikes.includes(user.id),
         comments: postComments.length,
         commentsCount: postComments.length,
-        images: post.media_urls || [],
-        video: post.media_types?.includes('video') ? post.media_urls?.[0] : null,
+        images: post.media_urls?.filter((_, index) => post.media_types?.[index] === 'image') || [],
+        video: post.media_urls?.find((_, index) => post.media_types?.[index] === 'video') || null,
+        audio: post.media_urls?.find((_, index) => post.media_types?.[index] === 'audio') || null,
+        poll: post.poll_options ? {
+          id: post.id,
+          question: "Enquete",
+          options: post.poll_options.map((option, index) => ({
+            id: `${post.id}-${index}`,
+            text: option,
+            votes: 0,
+            percentage: 0
+          })),
+          totalVotes: 0,
+          userVote: null,
+          expiresAt: null
+        } : null,
         event: post.is_event ? post.event_details : null,
         shares: (post.stats?.shares) || 0,
         reposts: 0,

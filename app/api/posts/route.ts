@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     const supabase = await createRouteHandlerClient()
     const supabaseStorage = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
     // Verificar autenticação e timeout de sessão
     const { user, error: authError } = await verifyAuth()
@@ -89,6 +89,7 @@ export async function POST(request: NextRequest) {
         // Bucket já existe ou erro de permissão - continuar
         console.log("Bucket 'media' já existe ou erro ao criar:", (bucketError as any).message)
       }
+
 
       // Processar imagens
       for (const img of images) {

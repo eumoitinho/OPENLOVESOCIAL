@@ -69,6 +69,46 @@ export async function POST(
       return NextResponse.json({ error: "Erro ao seguir usuário" }, { status: 500 })
     }
 
+    // Verificar se seguir mutuamente resulta em sugestão de amizade
+    const { data: mutualFollow } = await supabase
+      .from("follows")
+      .select("id")
+      .eq("follower_id", targetUserId)
+      .eq("following_id", currentUser.id)
+      .eq("status", "active")
+      .single()
+
+    // Se há seguimento mútuo e ainda não são amigos, sugerir amizade
+    if (mutualFollow) {
+      const { data: existingFriendship } = await supabase
+        .from("friends")
+        .select("id")
+        .or(`and(user_id.eq.${currentUser.id},friend_id.eq.${targetUserId}),and(user_id.eq.${targetUserId},friend_id.eq.${currentUser.id})`)
+        .single()
+
+      if (!existingFriendship) {
+        // Criar notificação sugerindo amizade
+        await supabase
+          .from("notifications")
+          .insert({
+            recipient_id: currentUser.id,
+            sender_id: null,
+            type: "system",
+            title: "Sugestão de amizade",
+            content: `Você e ${targetUser.name || targetUser.username} se seguem mutuamente. Que tal enviar uma solicitação de amizade?`,
+            icon: "Users",
+            related_data: {
+              suggested_friend_id: targetUserId,
+              username: targetUser.username,
+              name: targetUser.name,
+              avatar_url: targetUser.avatar_url
+            },
+            action_text: "Enviar solicitação",
+            action_url: `/profile/${targetUser.username || targetUserId}`
+          })
+      }
+    }
+
     // Atualizar contadores
     const currentFollowers = targetUser.stats?.followers || 0
     await supabase
@@ -124,7 +164,8 @@ export async function POST(
       message: "Usuário seguido com sucesso",
       data: {
         isFollowing: true,
-        followersCount: currentFollowers + 1
+        followersCount: currentFollowers + 1,
+        mutualFollow: !!mutualFollow
       }
     })
 

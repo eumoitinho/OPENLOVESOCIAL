@@ -126,20 +126,26 @@ export default function CreatePost(props: CreatePostProps) {
 
   const postOptions: PostOption[] = [
     { id: "image", title: "Imagem", icon: ImageIcon },
-    { id: "video", title: "Vídeo", icon: Video },
+    { 
+      id: "video", 
+      title: "Vídeo", 
+      icon: Video,
+      premium: userPlan === "free", // Vídeo é premium para usuários free
+      description: "Upload de vídeos (plano Gold ou superior)"
+    },
     { 
       id: "audio", 
       title: "Áudio", 
       icon: Mic, 
-      premium: true,
-      description: "Gravar áudio (apenas assinantes)"
+      premium: userPlan === "free",
+      description: "Gravar áudio (plano Gold ou superior)"
     },
     { 
       id: "enquete", 
       title: "Enquete", 
       icon: BarChart3, 
-      premium: true,
-      description: "Criar enquete (apenas assinantes)"
+      premium: userPlan === "free",
+      description: "Criar enquetes (plano Gold ou superior)"
     },
   ]
 
@@ -802,8 +808,9 @@ export default function CreatePost(props: CreatePostProps) {
                         // Aplicar badge premium para funcionalidades premium
                         if (option.premium && !isPremium) {
                           const featureMap: { [key: string]: any } = {
-                            'audio': 'canSendAudio',
-                            'enquete': 'hasAdvancedAnalytics'  // ou outra feature apropriada
+                            'audio': 'canUploadAudio',
+                            'video': 'canUploadVideo', 
+                            'enquete': 'canCreatePolls'
                           }
                           
                           return (
@@ -812,7 +819,7 @@ export default function CreatePost(props: CreatePostProps) {
                               feature={featureMap[option.id] || 'canSendMedia'}
                               size="sm"
                               disabled={true}
-                              onUpgradeClick={() => window.location.href = '/upgrade'}
+                              onUpgradeClick={() => window.location.href = '/pricing'}
                             >
                               {ButtonComponent}
                             </PremiumLockBadge>

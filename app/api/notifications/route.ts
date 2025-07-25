@@ -1,31 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createRouteHandlerClient } from "@/app/lib/supabase-server"
 
 export async function GET(req: NextRequest) {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabase = await createRouteHandlerClient()
 
-    // Extrair token de autorização
-    const authHeader = req.headers.get('authorization')
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    // Verificar autenticação
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
       return NextResponse.json(
-        { error: 'Token de autorização não fornecido' },
+        { error: 'Não autorizado' },
         { status: 401 }
       )
     }
 
-    const token = authHeader.replace('Bearer ', '')
+    // Buscar ID do usuário atual na tabela users
+    const { data: currentUser, error: userError } = await supabase
+      .from("users")
+      .select("id")
+      .eq("auth_id", user.id)
+      .single()
 
-    // Verificar token e obter usuário
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Token inválido' },
-        { status: 401 }
-      )
+    if (userError || !currentUser) {
+      return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 })
     }
 
     // Parâmetros de consulta
@@ -38,8 +35,28 @@ export async function GET(req: NextRequest) {
     // Construir query
     let query = supabase
       .from('notifications')
-      .select('*')
-      .eq('user_id', user.id)
+      .select(`
+        id,
+        type,
+        title,
+        content,
+        icon,
+        related_data,
+        action_text,
+        action_url,
+        is_read,
+        is_deleted,
+        created_at,
+        sender:users!sender_id (
+          id,
+          username,
+          name,
+          avatar_url,
+          is_verified
+        )
+      `)
+      .eq('recipient_id', currentUser.id)
+      .eq('is_deleted', false)
       .order('created_at', { ascending: false })
 
     // Filtrar por tipo se especificado
@@ -66,18 +83,44 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // Buscar estatísticas
-    const { data: stats } = await supabase
-      .rpc('get_notification_stats', { p_user_id: user.id })
+    // Buscar contador de não lidas
+    const { data: unreadCount, error: countError } = await supabase
+      .from("notifications")
+      .select("id", { count: 'exact' })
+      .eq("recipient_id", currentUser.id)
+      .eq("is_read", false)
+      .eq("is_deleted", false)
+
+    // Formatar notificações
+    const formattedNotifications = notifications?.map((notif: any) => ({
+      id: notif.id,
+      type: notif.type,
+      title: notif.title,
+      content: notif.content,
+      icon: notif.icon,
+      isRead: notif.is_read,
+      createdAt: notif.created_at,
+      actionText: notif.action_text,
+      actionUrl: notif.action_url,
+      relatedData: notif.related_data,
+      sender: notif.sender ? {
+        id: notif.sender.id,
+        username: notif.sender.username,
+        name: notif.sender.name,
+        avatar: notif.sender.avatar_url,
+        verified: notif.sender.is_verified || false
+      } : null
+    })) || []
 
     return NextResponse.json({
-      notifications: notifications || [],
-      stats: stats || { total: 0, unread: 0, by_type: {} },
+      data: formattedNotifications,
       pagination: {
         page,
         limit,
-        hasMore: (notifications?.length || 0) === limit
-      }
+        total_pages: Math.ceil((unreadCount?.length || 0) / limit),
+        has_next: formattedNotifications.length === limit
+      },
+      unread_count: unreadCount?.length || 0
     })
 
   } catch (error) {
@@ -91,27 +134,23 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+    const supabase = await createRouteHandlerClient()
     
-    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
-    })
-
     // Verificar autenticação
-    const authHeader = req.headers.get('authorization')
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: "Token de autenticação necessário" }, { status: 401 })
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    const token = authHeader.replace('Bearer ', '')
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-    
-    if (authError || !user) {
-      return NextResponse.json({ error: "Token inválido" }, { status: 401 })
+    // Buscar ID do usuário atual na tabela users
+    const { data: currentUser, error: userError } = await supabase
+      .from("users")
+      .select("id")
+      .eq("auth_id", user.id)
+      .single()
+
+    if (userError || !currentUser) {
+      return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 })
     }
 
     const body = await req.json()
@@ -148,14 +187,16 @@ export async function POST(req: NextRequest) {
         const { error: createError } = await supabase
           .from('notifications')
           .insert({
-            user_id: finalTargetUserId,
-            sender_id: user.id,
+            recipient_id: finalTargetUserId,
+            sender_id: currentUser.id,
             type: type,
             title: title,
             content: content,
-            related_post_id: relatedPostId,
-            related_comment_id: relatedCommentId,
-            related_user_id: relatedUserId,
+            related_data: {
+              post_id: relatedPostId,
+              comment_id: relatedCommentId,
+              user_id: relatedUserId
+            },
             is_read: false
           })
 
@@ -178,9 +219,9 @@ export async function POST(req: NextRequest) {
 
         const { error: updateError } = await supabase
           .from('notifications')
-          .update({ is_read: true })
+          .update({ is_read: true, read_at: new Date().toISOString() })
           .in('id', notificationIds)
-          .eq('user_id', user.id)
+          .eq('recipient_id', currentUser.id)
 
         if (updateError) {
           console.error("Erro ao marcar notificações como lidas:", updateError)
@@ -195,8 +236,8 @@ export async function POST(req: NextRequest) {
       case 'mark_all_read':
         const { error: markAllError } = await supabase
           .from('notifications')
-          .update({ is_read: true })
-          .eq('user_id', user.id)
+          .update({ is_read: true, read_at: new Date().toISOString() })
+          .eq('recipient_id', currentUser.id)
           .eq('is_read', false)
 
         if (markAllError) {
@@ -219,9 +260,9 @@ export async function POST(req: NextRequest) {
 
         const { error: deleteError } = await supabase
           .from('notifications')
-          .delete()
+          .update({ is_deleted: true })
           .in('id', notificationIds)
-          .eq('user_id', user.id)
+          .eq('recipient_id', currentUser.id)
 
         if (deleteError) {
           console.error("Erro ao deletar notificações:", deleteError)
@@ -242,12 +283,14 @@ export async function POST(req: NextRequest) {
         }
 
         const { error: settingsError } = await supabase
-          .from('notification_settings')
-          .upsert({
-            user_id: user.id,
-            ...settings,
-            updated_at: new Date().toISOString()
+          .from('users')
+          .update({
+            notification_settings: {
+              ...settings,
+              updated_at: new Date().toISOString()
+            }
           })
+          .eq('id', currentUser.id)
 
         if (settingsError) {
           console.error("Erro ao atualizar configurações:", settingsError)

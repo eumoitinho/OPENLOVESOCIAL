@@ -17,19 +17,24 @@ interface PremiumLockBadgeProps {
   disabled?: boolean
 }
 
-// Mapear funcionalidades para planos necessários
+// Mapear funcionalidades para planos necessários (baseado em lib/plans/config.ts)
 const FEATURE_REQUIREMENTS = {
   canSendMessages: 'gold' as PlanType,
   canSendMedia: 'gold' as PlanType,
-  canSendAudio: 'diamond' as PlanType,
-  canSendVideo: 'diamond' as PlanType,
-  canMakeVoiceCalls: 'diamond' as PlanType,
+  canSendAudio: 'gold' as PlanType,
+  canSendVideo: 'gold' as PlanType,
+  canMakeVoiceCalls: 'gold' as PlanType,
   canMakeVideoCalls: 'diamond' as PlanType,
+  canUploadAudio: 'gold' as PlanType,
+  canUploadVideo: 'gold' as PlanType,
   canCreateEvents: 'gold' as PlanType,
-  canCreateCommunities: 'diamond' as PlanType,
+  canCreateCommunities: 'gold' as PlanType,
+  canCreatePolls: 'gold' as PlanType,
+  canCreatePaidContent: 'diamond' as PlanType,
+  canAccessAnalytics: 'gold' as PlanType,
+  canGetVerifiedBadge: 'diamond' as PlanType,
   hasAdvancedAnalytics: 'diamond' as PlanType,
   hasCustomColors: 'diamond' as PlanType,
-  hasVerifiedBadge: 'diamond' as PlanType,
   hasNoAds: 'gold' as PlanType,
   canExportData: 'diamond' as PlanType,
   hasAdvancedModeration: 'diamond' as PlanType
@@ -37,18 +42,23 @@ const FEATURE_REQUIREMENTS = {
 
 const FEATURE_DESCRIPTIONS = {
   canSendMessages: 'Envie mensagens privadas ilimitadas',
-  canSendMedia: 'Compartilhe fotos e mídias',
+  canSendMedia: 'Compartilhe fotos e mídias nas mensagens',
   canSendAudio: 'Envie mensagens de áudio',
   canSendVideo: 'Compartilhe vídeos nas mensagens',
-  canMakeVoiceCalls: 'Faça chamadas de voz',
-  canMakeVideoCalls: 'Faça chamadas de vídeo',
+  canMakeVoiceCalls: 'Faça chamadas de voz ilimitadas',
+  canMakeVideoCalls: 'Faça chamadas de vídeo HD',
+  canUploadAudio: 'Faça upload de áudios nos posts',
+  canUploadVideo: 'Faça upload de vídeos nos posts',
   canCreateEvents: 'Crie eventos exclusivos',
   canCreateCommunities: 'Crie suas próprias comunidades',
-  hasAdvancedAnalytics: 'Acesse analytics avançados',
+  canCreatePolls: 'Crie enquetes interativas',
+  canCreatePaidContent: 'Monetize seu conteúdo',
+  canAccessAnalytics: 'Veja estatísticas básicas',
+  canGetVerifiedBadge: 'Tenha verificação oficial',
+  hasAdvancedAnalytics: 'Analytics detalhados e insights',
   hasCustomColors: 'Personalize cores do perfil',
-  hasVerifiedBadge: 'Tenha verificação oficial',
   hasNoAds: 'Navegue sem anúncios',
-  canExportData: 'Exporte seus dados',
+  canExportData: 'Exporte seus dados completos',
   hasAdvancedModeration: 'Ferramentas avançadas de moderação'
 }
 

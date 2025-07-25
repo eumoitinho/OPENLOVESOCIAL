@@ -5,25 +5,40 @@ import { motion } from "framer-motion"
 import { Upload, X, File, Image, Music, Video, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
+import PremiumLockBadge from "@/app/components/premium/PremiumLockBadge"
+import { usePremiumFeatures } from "@/lib/hooks/usePremiumFeatures"
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void
   maxFileSize?: number // em MB
   acceptedTypes?: string[]
   className?: string
+  fileType?: 'image' | 'video' | 'audio' | 'document' // Para determinar feature premium
 }
 
 export function FileUpload({ 
   onFileSelect, 
   maxFileSize = 10, 
   acceptedTypes = ['image/*', 'video/*', 'audio/*', '.pdf', '.doc', '.docx'],
-  className 
+  className,
+  fileType = 'document'
 }: FileUploadProps) {
   const [dragActive, setDragActive] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const { features } = usePremiumFeatures()
+
+  // Mapear tipo de arquivo para feature premium
+  const getFeatureByFileType = (type: string) => {
+    if (type === 'video') return 'canSendVideo'
+    if (type === 'audio') return 'canSendAudio' 
+    return 'canSendMedia'
+  }
+
+  const currentFeature = getFeatureByFileType(fileType)
+  const hasAccess = features[currentFeature as keyof typeof features] as boolean
 
   const validateFile = (file: File) => {
     setError(null)
@@ -108,7 +123,7 @@ export function FileUpload({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
   }
 
-  return (
+  const uploadComponent = (
     <div className={className}>
       {/* Área de Upload */}
       <div
@@ -118,17 +133,19 @@ export function FileUpload({
             ? 'border-pink-500 bg-pink-50 dark:bg-pink-950/10' 
             : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
           }
+          ${!hasAccess ? 'opacity-50' : ''}
         `}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
+        onDrop={hasAccess ? handleDrop : undefined}
+        onDragOver={hasAccess ? handleDragOver : undefined}
+        onDragLeave={hasAccess ? handleDragLeave : undefined}
       >
         <input
           ref={fileInputRef}
           type="file"
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-          onChange={(e) => handleFileSelect(e.target.files)}
+          className={`absolute inset-0 w-full h-full opacity-0 ${hasAccess ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+          onChange={hasAccess ? (e) => handleFileSelect(e.target.files) : undefined}
           accept={acceptedTypes.join(',')}
+          disabled={!hasAccess}
         />
 
         <div className="space-y-4">
@@ -184,4 +201,20 @@ export function FileUpload({
       )}
     </div>
   )
+
+  // Se não tem acesso, envolver com PremiumLockBadge
+  if (!hasAccess) {
+    return (
+      <PremiumLockBadge
+        feature={currentFeature as any}
+        size="md"
+        disabled
+        onUpgradeClick={() => window.location.href = '/pricing'}
+      >
+        {uploadComponent}
+      </PremiumLockBadge>
+    )
+  }
+
+  return uploadComponent
 } 

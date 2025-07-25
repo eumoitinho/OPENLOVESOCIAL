@@ -120,6 +120,19 @@ export default function PostCard({
   followState = "follow",
   currentUser = { name: "Usuário", username: "@usuario", avatar: "/placeholder.svg" }
 }: PostCardProps) {
+  
+  // Debug dos dados do post
+  console.log("[PostCard] Post data:", {
+    id: post.id,
+    hasImages: post.images?.length,
+    images: post.images,
+    hasVideo: !!post.video,
+    video: post.video,
+    hasAudio: !!post.audio,
+    audio: post.audio,
+    hasPoll: !!post.poll,
+    poll: post.poll
+  })
   // Estados básicos
   const [commentsOpen, setCommentsOpen] = useState(false)
   const [mediaViewerOpen, setMediaViewerOpen] = useState(false)
