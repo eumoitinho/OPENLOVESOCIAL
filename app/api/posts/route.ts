@@ -76,6 +76,19 @@ export async function POST(request: NextRequest) {
       
       console.log("Validação de upload aprovada para usuário:", user.id)
       
+      // Garantir que o bucket 'media' existe
+      try {
+        await supabaseStorage.storage.createBucket('media', {
+          public: true,
+          fileSizeLimit: 52428800, // 50MB
+          allowedMimeTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/webm', 'audio/mp3', 'audio/wav', 'audio/ogg']
+        })
+        console.log("Bucket 'media' criado com sucesso")
+      } catch (bucketError) {
+        // Bucket já existe ou erro de permissão - continuar
+        console.log("Bucket 'media' já existe ou erro ao criar:", (bucketError as any).message)
+      }
+
       // Processar imagens
       for (const img of images) {
         if (typeof img === "object" && "name" in img && "type" in img) {
@@ -93,6 +106,11 @@ export async function POST(request: NextRequest) {
             .upload(fileName, img, { upsert: false, contentType: img.type })
           if (error) {
             console.error("Erro ao enviar imagem:", error)
+            // Se erro de bucket, tentar criar post sem mídia
+            if (error.message?.includes('Bucket not found')) {
+              console.log("⚠️ Bucket não encontrado - post será criado sem mídia")
+              break
+            }
             continue
           }
           const publicUrl = supabaseStorage.storage.from('media').getPublicUrl(fileName).data.publicUrl

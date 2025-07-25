@@ -29,6 +29,7 @@ import Compressor from "compressorjs"
 import { usePaywall } from '@/lib/plans/paywall'
 import PaywallModal from '@/components/plan-limits/PaywallModal'
 import { useCanAccess } from '@/lib/plans/hooks'
+import PremiumLockBadge from '@/app/components/premium/PremiumLockBadge'
 
 interface PostOption {
   id: string
@@ -746,51 +747,41 @@ export default function CreatePost(props: CreatePostProps) {
                       ))}
 
                       {/* Post Options */}
-                      {postOptions.map((option) => (
-                        <motion.button
-                          key={option.id}
-                          type="button"
-                          variants={buttonVariants as any}
-                          initial={false}
-                          animate="animate"
-                          custom={
-                            selectedOptions.includes(option.id) ||
-                            (option.id === "image" && images.length > 0) ||
-                            (option.id === "video" && video) ||
-                            (option.id === "audio" && (audio || showAudioRecorder)) ||
-                            (option.id === "enquete" && showPoll)
-                          }
-                          onClick={() => handleOptionClick(option.id)}
-                          transition={transition as any}
-                          className={cn(
-                            "relative flex items-center rounded-lg px-2 sm:px-3 py-1.5 sm:py-2",
-                            "text-xs sm:text-sm font-medium transition-colors duration-300",
-                            selectedOptions.includes(option.id) ||
-                              (option.id === "image" && images.length > 0) ||
-                              (option.id === "video" && video) ||
-                              (option.id === "audio" && (audio || showAudioRecorder)) ||
-                              (option.id === "enquete" && showPoll)
-                              ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                              : "text-gray-500 dark:text-gray-400 hover:bg-pink-50 hover:text-pink-600 dark:hover:bg-pink-900/20 dark:hover:text-pink-400",
-                            !isPremium && option.premium && "opacity-50 cursor-not-allowed"
-                          )}
-                          title={option.premium && !isPremium ? "Funcionalidade disponível apenas para assinantes" : undefined}
-                        >
-                          <option.icon
-                            size={14}
+                      {postOptions.map((option) => {
+                        const isSelected = selectedOptions.includes(option.id) ||
+                          (option.id === "image" && images.length > 0) ||
+                          (option.id === "video" && video) ||
+                          (option.id === "audio" && (audio || showAudioRecorder)) ||
+                          (option.id === "enquete" && showPoll)
+                        
+                        const ButtonComponent = (
+                          <motion.button
+                            key={option.id}
+                            type="button"
+                            variants={buttonVariants as any}
+                            initial={false}
+                            animate="animate"
+                            custom={isSelected}
+                            onClick={() => handleOptionClick(option.id)}
+                            transition={transition as any}
                             className={cn(
-                              selectedOptions.includes(option.id) ||
-                                (option.id === "image" && images.length > 0) ||
-                                (option.id === "video" && video) ||
-                                (option.id === "audio" && (audio || showAudioRecorder)) ||
-                                (option.id === "enquete" && showPoll)
-                                ? "text-pink-600 dark:text-pink-400"
-                                : "",
+                              "relative flex items-center rounded-lg px-2 sm:px-3 py-1.5 sm:py-2",
+                              "text-xs sm:text-sm font-medium transition-colors duration-300",
+                              isSelected
+                                ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                                : "text-gray-500 dark:text-gray-400 hover:bg-pink-50 hover:text-pink-600 dark:hover:bg-pink-900/20 dark:hover:text-pink-400",
+                              !isPremium && option.premium && "opacity-50 cursor-not-allowed"
                             )}
-                          />
-                          {option.premium && !isPremium && (
-                            <Lock size={10} className="ml-1 text-gray-400" />
-                          )}
+                            title={option.premium && !isPremium ? "Funcionalidade disponível apenas para assinantes" : undefined}
+                          >
+                            <option.icon
+                              size={14}
+                              className={cn(
+                                isSelected
+                                  ? "text-pink-600 dark:text-pink-400"
+                                  : "",
+                              )}
+                            />
                           <AnimatePresence initial={false}>
                             {(selectedOptions.includes(option.id) ||
                               (option.id === "image" && images.length > 0) ||

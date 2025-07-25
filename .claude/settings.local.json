@@ -37,7 +37,8 @@
       "Bash(mkdir:*)",
       "Bash(npm install:*)",
       "Bash(pnpm install:*)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(timeout 15 npm run dev)"
     ],
     "deny": []
   }

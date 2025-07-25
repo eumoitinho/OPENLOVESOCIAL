@@ -167,7 +167,7 @@ export async function GET(request: NextRequest) {
         stats
       `)
       .neq("id", user.id) // Excluir usuário atual
-      .eq("is_active", true) // Apenas usuários ativos
+      // Remover filtro is_active para mostrar todos os perfis
 
     // Filtros por gênero
     if (gender !== "all") {
