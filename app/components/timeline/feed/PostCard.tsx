@@ -18,6 +18,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
+import { SecureImage } from "@/app/components/security/SecureImage"
+import { useAuth } from "@/app/components/auth/AuthProvider"
 
 // Definindo os tipos para o post, que podem ser movidos para um arquivo de tipos futuramente
 // (e.g., types/database.ts ou types/timeline.ts)
@@ -69,6 +71,12 @@ const formatNumber = (num: number) => {
 }
 
 export function PostCard({ post, index, onLike, onComment, onShare, onToggleFollow }: PostCardProps) {
+  // Hook de autenticação para obter usuário atual
+  const { profile } = useAuth()
+  
+  // Username do visualizador para marca d'água
+  const viewerUsername = profile?.username || 'usuario'
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -152,10 +160,13 @@ export function PostCard({ post, index, onLike, onComment, onShare, onToggleFoll
             })}
           </p>
           {post.image && (
-            <img
+            <SecureImage
               src={post.image}
               alt="Post image"
               className="w-full rounded-xl object-cover border border-openlove-200 shadow-sm"
+              viewerUsername={viewerUsername}
+              watermarkDensity={4}
+              watermarkOpacity={0.12}
             />
           )}
           {post.isEvent && post.eventDetails && (

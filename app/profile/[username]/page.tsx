@@ -34,14 +34,20 @@ interface Profile {
   cover_url?: string
   location?: string
   birth_date?: string
+  gender?: 'male' | 'female' | 'couple' | 'other'
+  relationship_status?: string
   interests?: string[]
   created_at: string
   is_premium?: boolean
   is_verified?: boolean
+  premium_type?: 'free' | 'premium' | 'diamante'
   stats?: {
     posts?: number
     followers?: number
     following?: number
+    friends?: number
+    events?: number
+    communities?: number
     profile_views?: number
   }
 }
@@ -65,6 +71,9 @@ export default function UserProfile() {
 
   const [profile, setProfile] = useState<Profile | null>(null)
   const [posts, setPosts] = useState<Post[]>([])
+  const [events, setEvents] = useState<any[]>([])
+  const [communities, setCommunities] = useState<any[]>([])
+  const [friends, setFriends] = useState<any[]>([])
   const [isFollowing, setIsFollowing] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -90,6 +99,9 @@ export default function UserProfile() {
       const data = await response.json()
       setProfile(data.profile)
       setPosts(data.posts || [])
+      setEvents(data.events || [])
+      setCommunities(data.communities || [])
+      setFriends(data.friends || [])
       setIsFollowing(data.is_following || false)
       setIsOwnProfile(currentUser?.id === data.profile?.id)
     } catch (err: any) {
@@ -120,6 +132,9 @@ export default function UserProfile() {
             followers: isFollowing ? (prev.stats?.followers || 0) - 1 : (prev.stats?.followers || 0) + 1,
             posts: prev.stats?.posts || 0,
             following: prev.stats?.following || 0,
+            friends: prev.stats?.friends || 0,
+            events: prev.stats?.events || 0,
+            communities: prev.stats?.communities || 0,
             profile_views: prev.stats?.profile_views || 0
           }
         } : null)
@@ -173,20 +188,66 @@ export default function UserProfile() {
     return age
   }
 
+  const getGenderIcon = (gender?: string) => {
+    switch (gender) {
+      case 'male': return 'lucide:mars'
+      case 'female': return 'lucide:venus'
+      case 'couple': return 'lucide:heart'
+      default: return 'lucide:user'
+    }
+  }
+
+  const getGenderLabel = (gender?: string) => {
+    switch (gender) {
+      case 'male': return 'Homem'
+      case 'female': return 'Mulher'
+      case 'couple': return 'Casal'
+      default: return 'Não informado'
+    }
+  }
+
+  const getPremiumBadge = (premiumType?: string) => {
+    switch (premiumType) {
+      case 'diamante':
+        return (
+          <Badge color="secondary" variant="flat" size="sm">
+            <Icon icon="lucide:diamond" className="w-3 h-3" />
+            <span className="ml-1">Diamante</span>
+          </Badge>
+        )
+      case 'premium':
+        return (
+          <Badge color="warning" variant="flat" size="sm">
+            <Icon icon="lucide:crown" className="w-3 h-3" />
+            <span className="ml-1">Premium</span>
+          </Badge>
+        )
+      default:
+        return null
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-4xl mx-auto p-2 sm:p-4">
         <Card className="overflow-visible">
           <CardBody className="p-0">
             {/* Cover Image */}
-            <div className="relative h-32 sm:h-48 md:h-64">
+            <div className="relative h-40 sm:h-56 md:h-72">
               <Image
                 removeWrapper
                 alt="Profile cover"
                 className="object-cover w-full h-full"
-                src={profile.cover_url || "https://img.heroui.chat/image/landscape?w=1200&h=400&u=1"}
+                src={profile.cover_url || "https://images.unsplash.com/photo-1519681393784-d120c3b35b5e?w=1200&h=400&fit=crop"}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
+              
+              {/* Premium Badge no Canto */}
+              {profile.is_premium && (
+                <div className="absolute top-4 right-4">
+                  {getPremiumBadge(profile.premium_type)}
+                </div>
+              )}
             </div>
             
             {/* Profile Info */}
@@ -201,20 +262,28 @@ export default function UserProfile() {
                     className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 -mt-8 sm:-mt-10 md:-mt-12 z-10"
                   />
                   <div className="ml-3 sm:ml-4">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <h1 className="text-xl sm:text-2xl font-bold">{profile.name}</h1>
                       {profile.is_verified && (
                         <Badge color="success" variant="flat" size="sm">
                           <Icon icon="lucide:check" className="w-3 h-3" />
+                          <span className="ml-1 hidden sm:inline">Verificado</span>
                         </Badge>
                       )}
-                      {profile.is_premium && (
-                        <Badge color="warning" variant="flat" size="sm">
-                          <Icon icon="lucide:crown" className="w-3 h-3" />
-                        </Badge>
+                      {profile.is_premium && getPremiumBadge(profile.premium_type)}
+                    </div>
+                    <div className="flex items-center gap-2 text-small text-default-500">
+                      <span>@{profile.username}</span>
+                      {profile.gender && (
+                        <>
+                          <span>•</span>
+                          <div className="flex items-center gap-1">
+                            <Icon icon={getGenderIcon(profile.gender)} className="w-3 h-3" />
+                            <span>{getGenderLabel(profile.gender)}</span>
+                          </div>
+                        </>
                       )}
                     </div>
-                    <p className="text-small text-default-500">@{profile.username}</p>
                   </div>
                 </div>
                 
@@ -245,7 +314,7 @@ export default function UserProfile() {
               )}
               
               {/* Profile Details */}
-              <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-3 sm:mt-4 text-small text-default-500">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3 sm:mt-4 text-small text-default-500">
                 {profile.location && (
                   <div className="flex items-center gap-1">
                     <Icon icon="lucide:map-pin" className="w-4 h-4" />
@@ -254,43 +323,61 @@ export default function UserProfile() {
                 )}
                 {profile.birth_date && (
                   <div className="flex items-center gap-1">
-                    <Icon icon="lucide:calendar" className="w-4 h-4" />
-                    <span className="text-xs sm:text-sm">
-                      {getAge(profile.birth_date)} anos • Entrou em {formatDate(profile.created_at)}
-                    </span>
+                    <Icon icon="lucide:cake" className="w-4 h-4" />
+                    <span className="text-xs sm:text-sm">{getAge(profile.birth_date)} anos</span>
                   </div>
                 )}
+                {profile.relationship_status && (
+                  <div className="flex items-center gap-1">
+                    <Icon icon="lucide:heart" className="w-4 h-4" />
+                    <span className="text-xs sm:text-sm">{profile.relationship_status}</span>
+                  </div>
+                )}
+                <div className="flex items-center gap-1">
+                  <Icon icon="lucide:calendar-days" className="w-4 h-4" />
+                  <span className="text-xs sm:text-sm">Entrou em {formatDate(profile.created_at)}</span>
+                </div>
               </div>
               
               <Divider className="my-3 sm:my-4" />
               
               {/* Stats */}
-              <div className="flex justify-between">
-                <div className="flex gap-4 sm:gap-6">
-                  <div className="text-center">
-                    <p className="font-semibold text-sm sm:text-base">
-                      {profile.stats?.posts?.toLocaleString() || "0"}
-                    </p>
-                    <p className="text-xs sm:text-small text-default-500">Posts</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="font-semibold text-sm sm:text-base">
-                      {profile.stats?.followers?.toLocaleString() || "0"}
-                    </p>
-                    <p className="text-xs sm:text-small text-default-500">Seguidores</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="font-semibold text-sm sm:text-base">
-                      {profile.stats?.following?.toLocaleString() || "0"}
-                    </p>
-                    <p className="text-xs sm:text-small text-default-500">Seguindo</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="font-semibold text-sm sm:text-base">
-                      {profile.stats?.profile_views?.toLocaleString() || "0"}
-                    </p>
-                    <p className="text-xs sm:text-small text-default-500">Visualizações</p>
-                  </div>
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 text-center">
+                <div>
+                  <p className="font-semibold text-sm sm:text-base">
+                    {profile.stats?.posts?.toLocaleString() || "0"}
+                  </p>
+                  <p className="text-xs text-default-500">Posts</p>
+                </div>
+                <div>
+                  <p className="font-semibold text-sm sm:text-base">
+                    {profile.stats?.followers?.toLocaleString() || "0"}
+                  </p>
+                  <p className="text-xs text-default-500">Seguidores</p>
+                </div>
+                <div>
+                  <p className="font-semibold text-sm sm:text-base">
+                    {profile.stats?.following?.toLocaleString() || "0"}
+                  </p>
+                  <p className="text-xs text-default-500">Seguindo</p>
+                </div>
+                <div>
+                  <p className="font-semibold text-sm sm:text-base">
+                    {profile.stats?.friends?.toLocaleString() || "0"}
+                  </p>
+                  <p className="text-xs text-default-500">Amigos</p>
+                </div>
+                <div>
+                  <p className="font-semibold text-sm sm:text-base">
+                    {profile.stats?.events?.toLocaleString() || "0"}
+                  </p>
+                  <p className="text-xs text-default-500">Eventos</p>
+                </div>
+                <div>
+                  <p className="font-semibold text-sm sm:text-base">
+                    {profile.stats?.communities?.toLocaleString() || "0"}
+                  </p>
+                  <p className="text-xs text-default-500">Comunidades</p>
                 </div>
               </div>
             </div>
@@ -306,7 +393,12 @@ export default function UserProfile() {
           selectedKey={activeTab}
           onSelectionChange={(key) => setActiveTab(key as string)}
         >
-          <Tab key="posts" title="Posts">
+          <Tab key="posts" title={
+            <div className="flex items-center gap-2">
+              <Icon icon="lucide:file-text" className="w-4 h-4" />
+              <span>Posts</span>
+            </div>
+          }>
             <Card>
               <CardBody>
                 {posts.length > 0 ? (
@@ -355,23 +447,143 @@ export default function UserProfile() {
             </Card>
           </Tab>
           
-          <Tab key="media" title="Mídia">
+          <Tab key="events" title={
+            <div className="flex items-center gap-2">
+              <Icon icon="lucide:calendar" className="w-4 h-4" />
+              <span>Eventos</span>
+            </div>
+          }>
+            <Card>
+              <CardBody>
+                {events.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {events.map((event) => (
+                      <Card key={event.id} className="shadow-sm">
+                        <CardBody className="p-4">
+                          <div className="flex items-start gap-3">
+                            <div className="bg-primary-100 p-2 rounded-lg">
+                              <Icon icon="lucide:calendar-days" className="w-5 h-5 text-primary" />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-sm">{event.title}</h4>
+                              <p className="text-xs text-default-500 mt-1">{event.description}</p>
+                              <div className="flex items-center gap-2 mt-2 text-xs text-default-400">
+                                <Icon icon="lucide:clock" className="w-3 h-3" />
+                                <span>{formatDate(event.date)}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </CardBody>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Icon icon="lucide:calendar" className="w-12 h-12 mx-auto text-default-400 mb-4" />
+                    <p className="text-default-500">Nenhum evento ainda</p>
+                  </div>
+                )}
+              </CardBody>
+            </Card>
+          </Tab>
+          
+          <Tab key="communities" title={
+            <div className="flex items-center gap-2">
+              <Icon icon="lucide:users" className="w-4 h-4" />
+              <span>Comunidades</span>
+            </div>
+          }>
+            <Card>
+              <CardBody>
+                {communities.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {communities.map((community) => (
+                      <Card key={community.id} className="shadow-sm">
+                        <CardBody className="p-4">
+                          <div className="flex items-start gap-3">
+                            <Avatar
+                              size="sm"
+                              src={community.avatar}
+                              className="flex-shrink-0"
+                            />
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-sm">{community.name}</h4>
+                              <p className="text-xs text-default-500 mt-1">{community.description}</p>
+                              <div className="flex items-center gap-2 mt-2 text-xs text-default-400">
+                                <Icon icon="lucide:users" className="w-3 h-3" />
+                                <span>{community.members_count} membros</span>
+                              </div>
+                            </div>
+                          </div>
+                        </CardBody>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Icon icon="lucide:users" className="w-12 h-12 mx-auto text-default-400 mb-4" />
+                    <p className="text-default-500">Nenhuma comunidade ainda</p>
+                  </div>
+                )}
+              </CardBody>
+            </Card>
+          </Tab>
+          
+          <Tab key="friends" title={
+            <div className="flex items-center gap-2">
+              <Icon icon="lucide:user-heart" className="w-4 h-4" />
+              <span>Amigos</span>
+            </div>
+          }>
+            <Card>
+              <CardBody>
+                {friends.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    {friends.map((friend) => (
+                      <Card key={friend.id} className="shadow-sm">
+                        <CardBody className="p-4">
+                          <div className="flex flex-col items-center text-center">
+                            <Avatar
+                              size="md"
+                              src={friend.avatar_url}
+                              className="mb-3"
+                            />
+                            <h4 className="font-semibold text-sm mb-1">{friend.name}</h4>
+                            <p className="text-xs text-default-500">@{friend.username}</p>
+                            <Button
+                              size="sm"
+                              variant="bordered"
+                              className="mt-3"
+                              onPress={() => router.push(`/profile/${friend.username}`)}
+                            >
+                              Ver perfil
+                            </Button>
+                          </div>
+                        </CardBody>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Icon icon="lucide:user-heart" className="w-12 h-12 mx-auto text-default-400 mb-4" />
+                    <p className="text-default-500">Nenhum amigo ainda</p>
+                  </div>
+                )}
+              </CardBody>
+            </Card>
+          </Tab>
+          
+          <Tab key="media" title={
+            <div className="flex items-center gap-2">
+              <Icon icon="lucide:image" className="w-4 h-4" />
+              <span>Mídia</span>
+            </div>
+          }>
             <Card>
               <CardBody>
                 <div className="text-center py-8">
                   <Icon icon="lucide:image" className="w-12 h-12 mx-auto text-default-400 mb-4" />
                   <p className="text-default-500">Nenhuma mídia ainda</p>
-                </div>
-              </CardBody>
-            </Card>
-          </Tab>
-          
-          <Tab key="likes" title="Curtidas">
-            <Card>
-              <CardBody>
-                <div className="text-center py-8">
-                  <Icon icon="lucide:heart" className="w-12 h-12 mx-auto text-default-400 mb-4" />
-                  <p className="text-default-500">Nenhuma curtida ainda</p>
                 </div>
               </CardBody>
             </Card>

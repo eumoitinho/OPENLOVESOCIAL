@@ -3,6 +3,7 @@ import { createRouteHandlerClient, createSupabaseAdmin } from "@/app/lib/supabas
 import { verifyAuth } from "@/app/lib/auth-helpers"
 import { createClient } from '@supabase/supabase-js'
 import { planValidator } from '@/lib/plans/server'
+import { verifyUserForAction } from "@/lib/verification-middleware"
 
 export async function POST(request: NextRequest) {
   try {
@@ -67,6 +68,15 @@ export async function POST(request: NextRequest) {
       const videoFile = formData.get("video")
       const audioFile = formData.get("audio")
       const pollData = formData.get("poll")
+      
+      // Check if user is trying to upload media and verify permissions
+      const hasMedia = images.length > 0 || videoFile || audioFile
+      if (hasMedia) {
+        const { context, error } = await verifyUserForAction(request, 'media_upload')
+        if (error) {
+          return error
+        }
+      }
       
       // Verificar limitações de upload usando o novo sistema
       const uploadValidation = await planValidator.canUploadMedia(user.id, images.length, videoFile?.size || 0)

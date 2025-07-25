@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import type { User } from "@supabase/supabase-js"
 import type { Database } from "../lib/database.types"
 
-type Profile = Database["public"]["Tables"]["profiles"]["Row"]
+type Profile = Database["public"]["Tables"]["users"]["Row"]
 
 interface AdminStats {
   totalUsers: number

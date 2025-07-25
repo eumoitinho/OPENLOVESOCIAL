@@ -3,6 +3,7 @@ import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { z } from "zod"
+import { verifyUserForAction } from "@/lib/verification-middleware"
 
 const createCommentSchema = z.object({
   content: z.string().min(1).max(500),
@@ -92,18 +93,20 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createRouteHandlerClient()
     const { id: postId } = await params
     const body = await request.json()
 
     // Validar dados
     const validatedData = createCommentSchema.parse(body)
 
-    // Verificar autenticação
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+    // Verificar autenticação e permissão para comentar
+    const { context, error } = await verifyUserForAction(request, 'comment')
+    if (error) {
+      return error
     }
+
+    const supabase = await createRouteHandlerClient()
+    const user = { id: context!.user.id }
 
     // Verificar se o post existe
     const { data: post, error: postError } = await supabase

@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createRouteHandlerClient } from "@/app/lib/supabase-server"
 import { cookies } from "next/headers"
+import { verifyUserForAction } from "@/lib/verification-middleware"
 
 export const dynamic = 'force-dynamic'
 
@@ -91,17 +92,14 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createRouteHandlerClient()
-
-    // Verificar autenticação
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+    // Verificar autenticação e permissão para enviar mensagens
+    const { context, error } = await verifyUserForAction(request, 'message')
+    if (error) {
+      return error
     }
+
+    const supabase = await createRouteHandlerClient()
+    const user = { id: context!.user.id }
 
     const { conversationId, content, type = 'text' } = await request.json()
 

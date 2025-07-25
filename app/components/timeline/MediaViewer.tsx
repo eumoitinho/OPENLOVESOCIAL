@@ -22,6 +22,8 @@ import {
   Music,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { SecureImage } from "@/app/components/security/SecureImage"
+import { SecureVideo } from "@/app/components/security/SecureVideo"
 
 export interface MediaItem {
   id: string
@@ -156,30 +158,27 @@ export function MediaViewer({
           <div className="relative w-full h-full flex items-center justify-center">
             {currentMedia && currentMedia.type === "image" ? (
               <div className="relative w-full h-full flex items-center justify-center">
-                <img
-                  src={addWatermark(currentMedia.url, currentUser.name)}
+                <SecureImage
+                  src={currentMedia.url}
                   alt="Post content"
                   className="w-full h-full max-h-[70vh] object-contain object-center rounded-none sm:rounded-2xl"
-                  style={{ maxHeight: '70vh', width: '100%', height: '100%' }}
+                  viewerUsername={currentUser.username.replace('@', '') || 'usuario'}
+                  watermarkDensity={6}
+                  watermarkOpacity={0.18}
                 />
-                {/* Watermark */}
-                <div className="absolute bottom-4 right-4 text-white/70 text-sm font-medium bg-black/40 px-2 py-1 rounded">
-                  Visualizado por {currentUser.name}
-                </div>
               </div>
             ) : currentMedia && currentMedia.type === "video" ? (
               <div className="relative w-full h-full flex items-center justify-center">
-                <video
+                <SecureVideo
                   src={currentMedia.url}
                   poster={currentMedia.thumbnail}
                   className="w-full h-full max-h-[70vh] object-contain object-center rounded-none sm:rounded-2xl"
-                  style={{ maxHeight: '70vh', width: '100%', height: '100%' }}
-                  onPlay={() => setIsPlaying(true)}
-                  onPause={() => setIsPlaying(false)}
-                  muted={isMuted}
-                  controls
+                  viewerUsername={currentUser.username.replace('@', '') || 'usuario'}
+                  watermarkDensity={6}
+                  watermarkOpacity={0.18}
+                  controls={true}
                 />
-                {/* Video Controls */}
+                {/* Video Controls mantidos para compatibilidade */}
                 {showControls && (
                   <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-4 bg-black/50 rounded-full px-4 py-2">
                     <Button

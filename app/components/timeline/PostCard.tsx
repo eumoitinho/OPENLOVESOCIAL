@@ -42,6 +42,9 @@ import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import PlanBadge from "@/components/plan-limits/PlanBadge"
 import { toast } from "sonner"
+import { SecureImage } from "@/app/components/security/SecureImage"
+import { SecureVideo } from "@/app/components/security/SecureVideo"
+import { useAuth } from "@/app/components/auth/AuthProvider"
 
 interface PostUser {
   name: string
@@ -124,6 +127,9 @@ export default function PostCard({
   currentUser = { name: "Usuário", username: "@usuario", avatar: "/placeholder.svg" }
 }: PostCardProps) {
   
+  // Hook de autenticação para obter usuário atual
+  const { profile } = useAuth()
+  
   // Debug dos dados do post
   console.log("[PostCard] Post data:", {
     id: post.id,
@@ -143,6 +149,9 @@ export default function PostCard({
   const [profileViewerOpen, setProfileViewerOpen] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [selectedMediaIndex, setSelectedMediaIndex] = useState(0)
+  
+  // Username do visualizador para marca d'água
+  const viewerUsername = profile?.username || currentUser.username.replace('@', '') || 'usuario'
   
   // Estados para as correções
   const [loadedComments, setLoadedComments] = useState<any[]>([])
@@ -732,14 +741,18 @@ export default function PostCard({
               <Carousel className="w-full rounded-xl overflow-hidden border border-gray-200/50 dark:border-gray-700/50 shadow-lg">
                 <CarouselContent>
                   {post.images.map((img, index) => (
-                    <CarouselItem key={index} onClick={() => handleViewImage(index)} className="cursor-pointer">
+                    <CarouselItem key={index} className="cursor-pointer">
                       <div className="relative group/media">
-                        <img 
-                          src={img} 
-                          alt={`Post media ${index + 1}`} 
-                          className="w-full h-auto object-cover max-h-96 transition-transform duration-300 group-hover/media:scale-105" 
+                        <SecureImage
+                          src={img}
+                          alt={`Post media ${index + 1}`}
+                          className="w-full h-auto object-cover max-h-96 transition-transform duration-300 group-hover/media:scale-105"
+                          viewerUsername={viewerUsername}
+                          onClick={() => handleViewImage(index)}
+                          watermarkDensity={4}
+                          watermarkOpacity={0.12}
                         />
-                        <div className="absolute inset-0 bg-black/0 group-hover/media:bg-black/20 transition-colors duration-300"></div>
+                        <div className="absolute inset-0 bg-black/0 group-hover/media:bg-black/20 transition-colors duration-300 pointer-events-none"></div>
                       </div>
                     </CarouselItem>
                   ))}
@@ -759,23 +772,18 @@ export default function PostCard({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1 }}
-              className="relative rounded-xl overflow-hidden cursor-pointer border border-gray-200/50 dark:border-gray-700/50 shadow-lg group"
-              onClick={handleViewVideo}
+              className="relative rounded-xl overflow-hidden border border-gray-200/50 dark:border-gray-700/50 shadow-lg"
             >
-              <img 
-                src={post.video.replace('.mp4', '.jpg')} 
-                alt="Video thumbnail" 
-                className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105" 
+              <SecureVideo
+                src={post.video}
+                poster={post.video.replace('.mp4', '.jpg')}
+                className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
+                viewerUsername={viewerUsername}
+                onClick={handleViewVideo}
+                watermarkDensity={4}
+                watermarkOpacity={0.12}
+                controls={true}
               />
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/50 transition-colors duration-300">
-                <motion.div
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="bg-white/20 backdrop-blur-sm rounded-full p-3"
-                >
-                  <Play className="w-8 h-8 text-white" />
-                </motion.div>
-              </div>
             </motion.div>
           )}
           

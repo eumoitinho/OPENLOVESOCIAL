@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
       methods: ["PIX"],
       products: [{
         externalId: `PLAN_${plan.toUpperCase()}`,
-        name: planConfig.name,
+        name: planConfig.name || `Plano ${plan}`,
         quantity: 1,
         price: planConfig.price! // Preço em centavos
       }],
@@ -150,15 +150,27 @@ export async function POST(request: NextRequest) {
 
     console.log('AbacatePay Billing Response:', JSON.stringify(billing, null, 2))
 
+    // Verificar se a resposta do billing é válida
+    if (!billing || 'error' in billing) {
+      console.error('Erro na resposta do AbacatePay:', billing)
+      return NextResponse.json(
+        { error: 'Erro ao criar cobrança no AbacatePay' },
+        { status: 500 }
+      )
+    }
+
+    // Obter ID do billing (assumindo que pode estar em billing.id ou billing.data.id)
+    const billingId = (billing as any).data?.id || (billing as any).id
+
     // Salvar transação no banco
     try {
       await supabase
         .from('transactions')
         .insert({
-          id: billing.id,
+          id: billingId,
           user_id: userId,
           provider: 'abacatepay',
-          provider_transaction_id: billing.id,
+          provider_transaction_id: billingId,
           amount: planConfig.price!,
           currency: 'BRL',
           status: 'pending',
@@ -172,7 +184,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar se a URL de pagamento foi retornada
-    const paymentUrl = billing.url || billing.payment_url || billing.checkoutUrl || billing.checkout_url
+    const paymentUrl = (billing as any).url || (billing as any).payment_url || (billing as any).checkoutUrl || (billing as any).checkout_url
     
     if (!paymentUrl) {
       console.error('URL de pagamento não encontrada na resposta:', billing)
@@ -185,7 +197,7 @@ export async function POST(request: NextRequest) {
     // Retornar resposta com URL de pagamento
     return NextResponse.json({
       success: true,
-      billing_id: billing.id,
+      billing_id: billingId,
       payment_url: paymentUrl,
       amount: planConfig.price!,
       currency: 'BRL',

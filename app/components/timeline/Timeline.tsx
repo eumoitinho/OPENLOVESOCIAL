@@ -63,6 +63,7 @@ import ProfileSearch from "./ProfileSearch"
 import { MessagesContent } from "./MessagesContent"
 import TimelineAdCard from '@/app/components/ads/TimelineAdCard'
 import { useCanAccess } from '@/lib/plans/hooks'
+import { Checkbox } from "@/components/ui/checkbox"
 
 // --- Tipos e Dados para a Nova Sidebar ---
 
@@ -1088,146 +1089,7 @@ export default function Timeline() {
                           </div>
                         </div>
                       ) : (
-                        console.log("Timeline: Renderizando conteúdo do perfil para usuário:", user.email),
-                        <div className="space-y-6">
-                          {/* Profile Header Card */}
-                          <Card className="overflow-hidden">
-                            {/* Cover Photo */}
-                            <div className="h-48 bg-gradient-to-r from-pink-400 via-rose-400 to-pink-500 relative">
-                              <div className="absolute inset-0 bg-black/20"></div>
-                              <div className="absolute bottom-4 left-4 right-4">
-                                <div className="flex items-end gap-4">
-                                  <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
-                                    <AvatarImage src={user?.user_metadata?.avatar_url || "/placeholder-user.jpg"} />
-                                    <AvatarFallback className="text-2xl bg-pink-500 text-white">
-                                      {user?.user_metadata?.full_name 
-                                        ? user.user_metadata.full_name.split(' ').map((n: string) => n[0]).join('')
-                                        : user?.email?.charAt(0).toUpperCase()
-                                      }
-                                    </AvatarFallback>
-                                  </Avatar>
-                                  <div className="flex-1 text-white">
-                                    <h2 className="text-2xl font-bold mb-1">
-                                      {user?.user_metadata?.full_name || user?.email}
-                                    </h2>
-                                    <p className="text-pink-100 mb-2">
-                                      @{user?.user_metadata?.username || user?.email?.split('@')[0]}
-                                    </p>
-                                    <div className="flex gap-2">
-                                      <Button size="sm" variant="secondary" className="bg-white/20 hover:bg-white/30 text-white border-white/30">
-                                        <Edit className="h-4 w-4 mr-2" />
-                                        Editar Perfil
-                                      </Button>
-                                      <Button size="sm" variant="secondary" className="bg-white/20 hover:bg-white/30 text-white border-white/30">
-                                        <Camera className="h-4 w-4 mr-2" />
-                                        Alterar Foto
-                                      </Button>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            
-                            {/* Profile Stats */}
-                            <CardContent className="p-6">
-                              <div className="grid grid-cols-3 gap-4 text-center">
-                                <div>
-                                  <div className="text-2xl font-bold text-pink-600">0</div>
-                                  <div className="text-sm text-gray-600 dark:text-gray-400">Posts</div>
-                                </div>
-                                <div>
-                                  <div className="text-2xl font-bold text-pink-600">0</div>
-                                  <div className="text-sm text-gray-600 dark:text-gray-400">Seguidores</div>
-                                </div>
-                                <div>
-                                  <div className="text-2xl font-bold text-pink-600">0</div>
-                                  <div className="text-sm text-gray-600 dark:text-gray-400">Seguindo</div>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-
-                          {/* Profile Info Card */}
-                          <Card>
-                            <CardHeader>
-                              <CardTitle className="flex items-center gap-2">
-                                <User className="h-5 w-5" />
-                                Informações do Perfil
-                              </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="flex items-center gap-3">
-                                  <Mail className="h-4 w-4 text-gray-500" />
-                                  <div>
-                                    <div className="text-sm text-gray-500">Email</div>
-                                    <div className="font-medium">{user.email}</div>
-                                  </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                  <Calendar className="h-4 w-4 text-gray-500" />
-                                  <div>
-                                    <div className="text-sm text-gray-500">Membro desde</div>
-                                    <div className="font-medium">
-                                      {user.created_at ? new Date(user.created_at).toLocaleDateString('pt-BR') : 'N/A'}
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                  <MapPin className="h-4 w-4 text-gray-500" />
-                                  <div>
-                                    <div className="text-sm text-gray-500">Localização</div>
-                                    <div className="font-medium">Não informada</div>
-                                  </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                  <Globe className="h-4 w-4 text-gray-500" />
-                                  <div>
-                                    <div className="text-sm text-gray-500">Status</div>
-                                    <div className="font-medium">
-                                      {user.email_confirmed_at ? (
-                                        <Badge variant="default" className="bg-green-100 text-green-800">
-                                          Verificado
-                                        </Badge>
-                                      ) : (
-                                        <Badge variant="secondary">
-                                          Pendente
-                                        </Badge>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-
-                          {/* Quick Actions Card */}
-                          <Card>
-                            <CardHeader>
-                              <CardTitle>Ações Rápidas</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                <Button variant="outline" className="h-auto p-4 flex flex-col gap-2">
-                                  <Edit className="h-6 w-6" />
-                                  <span className="text-sm">Editar Perfil</span>
-                                </Button>
-                                <Button variant="outline" className="h-auto p-4 flex flex-col gap-2">
-                                  <Camera className="h-6 w-6" />
-                                  <span className="text-sm">Alterar Foto</span>
-                                </Button>
-                                <Button variant="outline" className="h-auto p-4 flex flex-col gap-2">
-                                  <Settings className="h-6 w-6" />
-                                  <span className="text-sm">Configurações</span>
-                                </Button>
-                                <Button variant="outline" className="h-auto p-4 flex flex-col gap-2">
-                                  <Shield className="h-6 w-6" />
-                                  <span className="text-sm">Privacidade</span>
-                                </Button>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </div>
+                        <MyProfileEditor user={user} goBack={goBack} />
                       )}
                     </div>
                   )
@@ -1348,6 +1210,697 @@ export default function Timeline() {
       {/* Modals */}
       <CreatePostModal />
 
+    </div>
+  )
+}
+
+// Componente para editar perfil inline
+interface MyProfileEditorProps {
+  user: any
+  authLoading: boolean
+  goBack: () => void
+}
+
+const MyProfileEditor = ({ user, authLoading, goBack }: MyProfileEditorProps) => {
+  const [isEditing, setIsEditing] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [profile, setProfile] = useState<any>(null)
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    birthDate: "",
+    profileType: "single" as "single" | "couple",
+    seeking: [] as string[],
+    interests: [] as string[],
+    otherInterest: "",
+    bio: "",
+    partner: {
+      nickname: "",
+      age: "",
+      height: "",
+      weight: "",
+      eyeColor: "",
+      hairColor: "",
+    },
+    city: "",
+    uf: "",
+    latitude: null as number | null,
+    longitude: null as number | null,
+  })
+
+  // Buscar dados do perfil ao carregar
+  useEffect(() => {
+    if (user && !authLoading) {
+      fetchProfile()
+    }
+  }, [user, authLoading])
+
+  const fetchProfile = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/profile/me')
+      if (response.ok) {
+        const data = await response.json()
+        setProfile(data)
+        
+        // Preencher formData com dados existentes
+        if (data) {
+          setFormData({
+            firstName: data.first_name || "",
+            lastName: data.last_name || "",
+            birthDate: data.birth_date || "",
+            profileType: data.profile_type || "single",
+            seeking: data.seeking ? JSON.parse(data.seeking) : [],
+            interests: data.interests ? JSON.parse(data.interests) : [],
+            otherInterest: data.other_interest || "",
+            bio: data.bio || "",
+            partner: {
+              nickname: data.partner_nickname || "",
+              age: data.partner_age || "",
+              height: data.partner_height || "",
+              weight: data.partner_weight || "",
+              eyeColor: data.partner_eye_color || "",
+              hairColor: data.partner_hair_color || "",
+            },
+            city: data.city || "",
+            uf: data.uf || "",
+            latitude: data.latitude || null,
+            longitude: data.longitude || null,
+          })
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao buscar perfil:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    if (name.includes("partner.")) {
+      const field = name.split(".")[1]
+      setFormData((prev) => ({
+        ...prev,
+        partner: { ...prev.partner, [field]: value },
+      }))
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }))
+    }
+  }
+
+  const handleCheckboxChange = (field: keyof typeof formData, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: (prev[field] as string[]).includes(value) 
+        ? (prev[field] as string[]).filter((item: string) => item !== value) 
+        : [...(prev[field] as string[]), value],
+    }))
+  }
+
+  const handleSelectChange = (field: string, value: string) => {
+    if (field.includes("partner.")) {
+      const partnerField = field.split(".")[1]
+      setFormData((prev) => ({
+        ...prev,
+        partner: { ...prev.partner, [partnerField]: value },
+      }))
+    } else {
+      setFormData((prev) => ({ ...prev, [field]: value }))
+    }
+  }
+
+  const handleCityFocus = async () => {
+    if (typeof window !== "undefined" && navigator.geolocation) {
+      try {
+        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 60000
+          })
+        })
+        
+        const { latitude, longitude } = position.coords
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`)
+          const data = await res.json()
+          const city = data.address.city || data.address.town || data.address.village || data.address.county || ""
+          const state = data.address.state || data.address.region || ""
+          setFormData((prev) => ({ ...prev, city, uf: state, latitude, longitude }))
+        } catch (e) {
+          console.error("Erro ao buscar cidade:", e)
+          setFormData((prev) => ({ ...prev, latitude, longitude }))
+        }
+      } catch (error) {
+        console.error("Erro ao obter localização:", error)
+      }
+    }
+  }
+
+  const handleSave = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/profile/me', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      if (response.ok) {
+        await fetchProfile() // Recarregar dados
+        setIsEditing(false)
+        alert('Perfil atualizado com sucesso!')
+      } else {
+        throw new Error('Erro ao salvar perfil')
+      }
+    } catch (error) {
+      console.error('Erro ao salvar perfil:', error)
+      alert('Erro ao salvar perfil. Tente novamente.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen">
+        <div className="flex items-center mb-4">
+          <Button variant="ghost" onClick={goBack} className="mr-4">
+            ← Voltar
+          </Button>
+          <h1 className="text-2xl font-bold">Meu Perfil</h1>
+        </div>
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500 mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-400">Carregando perfil...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen">
+        <div className="flex items-center mb-4">
+          <Button variant="ghost" onClick={goBack} className="mr-4">
+            ← Voltar
+          </Button>
+          <h1 className="text-2xl font-bold">Meu Perfil</h1>
+        </div>
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
+          <div className="text-center">
+            <User className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+            <h2 className="text-xl font-bold mb-2">Usuário não autenticado</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              Faça login para ver seu perfil
+            </p>
+            <Button onClick={() => window.location.href = '/auth/signin'}>
+              Fazer Login
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center">
+          <Button variant="ghost" onClick={goBack} className="mr-4">
+            ← Voltar
+          </Button>
+          <h1 className="text-2xl font-bold">Meu Perfil</h1>
+        </div>
+        <Button 
+          variant={isEditing ? "outline" : "default"}
+          onClick={() => {
+            if (isEditing) {
+              setIsEditing(false)
+              fetchProfile() // Restaurar dados originais
+            } else {
+              setIsEditing(true)
+            }
+          }}
+          disabled={loading}
+        >
+          <Edit className="h-4 w-4 mr-2" />
+          {isEditing ? "Cancelar" : "Editar Perfil"}
+        </Button>
+      </div>
+
+      {loading && !isEditing ? (
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500 mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-400">Carregando perfil...</p>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {/* Profile Header Card */}
+          <Card className="overflow-hidden">
+            <div className="h-48 bg-gradient-to-r from-pink-400 via-rose-400 to-pink-500 relative">
+              <div className="absolute inset-0 bg-black/20"></div>
+              <div className="absolute bottom-4 left-4 right-4">
+                <div className="flex items-end gap-4">
+                  <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
+                    <AvatarImage src={profile?.avatar_url || user?.user_metadata?.avatar_url || "/placeholder-user.jpg"} />
+                    <AvatarFallback className="text-2xl bg-pink-500 text-white">
+                      {formData.firstName && formData.lastName
+                        ? `${formData.firstName[0]}${formData.lastName[0]}`
+                        : user?.user_metadata?.full_name 
+                          ? user.user_metadata.full_name.split(' ').map((n: string) => n[0]).join('')
+                          : user?.email?.charAt(0).toUpperCase()
+                      }
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 text-white">
+                    <h2 className="text-2xl font-bold mb-1">
+                      {formData.firstName && formData.lastName 
+                        ? `${formData.firstName} ${formData.lastName}`
+                        : user?.user_metadata?.full_name || user?.email
+                      }
+                    </h2>
+                    <p className="text-pink-100 mb-2">
+                      @{user?.user_metadata?.username || user?.email?.split('@')[0]}
+                    </p>
+                    <p className="text-pink-200 text-sm">
+                      {user.email} • Membro desde {user.created_at ? new Date(user.created_at).toLocaleDateString('pt-BR') : 'N/A'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          {isEditing ? (
+            /* Formulário de Edição */
+            <div className="space-y-6">
+              {/* Informações Básicas */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <User className="h-5 w-5" />
+                    Informações Básicas
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="firstName">Nome</Label>
+                      <Input
+                        id="firstName"
+                        name="firstName"
+                        value={formData.firstName}
+                        onChange={handleInputChange}
+                        placeholder="Seu nome"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="lastName">Sobrenome</Label>
+                      <Input
+                        id="lastName"
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleInputChange}
+                        placeholder="Seu sobrenome"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="birthDate">Data de Nascimento</Label>
+                    <Input
+                      id="birthDate"
+                      name="birthDate"
+                      type="date"
+                      value={formData.birthDate}
+                      onChange={handleInputChange}
+                      max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split("T")[0]}
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="bio">Bio</Label>
+                    <Textarea
+                      id="bio"
+                      name="bio"
+                      value={formData.bio}
+                      onChange={handleInputChange}
+                      placeholder="Conte um pouco sobre você"
+                      className="h-24 resize-none"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Tipo de Perfil e Interesses */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Heart className="h-5 w-5" />
+                    Preferências
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Tipo de Perfil</Label>
+                    <Select
+                      value={formData.profileType}
+                      onValueChange={(value: "single" | "couple") => handleSelectChange("profileType", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o tipo de perfil" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="single">Solteiro(a)</SelectItem>
+                        <SelectItem value="couple">Casal</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label>O que você busca?</Label>
+                    <div className="mt-2 space-y-2">
+                      {["Mulher", "Homem", "Casal"].map((option) => (
+                        <div key={option} className="flex items-center">
+                          <Checkbox
+                            id={`seeking-${option}`}
+                            checked={formData.seeking.includes(option)}
+                            onCheckedChange={() => handleCheckboxChange("seeking", option)}
+                          />
+                          <label htmlFor={`seeking-${option}`} className="ml-2 text-sm">
+                            {option}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label>Interesses</Label>
+                    <div className="mt-2 space-y-2">
+                      {["Ménage", "Swing", "Encontros Casuais", "Amizades", "Eventos Sociais"].map((option) => (
+                        <div key={option} className="flex items-center">
+                          <Checkbox
+                            id={`interest-${option}`}
+                            checked={formData.interests.includes(option)}
+                            onCheckedChange={() => handleCheckboxChange("interests", option)}
+                          />
+                          <label htmlFor={`interest-${option}`} className="ml-2 text-sm">
+                            {option}
+                          </label>
+                        </div>
+                      ))}
+                      <Input
+                        name="otherInterest"
+                        value={formData.otherInterest}
+                        onChange={handleInputChange}
+                        placeholder="Outro interesse (opcional)"
+                        className="mt-2"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Informações do Parceiro (se for casal) */}
+              {formData.profileType === "couple" && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Users className="h-5 w-5" />
+                      Informações do Parceiro
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="partner.nickname">Apelido</Label>
+                        <Input
+                          id="partner.nickname"
+                          name="partner.nickname"
+                          value={formData.partner.nickname}
+                          onChange={handleInputChange}
+                          placeholder="Apelido do parceiro"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="partner.age">Idade</Label>
+                        <Input
+                          id="partner.age"
+                          name="partner.age"
+                          type="number"
+                          value={formData.partner.age}
+                          onChange={handleInputChange}
+                          placeholder="Idade"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="partner.height">Altura (cm)</Label>
+                        <Input
+                          id="partner.height"
+                          name="partner.height"
+                          type="number"
+                          value={formData.partner.height}
+                          onChange={handleInputChange}
+                          placeholder="Altura em cm"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="partner.weight">Peso (kg)</Label>
+                        <Input
+                          id="partner.weight"
+                          name="partner.weight"
+                          type="number"
+                          value={formData.partner.weight}
+                          onChange={handleInputChange}
+                          placeholder="Peso em kg"
+                        />
+                      </div>
+                      <div>
+                        <Label>Cor dos Olhos</Label>
+                        <Select
+                          value={formData.partner.eyeColor}
+                          onValueChange={(value) => handleSelectChange("partner.eyeColor", value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione a cor dos olhos" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {["Castanho", "Azul", "Verde", "Cinza", "Outro"].map((color) => (
+                              <SelectItem key={color} value={color}>
+                                {color}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label>Cor do Cabelo</Label>
+                        <Select
+                          value={formData.partner.hairColor}
+                          onValueChange={(value) => handleSelectChange("partner.hairColor", value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione a cor do cabelo" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {["Preto", "Castanho", "Loiro", "Ruivo", "Outro"].map((color) => (
+                              <SelectItem key={color} value={color}>
+                                {color}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Localização */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MapPin className="h-5 w-5" />
+                    Localização
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div>
+                    <Label htmlFor="city">Cidade</Label>
+                    <Input
+                      id="city"
+                      name="city"
+                      value={formData.city}
+                      onChange={handleInputChange}
+                      onFocus={handleCityFocus}
+                      placeholder="Digite sua cidade ou toque para detectar automaticamente"
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      Toque no campo para detectar sua localização automaticamente
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Ações */}
+              <div className="flex gap-4 justify-end">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsEditing(false)
+                    fetchProfile()
+                  }}
+                  disabled={loading}
+                >
+                  Cancelar
+                </Button>
+                <Button onClick={handleSave} disabled={loading}>
+                  {loading ? "Salvando..." : "Salvar Alterações"}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            /* Visualização do Perfil */
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <User className="h-5 w-5" />
+                    Informações Pessoais
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-sm text-gray-500">Nome Completo</div>
+                      <div className="font-medium">
+                        {formData.firstName && formData.lastName 
+                          ? `${formData.firstName} ${formData.lastName}`
+                          : "Não informado"
+                        }
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-500">Data de Nascimento</div>
+                      <div className="font-medium">
+                        {formData.birthDate 
+                          ? new Date(formData.birthDate).toLocaleDateString('pt-BR')
+                          : "Não informado"
+                        }
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-500">Email</div>
+                      <div className="font-medium">{user.email}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-500">Localização</div>
+                      <div className="font-medium">{formData.city || "Não informado"}</div>
+                    </div>
+                  </div>
+                  
+                  {formData.bio && (
+                    <div>
+                      <div className="text-sm text-gray-500">Bio</div>
+                      <div className="font-medium">{formData.bio}</div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Heart className="h-5 w-5" />
+                    Preferências
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <div className="text-sm text-gray-500">Tipo de Perfil</div>
+                    <div className="font-medium">
+                      {formData.profileType === "single" ? "Solteiro(a)" : "Casal"}
+                    </div>
+                  </div>
+                  
+                  {formData.seeking.length > 0 && (
+                    <div>
+                      <div className="text-sm text-gray-500">Buscando</div>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        {formData.seeking.map((item) => (
+                          <Badge key={item} variant="secondary">{item}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {formData.interests.length > 0 && (
+                    <div>
+                      <div className="text-sm text-gray-500">Interesses</div>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        {formData.interests.map((item) => (
+                          <Badge key={item} variant="outline">{item}</Badge>
+                        ))}
+                        {formData.otherInterest && (
+                          <Badge variant="outline">{formData.otherInterest}</Badge>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {formData.profileType === "couple" && formData.partner.nickname && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Users className="h-5 w-5" />
+                      Informações do Parceiro
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <div className="text-sm text-gray-500">Apelido</div>
+                        <div className="font-medium">{formData.partner.nickname}</div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-gray-500">Idade</div>
+                        <div className="font-medium">{formData.partner.age} anos</div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-gray-500">Altura</div>
+                        <div className="font-medium">{formData.partner.height} cm</div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-gray-500">Peso</div>
+                        <div className="font-medium">{formData.partner.weight} kg</div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-gray-500">Cor dos Olhos</div>
+                        <div className="font-medium">{formData.partner.eyeColor}</div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-gray-500">Cor do Cabelo</div>
+                        <div className="font-medium">{formData.partner.hairColor}</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
