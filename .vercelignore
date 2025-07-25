@@ -1,0 +1,23 @@
+# Ignorar Supabase CLI no build do Vercel
+node_modules/.bin/supabase
+node_modules/supabase/bin
+supabase/
+
+# Ignorar arquivos de desenvolvimento
+.env.local
+.env.development
+.env.test
+
+# Ignorar arquivos de backup
+*.backup
+*.bak
+
+# Ignorar logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Ignorar arquivos temporários
+.tmp/
+.temp/ 
