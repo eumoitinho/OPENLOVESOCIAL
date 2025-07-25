@@ -14,7 +14,7 @@ export async function GET(
       .from('posts')
       .select(`
         *,
-        profiles:user_id (
+        users:user_id (
           id,
           username,
           name,
@@ -108,7 +108,7 @@ export async function PATCH(
       .eq('id', id)
       .select(`
         *,
-        profiles:user_id (
+        users:user_id (
           id,
           username,
           name,

@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     // Se não tiver ID, buscar pelo username
     if (!targetUserId && blocked_username) {
       const { data: targetUser, error: userError } = await supabase
-        .from('profiles')
+        .from('users')
         .select('id')
         .eq('username', blocked_username)
         .single()
@@ -142,7 +142,7 @@ export async function DELETE(request: NextRequest) {
     // Se não tiver ID, buscar pelo username
     if (!targetUserId && blocked_username) {
       const { data: targetUser, error: userError } = await supabase
-        .from('profiles')
+        .from('users')
         .select('id')
         .eq('username', blocked_username)
         .single()
