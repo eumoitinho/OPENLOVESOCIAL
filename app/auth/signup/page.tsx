@@ -10,7 +10,7 @@ import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
-import CheckoutForm from "@/app/components/CheckoutForm"
+import PaymentProvider from "@/app/components/PaymentProvider"
 import { createClient } from "@/app/lib/supabase-browser"
 
 interface FormData {
@@ -87,10 +87,6 @@ export default function OpenLoveRegister() {
   const [errors, setErrors] = useState<FormErrors>({})
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null)
   const [checkingUsername, setCheckingUsername] = useState(false)
-  const [showCheckout, setShowCheckout] = useState(false)
-  const [checkoutPlan, setCheckoutPlan] = useState<"gold" | "diamante" | "diamante_anual" | null>(null)
-  const [paymentData, setPaymentData] = useState<any>(null)
-  const [checkoutError, setCheckoutError] = useState<string | null>(null)
   const usernameTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const router = useRouter()
@@ -112,18 +108,6 @@ export default function OpenLoveRegister() {
     }
   }, [])
 
-  // Prevenir scroll do body quando modal estiver aberto
-  useEffect(() => {
-    if (showCheckout) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = 'unset'
-    }
-
-    return () => {
-      document.body.style.overflow = 'unset'
-    }
-  }, [showCheckout])
 
   // Função para buscar localização ao focar no campo de cidade
   const handleCityFocus = async () => {
@@ -309,29 +293,15 @@ export default function OpenLoveRegister() {
     setStep((prev) => Math.max(prev - 1, 1))
   }
 
-  // Ao selecionar plano pago, abrir CheckoutForm
+  // Apenas salvar o plano selecionado, pagamento será processado após cadastro
   const handlePlanSelect = (plan: "free" | "gold" | "diamante" | "diamante_anual") => {
     setFormData((prev) => ({ ...prev, plan }))
-    if (plan === "gold" || plan === "diamante" || plan === "diamante_anual") {
-      setCheckoutPlan(plan)
-      setShowCheckout(true)
-    } else {
-      // Se selecionar plano free, garantir que o checkout esteja fechado
-      setShowCheckout(false)
-      setCheckoutPlan(null)
-    }
   }
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validateStep()) return
-
-    if ((formData.plan === "gold" || formData.plan === "diamante" || formData.plan === "diamante_anual") && !paymentData) {
-      setCheckoutPlan(formData.plan)
-      setShowCheckout(true)
-      return
-    }
 
     setLoading(true)
     try {
@@ -353,9 +323,19 @@ export default function OpenLoveRegister() {
       }
 
       if (result.success) {
+        // Fazer login do usuário recém criado
+        const supabase = createClient()
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password
+        })
+
+        if (signInError) {
+          console.error("Erro ao fazer login após registro:", signInError)
+        }
+
         // Upload da foto de perfil se existir
         if (formData.profilePicture) {
-          const supabase = createClient()
           const fileExt = formData.profilePicture.name.split('.').pop()
           const fileName = `${result.user.id}-${Date.now()}.${fileExt}`
           
@@ -375,14 +355,20 @@ export default function OpenLoveRegister() {
           }
         }
 
-        // Redirecionar baseado no plano
-        if (formData.plan === "free") {
-          alert("Conta criada com sucesso! Bem-vindo ao OpenLove!")
-          router.push("/dashboard")
-        } else {
-          alert("Conta criada com sucesso! Agora complete o pagamento para ativar seu plano premium.")
-          // O checkout já está sendo mostrado
+        // Se for plano pago, redirecionar para página de checkout com opções
+        if (formData.plan !== "free") {
+          // Mapear nomes dos planos para compatibilidade
+          let planName = formData.plan
+          if (formData.plan === "diamante") planName = "diamond"
+          if (formData.plan === "diamante_anual") planName = "diamond_annual"
+          
+          const checkoutUrl = `/checkout?plano=${planName}&userId=${result.user.id}&email=${encodeURIComponent(formData.email)}`
+          router.push(checkoutUrl)
+          return
         }
+
+        // Redirecionar para timeline
+        router.push("/timeline")
       }
     } catch (error) {
       console.error("Registration error:", error)
@@ -1209,62 +1195,6 @@ export default function OpenLoveRegister() {
         <p>© 2025 OpenLove. Todos os direitos reservados.</p>
       </footer>
 
-      {/* Checkout Mercado Pago */}
-      {showCheckout && checkoutPlan && (
-        <div 
-          className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
-          onClick={(e) => {
-            // Só fecha se clicar no backdrop, não no modal
-            if (e.target === e.currentTarget) {
-              setShowCheckout(false)
-            }
-          }}
-        >
-          <div 
-            className="bg-white dark:bg-slate-900 rounded-xl shadow-xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto relative"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button 
-              className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 dark:hover:text-white z-10 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" 
-              onClick={(e) => {
-                e.stopPropagation()
-                setShowCheckout(false)
-                setCheckoutError(null)
-              }}
-            >
-              &times;
-            </button>
-            
-            {checkoutError && (
-              <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                <p className="text-red-700 dark:text-red-300 text-sm">
-                  {checkoutError}
-                </p>
-              </div>
-            )}
-            
-            <CheckoutForm
-              user={{ email: formData.email }}
-              plano={checkoutPlan}
-              onSuccess={(data) => {
-                setPaymentData(data)
-                setShowCheckout(false)
-                setCheckoutError(null)
-              }}
-              onError={(error) => {
-                console.log("Erro no checkout:", error)
-                setCheckoutError(error)
-                // Só fecha o modal se for um erro crítico de conexão
-                if (error && error.includes("Erro de conexão")) {
-                  setShowCheckout(false)
-                  setCheckoutError(null)
-                }
-                // Para outros erros, mantém o modal aberto para o usuário tentar novamente
-              }}
-            />
-          </div>
-        </div>
-      )}
     </div>
   )
 }

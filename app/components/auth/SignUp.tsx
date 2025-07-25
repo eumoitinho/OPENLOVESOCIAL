@@ -74,9 +74,9 @@ const PLANS = [
     bgColor: "bg-gray-50",
   },
   {
-    id: "premium",
-    name: "Premium",
-    price: "R$ 29,90",
+    id: "gold",
+    name: "Gold",
+    price: "R$ 25,00",
     period: "/mês",
     description: "Mais recursos e visibilidade",
     features: [
@@ -88,27 +88,27 @@ const PLANS = [
       "Boost no perfil",
     ],
     icon: Crown,
-    color: "text-purple-500",
-    bgColor: "bg-purple-50",
+    color: "text-yellow-500",
+    bgColor: "bg-yellow-50",
     popular: true,
   },
   {
-    id: "pro",
-    name: "Pro",
-    price: "R$ 49,90",
+    id: "diamond",
+    name: "Diamond",
+    price: "R$ 45,90",
     period: "/mês",
-    description: "Para criadores de conteúdo",
+    description: "Experiência completa e exclusiva",
     features: [
-      "Todos os recursos Premium",
-      "Vender conteúdo exclusivo",
-      "Criar programas/cursos",
-      "Analytics avançados",
-      "Suporte prioritário",
-      "Comissão reduzida (15%)",
+      "Tudo do Gold",
+      "Destaque Super Boost",
+      "Acesso prioritário",
+      "Chat com IA personalizada",
+      "Análise de compatibilidade",
+      "Eventos VIP",
     ],
     icon: Zap,
-    color: "text-yellow-500",
-    bgColor: "bg-yellow-50",
+    color: "text-blue-500",
+    bgColor: "bg-blue-50",
   },
 ]
 
@@ -328,29 +328,27 @@ export default function SignUp() {
 
       // 3. Se não for plano gratuito, redirecionar para pagamento
       if (formData.selectedPlan !== "free") {
-        const priceIds = {
-          premium: "price_premium_monthly",
-          pro: "price_pro_monthly",
-        }
-
-        const paymentResponse = await fetch("/api/mercadopago/subscribe", {
+        const paymentResponse = await fetch("/api/stripe/checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            priceId: priceIds[formData.selectedPlan as keyof typeof priceIds],
+            plan: formData.selectedPlan,
             userId: result.user.id,
+            email: formData.email,
+            successUrl: `${window.location.origin}/timeline?payment=success`,
+            cancelUrl: `${window.location.origin}/timeline?payment=cancelled`,
           }),
         })
 
-        const { url } = await paymentResponse.json()
-        if (url) {
-          window.location.href = url
+        const data = await paymentResponse.json()
+        if (data.url) {
+          window.location.href = data.url
           return
         }
       }
 
-      // 4. Redirecionar para dashboard
-      router.push("/dashboard")
+      // 4. Redirecionar para timeline
+      router.push("/timeline")
     } catch (error) {
       console.error("Erro no cadastro:", error)
       alert("Erro ao criar conta. Tente novamente.")
@@ -649,7 +647,7 @@ export default function SignUp() {
             <div className="space-y-6">
               <h3 className="text-lg font-semibold">Escolha seu Plano</h3>
 
-              <div className="grid gap-4">
+              <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-3">
                 {PLANS.map((plan) => {
                   const Icon = plan.icon
                   const isSelected = formData.selectedPlan === plan.id
@@ -657,35 +655,30 @@ export default function SignUp() {
                   return (
                     <div
                       key={plan.id}
-                      className={`relative p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        isSelected ? "border-purple-500 bg-purple-50" : "border-gray-200 hover:border-gray-300"
+                      className={`relative p-6 border-2 rounded-xl cursor-pointer transition-all ${
+                        isSelected ? "border-purple-500 bg-purple-50 shadow-lg" : "border-gray-200 hover:border-gray-300 hover:shadow-md"
                       }`}
                       onClick={() => handleInputChange("selectedPlan", plan.id)}
                     >
                       {plan.popular && <Badge className="absolute -top-2 left-4 bg-purple-500">Mais Popular</Badge>}
 
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-lg ${plan.bgColor}`}>
-                            <Icon className={`h-5 w-5 ${plan.color}`} />
-                          </div>
-                          <div>
-                            <h4 className="font-semibold text-lg">{plan.name}</h4>
-                            <p className="text-gray-600 text-sm">{plan.description}</p>
-                          </div>
+                      <div className="text-center mb-4">
+                        <div className={`p-3 rounded-xl ${plan.bgColor} mx-auto w-fit mb-3`}>
+                          <Icon className={`h-6 w-6 ${plan.color}`} />
                         </div>
-
-                        <div className="text-right">
-                          <div className="text-2xl font-bold">{plan.price}</div>
+                        <h4 className="font-semibold text-xl mb-2">{plan.name}</h4>
+                        <p className="text-gray-600 text-sm mb-3">{plan.description}</p>
+                        <div className="mb-4">
+                          <div className="text-3xl font-bold">{plan.price}</div>
                           <div className="text-sm text-gray-500">{plan.period}</div>
                         </div>
                       </div>
 
-                      <ul className="mt-4 space-y-1">
+                      <ul className="space-y-3">
                         {plan.features.map((feature, index) => (
-                          <li key={index} className="flex items-center gap-2 text-sm">
-                            <Check className="h-4 w-4 text-green-500" />
-                            {feature}
+                          <li key={index} className="flex items-center gap-3 text-sm">
+                            <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                            <span>{feature}</span>
                           </li>
                         ))}
                       </ul>

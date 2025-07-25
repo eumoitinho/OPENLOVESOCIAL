@@ -6,7 +6,7 @@ import { useState } from "react"
 import { Check, X, Crown, Zap } from "lucide-react"
 import { useAuth } from "@/app/components/auth/AuthProvider"
 import { loadStripe } from "@stripe/stripe-js"
-import CheckoutForm from "@/app/components/CheckoutForm"
+import PaymentProvider from "@/app/components/PaymentProvider"
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
@@ -217,7 +217,7 @@ const PricingContent: React.FC = () => {
         </div>
       </div>
       
-      {/* Modal de pagamento Mercado Pago */}
+      {/* Modal de pagamento Stripe */}
       {showCheckout && selectedPlan && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto relative">
@@ -228,9 +228,10 @@ const PricingContent: React.FC = () => {
               ×
             </button>
             <div className="p-6">
-              <CheckoutForm 
-                user={user} 
-                plano={selectedPlan.id === "ouro" ? "gold" : "diamante"} 
+              <PaymentProvider 
+                planType={selectedPlan.id === "ouro" ? "gold" : "diamond"} 
+                userEmail={user.email}
+                userId={user.id}
                 onSuccess={handleCheckoutSuccess} 
                 onError={handleCheckoutError} 
               />

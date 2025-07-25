@@ -13,21 +13,32 @@ export default function CheckoutPage() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
-  const plano = searchParams.get("plano") as "gold" | "diamante" | "diamante_anual"
+  const plano = searchParams.get("plano") as "gold" | "diamond" | "diamond_annual"
+  const userId = searchParams.get("userId")
+  const email = searchParams.get("email")
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push("/auth/signin?redirectTo=/checkout?plano=" + plano)
-      return
+    // Se não tiver userId e email (vindo do signup), verificar se o usuário está logado
+    if (!userId && !email) {
+      if (!authLoading && !user) {
+        router.push("/auth/signin?redirectTo=/checkout?plano=" + plano)
+        return
+      }
     }
 
-    if (!plano || !["gold", "diamante", "diamante_anual"].includes(plano)) {
+    // Se temos userId e email dos parâmetros (vindo do signup), permitir acesso
+    if (userId && email) {
+      console.log("Checkout com dados do signup:", { userId, email, plano })
+    }
+
+    if (!plano || !["gold", "diamond", "diamond_annual"].includes(plano)) {
       setError("Plano inválido")
       return
     }
-  }, [user, authLoading, plano, router])
+  }, [user, authLoading, plano, userId, email, router])
 
-  if (authLoading) {
+  // Se estamos aguardando auth e não temos dados do signup, mostrar loading
+  if (authLoading && !userId && !email) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -35,9 +46,15 @@ export default function CheckoutPage() {
     )
   }
 
-  if (!user) {
+  // Se não tiver user nem dados do signup, aguardar ou redirecionar
+  if (!user && !userId && !email) {
     return null // Será redirecionado pelo useEffect
   }
+
+  // Usar dados do usuário logado ou dos parâmetros (signup)
+  const currentUser = user || { id: userId, email: email }
+  const currentUserId = user?.id || userId || ''
+  const currentEmail = user?.email || email || ''
 
   if (error) {
     return (
@@ -78,7 +95,7 @@ export default function CheckoutPage() {
             Finalizar Assinatura
           </h1>
           <p className="text-gray-600">
-            Complete seu cadastro para acessar o plano {plano === "gold" ? "Open Ouro" : "Open Diamante"}
+            Complete seu pagamento para acessar o plano {plano === "gold" ? "Gold" : plano === "diamond" ? "Diamond" : "Diamond Anual"}
           </p>
         </div>
 
@@ -87,13 +104,13 @@ export default function CheckoutPage() {
           <div className="lg:col-span-2">
             <PaymentProvider
               planType={plano}
-              userEmail={user.email}
-              userId={user.id}
+              userEmail={currentEmail}
+              userId={currentUserId}
               onSuccess={() => {
                 setSuccess(true)
-                // Redirecionar para página de sucesso
+                // Redirecionar para timeline após sucesso
                 setTimeout(() => {
-                  router.push(`/planoativado/${plano}`)
+                  router.push('/timeline?payment=success')
                 }, 2000)
               }}
               onError={(error: string) => setError(error)}
@@ -109,20 +126,20 @@ export default function CheckoutPage() {
                 <div className="flex justify-between">
                   <span>Plano:</span>
                   <span className="font-medium">
-                    {plano === "gold" ? "Open Ouro" : 
-                     plano === "diamante" ? "Open Diamante" : "Open Diamante Anual"}
+                    {plano === "gold" ? "Gold" : 
+                     plano === "diamond" ? "Diamond" : "Diamond Anual"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Valor:</span>
                   <span className="font-medium">
                     R$ {plano === "gold" ? "25,00" : 
-                        plano === "diamante" ? "45,90" : "459,00"} /{plano === "diamante_anual" ? "ano" : "mês"}
+                        plano === "diamond" ? "45,90" : "459,00"} /{plano === "diamond_annual" ? "ano" : "mês"}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Usuário:</span>
-                  <span className="font-medium">{user.email}</span>
+                  <span className="font-medium">{currentEmail}</span>
                 </div>
               </div>
             </div>
@@ -192,7 +209,7 @@ export default function CheckoutPage() {
               </p>
               <div className="flex items-center">
                 <CreditCard className="w-4 h-4 text-gray-400 mr-2" />
-                <span className="text-xs text-gray-500">Stripe & Mercado Pago</span>
+                <span className="text-xs text-gray-500">Stripe</span>
               </div>
             </div>
           </div>

@@ -162,7 +162,7 @@ export async function GET(request: NextRequest) {
         longitude,
         is_verified,
         is_premium,
-        last_seen,
+        last_active_at,
         created_at,
         stats
       `)
@@ -218,7 +218,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Ordenar por atividade recente e criação
-    query = query.order("last_seen", { ascending: false, nullsFirst: false })
+    query = query.order("last_active_at", { ascending: false, nullsFirst: false })
     query = query.order("created_at", { ascending: false })
 
     // Executar query com paginação
@@ -326,8 +326,8 @@ export async function GET(request: NextRequest) {
         distance = Math.floor(Math.random() * maxDistance) + 1
       }
 
-      // Status online baseado em last_seen se disponível
-      const lastSeen = profile.last_seen ? new Date(profile.last_seen) : null
+      // Status online baseado em last_active_at se disponível
+      const lastSeen = profile.last_active_at ? new Date(profile.last_active_at) : null
       const isOnline = lastSeen ? 
         (new Date().getTime() - lastSeen.getTime()) < 15 * 60 * 1000 : // 15 minutos
         Math.random() > 0.7 // Fallback simulado

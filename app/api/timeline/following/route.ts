@@ -167,7 +167,7 @@ export async function GET(request: NextRequest) {
         content,
         created_at,
         stats,
-        users!inner (
+        users!comments_user_id_fkey (
           id,
           name,
           username,

@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
         price,
         stats,
         created_at,
-        users!inner (
+        users!posts_user_id_fkey (
           id,
           username,
           name,
@@ -228,7 +228,7 @@ export async function GET(request: NextRequest) {
         content,
         created_at,
         stats,
-        users!inner (
+        users!comments_user_id_fkey (
           id,
           name,
           username,
