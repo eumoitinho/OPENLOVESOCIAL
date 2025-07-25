@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Bookmark, BookmarkCheck } from 'lucide-react'
-import { Button, Tooltip } from '@nextui-org/react'
+import { Button, Tooltip } from '@heroui/react'
 import { cn } from '@/lib/utils'
 
 interface SaveButtonProps {

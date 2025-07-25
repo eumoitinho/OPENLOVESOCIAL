@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Heart, ThumbsUp, Laugh, Eye, Frown, Angry } from 'lucide-react'
-import { Button } from '@nextui-org/react'
+import { Button } from '@heroui/react'
 import { cn } from '@/lib/utils'
 
 interface LikeButtonProps {

@@ -104,9 +104,9 @@ export function ExploreProfiles({
 
   const renderProfileGrid = () => (
     <div className={cn(
-      "grid gap-6",
+      "grid gap-4 sm:gap-6",
       viewMode === 'grid' 
-        ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" 
+        ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
         : "grid-cols-1 max-w-2xl mx-auto"
     )}>
       {filteredProfiles.map((profile, index) => (
@@ -181,7 +181,7 @@ export function ExploreProfiles({
   )
 
   const renderLoadingState = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
       {[...Array(6)].map((_, i) => (
         <Card key={i} className="animate-pulse">
           <CardContent className="p-6">
@@ -280,7 +280,7 @@ export function ExploreProfiles({
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5 bg-gray-100 dark:bg-gray-800">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 bg-gray-100 dark:bg-gray-800">
           <TabsTrigger value="all" className="flex items-center gap-2">
             <Users className="w-4 h-4" />
             Todos

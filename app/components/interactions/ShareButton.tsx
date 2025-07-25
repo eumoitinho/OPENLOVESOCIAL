@@ -12,14 +12,13 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
-  modalCloseButton,
   useDisclosure,
   Input,
   Textarea,
   Divider,
   Avatar,
   User
-} from '@nextui-org/react'
+} from '@heroui/react'
 import { cn } from '@/lib/utils'
 
 interface ShareButtonProps {

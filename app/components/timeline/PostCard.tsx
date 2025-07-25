@@ -36,9 +36,12 @@ import { CommentsDialog } from "./CommentsDialog"
 import { MediaViewer, MediaItem } from "./MediaViewer"
 import { ShareDialog } from "./ShareDialog"
 import { ProfileViewer } from "./ProfileViewer"
+import { PostActionMenu } from "./PostActionMenu"
+import { EditPostDialog } from "./EditPostDialog"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import PlanBadge from "@/components/plan-limits/PlanBadge"
+import { toast } from "sonner"
 
 interface PostUser {
   name: string
@@ -138,6 +141,7 @@ export default function PostCard({
   const [mediaViewerOpen, setMediaViewerOpen] = useState(false)
   const [shareDialogOpen, setShareDialogOpen] = useState(false)
   const [profileViewerOpen, setProfileViewerOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [selectedMediaIndex, setSelectedMediaIndex] = useState(0)
   
   // Estados para as correções
@@ -145,6 +149,10 @@ export default function PostCard({
   const [loadingComments, setLoadingComments] = useState(false)
   const [loadingSave, setLoadingSave] = useState(false)
   const [loadingLike, setLoadingLike] = useState(false)
+  
+  // Estados para as novas funcionalidades
+  const [postContent, setPostContent] = useState(post.content)
+  const [isHidden, setIsHidden] = useState(false)
 
   // Estado local para curtidas otimista
   const [localLiked, setLocalLiked] = useState(post.liked)
@@ -495,6 +503,108 @@ export default function PostCard({
     }
   }
 
+  // Novas funcionalidades
+  const isOwnPost = currentUser.username === post.user?.username || currentUser.id === post.user?.username
+
+  const handleEditPost = () => {
+    setEditDialogOpen(true)
+  }
+
+  const handleSaveEdit = (updatedPost: Partial<typeof post>) => {
+    if (updatedPost.content) {
+      setPostContent(updatedPost.content)
+    }
+  }
+
+  const handleDeletePost = async () => {
+    try {
+      const response = await fetch(`/api/posts/${post.id}`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        // Post foi deletado com sucesso - ocultar da timeline
+        setIsHidden(true)
+      } else {
+        toast.error("Erro ao excluir post")
+      }
+    } catch (error) {
+      console.error("Erro ao excluir post:", error)
+      toast.error("Erro ao excluir post")
+    }
+  }
+
+  const handleReportPost = async () => {
+    try {
+      const response = await fetch(`/api/posts/${post.id}/report`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          reason: 'inappropriate_content',
+          description: 'Denúncia via interface do usuário'
+        })
+      })
+
+      if (!response.ok) {
+        toast.error("Erro ao denunciar post")
+      }
+    } catch (error) {
+      console.error("Erro ao denunciar post:", error)
+      toast.error("Erro ao denunciar post")
+    }
+  }
+
+  const handleBlockUser = async () => {
+    try {
+      const response = await fetch('/api/users/block', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          blocked_username: post.user?.username
+        })
+      })
+
+      if (response.ok) {
+        // Ocultar posts deste usuário
+        setIsHidden(true)
+      } else {
+        toast.error("Erro ao bloquear usuário")
+      }
+    } catch (error) {
+      console.error("Erro ao bloquear usuário:", error)
+      toast.error("Erro ao bloquear usuário")
+    }
+  }
+
+  const handleHidePost = async () => {
+    try {
+      const response = await fetch(`/api/posts/${post.id}/hide`, {
+        method: 'POST'
+      })
+
+      if (response.ok) {
+        setIsHidden(true)
+      } else {
+        toast.error("Erro ao ocultar post")
+      }
+    } catch (error) {
+      console.error("Erro ao ocultar post:", error)
+      toast.error("Erro ao ocultar post")
+    }
+  }
+
+  const handleUnlikePost = async () => {
+    if (!localLiked) return
+    
+    // Usar a mesma lógica do handleLike para descurtir
+    handleLike()
+  }
+
+  // Se o post estiver oculto, não renderizar
+  if (isHidden) {
+    return null
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -584,20 +694,32 @@ export default function PostCard({
                 </Button>
               </motion.div>
             )}
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              aria-label="Toggle menu" 
-              className="text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 h-8 w-8 rounded-full"
-            >
-              <MoreHorizontal className="size-4" />
-            </Button>
+            <PostActionMenu
+              postId={post.id}
+              postAuthor={{
+                username: post.user?.username || "usuario",
+                name: post.user?.name || "Usuário",
+                id: post.user?.username
+              }}
+              currentUser={{
+                username: currentUser.username,
+                name: currentUser.name,
+                id: currentUser.id
+              }}
+              isOwnPost={isOwnPost}
+              onEdit={handleEditPost}
+              onDelete={handleDeletePost}
+              onReport={handleReportPost}
+              onBlock={handleBlockUser}
+              onHide={handleHidePost}
+              onUnlike={handleUnlikePost}
+            />
           </div>
         </CardHeader>
         
         {/* Conteúdo */}
         <CardContent className="px-4 pb-3 space-y-4">
-          <p className="leading-relaxed text-gray-800 dark:text-gray-200 text-xs sm:text-sm">{post.content}</p>
+          <p className="leading-relaxed text-gray-800 dark:text-gray-200 text-xs sm:text-sm">{postContent}</p>
           
           {/* Mídia com Design Moderno */}
           {post.images && post.images.length > 0 && (
@@ -896,12 +1018,29 @@ export default function PostCard({
             isOpen={shareDialogOpen} 
             onClose={() => setShareDialogOpen(false)} 
             postId={post.id.toString()}
-            postContent={post.content}
+            postContent={postContent}
             postAuthor={post.user || { name: "Usuário", username: "@usuario", avatar: "/placeholder.svg" }}
             postImages={post.images || undefined}
             postVideo={post.video || undefined}
             currentUser={currentUser}
             onCopyLink={() => navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`)}
+          />
+        )}
+        
+        {editDialogOpen && (
+          <EditPostDialog
+            isOpen={editDialogOpen}
+            onClose={() => setEditDialogOpen(false)}
+            post={{
+              id: post.id,
+              content: postContent,
+              images: post.images,
+              video: post.video,
+              audio: post.audio,
+              user: post.user
+            }}
+            onSave={handleSaveEdit}
+            currentUser={currentUser}
           />
         )}
       </Card>

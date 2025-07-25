@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { UserPlus, UserCheck, UserX, Users, Clock } from 'lucide-react'
-import { Button, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@nextui-org/react'
+import { Button, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react'
 import { cn } from '@/lib/utils'
 import FollowButton from './FollowButton'
 

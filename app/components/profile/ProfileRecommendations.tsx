@@ -216,20 +216,21 @@ export default function ProfileRecommendations({ className }: ProfileRecommendat
           </TabsList>
           
           <TabsContent value="cards" className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {recommendations.map((profile, index) => (
                 <motion.div
                   key={profile.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
+                  className="w-full"
                 >
-                  <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                  <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105 h-full flex flex-col">
                     <div className="relative">
-                      <div className="aspect-square bg-gradient-to-br from-pink-100 to-purple-100 dark:from-pink-900/20 dark:to-purple-900/20 flex items-center justify-center">
-                        <Avatar className="w-20 h-20 sm:w-24 sm:h-24">
-                          <AvatarImage src={profile.avatar} alt={profile.name} />
-                          <AvatarFallback className="text-xl sm:text-2xl bg-gradient-to-br from-pink-500 to-purple-500 text-white">
+                      <div className="aspect-[4/3] bg-gradient-to-br from-pink-100 to-purple-100 dark:from-pink-900/20 dark:to-purple-900/20 flex items-center justify-center p-4">
+                        <Avatar className="w-16 h-16 sm:w-20 sm:h-20">
+                          <AvatarImage src={profile.avatar} alt={profile.name} className="object-cover" />
+                          <AvatarFallback className="text-lg sm:text-xl bg-gradient-to-br from-pink-500 to-purple-500 text-white">
                             {profile.name.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
@@ -252,22 +253,21 @@ export default function ProfileRecommendations({ className }: ProfileRecommendat
                       )}
                     </div>
                     
-                    <CardContent className="p-3 sm:p-4">
-                      <div className="space-y-3">
+                    <CardContent className="p-3 sm:p-4 flex-1 flex flex-col">
+                      <div className="space-y-3 flex-1">
                         <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm sm:text-base truncate">
+                          <div className="flex items-start gap-2 mb-1">
+                            <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm sm:text-base truncate flex-1 leading-tight">
                               {profile.name}
                             </h3>
                             {profile.isVerified && (
                               <Badge variant="secondary" className="text-xs flex-shrink-0">
-                                <Star className="w-3 h-3 mr-1" />
-                                Verificado
+                                <Star className="w-3 h-3" />
                               </Badge>
                             )}
                           </div>
                           
-                          <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                          <div className="flex flex-col gap-1 text-xs text-gray-600 dark:text-gray-400">
                             <span>{profile.age} anos</span>
                             <div className="flex items-center gap-1">
                               <MapPin className="w-3 h-3 flex-shrink-0" />
@@ -276,16 +276,16 @@ export default function ProfileRecommendations({ className }: ProfileRecommendat
                           </div>
                         </div>
                         
-                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                        <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-3 leading-relaxed">
                           {profile.bio}
                         </p>
                         
                         {/* Reasons */}
                         <div className="space-y-1">
-                          {profile.reasons.slice(0, 2).map((reason, idx) => (
-                            <div key={idx} className="flex items-center gap-2 text-xs text-gray-500">
-                              <div className="w-1 h-1 bg-pink-500 rounded-full flex-shrink-0"></div>
-                              <span className="truncate">{reason}</span>
+                          {profile.reasons.slice(0, 1).map((reason, idx) => (
+                            <div key={idx} className="flex items-start gap-2 text-xs text-gray-500">
+                              <div className="w-1 h-1 bg-pink-500 rounded-full flex-shrink-0 mt-1.5"></div>
+                              <span className="line-clamp-2 leading-relaxed">{reason}</span>
                             </div>
                           ))}
                         </div>
@@ -293,14 +293,14 @@ export default function ProfileRecommendations({ className }: ProfileRecommendat
                         {/* Common Interests */}
                         {profile.interests.length > 0 && (
                           <div className="flex flex-wrap gap-1">
-                            {profile.interests.slice(0, 3).map((interest, idx) => (
-                              <Badge key={idx} variant="outline" className="text-xs">
+                            {profile.interests.slice(0, 2).map((interest, idx) => (
+                              <Badge key={idx} variant="outline" className="text-xs px-2 py-1">
                                 {interest}
                               </Badge>
                             ))}
-                            {profile.interests.length > 3 && (
-                              <Badge variant="outline" className="text-xs">
-                                +{profile.interests.length - 3}
+                            {profile.interests.length > 2 && (
+                              <Badge variant="outline" className="text-xs px-2 py-1">
+                                +{profile.interests.length - 2}
                               </Badge>
                             )}
                           </div>
@@ -308,22 +308,22 @@ export default function ProfileRecommendations({ className }: ProfileRecommendat
                       </div>
                     </CardContent>
                     
-                    <div className="p-3 sm:p-4 pt-0">
+                    <div className="p-3 sm:p-4 pt-0 mt-auto">
                       <div className="flex gap-2">
                         <Button
                           onClick={() => handleInteraction(profile.id, 'pass')}
                           variant="outline"
                           size="sm"
-                          className="flex-1 text-xs sm:text-sm"
+                          className="flex-1 text-xs h-8"
                         >
                           Passar
                         </Button>
                         <Button
                           onClick={() => handleInteraction(profile.id, 'like')}
                           size="sm"
-                          className="flex-1 bg-pink-500 hover:bg-pink-600 text-xs sm:text-sm"
+                          className="flex-1 bg-pink-500 hover:bg-pink-600 text-xs h-8"
                         >
-                          <Heart className="w-4 h-4 mr-1" />
+                          <Heart className="w-3 h-3 mr-1" />
                           Curtir
                         </Button>
                       </div>
