@@ -46,13 +46,18 @@ export async function GET(req: NextRequest) {
         action_url,
         is_read,
         is_deleted,
+        delivered_at,
+        read_at,
+        sent_via_email,
+        sent_via_push,
         created_at,
-        sender:users!sender_id (
+        sender:sender_id (
           id,
           username,
           name,
           avatar_url,
-          is_verified
+          is_verified,
+          is_premium
         )
       `)
       .eq('recipient_id', currentUser.id)
@@ -99,6 +104,11 @@ export async function GET(req: NextRequest) {
       content: notif.content,
       icon: notif.icon,
       isRead: notif.is_read,
+      isDeleted: notif.is_deleted,
+      deliveredAt: notif.delivered_at,
+      readAt: notif.read_at,
+      sentViaEmail: notif.sent_via_email,
+      sentViaPush: notif.sent_via_push,
       createdAt: notif.created_at,
       actionText: notif.action_text,
       actionUrl: notif.action_url,
@@ -108,7 +118,8 @@ export async function GET(req: NextRequest) {
         username: notif.sender.username,
         name: notif.sender.name,
         avatar: notif.sender.avatar_url,
-        verified: notif.sender.is_verified || false
+        verified: notif.sender.is_verified || false,
+        premium: notif.sender.is_premium || false
       } : null
     })) || []
 
@@ -154,7 +165,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { action, notificationIds, settings, type, title, content, targetUserId, relatedPostId, relatedCommentId, relatedUserId } = body
+    const { action, notificationIds, settings, type, title, content, icon, actionText, actionUrl, targetUserId, relatedData } = body
 
     switch (action) {
       case 'create':
@@ -165,8 +176,25 @@ export async function POST(req: NextRequest) {
           )
         }
 
+        // Validar tipo de notificação
+        const validTypes = [
+          'follow', 'unfollow', 'friend_request', 'friend_accept',
+          'post_like', 'post_comment', 'comment_like', 'comment_reply',
+          'post_share', 'mention', 'event_invitation', 'event_reminder',
+          'community_invitation', 'community_post', 'message',
+          'payment_success', 'payment_failed', 'subscription_expiring',
+          'verification_approved', 'verification_rejected', 'system'
+        ]
+        
+        if (!validTypes.includes(type)) {
+          return NextResponse.json(
+            { error: "Tipo de notificação inválido" },
+            { status: 400 }
+          )
+        }
+
         // Não criar notificação se o usuário está notificando a si mesmo
-        if (targetUserId === user.id) {
+        if (targetUserId === currentUser.id) {
           return NextResponse.json({ success: true, message: "Não criou notificação para si mesmo" })
         }
 
@@ -184,7 +212,32 @@ export async function POST(req: NextRequest) {
           }
         }
 
-        const { error: createError } = await supabase
+        // Determinar ícone padrão baseado no tipo
+        const defaultIcons: Record<string, string> = {
+          'follow': 'user-plus',
+          'unfollow': 'user-minus',
+          'friend_request': 'users',
+          'friend_accept': 'user-check',
+          'post_like': 'heart',
+          'post_comment': 'message-circle',
+          'comment_like': 'heart',
+          'comment_reply': 'reply',
+          'post_share': 'share',
+          'mention': 'at-sign',
+          'event_invitation': 'calendar',
+          'event_reminder': 'bell',
+          'community_invitation': 'users',
+          'community_post': 'file-text',
+          'message': 'mail',
+          'payment_success': 'check-circle',
+          'payment_failed': 'x-circle',
+          'subscription_expiring': 'alert-circle',
+          'verification_approved': 'check-circle',
+          'verification_rejected': 'x-circle',
+          'system': 'info'
+        }
+
+        const { data: notification, error: createError } = await supabase
           .from('notifications')
           .insert({
             recipient_id: finalTargetUserId,
@@ -192,13 +245,17 @@ export async function POST(req: NextRequest) {
             type: type,
             title: title,
             content: content,
-            related_data: {
-              post_id: relatedPostId,
-              comment_id: relatedCommentId,
-              user_id: relatedUserId
-            },
-            is_read: false
+            icon: icon || defaultIcons[type] || 'bell',
+            action_text: actionText,
+            action_url: actionUrl,
+            related_data: relatedData || {},
+            is_read: false,
+            is_deleted: false,
+            sent_via_email: false,
+            sent_via_push: false
           })
+          .select()
+          .single()
 
         if (createError) {
           console.error("Erro ao criar notificação:", createError)
@@ -208,7 +265,11 @@ export async function POST(req: NextRequest) {
           )
         }
 
-        return NextResponse.json({ success: true, message: "Notificação criada" })
+        return NextResponse.json({ 
+          success: true, 
+          message: "Notificação criada",
+          data: notification
+        })
 
       case 'mark_read':
         if (!notificationIds || !Array.isArray(notificationIds)) {

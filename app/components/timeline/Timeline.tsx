@@ -1244,6 +1244,9 @@ const CompleteProfileView = ({ user, isOwnProfile, onEditProfile }: CompleteProf
   const [loading, setLoading] = useState(false)
   const [profile, setProfile] = useState<any>(null)
   const [posts, setPosts] = useState<any[]>([])
+  const [followers, setFollowers] = useState<any[]>([])
+  const [following, setFollowing] = useState<any[]>([])
+  const [media, setMedia] = useState<any[]>([])
   const [activeTab, setActiveTab] = useState("posts")
 
   // Buscar dados do perfil ao carregar
@@ -1251,6 +1254,9 @@ const CompleteProfileView = ({ user, isOwnProfile, onEditProfile }: CompleteProf
     if (user) {
       fetchProfile()
       fetchUserPosts()
+      fetchFollowers()
+      fetchFollowing()
+      fetchUserMedia()
     }
   }, [user])
 
@@ -1278,6 +1284,42 @@ const CompleteProfileView = ({ user, isOwnProfile, onEditProfile }: CompleteProf
       }
     } catch (error) {
       console.error('Erro ao buscar posts:', error)
+    }
+  }
+
+  const fetchFollowers = async () => {
+    try {
+      const response = await fetch('/api/follows/followers')
+      if (response.ok) {
+        const data = await response.json()
+        setFollowers(data.followers || [])
+      }
+    } catch (error) {
+      console.error('Erro ao buscar seguidores:', error)
+    }
+  }
+
+  const fetchFollowing = async () => {
+    try {
+      const response = await fetch('/api/follows/following')
+      if (response.ok) {
+        const data = await response.json()
+        setFollowing(data.following || [])
+      }
+    } catch (error) {
+      console.error('Erro ao buscar seguindo:', error)
+    }
+  }
+
+  const fetchUserMedia = async () => {
+    try {
+      const response = await fetch('/api/posts/user/media')
+      if (response.ok) {
+        const data = await response.json()
+        setMedia(data.media || [])
+      }
+    } catch (error) {
+      console.error('Erro ao buscar mídia:', error)
     }
   }
 
@@ -1316,6 +1358,13 @@ const CompleteProfileView = ({ user, isOwnProfile, onEditProfile }: CompleteProf
       year: 'numeric',
       month: 'long'
     })
+  }
+
+  const getMediaType = (url: string) => {
+    const extension = url.split('.').pop()?.toLowerCase()
+    if (['mp4', 'avi', 'mov', 'wmv'].includes(extension || '')) return 'video'
+    if (['mp3', 'wav', 'ogg', 'aac'].includes(extension || '')) return 'audio'
+    return 'image'
   }
 
   if (loading && !profile) {
@@ -1437,11 +1486,11 @@ const CompleteProfileView = ({ user, isOwnProfile, onEditProfile }: CompleteProf
                 <p className="text-xs text-default-500">Posts</p>
               </div>
               <div>
-                <p className="font-semibold text-sm sm:text-base">0</p>
+                <p className="font-semibold text-sm sm:text-base">{followers.length}</p>
                 <p className="text-xs text-default-500">Seguidores</p>
               </div>
               <div>
-                <p className="font-semibold text-sm sm:text-base">0</p>
+                <p className="font-semibold text-sm sm:text-base">{following.length}</p>
                 <p className="text-xs text-default-500">Seguindo</p>
               </div>
               <div>
@@ -1449,12 +1498,12 @@ const CompleteProfileView = ({ user, isOwnProfile, onEditProfile }: CompleteProf
                 <p className="text-xs text-default-500">Amigos</p>
               </div>
               <div>
-                <p className="font-semibold text-sm sm:text-base">0</p>
-                <p className="text-xs text-default-500">Eventos</p>
+                <p className="font-semibold text-sm sm:text-base">{media.filter(m => getMediaType(m.url) === 'video').length}</p>
+                <p className="text-xs text-default-500">Vídeos</p>
               </div>
               <div>
-                <p className="font-semibold text-sm sm:text-base">0</p>
-                <p className="text-xs text-default-500">Comunidades</p>
+                <p className="font-semibold text-sm sm:text-base">{media.filter(m => getMediaType(m.url) === 'audio').length}</p>
+                <p className="text-xs text-default-500">Áudios</p>
               </div>
             </div>
           </div>
