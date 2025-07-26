@@ -43,7 +43,8 @@
       "Bash(timeout 60 npm run build)",
       "Bash(pnpm next:*)",
       "Bash(next build)",
-      "Bash(npx next:*)"
+      "Bash(npx next:*)",
+      "Bash(cp:*)"
     ],
     "deny": []
   }

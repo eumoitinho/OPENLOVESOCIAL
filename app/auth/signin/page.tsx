@@ -2,9 +2,7 @@
 
 import type React from "react"
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Button, Input } from "@heroui/react"
 import { Moon, Sun, Lock, Mail, ArrowRight, ArrowLeft, Shield, CheckCircle } from "lucide-react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
@@ -285,9 +283,9 @@ export default function SignInPage() {
           {step === "login" ? (
             <form onSubmit={handleLogin} className="space-y-6">
               <div>
-                <Label htmlFor="email" className="text-sm sm:text-base font-medium text-gray-900 dark:text-white">
+                <label htmlFor="email" className="text-sm sm:text-base font-medium text-gray-900 dark:text-white">
                   E-mail
-                </Label>
+                </label>
                 <div className="mt-1 relative">
                   <Input
                     id="email"
@@ -304,9 +302,9 @@ export default function SignInPage() {
               </div>
 
               <div>
-                <Label htmlFor="password" className="text-sm sm:text-base font-medium text-gray-900 dark:text-white">
+                <label htmlFor="password" className="text-sm sm:text-base font-medium text-gray-900 dark:text-white">
                   Senha
-                </Label>
+                </label>
                 <div className="mt-1 relative">
                   <Input
                     id="password"
@@ -357,9 +355,9 @@ export default function SignInPage() {
               </div>
 
               <div>
-                <Label htmlFor="code" className="text-sm sm:text-base font-medium text-gray-900 dark:text-white">
+                <label htmlFor="code" className="text-sm sm:text-base font-medium text-gray-900 dark:text-white">
                   Código de Verificação
-                </Label>
+                </label>
                 <div className="mt-1 relative">
                   <Input
                     id="code"
