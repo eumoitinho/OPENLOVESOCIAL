@@ -1,4 +1,4 @@
-import { createRouteHandlerClient } from '@/app/lib/supabase-server'
+import { createRouteHandlerClient, createSupabaseAdmin } from '@/app/lib/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
 
 export interface VerificationContext {
@@ -9,11 +9,32 @@ export interface VerificationContext {
     is_verified: boolean
     is_premium: boolean
     role: string
+    premium_type?: string
+    premium_status?: string
   }
   isVerified: boolean
   canPerformAction: boolean
   restrictedActions: string[]
 }
+
+// Default restricted actions that require verification
+const DEFAULT_RESTRICTED_ACTIONS = [
+  'post_media',
+  'create_community', 
+  'create_event',
+  'premium_content',
+  'monetization'
+]
+
+// Actions that are always allowed for authenticated users
+const ALWAYS_ALLOWED_ACTIONS = [
+  'comment',
+  'message',
+  'like',
+  'save',
+  'follow',
+  'read'
+]
 
 /**
  * Middleware to check user verification status and permissions
@@ -24,6 +45,7 @@ export async function verifyUserForAction(
 ): Promise<{ context: VerificationContext | null; error: NextResponse | null }> {
   try {
     const supabase = await createRouteHandlerClient()
+    const supabaseAdmin = createSupabaseAdmin()
 
     // Check authentication
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -37,14 +59,15 @@ export async function verifyUserForAction(
       }
     }
 
-    // Get current user from database
-    const { data: currentUser, error: userError } = await supabase
+    // Get current user from database using admin client to bypass RLS
+    const { data: currentUser, error: userError } = await supabaseAdmin
       .from('users')
-      .select('id, username, is_verified, is_premium, role')
+      .select('id, username, is_verified, is_premium, role, premium_type, premium_status')
       .eq('auth_id', user.id)
       .single()
 
     if (userError || !currentUser) {
+      console.error('User lookup error:', userError)
       return {
         context: null,
         error: NextResponse.json(
@@ -54,42 +77,54 @@ export async function verifyUserForAction(
       }
     }
 
-    // Temporarily bypass verification system for basic operations
-    const canPerform = true // Allow all actions for now
-    const restrictedActions: string[] = [] // No restricted actions for now
+    // Determine if action is allowed
+    const isAlwaysAllowed = ALWAYS_ALLOWED_ACTIONS.includes(requiredAction)
+    const isRestricted = DEFAULT_RESTRICTED_ACTIONS.includes(requiredAction)
+    const isAdmin = currentUser.role === 'admin'
+    const isVerified = currentUser.is_verified || false
+    
+    // Determine if user can perform action
+    let canPerform = true
+    
+    if (!isAdmin && !isAlwaysAllowed && isRestricted && !isVerified) {
+      canPerform = false
+    }
 
     const context: VerificationContext = {
       user: {
         id: currentUser.id,
         auth_id: user.id,
         username: currentUser.username,
-        is_verified: currentUser.is_verified,
-        is_premium: currentUser.is_premium,
-        role: currentUser.role
+        is_verified: currentUser.is_verified || false,
+        is_premium: currentUser.is_premium || false,
+        role: currentUser.role || 'user',
+        premium_type: currentUser.premium_type || null,
+        premium_status: currentUser.premium_status || 'inactive'
       },
-      isVerified: currentUser.is_verified,
+      isVerified: isVerified,
       canPerformAction: canPerform,
-      restrictedActions
+      restrictedActions: DEFAULT_RESTRICTED_ACTIONS
     }
 
     // If user cannot perform action, return verification error
     if (!canPerform) {
-      const isActionRestricted = restrictedActions.includes(requiredAction)
-      
-      if (isActionRestricted && !currentUser.is_verified) {
-        return {
-          context,
-          error: NextResponse.json(
-            { 
-              error: 'Perfil não verificado',
-              message: 'Esta ação requer verificação de perfil',
-              verification_required: true,
-              restricted_action: requiredAction,
-              verification_url: '/verification'
-            },
-            { status: 403 }
-          )
-        }
+      return {
+        context,
+        error: NextResponse.json(
+          { 
+            error: 'Verificação necessária',
+            message: `Para ${getActionDescription(requiredAction)}, você precisa verificar seu perfil`,
+            verification_required: true,
+            restricted_action: requiredAction,
+            verification_url: '/verification',
+            user_status: {
+              is_verified: isVerified,
+              is_premium: currentUser.is_premium,
+              role: currentUser.role
+            }
+          },
+          { status: 403 }
+        )
       }
     }
 
@@ -115,6 +150,7 @@ export async function requireVerification(
 ): Promise<{ user: any; error: NextResponse | null }> {
   try {
     const supabase = await createRouteHandlerClient()
+    const supabaseAdmin = createSupabaseAdmin()
 
     // Check authentication
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -128,14 +164,15 @@ export async function requireVerification(
       }
     }
 
-    // Get current user from database
-    const { data: currentUser, error: userError } = await supabase
+    // Get current user from database using admin client
+    const { data: currentUser, error: userError } = await supabaseAdmin
       .from('users')
-      .select('id, username, is_verified, is_premium, role')
+      .select('id, username, is_verified, is_premium, role, premium_type, premium_status')
       .eq('auth_id', user.id)
       .single()
 
     if (userError || !currentUser) {
+      console.error('User lookup error in requireVerification:', userError)
       return {
         user: null,
         error: NextResponse.json(
@@ -146,7 +183,10 @@ export async function requireVerification(
     }
 
     // Check if user is verified (admins bypass this check)
-    if (!currentUser.is_verified && currentUser.role !== 'admin') {
+    const isVerified = currentUser.is_verified || false
+    const isAdmin = currentUser.role === 'admin'
+    
+    if (!isVerified && !isAdmin) {
       return {
         user: currentUser,
         error: NextResponse.json(
@@ -154,7 +194,12 @@ export async function requireVerification(
             error: 'Verificação de perfil necessária',
             message: 'Você precisa verificar seu perfil para realizar esta ação',
             verification_required: true,
-            verification_url: '/verification'
+            verification_url: '/verification',
+            user_status: {
+              is_verified: isVerified,
+              is_premium: currentUser.is_premium,
+              role: currentUser.role
+            }
           },
           { status: 403 }
         )
@@ -180,53 +225,67 @@ export async function requireVerification(
  */
 export async function getUserVerificationStatus(userId: string) {
   try {
-    const supabase = await createRouteHandlerClient()
+    const supabaseAdmin = createSupabaseAdmin()
 
-    const { data: user, error } = await supabase
+    const { data: user, error } = await supabaseAdmin
       .from('users')
-      .select('id, is_verified, is_premium, role')
+      .select('id, is_verified, is_premium, role, premium_type, premium_status')
       .eq('id', userId)
       .single()
 
     if (error || !user) {
-      return null
+      console.error('Error getting user verification status:', error)
+      return {
+        is_verified: false,
+        is_premium: false,
+        role: 'user',
+        premium_type: null,
+        premium_status: 'inactive',
+        current_request: null,
+        total_attempts: 0,
+        max_attempts: 3,
+        restricted_actions: DEFAULT_RESTRICTED_ACTIONS,
+        can_request_verification: true
+      }
     }
 
-    // Get current verification request if exists
-    const { data: currentRequest } = await supabase
-      .from('verification_requests')
-      .select('id, status, expires_at, attempt_number')
-      .eq('user_id', userId)
-      .in('status', ['pending', 'submitted'])
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single()
+    // Try to get verification request info, but don't fail if table doesn't exist
+    let currentRequest = null
+    let totalAttempts = 0
 
-    // Get total attempts
-    const { count: totalAttempts } = await supabase
-      .from('verification_requests')
-      .select('id', { count: 'exact' })
-      .eq('user_id', userId)
+    try {
+      const { data: currentReq } = await supabaseAdmin
+        .from('verification_requests')
+        .select('id, status, expires_at, attempt_number')
+        .eq('user_id', userId)
+        .in('status', ['pending', 'submitted'])
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single()
 
-    // Get restricted actions
-    const { data: settings } = await supabase
-      .from('verification_settings')
-      .select('setting_value')
-      .eq('setting_key', 'verification_required_actions')
-      .single()
+      currentRequest = currentReq
 
-    const restrictedActions = settings?.setting_value ? 
-      JSON.parse(settings.setting_value) : []
+      const { count } = await supabaseAdmin
+        .from('verification_requests')
+        .select('id', { count: 'exact' })
+        .eq('user_id', userId)
+
+      totalAttempts = count || 0
+    } catch (verificationError) {
+      console.log('Verification tables not available, using defaults')
+    }
 
     return {
-      is_verified: user.is_verified,
-      is_premium: user.is_premium,
-      role: user.role,
+      is_verified: user.is_verified || false,
+      is_premium: user.is_premium || false,
+      role: user.role || 'user',
+      premium_type: user.premium_type || null,
+      premium_status: user.premium_status || 'inactive',
       current_request: currentRequest,
-      total_attempts: totalAttempts || 0,
+      total_attempts: totalAttempts,
       max_attempts: 3,
-      restricted_actions: restrictedActions,
-      can_request_verification: (totalAttempts || 0) < 3 && !currentRequest
+      restricted_actions: DEFAULT_RESTRICTED_ACTIONS,
+      can_request_verification: totalAttempts < 3 && !currentRequest
     }
 
   } catch (error) {

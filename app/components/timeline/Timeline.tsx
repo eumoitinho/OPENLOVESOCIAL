@@ -1089,8 +1089,27 @@ export default function Timeline() {
                           </div>
                         </div>
                       ) : (
-                        <MyProfileEditor user={user} goBack={goBack} />
+                        <CompleteProfileView 
+                          user={user} 
+                          isOwnProfile={true}
+                          onEditProfile={() => setActiveView("edit-profile")}
+                        />
                       )}
+                    </div>
+                  )
+                case "edit-profile":
+                  return (
+                    <div className="min-h-screen">
+                      <div className="flex items-center mb-4">
+                        <Button variant="ghost" onClick={() => setActiveView("my-profile")} className="mr-4">
+                          ← Voltar
+                        </Button>
+                        <h1 className="text-2xl font-bold">Editar Perfil</h1>
+                      </div>
+                      <ProfileEditForm 
+                        user={user}
+                        onSave={() => setActiveView("my-profile")}
+                      />
                     </div>
                   )
                 case "settings":
@@ -1214,16 +1233,374 @@ export default function Timeline() {
   )
 }
 
-// Componente para editar perfil inline
-interface MyProfileEditorProps {
+// Componente de página completa de perfil
+interface CompleteProfileViewProps {
   user: any
-  goBack: () => void
+  isOwnProfile: boolean
+  onEditProfile: () => void
 }
 
-const MyProfileEditor = ({ user, goBack }: MyProfileEditorProps) => {
-  const [isEditing, setIsEditing] = useState(false)
+const CompleteProfileView = ({ user, isOwnProfile, onEditProfile }: CompleteProfileViewProps) => {
   const [loading, setLoading] = useState(false)
   const [profile, setProfile] = useState<any>(null)
+  const [posts, setPosts] = useState<any[]>([])
+  const [activeTab, setActiveTab] = useState("posts")
+
+  // Buscar dados do perfil ao carregar
+  useEffect(() => {
+    if (user) {
+      fetchProfile()
+      fetchUserPosts()
+    }
+  }, [user])
+
+  const fetchProfile = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/profile/me')
+      if (response.ok) {
+        const data = await response.json()
+        setProfile(data)
+      }
+    } catch (error) {
+      console.error('Erro ao buscar perfil:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchUserPosts = async () => {
+    try {
+      const response = await fetch('/api/posts/user')
+      if (response.ok) {
+        const data = await response.json()
+        setPosts(data.data || [])
+      }
+    } catch (error) {
+      console.error('Erro ao buscar posts:', error)
+    }
+  }
+
+  const getAge = (birthDate: string) => {
+    if (!birthDate) return null
+    const today = new Date()
+    const birth = new Date(birthDate)
+    let age = today.getFullYear() - birth.getFullYear()
+    const monthDiff = today.getMonth() - birth.getMonth()
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--
+    }
+    return age
+  }
+
+  const getGenderIcon = (gender?: string) => {
+    switch (gender) {
+      case 'male': return 'lucide:mars'
+      case 'female': return 'lucide:venus'
+      case 'couple': return 'lucide:heart'
+      default: return 'lucide:user'
+    }
+  }
+
+  const getGenderLabel = (gender?: string) => {
+    switch (gender) {
+      case 'male': return 'Homem'
+      case 'female': return 'Mulher'
+      case 'couple': return 'Casal'
+      default: return 'Não informado'
+    }
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('pt-BR', {
+      year: 'numeric',
+      month: 'long'
+    })
+  }
+
+  if (loading && !profile) {
+    return (
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Carregando perfil...</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      {/* Profile Header Card */}
+      <Card className="overflow-visible">
+        <CardContent className="p-0">
+          {/* Cover Image */}
+          <div className="relative h-40 sm:h-56 md:h-72">
+            <div className="absolute inset-0 bg-gradient-to-r from-pink-400 via-rose-400 to-pink-500"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
+          </div>
+          
+          {/* Profile Info */}
+          <div className="px-3 sm:px-4 pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+              <div className="flex items-end">
+                <Avatar className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 -mt-8 sm:-mt-10 md:-mt-12 z-10 border-4 border-white shadow-lg">
+                  <AvatarImage src={profile?.avatar_url || user?.user_metadata?.avatar_url || "/placeholder-user.jpg"} />
+                  <AvatarFallback className="text-2xl bg-pink-500 text-white">
+                    {profile?.first_name && profile?.last_name
+                      ? `${profile.first_name[0]}${profile.last_name[0]}`
+                      : user?.user_metadata?.full_name 
+                        ? user.user_metadata.full_name.split(' ').map((n: string) => n[0]).join('')
+                        : user?.email?.charAt(0).toUpperCase()
+                    }
+                  </AvatarFallback>
+                </Avatar>
+                <div className="ml-3 sm:ml-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h1 className="text-xl sm:text-2xl font-bold">
+                      {profile?.first_name && profile?.last_name 
+                        ? `${profile.first_name} ${profile.last_name}`
+                        : user?.user_metadata?.full_name || user?.email
+                      }
+                    </h1>
+                    {profile?.is_verified && (
+                      <Badge color="success" variant="flat" size="sm">
+                        <span className="ml-1 hidden sm:inline">Verificado</span>
+                      </Badge>
+                    )}
+                    {profile?.is_premium && (
+                      <Badge color="warning" variant="flat" size="sm">
+                        <span className="ml-1 hidden sm:inline">Premium</span>
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 text-small text-default-500">
+                    <span>@{user?.user_metadata?.username || user?.email?.split('@')[0]}</span>
+                    {profile?.profile_type && (
+                      <>
+                        <span>•</span>
+                        <span>{getGenderLabel(profile.profile_type)}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex gap-2">
+                {isOwnProfile ? (
+                  <Button color="primary" onPress={onEditProfile}>
+                    Editar Perfil
+                  </Button>
+                ) : (
+                  <>
+                    <Button color="primary">
+                      Seguir
+                    </Button>
+                    <Button variant="bordered">
+                      Mensagem
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+            
+            {profile?.bio && (
+              <p className="mt-3 sm:mt-4 text-default-700 text-sm sm:text-base">{profile.bio}</p>
+            )}
+            
+            {/* Profile Details */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3 sm:mt-4 text-small text-default-500">
+              {profile?.city && (
+                <div className="flex items-center gap-1">
+                  <MapPin className="w-4 h-4" />
+                  <span className="text-xs sm:text-sm">{profile.city}</span>
+                </div>
+              )}
+              {profile?.birth_date && (
+                <div className="flex items-center gap-1">
+                  <Calendar className="w-4 h-4" />
+                  <span className="text-xs sm:text-sm">{getAge(profile.birth_date)} anos</span>
+                </div>
+              )}
+              <div className="flex items-center gap-1">
+                <Calendar className="w-4 h-4" />
+                <span className="text-xs sm:text-sm">Entrou em {formatDate(user.created_at)}</span>
+              </div>
+            </div>
+            
+            <Separator className="my-3 sm:my-4" />
+            
+            {/* Stats */}
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 text-center">
+              <div>
+                <p className="font-semibold text-sm sm:text-base">{posts.length}</p>
+                <p className="text-xs text-default-500">Posts</p>
+              </div>
+              <div>
+                <p className="font-semibold text-sm sm:text-base">0</p>
+                <p className="text-xs text-default-500">Seguidores</p>
+              </div>
+              <div>
+                <p className="font-semibold text-sm sm:text-base">0</p>
+                <p className="text-xs text-default-500">Seguindo</p>
+              </div>
+              <div>
+                <p className="font-semibold text-sm sm:text-base">0</p>
+                <p className="text-xs text-default-500">Amigos</p>
+              </div>
+              <div>
+                <p className="font-semibold text-sm sm:text-base">0</p>
+                <p className="text-xs text-default-500">Eventos</p>
+              </div>
+              <div>
+                <p className="font-semibold text-sm sm:text-base">0</p>
+                <p className="text-xs text-default-500">Comunidades</p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Tabs */}
+      <Tabs 
+        aria-label="Profile sections" 
+        className="mt-4"
+        color="primary"
+        variant="underlined"
+        selectedKey={activeTab}
+        onSelectionChange={(key) => setActiveTab(key as string)}
+      >
+        <Tab key="posts" title={
+          <div className="flex items-center gap-2">
+            <FileText className="w-4 h-4" />
+            <span>Posts</span>
+          </div>
+        }>
+          <Card>
+            <CardContent>
+              {posts.length > 0 ? (
+                <div className="space-y-4">
+                  {posts.map((post) => (
+                    <div key={post.id} className="border-b border-default-200 pb-4 last:border-b-0">
+                      <div className="flex items-start gap-3">
+                        <Avatar size="sm" src={profile?.avatar_url} className="flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-medium text-sm">
+                              {profile?.first_name && profile?.last_name 
+                                ? `${profile.first_name} ${profile.last_name}`
+                                : user?.user_metadata?.full_name || user?.email
+                              }
+                            </span>
+                            <span className="text-xs text-default-500">
+                              {formatDate(post.created_at)}
+                            </span>
+                          </div>
+                          <p className="text-sm text-default-700 mb-2">{post.content}</p>
+                          {post.media_urls && post.media_urls.length > 0 && (
+                            <div className="mb-2">
+                              <img
+                                src={post.media_urls[0]}
+                                alt="Post media"
+                                className="rounded-lg max-h-64 object-cover"
+                              />
+                            </div>
+                          )}
+                          <div className="flex items-center gap-4 text-xs text-default-500">
+                            <span>{post.likes_count || 0} curtidas</span>
+                            <span>{post.comments_count || 0} comentários</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <FileText className="w-12 h-12 mx-auto text-default-400 mb-4" />
+                  <p className="text-default-500">Nenhum post ainda</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </Tab>
+        
+        <Tab key="events" title={
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4" />
+            <span>Eventos</span>
+          </div>
+        }>
+          <Card>
+            <CardContent>
+              <div className="text-center py-8">
+                <Calendar className="w-12 h-12 mx-auto text-default-400 mb-4" />
+                <p className="text-default-500">Nenhum evento ainda</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Tab>
+        
+        <Tab key="communities" title={
+          <div className="flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            <span>Comunidades</span>
+          </div>
+        }>
+          <Card>
+            <CardContent>
+              <div className="text-center py-8">
+                <Users className="w-12 h-12 mx-auto text-default-400 mb-4" />
+                <p className="text-default-500">Nenhuma comunidade ainda</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Tab>
+        
+        <Tab key="friends" title={
+          <div className="flex items-center gap-2">
+            <User className="w-4 h-4" />
+            <span>Amigos</span>
+          </div>
+        }>
+          <Card>
+            <CardContent>
+              <div className="text-center py-8">
+                <User className="w-12 h-12 mx-auto text-default-400 mb-4" />
+                <p className="text-default-500">Nenhum amigo ainda</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Tab>
+        
+        <Tab key="media" title={
+          <div className="flex items-center gap-2">
+            <ImageIcon className="w-4 h-4" />
+            <span>Mídia</span>
+          </div>
+        }>
+          <Card>
+            <CardContent>
+              <div className="text-center py-8">
+                <ImageIcon className="w-12 h-12 mx-auto text-default-400 mb-4" />
+                <p className="text-default-500">Nenhuma mídia ainda</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Tab>
+      </Tabs>
+    </div>
+  )
+}
+
+// Componente de formulário de edição de perfil
+interface ProfileEditFormProps {
+  user: any
+  onSave: () => void
+}
+
+const ProfileEditForm = ({ user, onSave }: ProfileEditFormProps) => {
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -1247,22 +1624,15 @@ const MyProfileEditor = ({ user, goBack }: MyProfileEditorProps) => {
     longitude: null as number | null,
   })
 
-  // Buscar dados do perfil ao carregar
   useEffect(() => {
-    if (user) {
-      fetchProfile()
-    }
-  }, [user])
+    fetchProfile()
+  }, [])
 
   const fetchProfile = async () => {
     try {
-      setLoading(true)
       const response = await fetch('/api/profile/me')
       if (response.ok) {
         const data = await response.json()
-        setProfile(data)
-        
-        // Preencher formData com dados existentes
         if (data) {
           setFormData({
             firstName: data.first_name || "",
@@ -1290,8 +1660,6 @@ const MyProfileEditor = ({ user, goBack }: MyProfileEditorProps) => {
       }
     } catch (error) {
       console.error('Erro ao buscar perfil:', error)
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -1329,34 +1697,6 @@ const MyProfileEditor = ({ user, goBack }: MyProfileEditorProps) => {
     }
   }
 
-  const handleCityFocus = async () => {
-    if (typeof window !== "undefined" && navigator.geolocation) {
-      try {
-        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 60000
-          })
-        })
-        
-        const { latitude, longitude } = position.coords
-        try {
-          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`)
-          const data = await res.json()
-          const city = data.address.city || data.address.town || data.address.village || data.address.county || ""
-          const state = data.address.state || data.address.region || ""
-          setFormData((prev) => ({ ...prev, city, uf: state, latitude, longitude }))
-        } catch (e) {
-          console.error("Erro ao buscar cidade:", e)
-          setFormData((prev) => ({ ...prev, latitude, longitude }))
-        }
-      } catch (error) {
-        console.error("Erro ao obter localização:", error)
-      }
-    }
-  }
-
   const handleSave = async () => {
     try {
       setLoading(true)
@@ -1369,9 +1709,8 @@ const MyProfileEditor = ({ user, goBack }: MyProfileEditorProps) => {
       })
 
       if (response.ok) {
-        await fetchProfile() // Recarregar dados
-        setIsEditing(false)
         alert('Perfil atualizado com sucesso!')
+        onSave()
       } else {
         throw new Error('Erro ao salvar perfil')
       }
@@ -1384,473 +1723,166 @@ const MyProfileEditor = ({ user, goBack }: MyProfileEditorProps) => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header with Edit Button */}
-      <div className="flex items-center justify-between">
-        <Button 
-          variant={isEditing ? "outline" : "default"}
-          onClick={() => {
-            if (isEditing) {
-              setIsEditing(false)
-              fetchProfile() // Restaurar dados originais
-            } else {
-              setIsEditing(true)
-            }
-          }}
-          disabled={loading}
-        >
-          <Edit className="h-4 w-4 mr-2" />
-          {isEditing ? "Cancelar" : "Editar Perfil"}
+    <div className="max-w-2xl mx-auto space-y-6">
+      {/* Informações Básicas */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <User className="h-5 w-5" />
+            Informações Básicas
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="firstName">Nome</Label>
+              <Input
+                id="firstName"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleInputChange}
+                placeholder="Seu nome"
+              />
+            </div>
+            <div>
+              <Label htmlFor="lastName">Sobrenome</Label>
+              <Input
+                id="lastName"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleInputChange}
+                placeholder="Seu sobrenome"
+              />
+            </div>
+          </div>
+          
+          <div>
+            <Label htmlFor="birthDate">Data de Nascimento</Label>
+            <Input
+              id="birthDate"
+              name="birthDate"
+              type="date"
+              value={formData.birthDate}
+              onChange={handleInputChange}
+              max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split("T")[0]}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="bio">Bio</Label>
+            <Textarea
+              id="bio"
+              name="bio"
+              value={formData.bio}
+              onChange={handleInputChange}
+              placeholder="Conte um pouco sobre você"
+              className="h-24 resize-none"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Preferências */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Heart className="h-5 w-5" />
+            Preferências
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label>Tipo de Perfil</Label>
+            <Select
+              value={formData.profileType}
+              onValueChange={(value: "single" | "couple") => handleSelectChange("profileType", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione o tipo de perfil" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="single">Solteiro(a)</SelectItem>
+                <SelectItem value="couple">Casal</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label>O que você busca?</Label>
+            <div className="mt-2 space-y-2">
+              {["Mulher", "Homem", "Casal"].map((option) => (
+                <div key={option} className="flex items-center">
+                  <Checkbox
+                    id={`seeking-${option}`}
+                    checked={formData.seeking.includes(option)}
+                    onCheckedChange={() => handleCheckboxChange("seeking", option)}
+                  />
+                  <label htmlFor={`seeking-${option}`} className="ml-2 text-sm">
+                    {option}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <Label>Interesses</Label>
+            <div className="mt-2 space-y-2">
+              {["Ménage", "Swing", "Encontros Casuais", "Amizades", "Eventos Sociais"].map((option) => (
+                <div key={option} className="flex items-center">
+                  <Checkbox
+                    id={`interest-${option}`}
+                    checked={formData.interests.includes(option)}
+                    onCheckedChange={() => handleCheckboxChange("interests", option)}
+                  />
+                  <label htmlFor={`interest-${option}`} className="ml-2 text-sm">
+                    {option}
+                  </label>
+                </div>
+              ))}
+              <Input
+                name="otherInterest"
+                value={formData.otherInterest}
+                onChange={handleInputChange}
+                placeholder="Outro interesse (opcional)"
+                className="mt-2"
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Localização */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MapPin className="h-5 w-5" />
+            Localização
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div>
+            <Label htmlFor="city">Cidade</Label>
+            <Input
+              id="city"
+              name="city"
+              value={formData.city}
+              onChange={handleInputChange}
+              placeholder="Digite sua cidade"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Ações */}
+      <div className="flex gap-4 justify-end">
+        <Button variant="outline" onClick={onSave} disabled={loading}>
+          Cancelar
+        </Button>
+        <Button onClick={handleSave} disabled={loading}>
+          {loading ? "Salvando..." : "Salvar Alterações"}
         </Button>
       </div>
-
-      {loading && !isEditing ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500 mx-auto mb-4"></div>
-            <p className="text-gray-600 dark:text-gray-400">Carregando perfil...</p>
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {/* Profile Header Card */}
-          <Card className="overflow-hidden">
-            <div className="h-48 bg-gradient-to-r from-pink-400 via-rose-400 to-pink-500 relative">
-              <div className="absolute inset-0 bg-black/20"></div>
-              <div className="absolute bottom-4 left-4 right-4">
-                <div className="flex items-end gap-4">
-                  <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
-                    <AvatarImage src={profile?.avatar_url || user?.user_metadata?.avatar_url || "/placeholder-user.jpg"} />
-                    <AvatarFallback className="text-2xl bg-pink-500 text-white">
-                      {formData.firstName && formData.lastName
-                        ? `${formData.firstName[0]}${formData.lastName[0]}`
-                        : user?.user_metadata?.full_name 
-                          ? user.user_metadata.full_name.split(' ').map((n: string) => n[0]).join('')
-                          : user?.email?.charAt(0).toUpperCase()
-                      }
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 text-white">
-                    <h2 className="text-2xl font-bold mb-1">
-                      {formData.firstName && formData.lastName 
-                        ? `${formData.firstName} ${formData.lastName}`
-                        : user?.user_metadata?.full_name || user?.email
-                      }
-                    </h2>
-                    <p className="text-pink-100 mb-2">
-                      @{user?.user_metadata?.username || user?.email?.split('@')[0]}
-                    </p>
-                    <p className="text-pink-200 text-sm">
-                      {user.email} • Membro desde {user.created_at ? new Date(user.created_at).toLocaleDateString('pt-BR') : 'N/A'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          {isEditing ? (
-            /* Formulário de Edição */
-            <div className="space-y-6">
-              {/* Informações Básicas */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <User className="h-5 w-5" />
-                    Informações Básicas
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="firstName">Nome</Label>
-                      <Input
-                        id="firstName"
-                        name="firstName"
-                        value={formData.firstName}
-                        onChange={handleInputChange}
-                        placeholder="Seu nome"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="lastName">Sobrenome</Label>
-                      <Input
-                        id="lastName"
-                        name="lastName"
-                        value={formData.lastName}
-                        onChange={handleInputChange}
-                        placeholder="Seu sobrenome"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="birthDate">Data de Nascimento</Label>
-                    <Input
-                      id="birthDate"
-                      name="birthDate"
-                      type="date"
-                      value={formData.birthDate}
-                      onChange={handleInputChange}
-                      max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split("T")[0]}
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="bio">Bio</Label>
-                    <Textarea
-                      id="bio"
-                      name="bio"
-                      value={formData.bio}
-                      onChange={handleInputChange}
-                      placeholder="Conte um pouco sobre você"
-                      className="h-24 resize-none"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Tipo de Perfil e Interesses */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Heart className="h-5 w-5" />
-                    Preferências
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label>Tipo de Perfil</Label>
-                    <Select
-                      value={formData.profileType}
-                      onValueChange={(value: "single" | "couple") => handleSelectChange("profileType", value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o tipo de perfil" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="single">Solteiro(a)</SelectItem>
-                        <SelectItem value="couple">Casal</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <Label>O que você busca?</Label>
-                    <div className="mt-2 space-y-2">
-                      {["Mulher", "Homem", "Casal"].map((option) => (
-                        <div key={option} className="flex items-center">
-                          <Checkbox
-                            id={`seeking-${option}`}
-                            checked={formData.seeking.includes(option)}
-                            onCheckedChange={() => handleCheckboxChange("seeking", option)}
-                          />
-                          <label htmlFor={`seeking-${option}`} className="ml-2 text-sm">
-                            {option}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label>Interesses</Label>
-                    <div className="mt-2 space-y-2">
-                      {["Ménage", "Swing", "Encontros Casuais", "Amizades", "Eventos Sociais"].map((option) => (
-                        <div key={option} className="flex items-center">
-                          <Checkbox
-                            id={`interest-${option}`}
-                            checked={formData.interests.includes(option)}
-                            onCheckedChange={() => handleCheckboxChange("interests", option)}
-                          />
-                          <label htmlFor={`interest-${option}`} className="ml-2 text-sm">
-                            {option}
-                          </label>
-                        </div>
-                      ))}
-                      <Input
-                        name="otherInterest"
-                        value={formData.otherInterest}
-                        onChange={handleInputChange}
-                        placeholder="Outro interesse (opcional)"
-                        className="mt-2"
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Informações do Parceiro (se for casal) */}
-              {formData.profileType === "couple" && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Users className="h-5 w-5" />
-                      Informações do Parceiro
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="partner.nickname">Apelido</Label>
-                        <Input
-                          id="partner.nickname"
-                          name="partner.nickname"
-                          value={formData.partner.nickname}
-                          onChange={handleInputChange}
-                          placeholder="Apelido do parceiro"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="partner.age">Idade</Label>
-                        <Input
-                          id="partner.age"
-                          name="partner.age"
-                          type="number"
-                          value={formData.partner.age}
-                          onChange={handleInputChange}
-                          placeholder="Idade"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="partner.height">Altura (cm)</Label>
-                        <Input
-                          id="partner.height"
-                          name="partner.height"
-                          type="number"
-                          value={formData.partner.height}
-                          onChange={handleInputChange}
-                          placeholder="Altura em cm"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="partner.weight">Peso (kg)</Label>
-                        <Input
-                          id="partner.weight"
-                          name="partner.weight"
-                          type="number"
-                          value={formData.partner.weight}
-                          onChange={handleInputChange}
-                          placeholder="Peso em kg"
-                        />
-                      </div>
-                      <div>
-                        <Label>Cor dos Olhos</Label>
-                        <Select
-                          value={formData.partner.eyeColor}
-                          onValueChange={(value) => handleSelectChange("partner.eyeColor", value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione a cor dos olhos" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {["Castanho", "Azul", "Verde", "Cinza", "Outro"].map((color) => (
-                              <SelectItem key={color} value={color}>
-                                {color}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label>Cor do Cabelo</Label>
-                        <Select
-                          value={formData.partner.hairColor}
-                          onValueChange={(value) => handleSelectChange("partner.hairColor", value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione a cor do cabelo" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {["Preto", "Castanho", "Loiro", "Ruivo", "Outro"].map((color) => (
-                              <SelectItem key={color} value={color}>
-                                {color}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Localização */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <MapPin className="h-5 w-5" />
-                    Localização
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div>
-                    <Label htmlFor="city">Cidade</Label>
-                    <Input
-                      id="city"
-                      name="city"
-                      value={formData.city}
-                      onChange={handleInputChange}
-                      onFocus={handleCityFocus}
-                      placeholder="Digite sua cidade ou toque para detectar automaticamente"
-                    />
-                    <p className="mt-1 text-xs text-gray-500">
-                      Toque no campo para detectar sua localização automaticamente
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Ações */}
-              <div className="flex gap-4 justify-end">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setIsEditing(false)
-                    fetchProfile()
-                  }}
-                  disabled={loading}
-                >
-                  Cancelar
-                </Button>
-                <Button onClick={handleSave} disabled={loading}>
-                  {loading ? "Salvando..." : "Salvar Alterações"}
-                </Button>
-              </div>
-            </div>
-          ) : (
-            /* Visualização do Perfil */
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <User className="h-5 w-5" />
-                    Informações Pessoais
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <div className="text-sm text-gray-500">Nome Completo</div>
-                      <div className="font-medium">
-                        {formData.firstName && formData.lastName 
-                          ? `${formData.firstName} ${formData.lastName}`
-                          : "Não informado"
-                        }
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-gray-500">Data de Nascimento</div>
-                      <div className="font-medium">
-                        {formData.birthDate 
-                          ? new Date(formData.birthDate).toLocaleDateString('pt-BR')
-                          : "Não informado"
-                        }
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-gray-500">Email</div>
-                      <div className="font-medium">{user.email}</div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-gray-500">Localização</div>
-                      <div className="font-medium">{formData.city || "Não informado"}</div>
-                    </div>
-                  </div>
-                  
-                  {formData.bio && (
-                    <div>
-                      <div className="text-sm text-gray-500">Bio</div>
-                      <div className="font-medium">{formData.bio}</div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Heart className="h-5 w-5" />
-                    Preferências
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <div className="text-sm text-gray-500">Tipo de Perfil</div>
-                    <div className="font-medium">
-                      {formData.profileType === "single" ? "Solteiro(a)" : "Casal"}
-                    </div>
-                  </div>
-                  
-                  {formData.seeking.length > 0 && (
-                    <div>
-                      <div className="text-sm text-gray-500">Buscando</div>
-                      <div className="flex flex-wrap gap-2 mt-1">
-                        {formData.seeking.map((item) => (
-                          <Badge key={item} variant="secondary">{item}</Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  
-                  {formData.interests.length > 0 && (
-                    <div>
-                      <div className="text-sm text-gray-500">Interesses</div>
-                      <div className="flex flex-wrap gap-2 mt-1">
-                        {formData.interests.map((item) => (
-                          <Badge key={item} variant="outline">{item}</Badge>
-                        ))}
-                        {formData.otherInterest && (
-                          <Badge variant="outline">{formData.otherInterest}</Badge>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {formData.profileType === "couple" && formData.partner.nickname && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Users className="h-5 w-5" />
-                      Informações do Parceiro
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <div className="text-sm text-gray-500">Apelido</div>
-                        <div className="font-medium">{formData.partner.nickname}</div>
-                      </div>
-                      <div>
-                        <div className="text-sm text-gray-500">Idade</div>
-                        <div className="font-medium">{formData.partner.age} anos</div>
-                      </div>
-                      <div>
-                        <div className="text-sm text-gray-500">Altura</div>
-                        <div className="font-medium">{formData.partner.height} cm</div>
-                      </div>
-                      <div>
-                        <div className="text-sm text-gray-500">Peso</div>
-                        <div className="font-medium">{formData.partner.weight} kg</div>
-                      </div>
-                      <div>
-                        <div className="text-sm text-gray-500">Cor dos Olhos</div>
-                        <div className="font-medium">{formData.partner.eyeColor}</div>
-                      </div>
-                      <div>
-                        <div className="text-sm text-gray-500">Cor do Cabelo</div>
-                        <div className="font-medium">{formData.partner.hairColor}</div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          )}
-        </div>
-      )}
     </div>
   )
 }
