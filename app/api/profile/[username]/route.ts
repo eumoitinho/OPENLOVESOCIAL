@@ -3,10 +3,10 @@ import { createRouteHandlerClient } from '@/app/lib/supabase-server'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { username: string } }
+  { params }: { params: Promise<{ username: string }> }
 ) {
+  const { username } = await params
   try {
-    const { username } = params
     const supabase = await createRouteHandlerClient()
     
     // Buscar dados do usuário
