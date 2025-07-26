@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
-import { Button } from "@/components/ui/button"
+import { Button } from "@heroui/react"
 import { CheckCircle, XCircle, Loader2, Mail } from "lucide-react"
 import { toast } from "sonner"
 import Link from "next/link"

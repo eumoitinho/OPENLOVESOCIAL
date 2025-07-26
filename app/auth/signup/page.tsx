@@ -1,17 +1,12 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
+import { Button, Input, Select, SelectItem, Checkbox, Badge } from "@heroui/react"
 import { Moon, Sun, MapPin, Camera, ArrowRight, ArrowLeft, Mail, Lock, User, AtSign, Calendar, StarIcon, GemIcon, CrownIcon, CheckIcon } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Badge } from "@/components/ui/badge"
 import PaymentProvider from "@/app/components/PaymentProvider"
-import { createClient } from "@/app/lib/supabase-browser"
+import { createClient } from "@/lib/supabase-browser"
 
 interface FormData {
   firstName: string

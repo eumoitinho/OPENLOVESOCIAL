@@ -7,7 +7,7 @@ import { Moon, Sun, Lock, Mail, ArrowRight, ArrowLeft, Shield, CheckCircle } fro
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { createClient } from "@/supabase/client"
+import { createClient } from "@/lib/supabase-browser"
 import { toast } from "sonner"
 import { useAuth } from "@/app/components/auth/AuthProvider"
 
