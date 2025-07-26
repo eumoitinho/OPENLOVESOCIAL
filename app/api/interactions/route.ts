@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createRouteHandlerClient } from "@/app/lib/supabase-server"
 import { cookies } from "next/headers"
-import { notifications } from "@/lib/notifications"
+import { serverNotifications } from "@/lib/server-notifications"
 
 export async function POST(request: NextRequest) {
   try {
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
         // Criar notificação se não for o próprio usuário
         if (post && post.user_id !== currentUser.id) {
           const postTitle = post.content ? post.content.substring(0, 50) : undefined
-          await notifications.postLiked(postId, post.user_id, postTitle)
+          await serverNotifications.postLiked(postId, post.user_id, currentUser.id, postTitle)
         }
 
         console.log("[Interactions API] Post curtido")
@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
 
       // Criar notificação se não for o próprio usuário
       if (post && post.user_id !== currentUser.id) {
-        await notifications.postCommented(postId, post.user_id, content.trim())
+        await serverNotifications.postCommented(postId, post.user_id, currentUser.id, content.trim())
       }
 
       const formattedComment = {
@@ -247,7 +247,7 @@ export async function POST(request: NextRequest) {
 
       // Criar notificação se não for o próprio usuário
       if (post && post.user_id !== currentUser.id) {
-        await notifications.postShared(postId, post.user_id)
+        await serverNotifications.postShared(postId, post.user_id, currentUser.id)
       }
 
       console.log("[Interactions API] Post compartilhado")
@@ -314,7 +314,7 @@ export async function POST(request: NextRequest) {
 
         // Criar notificação se não for o próprio usuário
         if (comment && comment.user_id !== currentUser.id) {
-          await notifications.commentLiked(commentId, comment.user_id, comment.post_id)
+          await serverNotifications.commentLiked(commentId, comment.user_id, currentUser.id, comment.post_id)
         }
 
         console.log("[Interactions API] Comentário curtido")
@@ -356,7 +356,7 @@ export async function POST(request: NextRequest) {
 
       // Criar notificação se não for o próprio usuário
       if (parentComment && parentComment.user_id !== currentUser.id) {
-        await notifications.commentReplied(commentId, parentComment.user_id, parentComment.post_id, content.trim())
+        await serverNotifications.commentReplied(commentId, parentComment.user_id, currentUser.id, parentComment.post_id, content.trim())
       }
 
       const formattedReply = {

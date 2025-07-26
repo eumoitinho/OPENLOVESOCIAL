@@ -5,11 +5,8 @@ import { useState } from "react"
 import { Clock, Users, Calendar, AlertTriangle, TrendingUp, Eye } from "lucide-react"
 import type { User } from "@supabase/supabase-js"
 import type { Database } from "@/lib/database.types"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Card, CardHeader, CardBody, Button, Badge, Tabs, Tab, Chip } from "@heroui/react"
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/react"
 
 type Profile = Database["public"]["Tables"]["users"]["Row"]
 
@@ -28,8 +25,6 @@ interface Report {
   created_at: string
   reporter: { username: string; full_name: string } | null
   reported_user: { username: string; full_name: string } | null
-  reported_post: { title: string } | null
-  reported_comment: { content: string } | null
 }
 
 interface AdminContentProps {
@@ -37,139 +32,129 @@ interface AdminContentProps {
   profile: Profile
   stats: AdminStats
   recentReports: Report[]
-  recentUsers: Array<{
-    id: string
-    username: string
-    full_name: string
-    created_at: string
-  }>
+  recentUsers: Profile[]
 }
 
-const AdminContent: React.FC<AdminContentProps> = ({ user, profile, stats, recentReports, recentUsers }) => {
-  const [selectedTab, setSelectedTab] = useState("overview")
-
-  const getReportTypeLabel = (type: string) => {
-    const labels = {
-      spam: "Spam",
-      harassment: "Assédio",
-      inappropriate_content: "Conteúdo Inapropriado",
-      fake_profile: "Perfil Falso",
-      other: "Outro",
-    }
-    return labels[type as keyof typeof labels] || type
+const getReportTypeLabel = (type: string) => {
+  const labels: Record<string, string> = {
+    user: "Usuário",
+    content: "Conteúdo",
+    spam: "Spam",
+    harassment: "Assédio",
+    other: "Outro",
   }
+  return labels[type] || type
+}
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "pending":
-        return <Clock className="h-4 w-4 text-yellow-500" />
-      case "resolved":
-        return <Eye className="h-4 w-4 text-green-500" />
-      default:
-        return <AlertTriangle className="h-4 w-4 text-red-500" />
-    }
+const getStatusIcon = (status: string) => {
+  switch (status) {
+    case "pending":
+      return <Clock className="h-4 w-4 text-yellow-500" />
+    case "resolved":
+      return <Eye className="h-4 w-4 text-green-500" />
+    default:
+      return <AlertTriangle className="h-4 w-4 text-red-500" />
   }
+}
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-  }
+const formatDate = (date: string) => {
+  return new Date(date).toLocaleDateString("pt-BR", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  })
+}
+
+export const AdminContent: React.FC<AdminContentProps> = ({ profile, stats, recentReports, recentUsers }) => {
+  const [selectedTab, setSelectedTab] = useState("dashboard")
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Painel Administrativo</h1>
-          <p className="text-muted-foreground">Bem-vindo, {profile.full_name}</p>
-        </div>
-        <Badge variant="secondary">Admin</Badge>
+    <div className="p-6 space-y-6">
+      <div className="flex flex-col gap-4">
+        <h1 className="text-3xl font-bold">Painel Administrativo</h1>
+        <p className="text-gray-500">Bem-vindo de volta, {profile.full_name || profile.username}</p>
       </div>
 
-      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-          <TabsTrigger value="reports">Relatórios</TabsTrigger>
-          <TabsTrigger value="users">Usuários</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <Tabs 
+        selectedKey={selectedTab} 
+        onSelectionChange={(key) => setSelectedTab(key as string)}
+        aria-label="Admin tabs"
+      >
+        <Tab key="dashboard" title="Dashboard">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mt-6">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total de Usuários</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
+              <CardHeader className="flex justify-between items-center pb-2">
+                <h4 className="text-sm font-medium">Total de Usuários</h4>
+                <Users className="h-4 w-4 text-gray-400" />
               </CardHeader>
-              <CardContent>
+              <CardBody>
                 <div className="text-2xl font-bold">{stats.totalUsers}</div>
-                <p className="text-xs text-muted-foreground">
-                  <TrendingUp className="inline h-3 w-3 mr-1" />
+                <p className="text-xs text-gray-500 flex items-center mt-1">
+                  <TrendingUp className="h-3 w-3 mr-1" />
                   +12% desde o mês passado
                 </p>
-              </CardContent>
+              </CardBody>
             </Card>
 
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Comunidades</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
+              <CardHeader className="flex justify-between items-center pb-2">
+                <h4 className="text-sm font-medium">Comunidades</h4>
+                <Users className="h-4 w-4 text-gray-400" />
               </CardHeader>
-              <CardContent>
+              <CardBody>
                 <div className="text-2xl font-bold">{stats.totalCommunities}</div>
-                <p className="text-xs text-muted-foreground">+5 novas esta semana</p>
-              </CardContent>
+                <p className="text-xs text-gray-500">+5 novas esta semana</p>
+              </CardBody>
             </Card>
 
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Eventos</CardTitle>
-                <Calendar className="h-4 w-4 text-muted-foreground" />
+              <CardHeader className="flex justify-between items-center pb-2">
+                <h4 className="text-sm font-medium">Eventos</h4>
+                <Calendar className="h-4 w-4 text-gray-400" />
               </CardHeader>
-              <CardContent>
+              <CardBody>
                 <div className="text-2xl font-bold">{stats.totalEvents}</div>
-                <p className="text-xs text-muted-foreground">{Math.floor(stats.totalEvents * 0.3)} ativos</p>
-              </CardContent>
+                <p className="text-xs text-gray-500">{Math.floor(stats.totalEvents * 0.3)} ativos</p>
+              </CardBody>
             </Card>
 
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Relatórios Pendentes</CardTitle>
-                <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+              <CardHeader className="flex justify-between items-center pb-2">
+                <h4 className="text-sm font-medium">Relatórios Pendentes</h4>
+                <AlertTriangle className="h-4 w-4 text-gray-400" />
               </CardHeader>
-              <CardContent>
+              <CardBody>
                 <div className="text-2xl font-bold">{stats.pendingReports}</div>
-                <p className="text-xs text-muted-foreground">Requer atenção</p>
-              </CardContent>
+                <p className="text-xs text-gray-500">Requer atenção</p>
+              </CardBody>
             </Card>
           </div>
 
-          <Card>
+          <Card className="mt-6">
             <CardHeader>
-              <CardTitle>Relatórios Recentes</CardTitle>
-              <CardDescription>Últimos relatórios de moderação</CardDescription>
+              <h3 className="text-lg font-semibold">Relatórios Recentes</h3>
+              <p className="text-sm text-gray-500">Últimos relatórios de moderação</p>
             </CardHeader>
-            <CardContent>
-              <Table>
+            <CardBody>
+              <Table aria-label="Recent reports">
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead>Descrição</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Ações</TableHead>
-                  </TableRow>
+                  <TableColumn>Tipo</TableColumn>
+                  <TableColumn>Descrição</TableColumn>
+                  <TableColumn>Status</TableColumn>
+                  <TableColumn>Data</TableColumn>
+                  <TableColumn>Ações</TableColumn>
                 </TableHeader>
                 <TableBody>
                   {recentReports.slice(0, 5).map((report) => (
                     <TableRow key={report.id}>
                       <TableCell>
-                        <Badge variant="outline">{getReportTypeLabel(report.report_type)}</Badge>
+                        <Chip size="sm" variant="flat">
+                          {getReportTypeLabel(report.report_type)}
+                        </Chip>
                       </TableCell>
-                      <TableCell className="max-w-xs truncate">{report.description}</TableCell>
+                      <TableCell>
+                        <span className="max-w-xs truncate">{report.description}</span>
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           {getStatusIcon(report.status)}
@@ -178,7 +163,7 @@ const AdminContent: React.FC<AdminContentProps> = ({ user, profile, stats, recen
                       </TableCell>
                       <TableCell>{formatDate(report.created_at)}</TableCell>
                       <TableCell>
-                        <Button variant="outline" size="sm">
+                        <Button size="sm" variant="bordered">
                           Revisar
                         </Button>
                       </TableCell>
@@ -186,37 +171,41 @@ const AdminContent: React.FC<AdminContentProps> = ({ user, profile, stats, recen
                   ))}
                 </TableBody>
               </Table>
-            </CardContent>
+            </CardBody>
           </Card>
-        </TabsContent>
+        </Tab>
 
-        <TabsContent value="reports" className="space-y-4">
-          <Card>
+        <Tab key="reports" title="Relatórios">
+          <Card className="mt-6">
             <CardHeader>
-              <CardTitle>Todos os Relatórios</CardTitle>
-              <CardDescription>Gerencie relatórios de moderação</CardDescription>
+              <h3 className="text-lg font-semibold">Todos os Relatórios</h3>
+              <p className="text-sm text-gray-500">Gerencie relatórios de moderação</p>
             </CardHeader>
-            <CardContent>
-              <Table>
+            <CardBody>
+              <Table aria-label="All reports">
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>ID</TableHead>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead>Descrição</TableHead>
-                    <TableHead>Reportado por</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Ações</TableHead>
-                  </TableRow>
+                  <TableColumn>ID</TableColumn>
+                  <TableColumn>Tipo</TableColumn>
+                  <TableColumn>Descrição</TableColumn>
+                  <TableColumn>Reportado por</TableColumn>
+                  <TableColumn>Status</TableColumn>
+                  <TableColumn>Data</TableColumn>
+                  <TableColumn>Ações</TableColumn>
                 </TableHeader>
                 <TableBody>
                   {recentReports.map((report) => (
                     <TableRow key={report.id}>
-                      <TableCell className="font-mono text-xs">{report.id.slice(0, 8)}...</TableCell>
                       <TableCell>
-                        <Badge variant="outline">{getReportTypeLabel(report.report_type)}</Badge>
+                        <span className="font-mono text-xs">{report.id.slice(0, 8)}...</span>
                       </TableCell>
-                      <TableCell className="max-w-xs truncate">{report.description}</TableCell>
+                      <TableCell>
+                        <Chip size="sm" variant="flat">
+                          {getReportTypeLabel(report.report_type)}
+                        </Chip>
+                      </TableCell>
+                      <TableCell>
+                        <span className="max-w-xs truncate">{report.description}</span>
+                      </TableCell>
                       <TableCell>{report.reporter?.username || "Anônimo"}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
@@ -227,10 +216,10 @@ const AdminContent: React.FC<AdminContentProps> = ({ user, profile, stats, recen
                       <TableCell>{formatDate(report.created_at)}</TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
+                          <Button size="sm" variant="bordered">
                             Revisar
                           </Button>
-                          <Button variant="destructive" size="sm">
+                          <Button size="sm" color="danger">
                             Resolver
                           </Button>
                         </div>
@@ -239,25 +228,23 @@ const AdminContent: React.FC<AdminContentProps> = ({ user, profile, stats, recen
                   ))}
                 </TableBody>
               </Table>
-            </CardContent>
+            </CardBody>
           </Card>
-        </TabsContent>
+        </Tab>
 
-        <TabsContent value="users" className="space-y-4">
-          <Card>
+        <Tab key="users" title="Usuários">
+          <Card className="mt-6">
             <CardHeader>
-              <CardTitle>Usuários Recentes</CardTitle>
-              <CardDescription>Últimos usuários registrados</CardDescription>
+              <h3 className="text-lg font-semibold">Usuários Recentes</h3>
+              <p className="text-sm text-gray-500">Últimos usuários registrados</p>
             </CardHeader>
-            <CardContent>
-              <Table>
+            <CardBody>
+              <Table aria-label="Recent users">
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Nome de Usuário</TableHead>
-                    <TableHead>Nome Completo</TableHead>
-                    <TableHead>Data de Registro</TableHead>
-                    <TableHead>Ações</TableHead>
-                  </TableRow>
+                  <TableColumn>Nome de Usuário</TableColumn>
+                  <TableColumn>Nome Completo</TableColumn>
+                  <TableColumn>Data de Registro</TableColumn>
+                  <TableColumn>Ações</TableColumn>
                 </TableHeader>
                 <TableBody>
                   {recentUsers.map((user) => (
@@ -267,10 +254,10 @@ const AdminContent: React.FC<AdminContentProps> = ({ user, profile, stats, recen
                       <TableCell>{formatDate(user.created_at)}</TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
+                          <Button size="sm" variant="bordered">
                             Ver Perfil
                           </Button>
-                          <Button variant="destructive" size="sm">
+                          <Button size="sm" color="danger">
                             Suspender
                           </Button>
                         </div>
@@ -279,9 +266,9 @@ const AdminContent: React.FC<AdminContentProps> = ({ user, profile, stats, recen
                   ))}
                 </TableBody>
               </Table>
-            </CardContent>
+            </CardBody>
           </Card>
-        </TabsContent>
+        </Tab>
       </Tabs>
     </div>
   )
