@@ -710,8 +710,11 @@ export default function CreatePost(props: CreatePostProps) {
                     )}
                   </AnimatePresence>
 
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-gray-200 dark:border-gray-700">
-                    <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
+                  <div className="flex flex-col gap-3 pt-2 border-t border-gray-200 dark:border-gray-700">
+                    {/* Container para organizar melhor no mobile */}
+                    <div className="flex items-center justify-between gap-2">
+                      {/* Opções de visibilidade e post */}
+                      <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide flex-1">
                       {/* Visibility Options */}
                       {visibilityOptions.map((option) => (
                         <motion.button
@@ -724,16 +727,18 @@ export default function CreatePost(props: CreatePostProps) {
                           onClick={() => handleVisibilityClick(option.id as "public" | "friends_only")}
                           transition={transition as any}
                           className={cn(
-                            "relative flex items-center rounded-lg px-2 sm:px-3 py-1.5 sm:py-2",
-                            "text-xs sm:text-sm font-medium transition-colors duration-300",
+                            "relative flex items-center rounded-lg px-2 py-1.5 flex-shrink-0",
+                            "text-xs font-medium transition-colors duration-300",
                             visibility === option.id
                               ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                               : "text-gray-500 dark:text-gray-400 hover:bg-pink-50 hover:text-pink-600 dark:hover:bg-pink-900/20 dark:hover:text-pink-400",
                           )}
                         >
                           <option.icon
-                            size={14}
-                            className={cn(visibility === option.id ? "text-pink-600 dark:text-pink-400" : "")}
+                            className={cn(
+                              "w-4 h-4",
+                              visibility === option.id ? "text-pink-600 dark:text-pink-400" : ""
+                            )}
                           />
                           <AnimatePresence initial={false}>
                             {visibility === option.id && (
@@ -743,7 +748,7 @@ export default function CreatePost(props: CreatePostProps) {
                                 animate="animate"
                                 exit="exit"
                                 transition={transition as any}
-                                className="overflow-hidden text-pink-600 dark:text-pink-400 ml-1"
+                                className="overflow-hidden text-pink-600 dark:text-pink-400 ml-1 hidden sm:inline"
                               >
                                 {option.title}
                               </motion.span>
@@ -781,8 +786,8 @@ export default function CreatePost(props: CreatePostProps) {
                             title={option.premium && !isPremium ? "Funcionalidade disponível apenas para assinantes" : undefined}
                           >
                             <option.icon
-                              size={14}
                               className={cn(
+                                "w-4 h-4",
                                 isSelected
                                   ? "text-pink-600 dark:text-pink-400"
                                   : "",
@@ -796,7 +801,7 @@ export default function CreatePost(props: CreatePostProps) {
                                   animate="animate"
                                   exit="exit"
                                   transition={transition as any}
-                                  className="overflow-hidden text-pink-600 dark:text-pink-400 ml-1"
+                                  className="overflow-hidden text-pink-600 dark:text-pink-400 ml-1 hidden sm:inline"
                                 >
                                   {option.title}
                                 </motion.span>
@@ -828,9 +833,10 @@ export default function CreatePost(props: CreatePostProps) {
 
                         return ButtonComponent
                       })}
-                    </div>
+                      </div>
 
-                    <div className="flex items-center gap-2">
+                      {/* Botão de enviar e contador - sempre visível */}
+                      <div className="flex items-center gap-2 flex-shrink-0">
                       <span className="text-xs text-gray-500 dark:text-gray-400">{content.length}/2000</span>
                       <motion.button
                         type="submit"
@@ -842,7 +848,7 @@ export default function CreatePost(props: CreatePostProps) {
                           (!content.trim() && images.length === 0 && !video && !audio && !showPoll)
                         }
                         className={cn(
-                          "flex items-center gap-2 px-4 sm:px-6 py-2 rounded-lg text-xs sm:text-sm",
+                          "flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs",
                           "font-medium transition-all duration-200",
                           !loading &&
                             !internalLoading &&
@@ -851,9 +857,12 @@ export default function CreatePost(props: CreatePostProps) {
                             : "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed",
                         )}
                       >
-                        <Send size={14} className="sm:w-4 sm:h-4" />
-                        {!!loading || internalLoading ? "Postando..." : "Publicar"}
+                        <Send className="w-4 h-4" />
+                        <span className="hidden sm:inline">
+                          {!!loading || internalLoading ? "Postando..." : "Publicar"}
+                        </span>
                       </motion.button>
+                      </div>
                     </div>
                   </div>
                 </div>

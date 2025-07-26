@@ -196,15 +196,7 @@ export function NotificationsContent() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Bell className="w-6 h-6" />
-            Notificações
-            {unreadCount > 0 && (
-              <Badge variant="destructive" className="ml-2">
-                {unreadCount}
-              </Badge>
-            )}
-          </h1>
+          
           <p className="text-muted-foreground">
             Mantenha-se atualizado com as atividades da comunidade
           </p>

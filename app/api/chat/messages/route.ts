@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
       .from('conversation_participants')
       .select('id')
       .eq('conversation_id', conversationId)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .single()
 
     if (participantError || !participant) {
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = await createRouteHandlerClient()
-    const user = { id: context!.user.id }
+    const userId = context!.user.id
 
     const { conversationId, content, type = 'text' } = await request.json()
 
@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
       .from('conversation_participants')
       .select('id')
       .eq('conversation_id', conversationId)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .single()
 
     if (participantError || !participant) {
@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
       .from('messages')
       .insert({
         conversation_id: conversationId,
-        sender_id: user.id,
+        sender_id: userId,
         content,
         type
       })
