@@ -166,6 +166,27 @@ export function MobileNav({
         )}
       </Button>
 
+      {/* Botão de voltar ao topo */}
+      {showScrollTop && (
+        <Button
+          className={cn(
+            "xl:hidden fixed right-4 z-50 rounded-full h-14 w-14 shadow-lg",
+            "bg-white/90 dark:bg-gray-800/90 text-pink-600 dark:text-pink-400",
+            "hover:bg-white dark:hover:bg-gray-800 border border-pink-200 dark:border-pink-800",
+            "transition-all duration-300 transform",
+            showScrollTop ? "translate-y-0 opacity-100" : "translate-y-16 opacity-0"
+          )}
+          style={{
+            bottom: "20px",
+            position: "fixed"
+          }}
+          onClick={scrollToTop}
+          aria-label="Voltar ao topo"
+        >
+          <ArrowUp className="h-6 w-6" />
+        </Button>
+      )}
+
       {/* Overlay quando aberto */}
       {isOpen && (
         <div 
