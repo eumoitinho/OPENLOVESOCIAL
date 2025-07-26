@@ -1,9 +1,6 @@
 "use client"
 
-import { Button } from "../../../components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../../components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar"
-import { Badge } from "@heroui/react"
+import { Button, Card, CardBody, CardFooter, CardHeader, Avatar, Badge, Chip } from "@heroui/react"
 import {
   Heart,
   Moon,

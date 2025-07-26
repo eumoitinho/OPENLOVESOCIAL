@@ -13,10 +13,7 @@ import {
   UserPlus,
   UserMinus,
 } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Avatar, Button, Card, CardBody, CardFooter, CardHeader, Chip } from "@heroui/react"
 import { cn } from "@/lib/utils"
 import { SecureImage } from "@/app/components/security/SecureImage"
 import { useAuth } from "@/app/components/auth/AuthProvider"
