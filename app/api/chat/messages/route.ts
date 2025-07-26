@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Criar nova mensagem
-    const { data: newMessage, error } = await supabase
+    const { data: newMessage, error: createError } = await supabase
       .from('messages')
       .insert({
         conversation_id: conversationId,
@@ -143,8 +143,8 @@ export async function POST(request: NextRequest) {
       `)
       .single()
 
-    if (error) {
-      console.error("Erro ao criar mensagem:", error)
+    if (createError) {
+      console.error("Erro ao criar mensagem:", createError)
       return NextResponse.json({ error: "Erro ao enviar mensagem" }, { status: 500 })
     }
 
