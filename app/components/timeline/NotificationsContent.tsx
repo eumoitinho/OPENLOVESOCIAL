@@ -1,25 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Button } from "../../../components/ui/button"
-import { Badge } from "../../../components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar"
-import { Card, CardContent } from "../../../components/ui/card"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../../components/ui/motion-tabs"
-import {
-  Bell,
-  Heart,
-  MessageCircle,
-  UserPlus,
-  Calendar,
-  MapPin,
-  Clock,
-  Check,
-  Trash2,
-  Settings,
-  Filter,
-  Search,
-} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Bell, Check, Settings, Clock, Trash2, Heart, MessageCircle, UserPlus, Calendar, AtSign, Star } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/app/components/auth/AuthProvider"
 
@@ -40,6 +26,7 @@ export function NotificationsContent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("all")
+  const [unreadCount, setUnreadCount] = useState(0)
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -48,7 +35,6 @@ export function NotificationsContent() {
         setLoading(false)
         return
       }
-
       setLoading(true)
       setError(null)
       try {
@@ -61,6 +47,7 @@ export function NotificationsContent() {
         }
         const json = await res.json()
         setNotifications(json.data || [])
+        setUnreadCount(json.unread_count || 0)
       } catch (err: any) {
         setError(err.message || "Erro desconhecido")
       } finally {
@@ -73,93 +60,113 @@ export function NotificationsContent() {
   const getNotificationIcon = (type: Notification["type"]) => {
     switch (type) {
       case "like":
-        return <Heart className="w-4 h-4 text-red-500" />
+        return <Heart className="w-5 h-5 text-red-500" />
       case "comment":
-        return <MessageCircle className="w-4 h-4 text-blue-500" />
+        return <MessageCircle className="w-5 h-5 text-blue-500" />
       case "follow":
-        return <UserPlus className="w-4 h-4 text-green-500" />
+        return <UserPlus className="w-5 h-5 text-green-500" />
       case "event":
-        return <Calendar className="w-4 h-4 text-purple-500" />
+        return <Calendar className="w-5 h-5 text-purple-500" />
       case "mention":
-        return <MessageCircle className="w-4 h-4 text-orange-500" />
+        return <AtSign className="w-5 h-5 text-orange-500" />
       case "system":
-        return <Bell className="w-4 h-4 text-gray-500" />
+        return <Star className="w-5 h-5 text-yellow-500" />
       default:
-        return <Bell className="w-4 h-4" />
+        return <Bell className="w-5 h-5 text-gray-500" />
     }
   }
 
   const getNotificationColor = (type: Notification["type"]) => {
     switch (type) {
       case "like":
-        return "border-l-red-500 bg-red-50 dark:bg-red-950/20"
+        return "border-l-red-500"
       case "comment":
-        return "border-l-blue-500 bg-blue-50 dark:bg-blue-950/20"
+        return "border-l-blue-500"
       case "follow":
-        return "border-l-green-500 bg-green-50 dark:bg-green-950/20"
+        return "border-l-green-500"
       case "event":
-        return "border-l-purple-500 bg-purple-50 dark:bg-purple-950/20"
+        return "border-l-purple-500"
       case "mention":
-        return "border-l-orange-500 bg-orange-50 dark:bg-orange-950/20"
+        return "border-l-orange-500"
       case "system":
-        return "border-l-gray-500 bg-gray-50 dark:bg-gray-950/20"
+        return "border-l-yellow-500"
       default:
-        return "border-l-gray-300"
+        return "border-l-gray-500"
     }
   }
 
   const markAsRead = async (id: string) => {
     if (!user) return
-    
     try {
-      await fetch(`/api/notifications/${id}/read`, { method: 'POST' })
-      setNotifications(prev =>
-        prev.map(notification =>
-          notification.id === id ? { ...notification, is_read: true } : notification
+      const res = await fetch(`/api/notifications/${id}/read`, {
+        method: "POST"
+      })
+      if (res.ok) {
+        setNotifications(prev => 
+          prev.map(notif => 
+            notif.id === id ? { ...notif, is_read: true } : notif
+          )
         )
-      )
-    } catch (err) {
-      console.error("Erro ao marcar como lida:", err)
+        setUnreadCount(prev => Math.max(0, prev - 1))
+      }
+    } catch (error) {
+      console.error("Erro ao marcar como lida:", error)
     }
   }
 
   const markAllAsRead = async () => {
     if (!user) return
-    
     try {
-      await fetch("/api/notifications/read-all", { method: 'POST' })
-      setNotifications(prev =>
-        prev.map(notification => ({ ...notification, is_read: true }))
-      )
-    } catch (err) {
-      console.error("Erro ao marcar todas como lidas:", err)
+      const res = await fetch("/api/notifications/read-all", {
+        method: "POST"
+      })
+      if (res.ok) {
+        setNotifications(prev => 
+          prev.map(notif => ({ ...notif, is_read: true }))
+        )
+        setUnreadCount(0)
+      }
+    } catch (error) {
+      console.error("Erro ao marcar todas como lidas:", error)
     }
   }
 
   const deleteNotification = (id: string) => {
-    setNotifications(prev => prev.filter(notification => notification.id !== id))
+    setNotifications(prev => prev.filter(notif => notif.id !== id))
   }
 
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString)
     const now = new Date()
-    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
     
-    if (diffInSeconds < 60) return "Agora"
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m`
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h`
-    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d`
-    return date.toLocaleDateString('pt-BR')
+    if (diffInMinutes < 1) return "Agora"
+    if (diffInMinutes < 60) return `${diffInMinutes}m`
+    
+    const diffInHours = Math.floor(diffInMinutes / 60)
+    if (diffInHours < 24) return `${diffInHours}h`
+    
+    const diffInDays = Math.floor(diffInHours / 24)
+    if (diffInDays < 7) return `${diffInDays}d`
+    
+    return date.toLocaleDateString("pt-BR")
   }
 
-  const filteredNotifications = notifications.filter(notification => {
-    if (activeTab === "unread") return !notification.is_read
-    if (activeTab === "mentions") return notification.type === "mention"
-    if (activeTab === "events") return notification.type === "event"
-    return true
-  })
+  // Filtrar notificações baseado na tab ativa
+  const getFilteredNotifications = () => {
+    switch (activeTab) {
+      case "unread":
+        return notifications.filter(notif => !notif.is_read)
+      case "mentions":
+        return notifications.filter(notif => notif.type === "mention")
+      case "events":
+        return notifications.filter(notif => notif.type === "event")
+      default:
+        return notifications
+    }
+  }
 
-  const unreadCount = (notifications || []).filter(n => !n.is_read).length
+  const filteredNotifications = getFilteredNotifications()
 
   if (!user) {
     return (
@@ -184,19 +191,21 @@ export function NotificationsContent() {
   if (error) {
     return (
       <div className="max-w-4xl mx-auto p-4">
-        <div className="text-center py-8 text-red-500">
-          <p>{error}</p>
+        <div className="text-center py-8">
+          <p className="text-red-500">Erro: {error}</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 space-y-6">
+    <div className="max-w-4xl mx-auto p-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            Notificações
+          </h1>
           <p className="text-muted-foreground">
             Mantenha-se atualizado com as atividades da comunidade
           </p>
@@ -245,12 +254,12 @@ export function NotificationsContent() {
 
         <TabsContent value="all" className="mt-6">
           <div className="space-y-4">
-            {(filteredNotifications || []).length === 0 ? (
+            {(notifications || []).length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 Nenhuma notificação encontrada
               </div>
             ) : (
-              (filteredNotifications || []).map((notification) => (
+              (notifications || []).map((notification) => (
                 <Card
                   key={notification.id}
                   className={cn(
@@ -304,18 +313,17 @@ export function NotificationsContent() {
 
         <TabsContent value="unread" className="mt-6">
           <div className="space-y-4">
-            {(filteredNotifications || []).length === 0 ? (
+            {filteredNotifications.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 Nenhuma notificação não lida
               </div>
             ) : (
-              (filteredNotifications || []).map((notification) => (
+              filteredNotifications.map((notification) => (
                 <Card
                   key={notification.id}
                   className={cn(
-                    "transition-all duration-200 hover:shadow-md cursor-pointer border-l-4",
-                    getNotificationColor(notification.type),
-                    "ring-2 ring-blue-500"
+                    "transition-all duration-200 hover:shadow-md cursor-pointer border-l-4 ring-2 ring-blue-500",
+                    getNotificationColor(notification.type)
                   )}
                   onClick={() => markAsRead(notification.id)}
                 >
@@ -363,12 +371,12 @@ export function NotificationsContent() {
 
         <TabsContent value="mentions" className="mt-6">
           <div className="space-y-4">
-            {(filteredNotifications || []).length === 0 ? (
+            {filteredNotifications.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 Nenhuma menção encontrada
               </div>
             ) : (
-              (filteredNotifications || []).map((notification) => (
+              filteredNotifications.map((notification) => (
                 <Card
                   key={notification.id}
                   className={cn(
@@ -422,12 +430,12 @@ export function NotificationsContent() {
 
         <TabsContent value="events" className="mt-6">
           <div className="space-y-4">
-            {(filteredNotifications || []).length === 0 ? (
+            {filteredNotifications.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 Nenhum evento encontrado
               </div>
             ) : (
-              (filteredNotifications || []).map((notification) => (
+              filteredNotifications.map((notification) => (
                 <Card
                   key={notification.id}
                   className={cn(
