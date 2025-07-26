@@ -129,7 +129,7 @@ export default function CommunitiesList({ view = 'all' }: CommunitiesListProps) 
 
   const handleCreateCommunity = () => {
     // Verificar se pode criar comunidades
-    if (!canAccess.features.canCreateCommunities) {
+    if (!canAccess.canCreateCommunities) {
       // Mostrar modal de upgrade
       return
     }
@@ -263,7 +263,7 @@ export default function CommunitiesList({ view = 'all' }: CommunitiesListProps) 
                   : 'Seja o primeiro a criar uma comunidade'
               }
             </p>
-            {canAccess.features.canCreateCommunities && (
+            {canAccess.canCreateCommunities && (
               <Button onClick={handleCreateCommunity}>
                 Criar Primeira Comunidade
               </Button>
