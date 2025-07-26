@@ -9,6 +9,7 @@ export async function POST(request: NextRequest) {
   try {
     console.log("Iniciando criação de post...")
     const supabase = await createRouteHandlerClient()
+    const supabaseAdmin = createSupabaseAdmin()
     const supabaseStorage = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
           is_premium: false,
           country: 'BR',
           profile_type: 'single',
-          status: 'offline',
+          status: 'active',
           role: 'user',
           privacy_settings: {},
           notification_settings: {},
@@ -275,7 +276,6 @@ export async function POST(request: NextRequest) {
     console.log("Dados para inserção:", postData)
     
     // Usar admin client para contornar problemas de RLS temporariamente
-    const supabaseAdmin = createSupabaseAdmin()
     const { data: post, error: postError } = await supabaseAdmin
       .from("posts")
       .insert(postData)
