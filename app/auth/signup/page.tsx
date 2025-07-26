@@ -494,9 +494,9 @@ export default function OpenLoveRegister() {
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="firstName" className="text-sm font-medium text-gray-900 dark:text-white">
+                        <label htmlFor="firstName" className="text-sm font-medium text-gray-900 dark:text-white">
                           Nome
-                        </Label>
+                        </label>
                         <div className="relative">
                           <Input
                             id="firstName"
@@ -513,9 +513,9 @@ export default function OpenLoveRegister() {
                         )}
                       </div>
                       <div>
-                        <Label htmlFor="lastName" className="text-sm font-medium text-gray-900 dark:text-white">
+                        <label htmlFor="lastName" className="text-sm font-medium text-gray-900 dark:text-white">
                           Sobrenome
-                        </Label>
+                        </label>
                         <div className="relative">
                           <Input
                             id="lastName"
@@ -534,9 +534,9 @@ export default function OpenLoveRegister() {
                     </div>
 
                     <div>
-                      <Label htmlFor="username" className="text-sm font-medium text-gray-900 dark:text-white">
+                      <label htmlFor="username" className="text-sm font-medium text-gray-900 dark:text-white">
                         Nome de usuário <span className="text-red-600">*</span>
-                      </Label>
+                      </label>
                       <div className="relative">
                         <Input
                           id="username"
@@ -568,9 +568,9 @@ export default function OpenLoveRegister() {
                     </div>
 
                     <div>
-                      <Label htmlFor="email" className="text-sm font-medium text-gray-900 dark:text-white">
+                      <label htmlFor="email" className="text-sm font-medium text-gray-900 dark:text-white">
                         E-mail
-                      </Label>
+                      </label>
                       <div className="relative">
                         <Input
                           id="email"
@@ -587,9 +587,9 @@ export default function OpenLoveRegister() {
                     </div>
 
                     <div>
-                      <Label htmlFor="birthDate" className="text-sm font-medium text-gray-900 dark:text-white">
+                      <label htmlFor="birthDate" className="text-sm font-medium text-gray-900 dark:text-white">
                         Data de Nascimento <span className="text-red-600">*</span>
-                      </Label>
+                      </label>
                       <div className="relative">
                         <Input
                           id="birthDate"
@@ -614,9 +614,9 @@ export default function OpenLoveRegister() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="password" className="text-sm font-medium text-gray-900 dark:text-white">
+                        <label htmlFor="password" className="text-sm font-medium text-gray-900 dark:text-white">
                           Senha
-                        </Label>
+                        </label>
                         <div className="relative">
                           <Input
                             id="password"
@@ -634,9 +634,9 @@ export default function OpenLoveRegister() {
                         )}
                       </div>
                       <div>
-                        <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-900 dark:text-white">
+                        <label htmlFor="confirmPassword" className="text-sm font-medium text-gray-900 dark:text-white">
                           Confirmar Senha
-                        </Label>
+                        </label>
                         <div className="relative">
                           <Input
                             id="confirmPassword"
@@ -687,7 +687,7 @@ export default function OpenLoveRegister() {
                   <h2 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">Sobre o Perfil</h2>
                   <div className="space-y-6">
                     <div>
-                      <Label className="text-sm font-medium text-gray-900 dark:text-white">Tipo de Perfil</Label>
+                      <label className="text-sm font-medium text-gray-900 dark:text-white">Tipo de Perfil</label>
                       <Select
                         value={formData.profileType}
                         onValueChange={(value: "single" | "couple") => setFormData((prev) => ({ ...prev, profileType: value }))}
@@ -703,9 +703,9 @@ export default function OpenLoveRegister() {
                     </div>
 
                     <div>
-                      <Label className="text-sm font-medium text-gray-900 dark:text-white">
+                      <label className="text-sm font-medium text-gray-900 dark:text-white">
                         O que você(s) busca(m)? <span className="text-red-600">*</span>
-                      </Label>
+                      </label>
                       <div className="mt-2 space-y-2">
                         {["Mulher", "Homem", "Casal"].map((option) => (
                           <div key={option} className="flex items-center">
@@ -726,9 +726,9 @@ export default function OpenLoveRegister() {
                     </div>
 
                     <div>
-                      <Label className="text-sm font-medium text-gray-900 dark:text-white">
+                      <label className="text-sm font-medium text-gray-900 dark:text-white">
                         Interesses <span className="text-red-600">*</span>
-                      </Label>
+                      </label>
                       <div className="mt-2 space-y-2">
                         {["Ménage", "Swing", "Encontros Casuais", "Amizades", "Eventos Sociais"].map((option) => (
                           <div key={option} className="flex items-center">
@@ -792,9 +792,9 @@ export default function OpenLoveRegister() {
                   </h2>
                   <div className="space-y-6">
                     <div>
-                      <Label htmlFor="profilePicture" className="text-sm font-medium text-gray-900 dark:text-white">
+                      <label htmlFor="profilePicture" className="text-sm font-medium text-gray-900 dark:text-white">
                         Foto de Perfil <span className="text-red-600">*</span>
-                      </Label>
+                      </label>
                       <div className="relative">
                         <Input
                           id="profilePicture"
@@ -811,9 +811,9 @@ export default function OpenLoveRegister() {
                     </div>
 
                     <div>
-                      <Label htmlFor="bio" className="text-sm font-medium text-gray-900 dark:text-white">
+                      <label htmlFor="bio" className="text-sm font-medium text-gray-900 dark:text-white">
                         Bio <span className="text-red-600">*</span>
-                      </Label>
+                      </label>
                       <textarea
                         id="bio"
                         name="bio"
@@ -830,12 +830,12 @@ export default function OpenLoveRegister() {
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Informações do Parceiro</h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
-                            <Label
+                            <label
                               htmlFor="partner.nickname"
                               className="text-sm font-medium text-gray-900 dark:text-white"
                             >
                               Apelido
-                            </Label>
+                            </label>
                             <Input
                               id="partner.nickname"
                               name="partner.nickname"
@@ -849,9 +849,9 @@ export default function OpenLoveRegister() {
                             )}
                           </div>
                           <div>
-                            <Label htmlFor="partner.age" className="text-sm font-medium text-gray-900 dark:text-white">
+                            <label htmlFor="partner.age" className="text-sm font-medium text-gray-900 dark:text-white">
                               Idade
-                            </Label>
+                            </label>
                             <Input
                               id="partner.age"
                               name="partner.age"
@@ -866,12 +866,12 @@ export default function OpenLoveRegister() {
                             )}
                           </div>
                           <div>
-                            <Label
+                            <label
                               htmlFor="partner.height"
                               className="text-sm font-medium text-gray-900 dark:text-white"
                             >
                               Altura (cm)
-                            </Label>
+                            </label>
                             <Input
                               id="partner.height"
                               name="partner.height"
@@ -886,12 +886,12 @@ export default function OpenLoveRegister() {
                             )}
                           </div>
                           <div>
-                            <Label
+                            <label
                               htmlFor="partner.weight"
                               className="text-sm font-medium text-gray-900 dark:text-white"
                             >
                               Peso (kg)
-                            </Label>
+                            </label>
                             <Input
                               id="partner.weight"
                               name="partner.weight"
@@ -906,12 +906,12 @@ export default function OpenLoveRegister() {
                             )}
                           </div>
                           <div>
-                            <Label
+                            <label
                               htmlFor="partner.eyeColor"
                               className="text-sm font-medium text-gray-900 dark:text-white"
                             >
                               Cor dos Olhos
-                            </Label>
+                            </label>
                             <Select
                               value={formData.partner.eyeColor}
                               onValueChange={(value) =>
@@ -937,12 +937,12 @@ export default function OpenLoveRegister() {
                             )}
                           </div>
                           <div>
-                            <Label
+                            <label
                               htmlFor="partner.hairColor"
                               className="text-sm font-medium text-gray-900 dark:text-white"
                             >
                               Cor do Cabelo
-                            </Label>
+                            </label>
                             <Select
                               value={formData.partner.hairColor}
                               onValueChange={(value) =>

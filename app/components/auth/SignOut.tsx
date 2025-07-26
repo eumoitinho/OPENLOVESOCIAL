@@ -21,17 +21,14 @@ const SignOut: React.FC<SignOutProps> = ({ variant = "ghost", size = "default", 
   const handleSignOut = async () => {
     try {
       await signOut()
-      toast({
-        title: "Logout realizado",
+      toast.success("Logout realizado", {
         description: "Você foi desconectado com sucesso.",
       })
       router.push("/")
     } catch (error) {
       console.error("Error signing out:", error)
-      toast({
-        title: "Erro ao sair",
+      toast.error("Erro ao sair", {
         description: "Ocorreu um erro ao tentar desconectar. Tente novamente.",
-        variant: "destructive",
       })
     }
   }
