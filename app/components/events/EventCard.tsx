@@ -19,7 +19,7 @@ import {
   Navigation
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { useAuth } from '@/components/auth/AuthProvider'
+import { useAuth } from '@/app/components/auth/AuthProvider'
 
 interface Event {
   id: string

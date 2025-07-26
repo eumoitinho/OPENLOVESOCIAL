@@ -16,7 +16,7 @@ import {
   Heart,
   Share2
 } from 'lucide-react'
-import { useAuth } from '@/components/auth/AuthProvider'
+import { useAuth } from '@/app/components/auth/AuthProvider'
 import { useCanAccess } from '@/lib/plans/hooks'
 import EventCard from './EventCard'
 import CreateEvent from './CreateEvent'

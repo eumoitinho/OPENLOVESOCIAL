@@ -44,7 +44,10 @@
       "Bash(pnpm next:*)",
       "Bash(next build)",
       "Bash(npx next:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(for:*)",
+      "Bash(do sed -i \"s|@/components/auth/AuthProvider|@/app/components/auth/AuthProvider|g\" \"$f\")",
+      "Bash(done)"
     ],
     "deny": []
   }

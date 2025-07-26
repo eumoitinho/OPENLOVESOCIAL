@@ -22,7 +22,7 @@ import {
   Globe,
   Image as ImageIcon
 } from 'lucide-react'
-import { useAuth } from '@/components/auth/AuthProvider'
+import { useAuth } from '@/app/components/auth/AuthProvider'
 import { useCanAccess } from '@/lib/plans/hooks'
 import LocationPicker from '../location/LocationPicker'
 
