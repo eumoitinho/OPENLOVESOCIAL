@@ -28,7 +28,7 @@ import type {
   CallStatus,
   ProfileType,
   UserRole
-} from '@/lib/constants/database'
+} from '../../../lib/constants/database'
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 

@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@/app/lib/supabase-server'
-import { cookies } from 'next/headers'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ username: string }> }
+  { params }: { params: { username: string } }
 ) {
   try {
-    const { username } = await params
+    const { username } = params
     const supabase = await createRouteHandlerClient()
     
     // Buscar dados do usuário
@@ -43,18 +42,27 @@ export async function GET(
     let canViewPrivateContent = false
 
     if (currentUser) {
-      isOwnProfile = currentUser.id === user.id
+      // Buscar o ID do usuário atual na tabela users
+      const { data: currentUserProfile } = await supabase
+        .from('users')
+        .select('id')
+        .eq('auth_id', currentUser.id)
+        .single()
       
-      if (!isOwnProfile) {
-        const { data: followData } = await supabase
-          .from('follows')
-          .select('*')
-          .eq('follower_id', currentUser.id)
-          .eq('following_id', user.id)
-          .eq('status', 'accepted')
-          .single()
+      if (currentUserProfile) {
+        isOwnProfile = currentUserProfile.id === user.id
+        
+        if (!isOwnProfile) {
+          const { data: followData } = await supabase
+            .from('follows')
+            .select('*')
+            .eq('follower_id', currentUserProfile.id)
+            .eq('following_id', user.id)
+            .eq('status', 'accepted')
+            .single()
 
-        isFollowing = !!followData
+          isFollowing = !!followData
+        }
       }
     }
 
@@ -124,14 +132,23 @@ export async function GET(
       .limit(12)
 
     // Incrementar visualização do perfil
-    if (currentUser && currentUser.id !== user.id) {
-      await supabase
-        .from('profile_views')
-        .insert({
-          viewer_id: currentUser.id,
-          viewed_profile_id: user.id
-        })
-        .select()
+    if (currentUser && !isOwnProfile) {
+      // Buscar o ID do usuário atual na tabela users se ainda não temos
+      const { data: viewerProfile } = await supabase
+        .from('users')
+        .select('id')
+        .eq('auth_id', currentUser.id)
+        .single()
+      
+      if (viewerProfile) {
+        await supabase
+          .from('profile_views')
+          .insert({
+            viewer_id: viewerProfile.id,
+            viewed_profile_id: user.id
+          })
+          .select()
+      }
     }
 
     const profileData = {
