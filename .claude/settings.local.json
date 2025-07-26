@@ -40,7 +40,8 @@
       "WebFetch(domain:github.com)",
       "Bash(timeout 15 npm run dev)",
       "Bash(pkill:*)",
-      "Bash(timeout 60 npm run build)"
+      "Bash(timeout 60 npm run build)",
+      "Bash(pnpm next:*)"
     ],
     "deny": []
   }
