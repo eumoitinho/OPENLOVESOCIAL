@@ -1,10 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
+import { Button, Chip, Card, CardBody, CardHeader, Divider } from "@heroui/react"
 import { 
   Heart, 
   MapPin, 

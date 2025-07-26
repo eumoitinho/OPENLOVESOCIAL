@@ -1,7 +1,6 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Button, Chip } from "@heroui/react"
 import { ArrowRight, Heart, Moon, Sun, MessageSquare, Calendar, Lock, Search, Star } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"

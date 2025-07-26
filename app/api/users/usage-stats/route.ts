@@ -28,7 +28,8 @@ export async function GET(request: NextRequest) {
 
     const validator = new PlanValidator()
     const usage = await validator.getPlanUsage(user.id)
-    const limits = PLAN_LIMITS[userData.plan_type || 'free']
+    const planType = (userData.plan_type || 'free') as keyof typeof PLAN_LIMITS
+    const limits = PLAN_LIMITS[planType]
 
     return NextResponse.json({
       success: true,
@@ -37,19 +38,19 @@ export async function GET(request: NextRequest) {
         planExpiresAt: userData.plan_expires_at,
         usage: {
           videos: {
-            used: usage.videos,
+            used: usage.videosThisMonth,
             limit: limits.maxVideosPerMonth,
-            remaining: limits.maxVideosPerMonth === -1 ? -1 : Math.max(0, limits.maxVideosPerMonth - usage.videos)
+            remaining: limits.maxVideosPerMonth === -1 ? -1 : Math.max(0, limits.maxVideosPerMonth - usage.videosThisMonth)
           },
           events: {
-            used: usage.events,
+            used: usage.eventsThisMonth,
             limit: limits.maxEventsPerMonth,
-            remaining: limits.maxEventsPerMonth === -1 ? -1 : Math.max(0, limits.maxEventsPerMonth - usage.events)
+            remaining: limits.maxEventsPerMonth === -1 ? -1 : Math.max(0, limits.maxEventsPerMonth - usage.eventsThisMonth)
           },
           communities: {
-            used: usage.communities,
+            used: usage.communitiesJoined,
             limit: limits.maxCommunities,
-            remaining: limits.maxCommunities === -1 ? -1 : Math.max(0, limits.maxCommunities - usage.communities)
+            remaining: limits.maxCommunities === -1 ? -1 : Math.max(0, limits.maxCommunities - usage.communitiesJoined)
           }
         },
         limits: {

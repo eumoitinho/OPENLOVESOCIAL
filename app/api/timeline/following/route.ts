@@ -238,13 +238,13 @@ export async function GET(request: NextRequest) {
         liked: postLikes.includes(user.id),
         comments: postComments.length,
         commentsCount: postComments.length,
-        images: post.media_urls?.filter((_, index) => post.media_types?.[index] === 'image') || [],
-        video: post.media_urls?.find((_, index) => post.media_types?.[index] === 'video') || null,
-        audio: post.media_urls?.find((_, index) => post.media_types?.[index] === 'audio') || null,
+        images: post.media_urls?.filter((_: any, index: number) => post.media_types?.[index] === 'image') || [],
+        video: post.media_urls?.find((_: any, index: number) => post.media_types?.[index] === 'video') || null,
+        audio: post.media_urls?.find((_: any, index: number) => post.media_types?.[index] === 'audio') || null,
         poll: post.poll_options ? {
           id: post.id,
           question: "Enquete",
-          options: post.poll_options.map((option, index) => ({
+          options: post.poll_options.map((option: string, index: number) => ({
             id: `${post.id}-${index}`,
             text: option,
             votes: 0,

@@ -7,7 +7,7 @@ import { Moon, Sun, Lock, Mail, ArrowRight, ArrowLeft, Shield, CheckCircle } fro
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase-browser"
+import { createClient } from "@/app/lib/supabase-browser"
 import { toast } from "sonner"
 import { useAuth } from "@/app/components/auth/AuthProvider"
 
@@ -388,7 +388,7 @@ export default function SignInPage() {
 
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="bordered"
                   onClick={handleBackToLogin}
                   className="w-full rounded-full border-gray-300 dark:border-white/20 text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-white/5"
                 >

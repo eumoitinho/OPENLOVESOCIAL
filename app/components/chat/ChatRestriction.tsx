@@ -1,9 +1,7 @@
 "use client"
 
 import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { Card, CardBody, CardHeader, Button, Chip } from '@heroui/react'
 import { MessageCircle, Crown, Star, Lock, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
@@ -33,7 +31,7 @@ export default function ChatRestriction({
 
   const getRestrictionMessage = () => {
     // ✅ CORRIGIDO: Gratuito não pode enviar mensagens
-    if (canAccess.plan === 'free') {
+    if (canAccess.currentPlan === 'free') {
       return {
         title: 'Mensagens Premium',
         description: 'Upgrade para enviar mensagens e se conectar com outros usuários.',
@@ -50,7 +48,7 @@ export default function ChatRestriction({
     }
 
     // ✅ NOVO: Ouro não pode fazer chamadas de vídeo
-    if (messageType === 'video_call' && canAccess.plan === 'gold') {
+    if (messageType === 'video_call' && canAccess.currentPlan === 'gold') {
       return {
         title: 'Chamadas de Vídeo Premium',
         description: 'Chamadas de vídeo requerem Open Diamante.',
@@ -67,7 +65,7 @@ export default function ChatRestriction({
     }
 
     // ✅ NOVO: Ouro não pode criar grupos
-    if (messageType === 'group' && canAccess.plan === 'gold') {
+    if (messageType === 'group' && canAccess.currentPlan === 'gold') {
       return {
         title: 'Grupos Premium',
         description: 'Criação de grupos requer Open Diamante.',
@@ -105,10 +103,10 @@ export default function ChatRestriction({
             <Icon className="w-6 h-6 text-white" />
           </div>
         </div>
-        <CardTitle className="text-lg">{restriction.title}</CardTitle>
+        <h3 className="text-lg font-semibold">{restriction.title}</h3>
       </CardHeader>
 
-      <CardContent className="space-y-4 text-center">
+      <CardBody className="space-y-4 text-center">
         <p className="text-sm text-gray-600 dark:text-gray-400">
           {restriction.description}
         </p>
@@ -140,7 +138,7 @@ export default function ChatRestriction({
         <div className="text-xs text-gray-500 dark:text-gray-400">
           Cancele quando quiser • Sem taxas ocultas
         </div>
-      </CardContent>
+      </CardBody>
     </Card>
   )
 } 

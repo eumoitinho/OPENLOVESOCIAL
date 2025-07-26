@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
       await Promise.all(followPromises)
 
       // Atualizar contadores de amigos
-      const requesterStats = friendRequest.requester?.stats || {}
+      const requesterStats = friendRequest.requester?.[0]?.stats || {}
       const currentUserStats = currentUser.stats || {}
 
       await Promise.all([

@@ -9,7 +9,7 @@ export interface StripeConfig {
   publishableKey: string
   secretKey: string
   webhookSecret: string
-  apiVersion: '2024-12-18.acacia' | string
+  apiVersion: '2025-06-30.basil' | string
   priceIds: {
     gold: string
     diamond: string

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { Button } from '@heroui/react'
 import { Phone, Video, Crown, Star, Lock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useCanAccess } from '@/lib/plans/hooks'
@@ -13,7 +13,7 @@ interface PremiumCallButtonProps {
   userId: string
   userName: string
   type: 'audio' | 'video'
-  variant?: 'default' | 'ghost' | 'outline'
+  variant?: 'solid' | 'ghost' | 'bordered'
   size?: 'sm' | 'md' | 'lg'
   className?: string
 }
@@ -30,7 +30,7 @@ export default function PremiumCallButton({
   const { paywall, requireFeature, closePaywall } = usePaywall()
   const { startCall } = useWebRTC()
 
-  const canMakeCalls = canAccess.plan === 'diamante'
+  const canMakeCalls = canAccess.currentPlan === 'diamond'
 
   const handleCallClick = () => {
     if (canMakeCalls) {

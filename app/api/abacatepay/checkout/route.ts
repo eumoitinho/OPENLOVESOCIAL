@@ -16,6 +16,8 @@ const supabase = createClient(
 
 // Inicializar SDK do AbacatePay
 const abacatePaySDK = AbacatePaySDK(process.env.ABACATEPAY_API_KEY || '')
+const ABACATEPAY_API_URL = 'https://api.abacatepay.com/v1'
+const ABACATEPAY_API_KEY = process.env.ABACATEPAY_API_KEY || ''
 
 export async function POST(request: NextRequest) {
   try {
@@ -227,8 +229,19 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Buscar informações da cobrança usando o SDK
-    const billing = await abacatePaySDK.billing.retrieve(billingId)
+    // Buscar informações da cobrança usando a API diretamente
+    const response = await fetch(`${ABACATEPAY_API_URL}/billing/${billingId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${ABACATEPAY_API_KEY}`
+      }
+    })
+    
+    if (!response.ok) {
+      throw new Error('Falha ao buscar cobrança')
+    }
+    
+    const billing = await response.json()
 
     return NextResponse.json({
       success: true,

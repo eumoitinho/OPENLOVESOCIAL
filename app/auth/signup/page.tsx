@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import PaymentProvider from "@/app/components/PaymentProvider"
-import { createClient } from "@/lib/supabase-browser"
+import { createClient } from "@/app/lib/supabase-browser"
 
 interface FormData {
   firstName: string
@@ -370,7 +370,7 @@ export default function OpenLoveRegister() {
         // Se for plano pago, redirecionar para página de checkout com opções
         if (formData.plan !== "free") {
           // Mapear nomes dos planos para compatibilidade
-          let planName = formData.plan
+          let planName: string = formData.plan
           if (formData.plan === "diamante") planName = "diamond"
           if (formData.plan === "diamante_anual") planName = "diamond_annual"
           
@@ -697,8 +697,8 @@ export default function OpenLoveRegister() {
                         placeholder="Selecione o tipo de perfil"
                         className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white"
                       >
-                        <SelectItem key="single" value="single">Solteiro(a)</SelectItem>
-                        <SelectItem key="couple" value="couple">Casal</SelectItem>
+                        <SelectItem key="single">Solteiro(a)</SelectItem>
+                        <SelectItem key="couple">Casal</SelectItem>
                       </Select>
                     </div>
 
@@ -712,7 +712,7 @@ export default function OpenLoveRegister() {
                             <Checkbox
                               id={`seeking-${option}`}
                               checked={formData.seeking.includes(option)}
-                              onCheckedChange={() => handleCheckboxChange("seeking", option)}
+                              onChange={() => handleCheckboxChange("seeking", option)}
                             />
                             <label htmlFor={`seeking-${option}`} className="ml-2 text-sm text-gray-900 dark:text-white">
                               {option}
@@ -735,7 +735,7 @@ export default function OpenLoveRegister() {
                             <Checkbox
                               id={`interest-${option}`}
                               checked={formData.interests.includes(option)}
-                              onCheckedChange={() => handleCheckboxChange("interests", option)}
+                              onChange={() => handleCheckboxChange("interests", option)}
                             />
                             <label
                               htmlFor={`interest-${option}`}
@@ -925,7 +925,7 @@ export default function OpenLoveRegister() {
                               className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white"
                             >
                               {["Castanho", "Azul", "Verde", "Cinza", "Outro"].map((color) => (
-                                <SelectItem key={color} value={color}>
+                                <SelectItem key={color}>
                                   {color}
                                 </SelectItem>
                               ))}
@@ -954,7 +954,7 @@ export default function OpenLoveRegister() {
                               className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white"
                             >
                               {["Preto", "Castanho", "Loiro", "Ruivo", "Outro"].map((color) => (
-                                <SelectItem key={color} value={color}>
+                                <SelectItem key={color}>
                                   {color}
                                 </SelectItem>
                               ))}
@@ -1067,7 +1067,7 @@ export default function OpenLoveRegister() {
                           aria-pressed={formData.plan === "free"}
                         >
                           <div className="flex items-center gap-2 mb-4">
-                            <Badge variant="secondary" className="bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-200 px-3 py-1"><StarIcon className="size-4 mr-1" /> Free</Badge>
+                            <Badge variant="flat" className="bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-200 px-3 py-1"><StarIcon className="size-4 mr-1" /> Free</Badge>
                             {formData.plan === "free" && <CheckIcon className="text-pink-600 ml-1" />}
                           </div>
                           <div className="text-2xl lg:text-3xl font-bold mb-2">Grátis</div>
@@ -1077,7 +1077,7 @@ export default function OpenLoveRegister() {
                             <li className="flex items-start gap-2">✔️ Eventos locais</li>
                             <li className="flex items-start gap-2">✔️ Posts de amigos</li>
                           </ul>
-                          <Button size="sm" variant={formData.plan === "free" ? "default" : "outline"} className="w-full py-3">{formData.plan === "free" ? "Selecionado" : "Selecionar"}</Button>
+                          <Button size="sm" variant={formData.plan === "free" ? "solid" : "bordered"} className="w-full py-3">{formData.plan === "free" ? "Selecionado" : "Selecionar"}</Button>
                         </div>
                         {/* Gold (Mensal) */}
                         <div
@@ -1088,7 +1088,7 @@ export default function OpenLoveRegister() {
                           aria-pressed={formData.plan === "gold"}
                         >
                           <div className="flex items-center gap-2 mb-4">
-                            <Badge variant="secondary" className="bg-yellow-200 dark:bg-yellow-800 text-yellow-700 dark:text-yellow-200 px-3 py-1"><CrownIcon className="size-4 mr-1" /> Gold</Badge>
+                            <Badge variant="flat" className="bg-yellow-200 dark:bg-yellow-800 text-yellow-700 dark:text-yellow-200 px-3 py-1"><CrownIcon className="size-4 mr-1" /> Gold</Badge>
                             {formData.plan === "gold" && <CheckIcon className="text-pink-600 ml-1" />}
                           </div>
                           <div className="text-2xl lg:text-3xl font-bold mb-2">R$ 25,00/mês</div>
@@ -1098,7 +1098,7 @@ export default function OpenLoveRegister() {
                             <li className="flex items-start gap-2">✔️ Veja quem visitou seu perfil</li>
                             <li className="flex items-start gap-2">✔️ Filtros avançados</li>
                           </ul>
-                          <Button size="sm" variant={formData.plan === "gold" ? "default" : "outline"} className="w-full py-3">{formData.plan === "gold" ? "Selecionado" : "Selecionar"}</Button>
+                          <Button size="sm" variant={formData.plan === "gold" ? "solid" : "bordered"} className="w-full py-3">{formData.plan === "gold" ? "Selecionado" : "Selecionar"}</Button>
                         </div>
                         {/* Diamante (Mensal) */}
                         <div
@@ -1109,7 +1109,7 @@ export default function OpenLoveRegister() {
                           aria-pressed={formData.plan === "diamante"}
                         >
                           <div className="flex items-center gap-2 mb-4">
-                            <Badge variant="secondary" className="bg-purple-200 dark:bg-purple-800 text-purple-700 dark:text-purple-200 px-3 py-1"><GemIcon className="size-4 mr-1" /> Diamante</Badge>
+                            <Badge variant="flat" className="bg-purple-200 dark:bg-purple-800 text-purple-700 dark:text-purple-200 px-3 py-1"><GemIcon className="size-4 mr-1" /> Diamante</Badge>
                             {formData.plan === "diamante" && <CheckIcon className="text-pink-600 ml-1" />}
                           </div>
                           <div className="text-2xl lg:text-3xl font-bold mb-2">R$ 45,90/mês</div>
@@ -1119,7 +1119,7 @@ export default function OpenLoveRegister() {
                             <li className="flex items-start gap-2">✔️ Destaque no ranking</li>
                             <li className="flex items-start gap-2">✔️ Suporte prioritário</li>
                           </ul>
-                          <Button size="sm" variant={formData.plan === "diamante" ? "default" : "outline"} className="w-full py-3">{formData.plan === "diamante" ? "Selecionado" : "Selecionar"}</Button>
+                          <Button size="sm" variant={formData.plan === "diamante" ? "solid" : "bordered"} className="w-full py-3">{formData.plan === "diamante" ? "Selecionado" : "Selecionar"}</Button>
                         </div>
                         {/* Diamante Anual */}
                         <div
@@ -1130,7 +1130,7 @@ export default function OpenLoveRegister() {
                           aria-pressed={formData.plan === "diamante_anual"}
                         >
                           <div className="flex items-center gap-2 mb-4">
-                            <Badge variant="secondary" className="bg-purple-300 dark:bg-purple-900 text-purple-900 dark:text-purple-200 px-3 py-1"><GemIcon className="size-4 mr-1" /> Diamante Anual</Badge>
+                            <Badge variant="flat" className="bg-purple-300 dark:bg-purple-900 text-purple-900 dark:text-purple-200 px-3 py-1"><GemIcon className="size-4 mr-1" /> Diamante Anual</Badge>
                             {formData.plan === "diamante_anual" && <CheckIcon className="text-pink-600 ml-1" />}
                           </div>
                           <div className="text-2xl lg:text-3xl font-bold mb-2">R$ 459,00/ano <span className="text-sm text-pink-600">(2 meses grátis)</span></div>
@@ -1140,7 +1140,7 @@ export default function OpenLoveRegister() {
                             <li className="flex items-start gap-2">✔️ 2 meses grátis (equivalente a R$ 38,25/mês)</li>
                             <li className="flex items-start gap-2">✔️ Suporte prioritário e destaque máximo</li>
                           </ul>
-                          <Button size="sm" variant={formData.plan === "diamante_anual" ? "default" : "outline"} className="w-full py-3">{formData.plan === "diamante_anual" ? "Selecionado" : "Selecionar"}</Button>
+                          <Button size="sm" variant={formData.plan === "diamante_anual" ? "solid" : "bordered"} className="w-full py-3">{formData.plan === "diamante_anual" ? "Selecionado" : "Selecionar"}</Button>
                         </div>
                       </div>
                       {errors.plan && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.plan}</p>}

@@ -1,10 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { toast } from "@/hooks/use-toast"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogHeader } from "@/components/ui/dialog"
+import { Button, Card, CardBody, CardHeader, Modal, ModalContent, ModalHeader, ModalBody } from "@heroui/react"
+import { toast } from "sonner"
 import {
   Bell,
   User,
@@ -126,16 +124,13 @@ export default function SettingsPage() {
       // Atualizar o estado local com a nova URL
       setAvatarUrl(data.avatar_url)
       
-      toast({
-        title: "Sucesso!",
+      toast.success("Sucesso!", {
         description: "Foto de perfil atualizada.",
       })
     } catch (error) {
       console.error("Erro ao fazer upload:", error)
-      toast({
-        title: "Erro",
+      toast.error("Erro", {
         description: "Não foi possível atualizar a foto. Tente novamente.",
-        variant: "destructive",
       })
     } finally {
       setUploadingAvatar(false)

@@ -20,9 +20,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        videosThisMonth: usage.videos,
-        eventsCreatedThisMonth: usage.events,
-        communitiesJoined: usage.communities,
+        videosThisMonth: usage.videosThisMonth,
+        eventsCreatedThisMonth: usage.eventsThisMonth,
+        communitiesJoined: usage.communitiesJoined,
         month: new Date().getMonth() + 1,
         year: new Date().getFullYear()
       }

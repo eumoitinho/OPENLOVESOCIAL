@@ -194,7 +194,7 @@ function calculateCompatibilityScore(
   const targetInterests = Array.isArray(targetUser.interests) ? targetUser.interests : []
   
   if (userInterests.length > 0 && targetInterests.length > 0) {
-    const commonInterests = userInterests.filter(interest => targetInterests.includes(interest))
+    const commonInterests = userInterests.filter((interest: string) => targetInterests.includes(interest))
     const interestScore = (commonInterests.length / Math.max(userInterests.length, targetInterests.length)) * 30
     breakdown.interests = interestScore
     

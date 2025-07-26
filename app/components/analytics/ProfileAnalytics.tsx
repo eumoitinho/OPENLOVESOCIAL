@@ -3,11 +3,7 @@
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { TrendingUp, Eye, Heart, MessageCircle, Users, Target, Calendar, Lightbulb, RefreshCw } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardBody, CardHeader, Button, Chip, Progress, Tabs, Tab } from "@heroui/react"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts'
 import { useAuth } from "@/app/components/auth/AuthProvider"
 
@@ -148,7 +144,7 @@ export default function ProfileAnalytics({ className }: ProfileAnalyticsProps) {
         <div className="text-center">
           <h3 className="text-lg font-semibold text-red-600 mb-2">Erro ao carregar analytics</h3>
           <p className="text-sm text-gray-600 mb-4">{error}</p>
-          <Button onClick={fetchAnalytics} variant="outline" size="sm">
+          <Button onClick={fetchAnalytics} variant="bordered" size="sm">
             Tentar novamente
           </Button>
         </div>
@@ -185,7 +181,7 @@ export default function ProfileAnalytics({ className }: ProfileAnalyticsProps) {
             <option value="1y">Último ano</option>
           </select>
           
-          <Button onClick={fetchAnalytics} variant="outline" size="sm" className="w-full sm:w-auto">
+          <Button onClick={fetchAnalytics} variant="bordered" size="sm" className="w-full sm:w-auto">
             <RefreshCw className="w-4 h-4 mr-2" />
             Atualizar
           </Button>
@@ -196,9 +192,9 @@ export default function ProfileAnalytics({ className }: ProfileAnalyticsProps) {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Completude do Perfil</CardTitle>
+            <h3 className="text-sm font-medium">Completude do Perfil</h3>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="flex items-center gap-3">
               <div className="flex-1">
                 <div className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
@@ -208,14 +204,14 @@ export default function ProfileAnalytics({ className }: ProfileAnalyticsProps) {
               </div>
               <Target className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500 flex-shrink-0" />
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Atratividade</CardTitle>
+            <h3 className="text-sm font-medium">Atratividade</h3>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="flex items-center gap-3">
               <div className="flex-1">
                 <div className={`text-xl sm:text-2xl font-bold ${getScoreColor(analytics.profile.attractiveness)}`}>
@@ -225,14 +221,14 @@ export default function ProfileAnalytics({ className }: ProfileAnalyticsProps) {
               </div>
               <Heart className="w-6 h-6 sm:w-8 sm:h-8 text-pink-500 flex-shrink-0" />
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
 
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Atividade</CardTitle>
+            <h3 className="text-sm font-medium">Atividade</h3>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="flex items-center gap-3">
               <div className="flex-1">
                 <div className={`text-xl sm:text-2xl font-bold ${getScoreColor(analytics.profile.activity)}`}>
@@ -242,14 +238,14 @@ export default function ProfileAnalytics({ className }: ProfileAnalyticsProps) {
               </div>
               <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8 text-green-500 flex-shrink-0" />
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
       </div>
 
       {/* Main Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
-          <CardContent className="p-3 sm:p-4">
+          <CardBody className="p-3 sm:p-4">
             <div className="flex items-center gap-2">
               <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500 flex-shrink-0" />
               <div className="min-w-0">
@@ -257,11 +253,11 @@ export default function ProfileAnalytics({ className }: ProfileAnalyticsProps) {
                 <div className="text-lg sm:text-xl font-bold">{formatNumber(analytics.analytics.stats.profileViews)}</div>
               </div>
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <CardContent className="p-3 sm:p-4">
+          <CardBody className="p-3 sm:p-4">
             <div className="flex items-center gap-2">
               <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-pink-500 flex-shrink-0" />
               <div className="min-w-0">
@@ -269,11 +265,11 @@ export default function ProfileAnalytics({ className }: ProfileAnalyticsProps) {
                 <div className="text-lg sm:text-xl font-bold">{formatNumber(analytics.analytics.stats.likesReceived)}</div>
               </div>
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <CardContent className="p-3 sm:p-4">
+          <CardBody className="p-3 sm:p-4">
             <div className="flex items-center gap-2">
               <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 flex-shrink-0" />
               <div className="min-w-0">
@@ -281,11 +277,11 @@ export default function ProfileAnalytics({ className }: ProfileAnalyticsProps) {
                 <div className="text-lg sm:text-xl font-bold">{formatNumber(analytics.analytics.stats.messagesReceived)}</div>
               </div>
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
 
         <Card>
-          <CardContent className="p-3 sm:p-4">
+          <CardBody className="p-3 sm:p-4">
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500 flex-shrink-0" />
               <div className="min-w-0">
@@ -293,7 +289,7 @@ export default function ProfileAnalytics({ className }: ProfileAnalyticsProps) {
                 <div className="text-lg sm:text-xl font-bold">{formatNumber(analytics.analytics.matches)}</div>
               </div>
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
       </div>
 
@@ -301,15 +297,15 @@ export default function ProfileAnalytics({ className }: ProfileAnalyticsProps) {
       {analytics.insights && analytics.insights.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
+            <div className="flex items-center gap-2 text-lg font-semibold">
               <Lightbulb className="w-5 h-5" />
               Insights e Recomendações
-            </CardTitle>
-            <CardDescription className="text-sm">
+            </div>
+            <p className="text-sm text-gray-600">
               Dicas personalizadas para melhorar seu perfil
-            </CardDescription>
+            </p>
           </CardHeader>
-          <CardContent>
+          <CardBody>
             <div className="space-y-4">
               {analytics.insights.map((insight, index) => (
                 <motion.div
@@ -319,9 +315,13 @@ export default function ProfileAnalytics({ className }: ProfileAnalyticsProps) {
                   transition={{ delay: index * 0.1 }}
                   className="flex flex-col sm:flex-row sm:items-start gap-3 p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
                 >
-                  <Badge className={`${getPriorityColor(insight.priority)} text-xs self-start`}>
+                  <Chip 
+                    size="sm"
+                    variant="flat"
+                    className={`${getPriorityColor(insight.priority)} text-xs self-start`}
+                  >
                     {insight.priority.toUpperCase()}
-                  </Badge>
+                  </Chip>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-1 text-sm sm:text-base">
                       {insight.title}
@@ -330,7 +330,7 @@ export default function ProfileAnalytics({ className }: ProfileAnalyticsProps) {
                       {insight.description}
                     </p>
                     {insight.action && (
-                      <Button size="sm" variant="outline" className="text-xs w-full sm:w-auto">
+                      <Button size="sm" variant="bordered" className="text-xs w-full sm:w-auto">
                         {insight.action}
                       </Button>
                     )}
@@ -338,24 +338,19 @@ export default function ProfileAnalytics({ className }: ProfileAnalyticsProps) {
                 </motion.div>
               ))}
             </div>
-          </CardContent>
+          </CardBody>
         </Card>
       )}
 
       {/* Charts */}
-      <Tabs defaultValue="timeline" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="timeline" className="text-xs sm:text-sm">Timeline</TabsTrigger>
-          <TabsTrigger value="demographics" className="text-xs sm:text-sm">Demografia</TabsTrigger>
-          <TabsTrigger value="conversions" className="text-xs sm:text-sm">Conversões</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="timeline" className="space-y-4">
+      <Tabs defaultSelectedKey="timeline" className="w-full">
+        <Tab key="timeline" title="Timeline">
+          <div className="space-y-4 mt-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Interações ao Longo do Tempo</CardTitle>
+              <h3 className="text-lg font-semibold">Interações ao Longo do Tempo</h3>
             </CardHeader>
-            <CardContent>
+            <CardBody>
               <div className="w-full overflow-x-auto">
                 <ResponsiveContainer width="100%" height={250} minWidth={300}>
                   <LineChart data={analytics.analytics.dailyStats}>
@@ -369,17 +364,19 @@ export default function ProfileAnalytics({ className }: ProfileAnalyticsProps) {
                   </LineChart>
                 </ResponsiveContainer>
               </div>
-            </CardContent>
+            </CardBody>
           </Card>
-        </TabsContent>
+          </div>
+        </Tab>
         
-        <TabsContent value="demographics" className="space-y-4">
+        <Tab key="demographics" title="Demografia">
+          <div className="space-y-4 mt-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Faixa Etária dos Interessados</CardTitle>
+                <h3 className="text-lg font-semibold">Faixa Etária dos Interessados</h3>
               </CardHeader>
-              <CardContent>
+              <CardBody>
                 <div className="w-full overflow-x-auto">
                   <ResponsiveContainer width="100%" height={200} minWidth={250}>
                     <PieChart>
@@ -391,7 +388,7 @@ export default function ProfileAnalytics({ className }: ProfileAnalyticsProps) {
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
                         outerRadius={70}
                         fill="#8884d8"
                         dataKey="value"
@@ -404,14 +401,14 @@ export default function ProfileAnalytics({ className }: ProfileAnalyticsProps) {
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
-              </CardContent>
+              </CardBody>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Gênero dos Interessados</CardTitle>
+                <h3 className="text-lg font-semibold">Gênero dos Interessados</h3>
               </CardHeader>
-              <CardContent>
+              <CardBody>
                 <div className="w-full overflow-x-auto">
                   <ResponsiveContainer width="100%" height={200} minWidth={250}>
                     <BarChart data={Object.entries(analytics.analytics.demographics.genders).map(([key, value]) => ({
@@ -426,50 +423,53 @@ export default function ProfileAnalytics({ className }: ProfileAnalyticsProps) {
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
-              </CardContent>
+              </CardBody>
             </Card>
           </div>
-        </TabsContent>
+          </div>
+        </Tab>
         
-        <TabsContent value="conversions" className="space-y-4">
+        <Tab key="conversions" title="Conversões">
+          <div className="space-y-4 mt-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm">Visualização → Curtida</CardTitle>
+                <h3 className="text-sm font-medium">Visualização → Curtida</h3>
               </CardHeader>
-              <CardContent>
+              <CardBody>
                 <div className="text-xl sm:text-2xl font-bold text-blue-600">
                   {analytics.analytics.conversionRates.viewToLike.toFixed(1)}%
                 </div>
                 <Progress value={analytics.analytics.conversionRates.viewToLike} className="mt-2" />
-              </CardContent>
+              </CardBody>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm">Curtida → Match</CardTitle>
+                <h3 className="text-sm font-medium">Curtida → Match</h3>
               </CardHeader>
-              <CardContent>
+              <CardBody>
                 <div className="text-xl sm:text-2xl font-bold text-green-600">
                   {analytics.analytics.conversionRates.likeToMatch.toFixed(1)}%
                 </div>
                 <Progress value={analytics.analytics.conversionRates.likeToMatch} className="mt-2" />
-              </CardContent>
+              </CardBody>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-sm">Match → Mensagem</CardTitle>
+                <h3 className="text-sm font-medium">Match → Mensagem</h3>
               </CardHeader>
-              <CardContent>
+              <CardBody>
                 <div className="text-xl sm:text-2xl font-bold text-purple-600">
                   {analytics.analytics.conversionRates.matchToMessage.toFixed(1)}%
                 </div>
                 <Progress value={analytics.analytics.conversionRates.matchToMessage} className="mt-2" />
-              </CardContent>
+              </CardBody>
             </Card>
           </div>
-        </TabsContent>
+          </div>
+        </Tab>
       </Tabs>
     </div>
   )

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createSupabaseAdmin } from '@/app/lib/supabase'
+import { createServerComponentClient } from '@/app/lib/supabase-server'
 import { verifyAuth } from '@/app/lib/auth-helpers'
 import { planValidator } from '@/lib/plans/server'
 
@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
     
-    const supabase = createSupabaseAdmin()
+    const supabase = await createServerComponentClient()
     
     // Buscar comunidades onde o usuário é membro ativo
     const { data: memberships, error } = await supabase

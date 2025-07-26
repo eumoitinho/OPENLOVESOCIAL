@@ -119,7 +119,7 @@ export default function ConfirmEmailPage() {
                 <div className="space-y-3">
                   <Button
                     onClick={() => router.push("/auth/signin")}
-                    variant="outline"
+                    variant="bordered"
                     className="w-full"
                   >
                     Voltar ao Login

@@ -72,11 +72,11 @@ export async function GET(
       likes: comment.stats?.likes || 0,
       isLiked: likedCommentIds.has(comment.id),
       author: {
-        name: comment.users.name,
-        username: comment.users.username,
-        avatar: comment.users.avatar_url,
-        verified: comment.users.is_verified || false,
-        premium: comment.users.is_premium || false,
+        name: comment.users?.[0]?.name || '',
+        username: comment.users?.[0]?.username || '',
+        avatar: comment.users?.[0]?.avatar_url || '',
+        verified: comment.users?.[0]?.is_verified || false,
+        premium: comment.users?.[0]?.is_premium || false,
       }
     })) || []
 
@@ -163,11 +163,11 @@ export async function POST(
       likes: comment.stats?.likes || 0,
       isLiked: false,
       author: {
-        name: comment.users.name,
-        username: comment.users.username,
-        avatar: comment.users.avatar_url,
-        verified: comment.users.is_verified || false,
-        premium: comment.users.is_premium || false,
+        name: comment.users?.[0]?.name || '',
+        username: comment.users?.[0]?.username || '',
+        avatar: comment.users?.[0]?.avatar_url || '',
+        verified: comment.users?.[0]?.is_verified || false,
+        premium: comment.users?.[0]?.is_premium || false,
       }
     }
 
@@ -257,13 +257,13 @@ export async function PUT(
       timestamp: updatedComment.created_at,
       likes: updatedComment.stats?.likes || 0,
       isLiked: false,
-      isEdited: updatedComment.is_edited,
+      isEdited: true,
       author: {
-        name: updatedComment.users.name,
-        username: updatedComment.users.username,
-        avatar: updatedComment.users.avatar_url,
-        verified: updatedComment.users.is_verified || false,
-        premium: updatedComment.users.is_premium || false,
+        name: updatedComment.users?.[0]?.name || '',
+        username: updatedComment.users?.[0]?.username || '',
+        avatar: updatedComment.users?.[0]?.avatar_url || '',
+        verified: updatedComment.users?.[0]?.is_verified || false,
+        premium: updatedComment.users?.[0]?.is_premium || false,
       }
     }
 

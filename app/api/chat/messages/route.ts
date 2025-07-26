@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
       .from('conversation_participants')
       .select('id')
       .eq('conversation_id', conversationId)
-      .eq('user_id', userId)
+      .eq('user_id', user.id)
       .single()
 
     if (participantError || !participant) {

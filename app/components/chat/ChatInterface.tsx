@@ -4,11 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { useIsMounted } from "@/hooks/use-is-mounted"
 import { motion, AnimatePresence } from "framer-motion"
 import { Send, Paperclip, Smile, MoreVertical, Phone, Video, Search, X, MessageCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { Button, Input, Avatar, Chip, ScrollShadow } from "@heroui/react"
 import { useConversations } from "@/app/hooks/useConversations"
 import { useAuth } from "@/app/components/auth/AuthProvider"
 import { ConversationList } from "./ConversationList"
@@ -179,7 +175,8 @@ export function ChatInterface({ className, isOpen = false, onClose }: ChatInterf
             {/* Botão de menu (mobile) */}
             <Button
               variant="ghost"
-              size="icon"
+              size="sm"
+              isIconOnly
               className="md:hidden"
               onClick={() => setShowConversationList(true)}
             >
@@ -189,12 +186,17 @@ export function ChatInterface({ className, isOpen = false, onClose }: ChatInterf
             {/* Informações da conversa */}
             {activeConversationData ? (
               <div className="flex items-center gap-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={activeConversationData.participants[0]?.avatar_url} />
-                  <AvatarFallback className="bg-gradient-to-br from-pink-500 to-purple-500 text-white">
-                    {activeConversationData.participants[0]?.name?.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+                <Avatar 
+                  src={activeConversationData.participants[0]?.avatar_url}
+                  className="h-10 w-10"
+                  showFallback
+                  name={activeConversationData.participants[0]?.name}
+                  fallback={
+                    <div className="w-full h-full bg-gradient-to-br from-pink-500 to-purple-500 text-white flex items-center justify-center">
+                      {activeConversationData.participants[0]?.name?.charAt(0).toUpperCase()}
+                    </div>
+                  }
+                />
                 <div>
                   <h3 className="font-semibold text-gray-900 dark:text-gray-100">
                     {activeConversationData.name || activeConversationData.participants[0]?.name}
@@ -217,19 +219,19 @@ export function ChatInterface({ className, isOpen = false, onClose }: ChatInterf
           <div className="flex items-center gap-2">
             {activeConversationData && (
               <>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="sm" isIconOnly>
                   <Search className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="sm" isIconOnly>
                   <Phone className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="sm" isIconOnly>
                   <Video className="w-4 h-4" />
                 </Button>
               </>
             )}
             {onClose && (
-              <Button variant="ghost" size="icon" onClick={onClose}>
+              <Button variant="ghost" size="sm" isIconOnly onClick={onClose}>
                 <X className="w-4 h-4" />
               </Button>
             )}
@@ -241,7 +243,7 @@ export function ChatInterface({ className, isOpen = false, onClose }: ChatInterf
           {activeConversation ? (
             <>
               {/* Mensagens */}
-              <ScrollArea className="flex-1 p-4">
+              <ScrollShadow className="flex-1 p-4 max-h-[calc(100vh-200px)]">
                 <div className="space-y-4">
                   {messages.map((msg, index) => {
                     const isOwnMessage = msg.sender_id === user?.id
@@ -253,9 +255,9 @@ export function ChatInterface({ className, isOpen = false, onClose }: ChatInterf
                         {/* Separador de data */}
                         {showDate && (
                           <div className="flex justify-center my-4">
-                            <Badge variant="secondary" className="text-xs">
+                            <Chip variant="flat" className="text-xs">
                               {formatDate(msg.created_at)}
-                            </Badge>
+                            </Chip>
                           </div>
                         )}
 
@@ -267,12 +269,17 @@ export function ChatInterface({ className, isOpen = false, onClose }: ChatInterf
                         >
                           <div className={`flex items-end gap-2 max-w-xs lg:max-w-md ${isOwnMessage ? 'flex-row-reverse' : ''}`}>
                             {!isOwnMessage && (
-                              <Avatar className="h-6 w-6">
-                                <AvatarImage src={msg.sender?.avatar_url} />
-                                <AvatarFallback className="text-xs bg-gradient-to-br from-pink-500 to-purple-500 text-white">
-                                  {msg.sender?.name?.charAt(0).toUpperCase()}
-                                </AvatarFallback>
-                              </Avatar>
+                              <Avatar 
+                                src={msg.sender?.avatar_url}
+                                className="h-6 w-6"
+                                showFallback
+                                name={msg.sender?.name}
+                                fallback={
+                                  <div className="w-full h-full bg-gradient-to-br from-pink-500 to-purple-500 text-white flex items-center justify-center text-xs">
+                                    {msg.sender?.name?.charAt(0).toUpperCase()}
+                                  </div>
+                                }
+                              />
                             )}
                             
                             <div className={`rounded-lg px-3 py-2 ${
@@ -301,11 +308,16 @@ export function ChatInterface({ className, isOpen = false, onClose }: ChatInterf
                       className="flex justify-start"
                     >
                       <div className="flex items-end gap-2">
-                        <Avatar className="h-6 w-6">
-                          <AvatarFallback className="text-xs bg-gradient-to-br from-pink-500 to-purple-500 text-white">
-                            {activeConversationData?.participants[0]?.name?.charAt(0).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
+                        <Avatar 
+                          className="h-6 w-6"
+                          showFallback
+                          name={activeConversationData?.participants[0]?.name}
+                          fallback={
+                            <div className="w-full h-full bg-gradient-to-br from-pink-500 to-purple-500 text-white flex items-center justify-center text-xs">
+                              {activeConversationData?.participants[0]?.name?.charAt(0).toUpperCase()}
+                            </div>
+                          }
+                        />
                         <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-3 py-2">
                           <div className="flex space-x-1">
                             <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
@@ -319,14 +331,15 @@ export function ChatInterface({ className, isOpen = false, onClose }: ChatInterf
                   
                   <div ref={messagesEndRef} />
                 </div>
-              </ScrollArea>
+              </ScrollShadow>
 
               {/* Input de Mensagem */}
               <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
                 <div className="flex items-center gap-2">
                   <Button
                     variant="ghost"
-                    size="icon"
+                    size="sm"
+              isIconOnly
                     onClick={() => setShowFileUpload(!showFileUpload)}
                   >
                     <Paperclip className="w-4 h-4" />
@@ -343,7 +356,8 @@ export function ChatInterface({ className, isOpen = false, onClose }: ChatInterf
                   
                   <Button
                     variant="ghost"
-                    size="icon"
+                    size="sm"
+              isIconOnly
                     onClick={() => {/* Emoji picker */}}
                   >
                     <Smile className="w-4 h-4" />

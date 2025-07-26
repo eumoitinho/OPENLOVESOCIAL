@@ -3,11 +3,7 @@
 import { useState } from "react"
 import { useAuth } from "@/app/components/auth/AuthProvider"
 import { useNotifications } from "@/app/hooks/useNotifications"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { Button, Chip, Tabs, Tab, Avatar, ScrollShadow } from "@heroui/react"
 import {
   Bell,
   Check,

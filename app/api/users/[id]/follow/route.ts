@@ -30,7 +30,7 @@ export async function POST(
     // Verificar se o usuário alvo existe
     const { data: targetUser, error: targetError } = await supabase
       .from("users")
-      .select("id, username, stats")
+      .select("id, username, name, avatar_url, stats")
       .eq("id", targetUserId)
       .single()
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createSupabaseAdmin } from '@/app/lib/supabase'
+import { createServerComponentClient } from '@/app/lib/supabase-server'
 import { verifyAuth } from '@/app/lib/auth-helpers'
 import { pixStripeIntegration } from '@/lib/abacatepay/stripe-integration'
 
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    const supabase = createSupabaseAdmin()
+    const supabase = await createServerComponentClient()
     
     // Buscar dados do usuário
     const { data: profile, error: profileError } = await supabase

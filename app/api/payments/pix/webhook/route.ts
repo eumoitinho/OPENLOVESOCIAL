@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createSupabaseAdmin } from '@/app/lib/supabase'
+import { createServerComponentClient } from '@/app/lib/supabase-server'
 import { pixStripeIntegration } from '@/lib/abacatepay/stripe-integration'
 
 export async function POST(request: NextRequest) {
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
       webhookData.status = 'paid'
     }
 
-    const supabase = createSupabaseAdmin()
+    const supabase = await createServerComponentClient()
     
     // Buscar payment_intent pelo abacatepay_payment_id
     const { data: paymentIntent, error: paymentError } = await supabase
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
     
     // Log do erro
     try {
-      const supabase = createSupabaseAdmin()
+      const supabase = await createServerComponentClient()
       await supabase
         .from('webhook_logs')
         .insert({

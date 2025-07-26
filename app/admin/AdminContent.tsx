@@ -4,7 +4,7 @@ import type React from "react"
 import { useState } from "react"
 import { Clock, Users, Calendar, AlertTriangle, TrendingUp, Eye } from "lucide-react"
 import type { User } from "@supabase/supabase-js"
-import type { Database } from "@/lib/database.types"
+import type { Database } from "@/app/lib/database.types"
 import { Card, CardHeader, CardBody, Button, Badge, Tabs, Tab, Chip } from "@heroui/react"
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/react"
 

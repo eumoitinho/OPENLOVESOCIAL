@@ -95,7 +95,7 @@ export default function CheckoutFormAbacatePay({
             <span className="text-lg font-normal text-gray-600">/mês</span>
           </div>
           <p className="text-gray-600">
-            {plan.description}
+            {planType === 'gold' ? 'Mais recursos para quem quer se destacar' : 'Para quem quer o máximo de recursos'}
           </p>
         </div>
 

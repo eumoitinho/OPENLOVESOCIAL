@@ -1,6 +1,6 @@
 "use client"
 
-import { useAuth } from '@/components/auth/AuthProvider'
+import { useAuth } from '@/app/components/auth/AuthProvider'
 import { useCanAccess } from '@/lib/plans/hooks'
 
 interface MessageTypeValidatorProps {
@@ -190,6 +190,6 @@ export const useMessageValidation = () => {
     validateMessageByPlan, 
     getRequiredPlan,
     MESSAGE_TYPE_LIMITS,
-    userPlan: canAccess.plan || 'free'
+    userPlan: canAccess.currentPlan || 'free'
   }
 }

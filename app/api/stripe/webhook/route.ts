@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import Stripe from "stripe"
-import { createSupabaseAdmin } from '@/app/lib/supabase'
+import { createServerComponentClient } from '@/app/lib/supabase-server'
 import { STRIPE_STATUS_MAP } from '@/types/stripe'
 
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -8,7 +8,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2024-12-18.acacia",
+  apiVersion: "2025-06-30.basil",
 })
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Webhook signature verification failed" }, { status: 400 })
   }
 
-  const supabase = createSupabaseAdmin()
+  const supabase = await createServerComponentClient()
 
   try {
     switch (event.type) {
@@ -74,8 +74,8 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription, supab
   const planType = getPlanFromPriceId(priceId)
   
   // Calcular próximo pagamento
-  const nextPayment = subscription.current_period_end ? 
-    new Date(subscription.current_period_end * 1000).toISOString() : null
+  const nextPayment = 'current_period_end' in subscription && subscription.current_period_end ? 
+    new Date((subscription as any).current_period_end * 1000).toISOString() : null
 
   // Buscar usuário pelo customer_id
   const { data: userData, error: userError } = await supabase
@@ -143,19 +143,19 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription, supa
 }
 
 async function handlePaymentSucceeded(invoice: Stripe.Invoice, supabase: any) {
-  if (!invoice.subscription) return
+  if (!('subscription' in invoice) || !invoice.subscription) return
 
   const customerId = invoice.customer as string
-  const subscriptionId = invoice.subscription as string
+  const subscriptionId = (invoice as any).subscription as string
   const paymentDate = new Date(invoice.created * 1000).toISOString()
   
   // Calcular próximo pagamento
   let nextPayment = null
-  if (invoice.subscription) {
+  if (subscriptionId) {
     try {
       const subscription = await stripe.subscriptions.retrieve(subscriptionId)
-      nextPayment = subscription.current_period_end ? 
-        new Date(subscription.current_period_end * 1000).toISOString() : null
+      nextPayment = 'current_period_end' in subscription && subscription.current_period_end ? 
+        new Date((subscription as any).current_period_end * 1000).toISOString() : null
     } catch (error) {
       console.error('Erro ao buscar assinatura:', error)
     }

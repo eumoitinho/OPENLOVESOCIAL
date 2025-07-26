@@ -285,7 +285,7 @@ function analyzeInterestCompatibility(userProfile: any, receivedInteractions: an
     .filter(i => i.user && i.interaction_type === 'like' && i.user.interests)
     .map(i => i.user)
 
-  const commonInterests = userInterests.reduce((acc, interest) => {
+  const commonInterests = userInterests.reduce((acc: Record<string, number>, interest: string) => {
     const count = interactors.filter(user => 
       Array.isArray(user.interests) && user.interests.includes(interest)
     ).length
@@ -298,7 +298,7 @@ function analyzeInterestCompatibility(userProfile: any, receivedInteractions: an
 
   const compatibilityScores = interactors.map(user => {
     const userInterestsArray = Array.isArray(user.interests) ? user.interests : []
-    const common = userInterests.filter(interest => userInterestsArray.includes(interest))
+    const common = userInterests.filter((interest: string) => userInterestsArray.includes(interest))
     return (common.length / Math.max(userInterests.length, userInterestsArray.length)) * 100
   })
 
@@ -401,7 +401,7 @@ function generateInsights(userProfile: any, analytics: any) {
 
   // Insight sobre horários
   const bestHours = analytics.dailyStats
-    .reduce((acc, day) => acc + day.totalInteractions, 0) / analytics.dailyStats.length
+    .reduce((acc: number, day: any) => acc + day.totalInteractions, 0) / analytics.dailyStats.length
   
   if (bestHours > 0) {
     insights.push({

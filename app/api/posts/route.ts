@@ -170,7 +170,8 @@ export async function POST(request: NextRequest) {
       }
       
       // Verificar limitações de upload usando o novo sistema
-      const uploadValidation = await planValidator.canUploadMedia(user.id, images.length, videoFile?.size || 0)
+      const videoSize = videoFile && typeof videoFile === "object" && "size" in videoFile ? videoFile.size : 0
+      const uploadValidation = await planValidator.canUploadMedia(user.id, images.length, videoSize)
       
       if (!uploadValidation.allowed) {
         return NextResponse.json({ error: uploadValidation.reason }, { status: 400 })

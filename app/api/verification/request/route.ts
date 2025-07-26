@@ -64,9 +64,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Check attempt limits
-    const { data: attemptCount, error: countError } = await supabase
+    const { count: attemptCount, error: countError } = await supabase
       .from('verification_requests')
-      .select('id', { count: 'exact' })
+      .select('id', { count: 'exact', head: true })
       .eq('user_id', currentUser.id)
 
     if (countError) {

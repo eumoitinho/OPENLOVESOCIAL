@@ -88,13 +88,8 @@ export async function POST(
       )
     }
 
-    // Incrementar contador de denúncias do post (opcional)
-    await supabase
-      .from('posts')
-      .update({
-        report_count: supabase.raw('COALESCE(report_count, 0) + 1')
-      })
-      .eq('id', id)
+    // Incrementar contador de denúncias do post usando RPC
+    await supabase.rpc('increment_post_report_count', { post_id: id })
 
     return NextResponse.json({
       data: report,

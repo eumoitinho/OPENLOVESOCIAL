@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createSupabaseAdmin } from '@/app/lib/supabase'
+import { createServerComponentClient } from '@/app/lib/supabase-server'
 import { verifyAuth } from '@/app/lib/auth-helpers'
 import { planValidator } from '@/lib/plans/server'
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createSupabaseAdmin()
+    const supabase = await createServerComponentClient()
     const { searchParams } = new URL(request.url)
     const category = searchParams.get('category')
     const search = searchParams.get('search')
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Nome, slug e descrição são obrigatórios' }, { status: 400 })
     }
     
-    const supabase = createSupabaseAdmin()
+    const supabase = await createServerComponentClient()
     
     // Verificar se slug já existe
     const { data: existing } = await supabase

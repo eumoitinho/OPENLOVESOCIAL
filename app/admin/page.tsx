@@ -42,7 +42,7 @@ export default async function AdminPage() {
     supabase.from("events").select("*", { count: "exact", head: true }),
     supabase
       .from("users")
-      .select("id, username, full_name, created_at")
+      .select("*")
       .order("created_at", { ascending: false })
       .limit(10),
   ])

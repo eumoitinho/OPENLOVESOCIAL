@@ -8,13 +8,13 @@ import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
 interface SignOutProps {
-  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"
-  size?: "default" | "sm" | "lg" | "icon"
+  variant?: "flat" | "shadow" | "solid" | "bordered" | "light" | "faded" | "ghost"
+  size?: "sm" | "md" | "lg"
   showIcon?: boolean
   children?: React.ReactNode
 }
 
-const SignOut: React.FC<SignOutProps> = ({ variant = "ghost", size = "default", showIcon = true, children }) => {
+const SignOut: React.FC<SignOutProps> = ({ variant = "ghost", size = "md", showIcon = true, children }) => {
   const { signOut, loading } = useAuth()
   const router = useRouter()
 

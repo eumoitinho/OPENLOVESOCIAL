@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { createClient } from "@/lib/supabase-browser"
+import { createClient } from "@/app/lib/supabase-browser"
 import { Button, Input, Card, CardBody, CardHeader, Checkbox, Chip, Progress } from "@heroui/react"
 import { ArrowLeft, ArrowRight, Check, Crown, Star, Zap, Upload, X, Camera } from "lucide-react"
 import { EnhancedImageUpload } from '@/app/components/ui/enhanced-image-upload'
@@ -305,19 +305,19 @@ export default function SignUp() {
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-2xl">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-gray-900">Criar Conta - Openlove</CardTitle>
-          <CardDescription>Etapa {step} de {formData.selectedPlan === 'free' ? 3 : 4}</CardDescription>
+          <h2 className="text-2xl font-bold text-gray-900">Criar Conta - Openlove</h2>
+          <p className="text-sm text-gray-600">Etapa {step} de {formData.selectedPlan === 'free' ? 3 : 4}</p>
           <Progress value={progress} className="mt-4" />
         </CardHeader>
 
-        <CardContent className="space-y-6">
+        <CardBody className="space-y-6">
           {/* Etapa 1: Dados Básicos */}
           {step === 1 && (
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Dados Básicos</h3>
 
               <div className="space-y-2">
-                <Label htmlFor="fullName">Nome Completo</Label>
+                <label htmlFor="fullName">Nome Completo</label>
                 <Input
                   id="fullName"
                   value={formData.fullName}
@@ -327,7 +327,7 @@ export default function SignUp() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <label htmlFor="email">Email</label>
                 <Input
                   id="email"
                   type="email"
@@ -338,7 +338,7 @@ export default function SignUp() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="username">Nome de Usuário</Label>
+                <label htmlFor="username">Nome de Usuário</label>
                 <Input
                   id="username"
                   value={formData.username}
@@ -351,7 +351,7 @@ export default function SignUp() {
               {/* Upload de Foto de Perfil */}
               <EnhancedImageUpload
                 label="Foto de Perfil (Opcional)"
-                value={profileImageUrl}
+                value={profileImageUrl || undefined}
                 onChange={setProfileImageUrl}
                 aspectRatio={1}
                 circularCrop={true}
@@ -362,7 +362,7 @@ export default function SignUp() {
               {/* Upload de Foto de Capa */}
               <EnhancedImageUpload
                 label="Foto de Capa (Opcional)"
-                value={coverImageUrl}
+                value={coverImageUrl || undefined}
                 onChange={setCoverImageUrl}
                 aspectRatio={16/9}
                 circularCrop={false}
@@ -371,7 +371,7 @@ export default function SignUp() {
               />
 
               <div className="space-y-2">
-                <Label htmlFor="password">Senha</Label>
+                <label htmlFor="password">Senha</label>
                 <Input
                   id="password"
                   type="password"
@@ -382,7 +382,7 @@ export default function SignUp() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirmar Senha</Label>
+                <label htmlFor="confirmPassword">Confirmar Senha</label>
                 <Input
                   id="confirmPassword"
                   type="password"
@@ -404,12 +404,12 @@ export default function SignUp() {
               <h3 className="text-lg font-semibold">Perfil Detalhado</h3>
 
               <div className="space-y-2">
-                <Label>Tipo de Perfil</Label>
+                <label>Tipo de Perfil</label>
                 <div className="grid grid-cols-2 gap-2">
                   {PROFILE_TYPES.map((type) => (
                     <Button
                       key={type.value}
-                      variant={formData.profileType === type.value ? "default" : "outline"}
+                      variant={formData.profileType === type.value ? "solid" : "bordered"}
                       className="justify-start h-auto p-3"
                       onClick={() => handleInputChange("profileType", type.value)}
                     >
@@ -422,7 +422,7 @@ export default function SignUp() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="age">Idade</Label>
+                  <label htmlFor="age">Idade</label>
                   <Input
                     id="age"
                     type="number"
@@ -435,7 +435,7 @@ export default function SignUp() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="birthDate">Data de Nascimento *</Label>
+                  <label htmlFor="birthDate">Data de Nascimento *</label>
                   <Input
                     id="birthDate"
                     type="date"
@@ -448,7 +448,7 @@ export default function SignUp() {
               </div>
 
               <div className="space-y-2">
-                <Label>Localização *</Label>
+                <label>Localização *</label>
                 <LocationSearch
                   onLocationSelect={handleLocationSelect}
                   placeholder="Buscar sua cidade..."
@@ -457,23 +457,23 @@ export default function SignUp() {
               </div>
 
               <div className="space-y-2">
-                <Label>Interesses</Label>
+                <label>Interesses</label>
                 <div className="flex flex-wrap gap-2">
                   {INTERESTS.map((interest) => (
-                    <Badge
+                    <Chip
                       key={interest}
-                      variant={formData.interests.includes(interest) ? "default" : "outline"}
+                      variant={formData.interests.includes(interest) ? "solid" : "bordered"}
                       className="cursor-pointer"
                       onClick={() => handleInterestToggle(interest)}
                     >
                       {interest}
-                    </Badge>
+                    </Chip>
                   ))}
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="bio">Bio (Opcional)</Label>
+                <label htmlFor="bio">Bio (Opcional)</label>
                 <textarea
                   id="bio"
                   className="w-full p-3 border rounded-md resize-none"
@@ -491,18 +491,18 @@ export default function SignUp() {
                   <Checkbox
                     id="canSellContent"
                     checked={formData.canSellContent}
-                    onCheckedChange={(checked) => handleInputChange("canSellContent", checked)}
+                    onChange={(e) => handleInputChange("canSellContent", e.target.checked)}
                   />
-                  <Label htmlFor="canSellContent">Quero vender conteúdo exclusivo (fotos, vídeos, etc.)</Label>
+                  <label htmlFor="canSellContent">Quero vender conteúdo exclusivo (fotos, vídeos, etc.)</label>
                 </div>
 
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="offersPrograms"
                     checked={formData.offersPrograms}
-                    onCheckedChange={(checked) => handleInputChange("offersPrograms", checked)}
+                    onChange={(e) => handleInputChange("offersPrograms", e.target.checked)}
                   />
-                  <Label htmlFor="offersPrograms">Quero oferecer programas/cursos/mentorias</Label>
+                  <label htmlFor="offersPrograms">Quero oferecer programas/cursos/mentorias</label>
                 </div>
               </div>
             </div>
@@ -526,7 +526,7 @@ export default function SignUp() {
                       }`}
                       onClick={() => handleInputChange("selectedPlan", plan.id)}
                     >
-                      {plan.popular && <Badge className="absolute -top-2 left-4 bg-purple-500">Mais Popular</Badge>}
+                      {plan.popular && <Chip className="absolute -top-2 left-4 bg-purple-500" size="sm">Mais Popular</Chip>}
 
                       <div className="text-center mb-4">
                         <div className={`p-3 rounded-xl ${plan.bgColor} mx-auto w-fit mb-3`}>
@@ -581,7 +581,7 @@ export default function SignUp() {
           {/* Botões de Navegação */}
           <div className="flex justify-between pt-6">
             <Button
-              variant="outline"
+              variant="bordered"
               onClick={handleBack}
               disabled={step === 1}
               className="flex items-center gap-2 bg-transparent"
@@ -605,7 +605,7 @@ export default function SignUp() {
               <div></div>
             )}
           </div>
-        </CardContent>
+        </CardBody>
       </Card>
     </div>
   )
