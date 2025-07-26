@@ -2,10 +2,10 @@
 
 import type React from "react"
 import { LogOut } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Button } from "@heroui/react"
 import { useAuth } from "./AuthProvider"
 import { useRouter } from "next/navigation"
-import { toast } from "@/hooks/use-toast"
+import { toast } from "sonner"
 
 interface SignOutProps {
   variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"
