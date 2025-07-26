@@ -26,15 +26,15 @@ import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 
 interface Post {
-  id: number | string
+  id: string | number
   content: string
   images?: string[] | null
   video?: string | null
   audio?: string | null
   user?: {
-    name: string
-    username: string
-    avatar: string
+    name?: string
+    username?: string
+    avatar?: string
   }
 }
 
@@ -57,6 +57,32 @@ export function EditPostDialog({
   onSave,
   currentUser
 }: EditPostDialogProps) {
+  // Validar o ID do post
+  if (!post.id || (typeof post.id !== 'string' && typeof post.id !== 'number')) {
+    console.error('[EditPostDialog] ID do post inválido:', post.id)
+    // Em vez de retornar null, vamos mostrar um erro no dialog
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Edit3 className="w-5 h-5" />
+              Erro
+            </DialogTitle>
+            <DialogDescription>
+              ID do post inválido. Não é possível editar este post.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end">
+            <Button onClick={onClose}>
+              Fechar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    )
+  }
+  
   const [content, setContent] = useState(post.content || "")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -95,7 +121,29 @@ export function EditPostDialog({
     setError(null)
 
     try {
-      const response = await fetch(`/api/posts/${post.id}`, {
+      console.log('[EditPostDialog] Post ID:', post.id, 'Type:', typeof post.id)
+      
+      // Garantir que o ID seja uma string válida
+      let postId: string
+      if (post.id === null || post.id === undefined || post.id === '') {
+        throw new Error('ID do post é inválido')
+      } else if (typeof post.id === 'number') {
+        if (isNaN(post.id)) {
+          throw new Error('ID do post é NaN')
+        }
+        postId = String(post.id)
+      } else if (typeof post.id === 'string') {
+        if (post.id === 'NaN' || post.id === 'undefined' || post.id === 'null') {
+          throw new Error(`ID do post é inválido: ${post.id}`)
+        }
+        postId = post.id
+      } else {
+        throw new Error(`Tipo de ID inválido: ${typeof post.id}`)
+      }
+      
+      console.log('[EditPostDialog] Using post ID:', postId)
+      
+      const response = await fetch(`/api/posts/${postId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

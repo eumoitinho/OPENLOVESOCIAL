@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { toast } from "@/hooks/use-toast"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogHeader } from "@/components/ui/dialog"
 import {
@@ -30,6 +31,7 @@ import {
   Download,
   Upload,
   RefreshCw,
+  Camera,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Separator } from "@/components/ui/separator"
@@ -47,6 +49,8 @@ export default function SettingsPage() {
   const router = useRouter()
   const [activeSection, setActiveSection] = useState("notifications")
   const [isDarkMode, setIsDarkMode] = useState(true)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const [avatarUrl, setAvatarUrl] = useState(user?.user_metadata?.avatar_url || "")
   const [notifications, setNotifications] = useState({
     push: true,
     email: true,
@@ -68,6 +72,74 @@ export default function SettingsPage() {
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode)
     document.documentElement.classList.toggle("dark")
+  }
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validar tipo de arquivo
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Erro",
+        description: "Por favor, selecione uma imagem.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Validar tamanho (máximo 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: "Erro",
+        description: "A imagem deve ter no máximo 10MB.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setUploadingAvatar(true)
+
+    try {
+      // Converter para base64
+      const reader = new FileReader()
+      const base64 = await new Promise<string>((resolve) => {
+        reader.onload = (e) => resolve(e.target?.result as string)
+        reader.readAsDataURL(file)
+      })
+
+      // Enviar para API
+      const response = await fetch("/api/profile/avatar", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ avatar: base64 }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Erro ao fazer upload da imagem")
+      }
+
+      const data = await response.json()
+      
+      // Atualizar o estado local com a nova URL
+      setAvatarUrl(data.avatar_url)
+      
+      toast({
+        title: "Sucesso!",
+        description: "Foto de perfil atualizada.",
+      })
+    } catch (error) {
+      console.error("Erro ao fazer upload:", error)
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar a foto. Tente novamente.",
+        variant: "destructive",
+      })
+    } finally {
+      setUploadingAvatar(false)
+    }
   }
 
   const navigationItems = [
@@ -234,7 +306,7 @@ export default function SettingsPage() {
                   <CardContent className="space-y-4">
                     <div className="flex items-center gap-4">
                       <Avatar className="w-20 h-20">
-                        <AvatarImage src={user?.user_metadata?.avatar_url || "/placeholder.svg"} />
+                        <AvatarImage src={avatarUrl || user?.user_metadata?.avatar_url || "/placeholder.svg"} />
                         <AvatarFallback className="text-lg">
                           {user?.user_metadata?.full_name?.split(" ").map((n: string) => n[0]).join("") || "U"}
                         </AvatarFallback>
@@ -242,9 +314,30 @@ export default function SettingsPage() {
                       <div className="flex-1">
                         <h4 className="font-semibold">{user?.user_metadata?.full_name || "Usuário"}</h4>
                         <p className="text-sm text-muted-foreground">{user?.email}</p>
-                        <Button variant="outline" size="sm" className="mt-2">
-                          Alterar Foto
-                        </Button>
+                        <div className="mt-2">
+                          <input
+                            type="file"
+                            id="settings-avatar-upload"
+                            accept="image/*"
+                            onChange={handleAvatarChange}
+                            className="hidden"
+                            disabled={uploadingAvatar}
+                          />
+                          <label htmlFor="settings-avatar-upload">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="cursor-pointer"
+                              disabled={uploadingAvatar}
+                              asChild
+                            >
+                              <span className="flex items-center gap-2">
+                                <Camera className="w-4 h-4" />
+                                {uploadingAvatar ? "Enviando..." : "Alterar Foto"}
+                              </span>
+                            </Button>
+                          </label>
+                        </div>
                       </div>
                     </div>
                   </CardContent>

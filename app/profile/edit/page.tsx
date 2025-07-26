@@ -38,6 +38,7 @@ export default function EditProfilePage() {
   const { user } = useAuth()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const [profile, setProfile] = useState({
     full_name: "",
     username: "",
@@ -112,6 +113,74 @@ export default function EditProfilePage() {
     }))
   }
 
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validar tipo de arquivo
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Erro",
+        description: "Por favor, selecione uma imagem.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Validar tamanho (máximo 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: "Erro",
+        description: "A imagem deve ter no máximo 10MB.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setUploadingAvatar(true)
+
+    try {
+      // Converter para base64
+      const reader = new FileReader()
+      const base64 = await new Promise<string>((resolve) => {
+        reader.onload = (e) => resolve(e.target?.result as string)
+        reader.readAsDataURL(file)
+      })
+
+      // Enviar para API
+      const response = await fetch("/api/profile/avatar", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ avatar: base64 }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Erro ao fazer upload da imagem")
+      }
+
+      const data = await response.json()
+      
+      // Atualizar o estado local com a nova URL
+      setProfile(prev => ({ ...prev, avatar_url: data.avatar_url }))
+      
+      toast({
+        title: "Sucesso!",
+        description: "Foto de perfil atualizada.",
+      })
+    } catch (error) {
+      console.error("Erro ao fazer upload:", error)
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar a foto. Tente novamente.",
+        variant: "destructive",
+      })
+    } finally {
+      setUploadingAvatar(false)
+    }
+  }
+
   if (!user) return null
 
   return (
@@ -137,10 +206,30 @@ export default function EditProfilePage() {
                 <AvatarImage src={profile.avatar_url || "/placeholder.svg"} />
                 <AvatarFallback>{profile.full_name?.charAt(0) || user.email?.charAt(0)}</AvatarFallback>
               </Avatar>
-              <Button type="button" variant="outline" className="flex items-center gap-2 bg-transparent">
-                <Camera className="w-4 h-4" />
-                Alterar Foto
-              </Button>
+              <div>
+                <input
+                  type="file"
+                  id="avatar-upload"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                  className="hidden"
+                  disabled={uploadingAvatar}
+                />
+                <label htmlFor="avatar-upload">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    className="flex items-center gap-2 bg-transparent cursor-pointer"
+                    disabled={uploadingAvatar}
+                    asChild
+                  >
+                    <span>
+                      <Camera className="w-4 h-4" />
+                      {uploadingAvatar ? "Enviando..." : "Alterar Foto"}
+                    </span>
+                  </Button>
+                </label>
+              </div>
             </CardContent>
           </Card>
 

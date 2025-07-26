@@ -26,10 +26,10 @@ import { ExploreFilters } from "./ExploreFilters"
 
 interface ExploreProfilesProps {
   currentUser?: {
-    id: string
     name: string
     username: string
     avatar: string
+    id?: string
   }
   onMessageUser?: (userId: string) => void
   onViewProfile?: (userId: string) => void

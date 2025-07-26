@@ -21,6 +21,7 @@ import {
   Search,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/app/components/auth/AuthProvider"
 
 interface Notification {
   id: string
@@ -34,6 +35,7 @@ interface Notification {
 }
 
 export function NotificationsContent() {
+  const { user } = useAuth()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -41,11 +43,22 @@ export function NotificationsContent() {
 
   useEffect(() => {
     const fetchNotifications = async () => {
+      if (!user) {
+        setError("Usuário não autenticado")
+        setLoading(false)
+        return
+      }
+
       setLoading(true)
       setError(null)
       try {
         const res = await fetch("/api/notifications")
-        if (!res.ok) throw new Error("Erro ao buscar notificações")
+        if (!res.ok) {
+          if (res.status === 401) {
+            throw new Error("Usuário não autenticado")
+          }
+          throw new Error("Erro ao buscar notificações")
+        }
         const json = await res.json()
         setNotifications(json.data || [])
       } catch (err: any) {
@@ -55,7 +68,7 @@ export function NotificationsContent() {
       }
     }
     fetchNotifications()
-  }, [])
+  }, [user])
 
   const getNotificationIcon = (type: Notification["type"]) => {
     switch (type) {
@@ -96,6 +109,8 @@ export function NotificationsContent() {
   }
 
   const markAsRead = async (id: string) => {
+    if (!user) return
+    
     try {
       await fetch(`/api/notifications/${id}/read`, { method: 'POST' })
       setNotifications(prev =>
@@ -109,6 +124,8 @@ export function NotificationsContent() {
   }
 
   const markAllAsRead = async () => {
+    if (!user) return
+    
     try {
       await fetch("/api/notifications/read-all", { method: 'POST' })
       setNotifications(prev =>
@@ -143,6 +160,16 @@ export function NotificationsContent() {
   })
 
   const unreadCount = (notifications || []).filter(n => !n.is_read).length
+
+  if (!user) {
+    return (
+      <div className="max-w-4xl mx-auto p-4">
+        <div className="text-center py-8">
+          <p>Faça login para ver suas notificações</p>
+        </div>
+      </div>
+    )
+  }
 
   if (loading) {
     return (

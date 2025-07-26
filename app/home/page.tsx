@@ -430,6 +430,10 @@ export default function HomePage() {
     [user, profile]
   );
 
+  console.log("HomePage: User:", user);
+  console.log("HomePage: Profile:", profile);
+  console.log("HomePage: Current User:", currentUser);
+
   // Check system preference on initial load
   useEffect(() => {
     const prefersDark = window.matchMedia(
@@ -1298,35 +1302,7 @@ export default function HomePage() {
         {/* Toast notifications aparecerão aqui */}
       </div>
 
-      {/* Navegação Mobile Melhorada */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 xl:hidden">
-        <div className="flex justify-around py-2">
-          <Button variant="ghost" size="sm" onClick={() => setActiveView("home")}>
-            <Home className="w-5 h-5" />
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => setShowSearch(true)}>
-            <Search className="w-5 h-5" />
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => setShowNotifications(true)} className="relative">
-            <div className="relative">
-              <Bell className="w-5 h-5" />
-              {/* Badge de notificações mobile */}
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
-                <span className="text-xs text-white font-bold">3</span>
-              </div>
-            </div>
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => setShowChat(true)} className="relative">
-            <div className="relative">
-              <MessageCircle className="w-5 h-5" />
-              {/* Badge de mensagens mobile */}
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
-                <span className="text-xs text-white font-bold">2</span>
-              </div>
-            </div>
-          </Button>
-        </div>
-      </div>
+   
     </div>
   );
 }

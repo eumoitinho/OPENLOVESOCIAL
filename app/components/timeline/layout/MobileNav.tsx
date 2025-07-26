@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import {
   Home,
   Search as SearchIcon,
@@ -14,10 +14,14 @@ import {
   Feather,
   Heart,
   LogOut,
+  Menu,
+  X,
+  ArrowUp,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/app/components/auth/AuthProvider"
+import { useNotifications } from "@/app/hooks/useNotifications"
 
 const navItems = [
   { id: "home", label: "Timeline", icon: Home },
@@ -65,10 +69,28 @@ export function MobileNav({
   activeView = "home",
   setActiveView,
 }: MobileNavProps) {
-  const { signOut } = useAuth()
+  const { signOut, user } = useAuth()
+  const [isOpen, setIsOpen] = useState(false)
+  const [showScrollTop, setShowScrollTop] = useState(false)
+  const { stats } = useNotifications(user?.id)
+  const hasNotifications = stats.unread > 0
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300)
+    }
+
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }
 
   const handleItemClick = (itemId: string) => {
     if (setActiveView) setActiveView(itemId)
+    setIsOpen(false) // Fecha o menu após clicar
 
     switch (itemId) {
       case "home":
@@ -110,28 +132,88 @@ export function MobileNav({
   }
 
   return (
-    <aside
-      className={cn(
-        "xl:hidden fixed left-0 top-0 bottom-0 w-[72px] bg-white dark:bg-gray-900 overflow-y-auto p-4 flex flex-col gap-4 z-10 scrollbar-hide"
+    <>
+      {/* Botão hamburguer/home fixo na viewport */}
+      <Button
+        className={cn(
+          "xl:hidden fixed left-4 z-50 rounded-full h-14 w-14 shadow-lg relative",
+          "bg-gradient-to-r from-pink-600 to-purple-600 text-white hover:from-pink-700 hover:to-purple-700"
+        )}
+        style={{
+          bottom: "20px", // Usa style inline para garantir que fica fixo na viewport
+          position: "fixed"
+        }}
+        onClick={() => {
+          if (activeView !== "home" && !isOpen) {
+            handleItemClick("home")
+          } else {
+            setIsOpen(!isOpen)
+          }
+        }}
+        aria-label={activeView !== "home" && !isOpen ? "Voltar ao início" : "Menu"}
+      >
+        {isOpen ? (
+          <X className="h-6 w-6" />
+        ) : activeView !== "home" ? (
+          <Home className="h-6 w-6" />
+        ) : (
+          <Menu className="h-6 w-6" />
+        )}
+        
+        {/* Badge de notificação piscando */}
+        {hasNotifications && !isOpen && (
+          <span className="absolute -top-1 -right-1 h-3 w-3 bg-pink-500 rounded-full animate-pulse" />
+        )}
+      </Button>
+
+      {/* Overlay quando aberto */}
+      {isOpen && (
+        <div 
+          className="xl:hidden fixed inset-0 bg-black/50 z-40"
+          onClick={() => setIsOpen(false)}
+        />
       )}
-    >
-      {navItems.map((item) => (
-        <Button
-          key={item.id}
-          variant="ghost"
-          size="icon"
-          className={cn(
-            "rounded-full h-12 w-12",
-            activeView === item.id && item.id !== "create-post" && item.id !== "logout" && "bg-pink-100 text-pink-600 dark:bg-gray-800 dark:text-pink-400",
-            item.id === "create-post" && "bg-gradient-to-r from-pink-600 to-purple-600 text-white hover:from-pink-700 hover:to-purple-700",
-            item.id === "logout" && "text-red-500 hover:bg-red-100 dark:hover:bg-red-900/20 hover:text-red-600"
-          )}
-          onClick={() => handleItemClick(item.id)}
-          aria-label={item.label}
-        >
-          <item.icon className="h-6 w-6" />
-        </Button>
-      ))}
-    </aside>
+
+      {/* Sidebar */}
+      <aside
+        className={cn(
+          "xl:hidden fixed left-0 top-0 bottom-0 bg-white dark:bg-gray-900 overflow-y-auto p-4 z-50 scrollbar-hide transition-transform duration-300",
+          isOpen ? "translate-x-0 w-[280px] shadow-2xl" : "-translate-x-[95%] w-[72px]"
+        )}
+      >
+        {/* Logo - visível apenas quando aberto */}
+        {isOpen && (
+          <div className="mb-6 px-2">
+            <h1 className="text-xl font-bold tracking-tight">
+              <span className="text-gray-900 dark:text-white">open</span>
+              <span className="bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 dark:from-pink-400 dark:via-rose-400 dark:to-purple-400 bg-clip-text text-transparent">
+                love
+              </span>
+            </h1>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-2">
+          {navItems.map((item) => (
+            <Button
+              key={item.id}
+              variant="ghost"
+              className={cn(
+                "justify-start transition-all duration-200",
+                isOpen ? "w-full px-4 py-3 gap-3" : "w-12 h-12 p-0 rounded-full",
+                activeView === item.id && item.id !== "create-post" && item.id !== "logout" && "bg-pink-100 text-pink-600 dark:bg-gray-800 dark:text-pink-400",
+                item.id === "create-post" && "bg-gradient-to-r from-pink-600 to-purple-600 text-white hover:from-pink-700 hover:to-purple-700",
+                item.id === "logout" && "text-red-500 hover:bg-red-100 dark:hover:bg-red-900/20 hover:text-red-600"
+              )}
+              onClick={() => handleItemClick(item.id)}
+              aria-label={item.label}
+            >
+              <item.icon className="h-6 w-6 flex-shrink-0" />
+              {isOpen && <span className="text-base">{item.label}</span>}
+            </Button>
+          ))}
+        </div>
+      </aside>
+    </>
   )
 }

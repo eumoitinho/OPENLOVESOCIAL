@@ -36,9 +36,10 @@ interface ProfileCardProps {
   onSave?: (profileId: string) => void
   onViewProfile?: (profileId: string) => void
   currentUser?: {
-    id: string
     name: string
     username: string
+    avatar: string
+    id?: string
   }
 }
 

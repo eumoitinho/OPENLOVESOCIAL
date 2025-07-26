@@ -47,11 +47,13 @@ import { SecureVideo } from "@/app/components/security/SecureVideo"
 import { useAuth } from "@/app/components/auth/AuthProvider"
 
 interface PostUser {
+  id?: string
   name: string
   username: string
   avatar: string
   verified: boolean
   premium: boolean
+  premium_type?: 'free' | 'gold' | 'diamante' | 'diamante_anual'
   location: string
   relationshipType: string
   isPrivate: boolean
@@ -133,6 +135,8 @@ export default function PostCard({
   // Debug dos dados do post
   console.log("[PostCard] Post data:", {
     id: post.id,
+    idType: typeof post.id,
+    idValid: post.id && !isNaN(Number(post.id)),
     hasImages: post.images?.length,
     images: post.images,
     hasVideo: !!post.video,
@@ -149,6 +153,13 @@ export default function PostCard({
   const [profileViewerOpen, setProfileViewerOpen] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [selectedMediaIndex, setSelectedMediaIndex] = useState(0)
+  
+  console.log('[PostCard] Estados dos dialogs:', {
+    editDialogOpen,
+    commentsOpen,
+    mediaViewerOpen,
+    shareDialogOpen
+  })
   
   // Username do visualizador para marca d'água
   const viewerUsername = profile?.username || currentUser.username.replace('@', '') || 'usuario'
@@ -514,14 +525,45 @@ export default function PostCard({
 
   // Novas funcionalidades
   const isOwnPost = currentUser.username === post.user?.username || currentUser.id === post.user?.username
+  
+  console.log('[PostCard] isOwnPost:', {
+    currentUserUsername: currentUser.username,
+    currentUserId: currentUser.id,
+    postUserUsername: post.user?.username,
+    isOwnPost
+  })
 
   const handleEditPost = () => {
+    console.log('[PostCard] Editando post:', {
+      id: post.id,
+      type: typeof post.id,
+      content: postContent
+    })
+    
+    // Validar se o ID é válido
+    if (!post.id) {
+      console.error('[PostCard] ID do post inválido para edição:', post.id)
+      toast.error("Erro: ID do post inválido")
+      return
+    }
+    
+    console.log('[PostCard] Abrindo dialog de edição...')
     setEditDialogOpen(true)
   }
 
-  const handleSaveEdit = (updatedPost: Partial<typeof post>) => {
+  const handleSaveEdit = (updatedPost: Partial<Post>) => {
     if (updatedPost.content) {
       setPostContent(updatedPost.content)
+    }
+    // Atualizar outros campos do post se necessário
+    if (updatedPost.images) {
+      post.images = updatedPost.images
+    }
+    if (updatedPost.video) {
+      post.video = updatedPost.video
+    }
+    if (updatedPost.audio) {
+      post.audio = updatedPost.audio
     }
   }
 
@@ -644,19 +686,32 @@ export default function PostCard({
             </motion.div>
             
             <div className="flex flex-col gap-1">
-              <CardTitle 
-                className="flex items-center gap-2 text-xs sm:text-sm font-bold text-gray-900 dark:text-gray-100 cursor-pointer hover:text-pink-600 dark:hover:text-pink-400 transition-colors duration-200"
-                onClick={handleViewProfile}
-              >
-                {post.user?.name || "Usuário"}
+              <div className="flex items-center gap-2">
+                <CardTitle
+                  className="text-xs sm:text-sm font-bold text-gray-900 dark:text-gray-100 cursor-pointer hover:text-pink-600 dark:hover:text-pink-400 transition-colors duration-200"
+                  onClick={handleViewProfile}
+                >
+                  {post.user?.name || "Usuário"}
+                </CardTitle>
                 <PlanBadge 
-                  plan={post.user?.premium ? 'diamante' : 'free'} 
+                  plan={post.user?.premium_type === 'diamante' ? 'diamond' : 
+                        post.user?.premium_type === 'diamante_anual' ? 'diamond_annual' : 
+                        post.user?.premium_type || 'free'} 
                   verified={post.user?.verified}
-                  variant="compact"
+                  variant="icon-only"
                 />
-              </CardTitle>
+              </div>
               <CardDescription className="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                 <span className="font-medium text-xs">{`@${post.user?.username || "@usuario"}`}</span>
+                <span>•</span>
+                <span className={`text-xs ${
+                  post.user?.premium_type ? 
+                    (post.user?.premium_type === 'gold' ? 'text-amber-600' : 
+                     post.user?.premium_type.includes('diamante') ? 'text-purple-600' : 'text-gray-500') : 
+                    'text-gray-500'
+                }`}>
+                  {post.user?.verified ? 'verificado' : 'não verificado'}
+                </span>
                 <span className="hidden sm:inline">•</span>
                 <span className="hidden sm:inline text-gray-400 text-xs">
                   {post.timestamp
@@ -687,20 +742,23 @@ export default function PostCard({
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Button
-                  variant={followState === "following" ? "secondary" : "outline"}
-                  size="sm"
-                  onClick={handleFollow}
-                  className={cn(
-                    "transition-all duration-200 text-xs h-8 px-3 font-medium",
-                    "border-gray-300 dark:border-gray-600 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200",
-                    followState === "requested" && "bg-yellow-50 text-yellow-600 dark:bg-yellow-950/20 dark:text-yellow-400 border-yellow-300 dark:border-yellow-400/30",
-                    followState === "following" && "bg-green-50 text-green-600 dark:bg-green-950/20 dark:text-green-400 border-green-300 dark:border-green-400/30",
-                  )}
-                >
-                  {getFollowButtonIcon()}
-                  {getFollowButtonText()}
-                </Button>
+                {/* Só exibe o botão de seguir se não for o próprio autor do post */}
+                {!isOwnPost && (
+                  <Button
+                    variant={followState === "following" ? "secondary" : "outline"}
+                    size="sm"
+                    onClick={handleFollow}
+                    className={cn(
+                      "transition-all duration-200 text-xs h-8 px-3 font-medium",
+                      "border-gray-300 dark:border-gray-600 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200",
+                      followState === "requested" && "bg-yellow-50 text-yellow-600 dark:bg-yellow-950/20 dark:text-yellow-400 border-yellow-300 dark:border-yellow-400/30",
+                      followState === "following" && "bg-green-50 text-green-600 dark:bg-green-950/20 dark:text-green-400 border-green-300 dark:border-green-400/30",
+                    )}
+                  >
+                    {getFollowButtonIcon()}
+                    {getFollowButtonText()}
+                  </Button>
+                )}
               </motion.div>
             )}
             <PostActionMenu
@@ -716,7 +774,10 @@ export default function PostCard({
                 id: currentUser.id
               }}
               isOwnPost={isOwnPost}
-              onEdit={handleEditPost}
+              onEdit={() => {
+                console.log('[PostCard] PostActionMenu onEdit chamado')
+                handleEditPost()
+              }}
               onDelete={handleDeletePost}
               onReport={handleReportPost}
               onBlock={handleBlockUser}
@@ -1035,22 +1096,33 @@ export default function PostCard({
           />
         )}
         
-        {editDialogOpen && (
-          <EditPostDialog
-            isOpen={editDialogOpen}
-            onClose={() => setEditDialogOpen(false)}
-            post={{
-              id: post.id,
-              content: postContent,
-              images: post.images,
-              video: post.video,
-              audio: post.audio,
-              user: post.user
-            }}
-            onSave={handleSaveEdit}
-            currentUser={currentUser}
-          />
-        )}
+        <EditPostDialog
+          isOpen={editDialogOpen}
+          onClose={() => {
+            console.log('[PostCard] Fechando dialog de edição...')
+            setEditDialogOpen(false)
+          }}
+          post={{
+            id: String(post.id),
+            content: postContent,
+            images: post.images,
+            video: post.video,
+            audio: post.audio,
+            user: {
+              name: post.user?.name || "Usuário",
+              username: post.user?.username || "@usuario",
+              avatar: post.user?.avatar || "/placeholder.svg"
+            }
+          }}
+          onSave={(updatedPost) => {
+            console.log('[PostCard] Salvando edição:', updatedPost)
+            // Atualizar apenas o conteúdo se fornecido
+            if (updatedPost.content) {
+              setPostContent(updatedPost.content);
+            }
+          }}
+          currentUser={currentUser}
+        />
       </Card>
     </motion.div>
   )

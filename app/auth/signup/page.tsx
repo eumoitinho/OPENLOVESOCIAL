@@ -305,13 +305,30 @@ export default function OpenLoveRegister() {
 
     setLoading(true)
     try {
+      // Converter imagem para base64 se existir
+      let avatarBase64 = null
+      if (formData.profilePicture) {
+        const reader = new FileReader()
+        avatarBase64 = await new Promise<string>((resolve) => {
+          reader.onload = (e) => resolve(e.target?.result as string)
+          reader.readAsDataURL(formData.profilePicture as File)
+        })
+      }
+
+      // Preparar dados para envio
+      const dataToSend = {
+        ...formData,
+        avatar_url: avatarBase64,
+        profilePicture: undefined // Remover o objeto File
+      }
+
       // Chamar API de registro
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(dataToSend),
       })
 
       // Verificar se a resposta tem conteúdo antes de tentar fazer .json()
