@@ -689,16 +689,16 @@ export default function OpenLoveRegister() {
                     <div>
                       <label className="text-sm font-medium text-gray-900 dark:text-white">Tipo de Perfil</label>
                       <Select
-                        value={formData.profileType}
-                        onValueChange={(value: "single" | "couple") => setFormData((prev) => ({ ...prev, profileType: value }))}
+                        selectedKeys={[formData.profileType]}
+                        onSelectionChange={(keys) => {
+                          const value = Array.from(keys)[0] as "single" | "couple"
+                          setFormData((prev) => ({ ...prev, profileType: value }))
+                        }}
+                        placeholder="Selecione o tipo de perfil"
+                        className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white"
                       >
-                        <SelectTrigger className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white">
-                          <SelectValue placeholder="Selecione o tipo de perfil" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="single">Solteiro(a)</SelectItem>
-                          <SelectItem value="couple">Casal</SelectItem>
-                        </SelectContent>
+                        <SelectItem key="single" value="single">Solteiro(a)</SelectItem>
+                        <SelectItem key="couple" value="couple">Casal</SelectItem>
                       </Select>
                     </div>
 
@@ -913,24 +913,22 @@ export default function OpenLoveRegister() {
                               Cor dos Olhos
                             </label>
                             <Select
-                              value={formData.partner.eyeColor}
-                              onValueChange={(value) =>
+                              selectedKeys={formData.partner.eyeColor ? [formData.partner.eyeColor] : []}
+                              onSelectionChange={(keys) => {
+                                const value = Array.from(keys)[0] as string
                                 setFormData((prev) => ({
                                   ...prev,
                                   partner: { ...prev.partner, eyeColor: value },
                                 }))
-                              }
+                              }}
+                              placeholder="Selecione a cor dos olhos"
+                              className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white"
                             >
-                              <SelectTrigger className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white">
-                                <SelectValue placeholder="Selecione a cor dos olhos" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {["Castanho", "Azul", "Verde", "Cinza", "Outro"].map((color) => (
-                                  <SelectItem key={color} value={color}>
-                                    {color}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
+                              {["Castanho", "Azul", "Verde", "Cinza", "Outro"].map((color) => (
+                                <SelectItem key={color} value={color}>
+                                  {color}
+                                </SelectItem>
+                              ))}
                             </Select>
                             {errors.partnerEyeColor && (
                               <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.partnerEyeColor}</p>
@@ -944,24 +942,22 @@ export default function OpenLoveRegister() {
                               Cor do Cabelo
                             </label>
                             <Select
-                              value={formData.partner.hairColor}
-                              onValueChange={(value) =>
+                              selectedKeys={formData.partner.hairColor ? [formData.partner.hairColor] : []}
+                              onSelectionChange={(keys) => {
+                                const value = Array.from(keys)[0] as string
                                 setFormData((prev) => ({
                                   ...prev,
                                   partner: { ...prev.partner, hairColor: value },
                                 }))
-                              }
+                              }}
+                              placeholder="Selecione a cor do cabelo"
+                              className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white"
                             >
-                              <SelectTrigger className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white">
-                                <SelectValue placeholder="Selecione a cor do cabelo" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {["Preto", "Castanho", "Loiro", "Ruivo", "Outro"].map((color) => (
-                                  <SelectItem key={color} value={color}>
-                                    {color}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
+                              {["Preto", "Castanho", "Loiro", "Ruivo", "Outro"].map((color) => (
+                                <SelectItem key={color} value={color}>
+                                  {color}
+                                </SelectItem>
+                              ))}
                             </Select>
                             {errors.partnerHairColor && (
                               <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.partnerHairColor}</p>
@@ -1003,9 +999,9 @@ export default function OpenLoveRegister() {
                   <h2 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">Localização</h2>
                   <div className="space-y-6">
                     <div>
-                      <Label htmlFor="city" className="text-sm font-medium text-gray-900 dark:text-white">
+                      <label htmlFor="city" className="text-sm font-medium text-gray-900 dark:text-white">
                         Cidade <span className="text-red-600">*</span>
-                      </Label>
+                      </label>
                       <div className="relative">
                         <Input
                           id="city"
@@ -1058,9 +1054,9 @@ export default function OpenLoveRegister() {
                   </h2>
                   <div className="space-y-6">
                     <div>
-                      <Label className="text-sm font-medium text-gray-900 dark:text-white">
+                      <label className="text-sm font-medium text-gray-900 dark:text-white">
                         Plano <span className="text-red-600">*</span>
-                      </Label>
+                      </label>
                       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8 mt-6">
                         {/* Free */}
                         <div
