@@ -25,26 +25,46 @@ export async function POST(request: NextRequest) {
       }, { status: 401 })
     }
 
-    // Garantir que o usuário existe na tabela users
-    const { data: userRow, error: userRowError } = await supabase
+    // IMPORTANTE: Garantir que o usuário existe na tabela users ANTES de qualquer validação
+    // Usar admin client para garantir que conseguimos criar o usuário mesmo com RLS
+    const { data: userRow, error: userRowError } = await supabaseAdmin
       .from("users")
       .select("id, premium_type")
-      .eq("id", user.id)
+      .eq("auth_id", user.id)
       .single()
     
-    if (!userRow) {
-      const { error: insertError } = await supabase
+    if (userRowError && userRowError.code === 'PGRST116') {
+      // Usuário não existe, vamos criar
+      const { data: newUser, error: insertError } = await supabaseAdmin
         .from("users")
         .insert({
-          id: user.id,
+          auth_id: user.id,
           email: user.email,
           username: user.user_metadata?.username || user.email?.split("@")[0] || "user_" + user.id.substring(0, 8),
           name: user.user_metadata?.full_name || "Usuário",
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           premium_type: 'free',
-          is_active: true
+          premium_status: 'inactive',
+          is_active: true,
+          is_verified: false,
+          is_premium: false,
+          country: 'BR',
+          profile_type: 'single',
+          status: 'offline',
+          role: 'user',
+          privacy_settings: {},
+          notification_settings: {},
+          stats: {},
+          social_links: {},
+          interests: [],
+          seeking: [],
+          last_active_at: new Date().toISOString(),
+          username_changed: false
         })
+        .select()
+        .single()
+        
       if (insertError) {
         console.error("Erro ao criar perfil na tabela users:", insertError)
         return NextResponse.json({ error: "Erro ao criar perfil de usuário", details: insertError }, { status: 500 })
@@ -230,8 +250,21 @@ export async function POST(request: NextRequest) {
 
     // Create post
     console.log("Criando post no banco...")
+    
+    // Obter o ID real do usuário da tabela users (não o auth_id)
+    const { data: currentUser } = await supabaseAdmin
+      .from("users")
+      .select("id")
+      .eq("auth_id", user.id)
+      .single()
+    
+    if (!currentUser) {
+      console.error("Usuário não encontrado após criação")
+      return NextResponse.json({ error: "Erro ao identificar usuário" }, { status: 500 })
+    }
+    
     const postData = {
-      user_id: user.id,
+      user_id: currentUser.id,
       content: content.trim(),
       media_urls: mediaUrls,
       media_types: mediaTypes,
@@ -260,7 +293,7 @@ export async function POST(request: NextRequest) {
     const { data: profile } = await supabase
       .from("users")
       .select("username, name, avatar_url, is_verified")
-      .eq("id", user.id)
+      .eq("id", currentUser.id)
       .single()
 
     // Return formatted post
@@ -275,7 +308,7 @@ export async function POST(request: NextRequest) {
       pollOptions: post.poll_options || null,
       createdAt: post.created_at,
       author: {
-        id: user.id,
+        id: currentUser.id,
         name: profile?.name || "Usuário",
         username: profile?.username || "unknown",
         avatar: profile?.avatar_url,
