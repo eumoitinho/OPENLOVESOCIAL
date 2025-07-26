@@ -27,13 +27,46 @@ export async function POST(request: NextRequest) {
     }
 
     // IMPORTANTE: Garantir que o usuário existe na tabela users ANTES de qualquer validação
-    // Usar admin client para garantir que conseguimos criar o usuário mesmo com RLS
-    const { data: userRow, error: userRowError } = await supabaseAdmin
+    console.log("Verificando usuário na tabela users para auth_id:", user.id, "email:", user.email)
+    
+    // Primeiro tentar buscar por auth_id
+    let { data: userRow, error: userRowError } = await supabaseAdmin
       .from("users")
-      .select("id, premium_type")
+      .select("id, premium_type, auth_id")
       .eq("auth_id", user.id)
       .single()
     
+    // Se não encontrou por auth_id, tentar por email
+    if (userRowError && userRowError.code === 'PGRST116' && user.email) {
+      console.log("Usuário não encontrado por auth_id, tentando por email:", user.email)
+      const { data: userByEmail } = await supabaseAdmin
+        .from("users")
+        .select("id, premium_type, auth_id")
+        .eq("email", user.email)
+        .single()
+        
+      if (userByEmail) {
+        console.log("Usuário encontrado por email:", userByEmail)
+        // Usuário existe mas com auth_id diferente ou nulo, vamos atualizar
+        if (userByEmail.auth_id !== user.id) {
+          const { error: updateError } = await supabaseAdmin
+            .from("users")
+            .update({ auth_id: user.id })
+            .eq("id", userByEmail.id)
+            
+          if (!updateError) {
+            console.log("Auth ID atualizado para usuário existente:", userByEmail.id)
+            userRow = userByEmail
+            userRowError = null
+          }
+        } else {
+          userRow = userByEmail
+          userRowError = null
+        }
+      }
+    }
+    
+    // Só criar novo usuário se realmente não existe
     if (userRowError && userRowError.code === 'PGRST116') {
       // Usuário não existe, vamos criar
       // Primeiro, garantir que geramos um username único
