@@ -4,9 +4,7 @@ import { useState, useEffect } from "react"
 import { useAuth } from "@/app/components/auth/AuthProvider"
 import { Button } from "../../../components/ui/button"
 import { Badge } from "../../../components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../../components/ui/card"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../../components/ui/tabs"
+import { Avatar, Card, CardHeader, CardBody, CardFooter, Tabs, Tab } from "@heroui/react"
 import { Textarea } from "../../../components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select"
 import {
@@ -343,7 +341,7 @@ export default function Timeline() {
           </div>
         )}
         <Card className="border-0 shadow-none">
-          <CardContent className="p-0">
+          <CardBody className="p-0">
             <form onSubmit={handlePostSubmit} className="space-y-4">
               <textarea
                 placeholder="O que você está pensando?"
@@ -408,7 +406,7 @@ export default function Timeline() {
                 </div>
               </div>
             </form>
-          </CardContent>
+          </CardBody>
         </Card>
       </DialogContent>
     </Dialog>
@@ -486,7 +484,7 @@ export default function Timeline() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
       </div>
   
-      <CardContent className="relative px-4 sm:px-6 pb-4 sm:pb-6">
+      <CardBody className="relative px-4 sm:px-6 pb-4 sm:pb-6">
         {/* Profile Avatar - Overlapping the background */}
         <div className="flex justify-center -mt-8 sm:-mt-12 mb-3 sm:mb-4">
           <Avatar className="w-16 h-16 sm:w-20 sm:h-20 border-4 border-white shadow-lg">
@@ -578,7 +576,7 @@ export default function Timeline() {
             <span className="text-xs sm:text-sm">Salvar</span>
           </Button>
         </div>
-      </CardContent>
+      </CardBody>
     </Card>
   )
 
@@ -586,19 +584,19 @@ export default function Timeline() {
 
   const AdCard1 = () => (
     <Card className="max-w-lg py-0 sm:flex-row sm:gap-0">
-      <CardContent className="grow-1 px-0">
+      <CardBody className="grow-1 px-0">
         <img
           src="https://cdn.shadcnstudio.com/ss-assets/components/card/image-3.png"
           alt="Banner"
           className="size-full rounded-s-xl"
         />
-      </CardContent>
+      </CardBody>
       <div className="sm:min-w-54">
         <CardHeader className="pt-6">
-          <CardTitle className="text-sm">Eventos Exclusivos</CardTitle>
-          <CardDescription className="text-xs">
+          <h3 className="text-sm">Eventos Exclusivos</h3>
+          <p className="text-xs">
             Participe de eventos únicos para casais e pessoas livres em sua cidade.
-          </CardDescription>
+          </p>
         </CardHeader>
         <CardFooter className="gap-3 py-6">
           <Button className="bg-transparent bg-gradient-to-br from-purple-500 to-pink-500 text-white focus-visible:ring-pink-600/20 text-xs">
@@ -611,16 +609,16 @@ export default function Timeline() {
 
   const AdCard2 = () => (
     <Card className="max-w-md pt-0">
-      <CardContent className="px-0">
+      <CardBody className="px-0">
         <img
           src="https://cdn.shadcnstudio.com/ss-assets/components/card/image-2.png?height=280&format=auto"
           alt="Banner"
           className="aspect-video h-32 rounded-t-xl object-cover"
         />
-      </CardContent>
+      </CardBody>
       <CardHeader>
-        <CardTitle className="text-sm">Premium OpenLove</CardTitle>
-        <CardDescription className="text-xs">Desbloqueie recursos exclusivos e conecte-se sem limites.</CardDescription>
+        <h3 className="text-sm">Premium OpenLove</h3>
+        <p className="text-xs">Desbloqueie recursos exclusivos e conecte-se sem limites.</p>
       </CardHeader>
       <CardFooter className="gap-3 max-sm:flex-col max-sm:items-stretch">
         <Button size="sm" className="text-xs">
@@ -1386,7 +1384,7 @@ const CompleteProfileView = ({ user, isOwnProfile, onEditProfile }: CompleteProf
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Profile Header Card */}
       <Card className="overflow-visible">
-        <CardContent className="p-0">
+        <CardBody className="p-0">
           {/* Cover Image */}
           <div className="relative h-40 sm:h-56 md:h-72">
             <div className="absolute inset-0 bg-gradient-to-r from-pink-400 via-rose-400 to-pink-500"></div>
@@ -1511,41 +1509,56 @@ const CompleteProfileView = ({ user, isOwnProfile, onEditProfile }: CompleteProf
               </div>
             </div>
           </div>
-        </CardContent>
+        </CardBody>
       </Card>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="posts" className="flex items-center gap-2">
+      <Tabs 
+        selectedKey={activeTab} 
+        onSelectionChange={(key) => setActiveTab(key as string)}
+        aria-label="Profile tabs"
+        className="mt-4"
+      >
+        <Tab key="posts" title={
+          <div className="flex items-center gap-2">
             <FileText className="w-4 h-4" />
             <span className="hidden sm:inline">Posts</span>
-          </TabsTrigger>
-          <TabsTrigger value="media" className="flex items-center gap-2">
+          </div>
+        } />
+        <Tab key="media" title={
+          <div className="flex items-center gap-2">
             <ImageIcon className="w-4 h-4" />
             <span className="hidden sm:inline">Mídia</span>
-          </TabsTrigger>
-          <TabsTrigger value="followers" className="flex items-center gap-2">
+          </div>
+        } />
+        <Tab key="followers" title={
+          <div className="flex items-center gap-2">
             <UserPlus className="w-4 h-4" />
             <span className="hidden sm:inline">Seguidores</span>
-          </TabsTrigger>
-          <TabsTrigger value="following" className="flex items-center gap-2">
+          </div>
+        } />
+        <Tab key="following" title={
+          <div className="flex items-center gap-2">
             <Users className="w-4 h-4" />
             <span className="hidden sm:inline">Seguindo</span>
-          </TabsTrigger>
-          <TabsTrigger value="events" className="flex items-center gap-2">
+          </div>
+        } />
+        <Tab key="events" title={
+          <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4" />
             <span className="hidden sm:inline">Eventos</span>
-          </TabsTrigger>
-          <TabsTrigger value="communities" className="flex items-center gap-2">
+          </div>
+        } />
+        <Tab key="communities" title={
+          <div className="flex items-center gap-2">
             <Users className="w-4 h-4" />
             <span className="hidden sm:inline">Comunidades</span>
-          </TabsTrigger>
-        </TabsList>
+          </div>
+        } />
 
-        <TabsContent value="posts" className="mt-6">
+        {activeTab === "posts" && (
           <Card>
-            <CardContent className="p-6">
+            <CardBody className="p-6">
               {posts.length > 0 ? (
                 <div className="space-y-4">
                   {posts.map((post) => (
@@ -1594,13 +1607,13 @@ const CompleteProfileView = ({ user, isOwnProfile, onEditProfile }: CompleteProf
                   <p className="text-gray-500">Nenhum post ainda</p>
                 </div>
               )}
-            </CardContent>
+            </CardBody>
           </Card>
-        </TabsContent>
+        )}
 
-        <TabsContent value="media" className="mt-6">
+        {activeTab === "media" && (
           <Card>
-            <CardContent className="p-6">
+            <CardBody className="p-6">
               {media.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                   {media.map((item, index) => (
@@ -1629,13 +1642,13 @@ const CompleteProfileView = ({ user, isOwnProfile, onEditProfile }: CompleteProf
                   <p className="text-gray-500">Nenhuma mídia ainda</p>
                 </div>
               )}
-            </CardContent>
+            </CardBody>
           </Card>
-        </TabsContent>
+        )}
 
-        <TabsContent value="followers" className="mt-6">
+        {activeTab === "followers" && (
           <Card>
-            <CardContent className="p-6">
+            <CardBody className="p-6">
               {followers.length > 0 ? (
                 <div className="space-y-3">
                   {followers.map((follower) => (
@@ -1664,13 +1677,13 @@ const CompleteProfileView = ({ user, isOwnProfile, onEditProfile }: CompleteProf
                   <p className="text-gray-500">Nenhum seguidor ainda</p>
                 </div>
               )}
-            </CardContent>
+            </CardBody>
           </Card>
-        </TabsContent>
+        )}
 
-        <TabsContent value="following" className="mt-6">
+        {activeTab === "following" && (
           <Card>
-            <CardContent className="p-6">
+            <CardBody className="p-6">
               {following.length > 0 ? (
                 <div className="space-y-3">
                   {following.map((followed) => (
@@ -1699,31 +1712,31 @@ const CompleteProfileView = ({ user, isOwnProfile, onEditProfile }: CompleteProf
                   <p className="text-gray-500">Não está seguindo ninguém ainda</p>
                 </div>
               )}
-            </CardContent>
+            </CardBody>
           </Card>
-        </TabsContent>
+        )}
 
-        <TabsContent value="events" className="mt-6">
+        {activeTab === "events" && (
           <Card>
-            <CardContent className="p-6">
+            <CardBody className="p-6">
               <div className="text-center py-8">
                 <Calendar className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                 <p className="text-gray-500">Nenhum evento ainda</p>
               </div>
-            </CardContent>
+            </CardBody>
           </Card>
-        </TabsContent>
+        )}
 
-        <TabsContent value="communities" className="mt-6">
+        {activeTab === "communities" && (
           <Card>
-            <CardContent className="p-6">
+            <CardBody className="p-6">
               <div className="text-center py-8">
                 <Users className="w-12 h-12 mx-auto text-gray-400 mb-4" />
                 <p className="text-gray-500">Nenhuma comunidade ainda</p>
               </div>
-            </CardContent>
+            </CardBody>
           </Card>
-        </TabsContent>
+        )}
       </Tabs>
     </div>
   )
@@ -1863,12 +1876,12 @@ const ProfileEditForm = ({ user, onSave }: ProfileEditFormProps) => {
       {/* Informações Básicas */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <h3 className="flex items-center gap-2">
             <User className="h-5 w-5" />
             Informações Básicas
-          </CardTitle>
+          </h3>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardBody className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="firstName">Nome</Label>
@@ -1916,18 +1929,18 @@ const ProfileEditForm = ({ user, onSave }: ProfileEditFormProps) => {
               className="h-24 resize-none"
             />
           </div>
-        </CardContent>
+        </CardBody>
       </Card>
 
       {/* Preferências */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <h3 className="flex items-center gap-2">
             <Heart className="h-5 w-5" />
             Preferências
-          </CardTitle>
+          </h3>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardBody className="space-y-4">
           <div>
             <Label>Tipo de Perfil</Label>
             <Select
@@ -1986,18 +1999,18 @@ const ProfileEditForm = ({ user, onSave }: ProfileEditFormProps) => {
               />
             </div>
           </div>
-        </CardContent>
+        </CardBody>
       </Card>
 
       {/* Localização */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <h3 className="flex items-center gap-2">
             <MapPin className="h-5 w-5" />
             Localização
-          </CardTitle>
+          </h3>
         </CardHeader>
-        <CardContent>
+        <CardBody>
           <div>
             <Label htmlFor="city">Cidade</Label>
             <Input
@@ -2008,7 +2021,7 @@ const ProfileEditForm = ({ user, onSave }: ProfileEditFormProps) => {
               placeholder="Digite sua cidade"
             />
           </div>
-        </CardContent>
+        </CardBody>
       </Card>
 
       {/* Ações */}

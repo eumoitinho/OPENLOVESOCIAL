@@ -42,7 +42,8 @@
       "Bash(pkill:*)",
       "Bash(timeout 60 npm run build)",
       "Bash(pnpm next:*)",
-      "Bash(next build)"
+      "Bash(next build)",
+      "Bash(npx next:*)"
     ],
     "deny": []
   }

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Card, CardBody, Button, Progress, Avatar, Chip, Divider, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Textarea } from '@heroui/react'
 import { Shield, Camera, Clock, CheckCircle, XCircle, Upload, AlertTriangle, Info } from 'lucide-react'
-import { createSupabaseClient } from '@/lib/supabase/client'
+import { createSupabaseClient } from '@/supabase/client'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 
