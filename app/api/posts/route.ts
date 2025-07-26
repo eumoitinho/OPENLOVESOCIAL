@@ -36,12 +36,27 @@ export async function POST(request: NextRequest) {
     
     if (userRowError && userRowError.code === 'PGRST116') {
       // Usuário não existe, vamos criar
+      // Primeiro, garantir que geramos um username único
+      let username = user.user_metadata?.username || user.email?.split("@")[0] || "user_" + user.id.substring(0, 8)
+      
+      // Verificar se username já existe
+      const { data: existingUser } = await supabaseAdmin
+        .from("users")
+        .select("username")
+        .eq("username", username)
+        .single()
+        
+      if (existingUser) {
+        // Username já existe, adicionar sufixo único
+        username = `${username}_${Date.now()}`
+      }
+      
       const { data: newUser, error: insertError } = await supabaseAdmin
         .from("users")
         .insert({
           auth_id: user.id,
           email: user.email,
-          username: user.user_metadata?.username || user.email?.split("@")[0] || "user_" + user.id.substring(0, 8),
+          username: username,
           name: user.user_metadata?.full_name || "Usuário",
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
@@ -68,9 +83,31 @@ export async function POST(request: NextRequest) {
         
       if (insertError) {
         console.error("Erro ao criar perfil na tabela users:", insertError)
-        return NextResponse.json({ error: "Erro ao criar perfil de usuário", details: insertError }, { status: 500 })
+        // Se o erro for de username duplicado, tentar buscar o usuário existente por email
+        if (insertError.code === '23505' && insertError.message?.includes('username')) {
+          const { data: existingByEmail } = await supabaseAdmin
+            .from("users")
+            .select("*")
+            .eq("email", user.email)
+            .single()
+            
+          if (existingByEmail) {
+            // Atualizar o auth_id do usuário existente
+            const { error: updateError } = await supabaseAdmin
+              .from("users")
+              .update({ auth_id: user.id })
+              .eq("id", existingByEmail.id)
+              
+            if (!updateError) {
+              console.log("Usuário existente vinculado ao auth_id:", user.id)
+            }
+          }
+        } else {
+          return NextResponse.json({ error: "Erro ao criar perfil de usuário", details: insertError }, { status: 500 })
+        }
+      } else {
+        console.log("Perfil criado automaticamente na tabela users para:", user.id)
       }
-      console.log("Perfil criado automaticamente na tabela users para:", user.id)
     }
 
     let content = ""

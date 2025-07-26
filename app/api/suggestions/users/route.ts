@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     // Se há usuários sendo seguidos, excluir da consulta
     if (followingIds && followingIds.length > 0) {
       const followingIdsList = followingIds.map(f => f.following_id)
-      query = query.not('id', 'in', `(${followingIdsList.map(id => `'${id}'`).join(',')})`)
+      query = query.not('id', 'in', `(${followingIdsList.join(',')})`)
     }
 
     const { data: suggestedUsers, error } = await query
