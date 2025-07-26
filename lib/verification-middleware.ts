@@ -60,13 +60,114 @@ export async function verifyUserForAction(
     }
 
     // Get current user from database using admin client to bypass RLS
-    const { data: currentUser, error: userError } = await supabaseAdmin
+    let { data: currentUser, error: userError } = await supabaseAdmin
       .from('users')
-      .select('id, username, is_verified, is_premium, role, premium_type, premium_status')
+      .select('id, username, is_verified, is_premium, role, premium_type, premium_status, auth_id')
       .eq('auth_id', user.id)
       .single()
 
-    if (userError || !currentUser) {
+    // Se não encontrou por auth_id, tentar por email
+    if (userError && userError.code === 'PGRST116' && user.email) {
+      const { data: userByEmail } = await supabaseAdmin
+        .from('users')
+        .select('id, username, is_verified, is_premium, role, premium_type, premium_status, auth_id')
+        .eq('email', user.email)
+        .single()
+        
+      if (userByEmail) {
+        // Atualizar auth_id se necessário
+        if (userByEmail.auth_id !== user.id) {
+          await supabaseAdmin
+            .from('users')
+            .update({ auth_id: user.id })
+            .eq('id', userByEmail.id)
+        }
+        currentUser = userByEmail
+        userError = null
+      }
+    }
+
+    // Se ainda não encontrou, criar usuário
+    if (userError && userError.code === 'PGRST116') {
+      let username = user.user_metadata?.username || user.email?.split('@')[0] || 'user_' + user.id.substring(0, 8)
+      
+      // Verificar se username já existe
+      const { data: existingUsername } = await supabaseAdmin
+        .from('users')
+        .select('username')
+        .eq('username', username)
+        .single()
+        
+      if (existingUsername) {
+        username = `${username}_${Date.now()}`
+      }
+      
+      const { data: newUser, error: createError } = await supabaseAdmin
+        .from('users')
+        .insert({
+          auth_id: user.id,
+          email: user.email,
+          username: username,
+          name: user.user_metadata?.full_name || 'Usuário',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          premium_type: 'free',
+          premium_status: 'inactive',
+          is_active: true,
+          is_verified: false,
+          is_premium: false,
+          country: 'BR',
+          profile_type: 'single',
+          status: 'active',
+          role: 'user',
+          privacy_settings: {},
+          notification_settings: {},
+          stats: {},
+          social_links: {},
+          interests: [],
+          seeking: [],
+          last_active_at: new Date().toISOString(),
+          username_changed: false
+        })
+        .select('id, username, is_verified, is_premium, role, premium_type, premium_status')
+        .single()
+        
+      if (createError) {
+        console.error('User creation error in middleware:', createError)
+        // Se erro de email duplicado, tentar buscar por email novamente
+        if (createError.code === '23505' && createError.message?.includes('email')) {
+          const { data: retryUser } = await supabaseAdmin
+            .from('users')
+            .select('id, username, is_verified, is_premium, role, premium_type, premium_status')
+            .eq('email', user.email)
+            .single()
+            
+          if (retryUser) {
+            currentUser = retryUser
+          } else {
+            return {
+              context: null,
+              error: NextResponse.json(
+                { error: 'Erro ao criar perfil de usuário' },
+                { status: 500 }
+              )
+            }
+          }
+        } else {
+          return {
+            context: null,
+            error: NextResponse.json(
+              { error: 'Erro ao criar perfil de usuário' },
+              { status: 500 }
+            )
+          }
+        }
+      } else {
+        currentUser = newUser
+      }
+    }
+
+    if (!currentUser) {
       console.error('User lookup error:', userError)
       return {
         context: null,

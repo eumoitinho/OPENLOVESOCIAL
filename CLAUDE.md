@@ -58,3 +58,4 @@ node scripts/context-tools.js analyze
 
 ## Memórias de Desenvolvimento
 - Nunca sugerir soluções simples, sempre usar consertos robustos, complexos e funcionais
+- Adicionada memória hoje (save today)
