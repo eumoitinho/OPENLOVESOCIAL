@@ -6,7 +6,7 @@ import { Button } from "../../../components/ui/button"
 import { Badge } from "../../../components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../../components/ui/card"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../../components/ui/tabs"
 import { Textarea } from "../../../components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select"
 import {
@@ -43,6 +43,8 @@ import {
   Shield,
   Edit,
   Camera,
+  Music,
+  FileText,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../../../components/ui/carousel"
@@ -64,6 +66,8 @@ import { MessagesContent } from "./MessagesContent"
 import TimelineAdCard from '@/app/components/ads/TimelineAdCard'
 import { useCanAccess } from '@/lib/plans/hooks'
 import { Checkbox } from "@/components/ui/checkbox"
+import { Input } from "@heroui/react"
+import { Label } from "recharts"
 
 // --- Tipos e Dados para a Nova Sidebar ---
 
@@ -675,7 +679,7 @@ export default function Timeline() {
     if (canAccess.plan !== 'free') return posts
     
     const postsWithAds = [...posts]
-    
+
     // Inserir ad a cada 5 posts
     for (let i = 5; i < postsWithAds.length; i += 6) {
       postsWithAds.splice(i, 0, {
@@ -1413,14 +1417,15 @@ const CompleteProfileView = ({ user, isOwnProfile, onEditProfile }: CompleteProf
                       }
                     </h1>
                     {profile?.is_verified && (
-                      <Badge color="success" variant="flat" size="sm">
+                      <Badge variant="secondary">
                         <span className="ml-1 hidden sm:inline">Verificado</span>
                       </Badge>
                     )}
                     {profile?.is_premium && (
-                      <Badge color="warning" variant="flat" size="sm">
+                      <Badge variant="default">
                         <span className="ml-1 hidden sm:inline">Premium</span>
                       </Badge>
+                    )}
                     )}
                   </div>
                   <div className="flex items-center gap-2 text-small text-default-500">
@@ -1437,7 +1442,7 @@ const CompleteProfileView = ({ user, isOwnProfile, onEditProfile }: CompleteProf
               
               <div className="flex gap-2">
                 {isOwnProfile ? (
-                  <Button color="primary" onPress={onEditProfile}>
+                  <Button color="primary" onClick={onEditProfile}>
                     Editar Perfil
                   </Button>
                 ) : (
@@ -1445,11 +1450,10 @@ const CompleteProfileView = ({ user, isOwnProfile, onEditProfile }: CompleteProf
                     <Button color="primary">
                       Seguir
                     </Button>
-                    <Button variant="bordered">
+                    <Button variant="outline">
                       Mensagem
                     </Button>
                   </>
-                )}
               </div>
             </div>
             
@@ -1511,28 +1515,48 @@ const CompleteProfileView = ({ user, isOwnProfile, onEditProfile }: CompleteProf
       </Card>
 
       {/* Tabs */}
-      <Tabs 
-        aria-label="Profile sections" 
-        className="mt-4"
-        color="primary"
-        variant="underlined"
-        selectedKey={activeTab}
-        onSelectionChange={(key) => setActiveTab(key as string)}
-      >
-        <Tab key="posts" title={
-          <div className="flex items-center gap-2">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="posts" className="flex items-center gap-2">
             <FileText className="w-4 h-4" />
-            <span>Posts</span>
-          </div>
-        }>
+            <span className="hidden sm:inline">Posts</span>
+          </TabsTrigger>
+          <TabsTrigger value="media" className="flex items-center gap-2">
+            <ImageIcon className="w-4 h-4" />
+            <span className="hidden sm:inline">Mídia</span>
+          </TabsTrigger>
+          <TabsTrigger value="followers" className="flex items-center gap-2">
+            <UserPlus className="w-4 h-4" />
+            <span className="hidden sm:inline">Seguidores</span>
+          </TabsTrigger>
+          <TabsTrigger value="following" className="flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            <span className="hidden sm:inline">Seguindo</span>
+          </TabsTrigger>
+          <TabsTrigger value="events" className="flex items-center gap-2">
+            <Calendar className="w-4 h-4" />
+            <span className="hidden sm:inline">Eventos</span>
+          </TabsTrigger>
+          <TabsTrigger value="communities" className="flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            <span className="hidden sm:inline">Comunidades</span>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="posts" className="mt-6">
           <Card>
-            <CardContent>
+            <CardContent className="p-6">
               {posts.length > 0 ? (
                 <div className="space-y-4">
                   {posts.map((post) => (
-                    <div key={post.id} className="border-b border-default-200 pb-4 last:border-b-0">
+                    <div key={post.id} className="border-b border-gray-200 dark:border-gray-700 pb-4 last:border-b-0">
                       <div className="flex items-start gap-3">
-                        <Avatar size="sm" src={profile?.avatar_url} className="flex-shrink-0" />
+                        <Avatar className="w-10 h-10">
+                          <AvatarImage src={profile?.avatar_url} />
+                          <AvatarFallback>
+                            {profile?.first_name?.[0]}{profile?.last_name?.[0]}
+                          </AvatarFallback>
+                        </Avatar>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="font-medium text-sm">
@@ -1541,11 +1565,11 @@ const CompleteProfileView = ({ user, isOwnProfile, onEditProfile }: CompleteProf
                                 : user?.user_metadata?.full_name || user?.email
                               }
                             </span>
-                            <span className="text-xs text-default-500">
+                            <span className="text-xs text-gray-500">
                               {formatDate(post.created_at)}
                             </span>
                           </div>
-                          <p className="text-sm text-default-700 mb-2">{post.content}</p>
+                          <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{post.content}</p>
                           {post.media_urls && post.media_urls.length > 0 && (
                             <div className="mb-2">
                               <img
@@ -1555,7 +1579,7 @@ const CompleteProfileView = ({ user, isOwnProfile, onEditProfile }: CompleteProf
                               />
                             </div>
                           )}
-                          <div className="flex items-center gap-4 text-xs text-default-500">
+                          <div className="flex items-center gap-4 text-xs text-gray-500">
                             <span>{post.likes_count || 0} curtidas</span>
                             <span>{post.comments_count || 0} comentários</span>
                           </div>
@@ -1566,77 +1590,140 @@ const CompleteProfileView = ({ user, isOwnProfile, onEditProfile }: CompleteProf
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <FileText className="w-12 h-12 mx-auto text-default-400 mb-4" />
-                  <p className="text-default-500">Nenhum post ainda</p>
+                  <FileText className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                  <p className="text-gray-500">Nenhum post ainda</p>
                 </div>
               )}
             </CardContent>
           </Card>
-        </Tab>
-        
-        <Tab key="events" title={
-          <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
-            <span>Eventos</span>
-          </div>
-        }>
+        </TabsContent>
+
+        <TabsContent value="media" className="mt-6">
           <Card>
-            <CardContent>
+            <CardContent className="p-6">
+              {media.length > 0 ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {media.map((item, index) => (
+                    <div key={index} className="relative group cursor-pointer">
+                      {getMediaType(item.url) === 'video' ? (
+                        <div className="aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
+                          <Video className="w-8 h-8 text-gray-400" />
+                        </div>
+                      ) : getMediaType(item.url) === 'audio' ? (
+                        <div className="aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
+                          <Music className="w-8 h-8 text-gray-400" />
+                        </div>
+                      ) : (
+                        <img
+                          src={item.url}
+                          alt={`Media ${index + 1}`}
+                          className="aspect-square object-cover rounded-lg"
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <ImageIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                  <p className="text-gray-500">Nenhuma mídia ainda</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="followers" className="mt-6">
+          <Card>
+            <CardContent className="p-6">
+              {followers.length > 0 ? (
+                <div className="space-y-3">
+                  {followers.map((follower) => (
+                    <div key={follower.id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
+                      <Avatar className="w-10 h-10">
+                        <AvatarImage src={follower.avatar_url} />
+                        <AvatarFallback>
+                          {follower.first_name?.[0]}{follower.last_name?.[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">
+                          {follower.first_name && follower.last_name 
+                            ? `${follower.first_name} ${follower.last_name}`
+                            : follower.username
+                          }
+                        </p>
+                        <p className="text-xs text-gray-500">@{follower.username}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <UserPlus className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                  <p className="text-gray-500">Nenhum seguidor ainda</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="following" className="mt-6">
+          <Card>
+            <CardContent className="p-6">
+              {following.length > 0 ? (
+                <div className="space-y-3">
+                  {following.map((followed) => (
+                    <div key={followed.id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
+                      <Avatar className="w-10 h-10">
+                        <AvatarImage src={followed.avatar_url} />
+                        <AvatarFallback>
+                          {followed.first_name?.[0]}{followed.last_name?.[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">
+                          {followed.first_name && followed.last_name 
+                            ? `${followed.first_name} ${followed.last_name}`
+                            : followed.username
+                          }
+                        </p>
+                        <p className="text-xs text-gray-500">@{followed.username}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Users className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                  <p className="text-gray-500">Não está seguindo ninguém ainda</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="events" className="mt-6">
+          <Card>
+            <CardContent className="p-6">
               <div className="text-center py-8">
-                <Calendar className="w-12 h-12 mx-auto text-default-400 mb-4" />
-                <p className="text-default-500">Nenhum evento ainda</p>
+                <Calendar className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-500">Nenhum evento ainda</p>
               </div>
             </CardContent>
           </Card>
-        </Tab>
-        
-        <Tab key="communities" title={
-          <div className="flex items-center gap-2">
-            <Users className="w-4 h-4" />
-            <span>Comunidades</span>
-          </div>
-        }>
+        </TabsContent>
+
+        <TabsContent value="communities" className="mt-6">
           <Card>
-            <CardContent>
+            <CardContent className="p-6">
               <div className="text-center py-8">
-                <Users className="w-12 h-12 mx-auto text-default-400 mb-4" />
-                <p className="text-default-500">Nenhuma comunidade ainda</p>
+                <Users className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-500">Nenhuma comunidade ainda</p>
               </div>
             </CardContent>
           </Card>
-        </Tab>
-        
-        <Tab key="friends" title={
-          <div className="flex items-center gap-2">
-            <User className="w-4 h-4" />
-            <span>Amigos</span>
-          </div>
-        }>
-          <Card>
-            <CardContent>
-              <div className="text-center py-8">
-                <User className="w-12 h-12 mx-auto text-default-400 mb-4" />
-                <p className="text-default-500">Nenhum amigo ainda</p>
-              </div>
-            </CardContent>
-          </Card>
-        </Tab>
-        
-        <Tab key="media" title={
-          <div className="flex items-center gap-2">
-            <ImageIcon className="w-4 h-4" />
-            <span>Mídia</span>
-          </div>
-        }>
-          <Card>
-            <CardContent>
-              <div className="text-center py-8">
-                <ImageIcon className="w-12 h-12 mx-auto text-default-400 mb-4" />
-                <p className="text-default-500">Nenhuma mídia ainda</p>
-              </div>
-            </CardContent>
-          </Card>
-        </Tab>
+        </TabsContent>
       </Tabs>
     </div>
   )
@@ -1806,11 +1893,12 @@ const ProfileEditForm = ({ user, onSave }: ProfileEditFormProps) => {
           </div>
           
           <div>
-            <Label htmlFor="birthDate">Data de Nascimento</Label>
+            <Label id="birthDate-label">Data de Nascimento</Label>
             <Input
               id="birthDate"
               name="birthDate"
               type="date"
+              aria-labelledby="birthDate-label"
               value={formData.birthDate}
               onChange={handleInputChange}
               max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split("T")[0]}
