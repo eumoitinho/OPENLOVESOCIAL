@@ -516,5 +516,3 @@ export function EventsContent() {
     </div>
   )
 }
-import { CardContent } from "@/components/ui/card"
-import { SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
