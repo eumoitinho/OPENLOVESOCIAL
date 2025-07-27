@@ -40,23 +40,23 @@ export const STRIPE_PRODUCTS = {
   gold: {
     name: 'Gold',
     priceId: process.env.STRIPE_GOLD_PRICE_ID || '',
-    price: 25.00,
+    price: 2500, // R$ 25,00 em centavos
     currency: 'BRL',
-    interval: 'month'
+    interval: 'month' as const
   },
   diamond: {
     name: 'Diamond',
     priceId: process.env.STRIPE_DIAMOND_PRICE_ID || '',
-    price: 45.90,
+    price: 4590, // R$ 45,90 em centavos
     currency: 'BRL',
-    interval: 'month'
+    interval: 'month' as const
   },
   diamond_annual: {
     name: 'Diamond Annual',
     priceId: process.env.STRIPE_DIAMOND_ANNUAL_PRICE_ID || '',
-    price: 459.00,
+    price: 45900, // R$ 459,00 em centavos
     currency: 'BRL',
-    interval: 'year'
+    interval: 'year' as const
   }
 } as const
 

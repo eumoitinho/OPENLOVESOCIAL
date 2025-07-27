@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { loadStripe } from "@stripe/stripe-js"
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js"
-import { Button } from "@heroui/react"
+import { Button } from "@/components/ui/button"
 import { STRIPE_PRODUCTS } from "@/types/stripe"
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
@@ -49,7 +49,9 @@ function CheckoutFormContent({ planType, userEmail, userId, isUpgrade = false, o
         type: 'card',
         card: cardElement,
         billing_details: {
-          email: userEmail } })
+          email: userEmail
+        }
+      })
 
       if (paymentError) {
         setError(paymentError.message || 'Erro ao processar cartão')
@@ -61,12 +63,15 @@ function CheckoutFormContent({ planType, userEmail, userId, isUpgrade = false, o
       const response = await fetch('/api/stripe/subscribe', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json' },
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
           email: userEmail,
           paymentMethodId: paymentMethod.id,
           planType,
-          userId }) })
+          userId
+        })
+      })
 
       const result = await response.json()
 
@@ -100,9 +105,9 @@ function CheckoutFormContent({ planType, userEmail, userId, isUpgrade = false, o
   }
 
   return (
-    <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
+    <div className="max-w-md mx-auto bg-white dark:bg-gray-900 rounded-lg shadow-md p-6">
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-2">
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
           Assinar Plano {plan.name}
         </h2>
         <p className="text-2xl font-bold text-blue-600">
@@ -115,18 +120,20 @@ function CheckoutFormContent({ planType, userEmail, userId, isUpgrade = false, o
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Informações do Cartão
           </label>
-          <div className="p-3 border border-gray-300 rounded-md">
+          <div className="p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800">
             <CardElement
               options={{
                 style: {
                   base: {
                     fontSize: '16px',
                     color: '#424770',
+                    backgroundColor: 'transparent',
                     '::placeholder': {
-                      color: '#aab7c4' } },
+                      color: '#aab7c4' },
+                    iconColor: '#666EE8' },
                   invalid: {
                     color: '#9e2146' } },
                 hidePostalCode: true }}
@@ -143,7 +150,7 @@ function CheckoutFormContent({ planType, userEmail, userId, isUpgrade = false, o
         <Button
           type="submit"
           disabled={!stripe || loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full"
         >
           {loading ? 'Processando...' : `Assinar por R$ ${(plan.price / 100).toFixed(2)}`}
         </Button>
