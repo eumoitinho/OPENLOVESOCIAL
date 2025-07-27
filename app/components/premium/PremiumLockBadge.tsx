@@ -24,7 +24,7 @@ export default function PremiumLockBadge({
   className = "",
   showUpgradeButton = true
 }: PremiumLockBadgeProps) {
-  const { canAccess } = useCanAccess()
+  const canAccess = useCanAccess()
   const { paywall, requireFeature, closePaywall } = usePaywall()
   const [showDetails, setShowDetails] = useState(false)
 
@@ -177,6 +177,10 @@ export default function PremiumLockBadge({
       <PaywallModal 
         isOpen={paywall.isOpen}
         onClose={closePaywall}
+        feature={feature}
+        title={featureInfo.title}
+        description={featureInfo.description}
+        requiredPlan={requiredPlan}
       />
     </>
   )
