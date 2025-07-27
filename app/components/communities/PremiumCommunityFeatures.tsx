@@ -68,21 +68,21 @@ export default function PremiumCommunityFeatures({
       title: 'Funções Personalizadas',
       description: 'Crie funções customizadas para membros',
       icon: Crown,
-      requiredPlan: 'diamond' as const,
+      requiredPlan: 'diamante' as const,
       available: canAccess.currentPlan === 'diamond'
     },
     {
       title: 'Eventos Exclusivos',
       description: 'Organize eventos apenas para membros',
       icon: Calendar,
-      requiredPlan: 'diamond' as const,
+      requiredPlan: 'diamante' as const,
       available: canAccess.currentPlan === 'diamond'
     },
     {
       title: 'Analytics Avançados',
       description: 'Estatísticas detalhadas da comunidade',
       icon: Zap,
-      requiredPlan: 'diamond' as const,
+      requiredPlan: 'diamante' as const,
       available: canAccess.currentPlan === 'diamond'
     }
   ]
@@ -187,7 +187,7 @@ export default function PremiumCommunityFeatures({
               <Switch
                 checked={isPrivate}
                 onCheckedChange={setIsPrivate}
-                disabled={canAccess.currentPlan === 'free'}
+                disabled={!canAccess.canCreateCommunities}
               />
             </div>
 
@@ -204,7 +204,7 @@ export default function PremiumCommunityFeatures({
               <Switch
                 checked={requiresApproval}
                 onCheckedChange={setRequiresApproval}
-                disabled={canAccess.currentPlan === 'free'}
+                disabled={!canAccess.canCreateCommunities}
               />
             </div>
 
@@ -219,18 +219,18 @@ export default function PremiumCommunityFeatures({
                   value={maxMembers}
                   onChange={(e) => setMaxMembers(Number(e.target.value))}
                   min={10}
-                  max={canAccess.currentPlan === 'diamante' ? 1000 : 500}
+                  max={canAccess.currentPlan === 'diamond' ? 1000 : 500}
                   className="w-32"
-                  disabled={canAccess.currentPlan === 'free'}
+                  disabled={!canAccess.canCreateCommunities}
                 />
                 <span className="text-sm text-gray-600 dark:text-gray-400">
-                  máximo {canAccess.currentPlan === 'diamante' ? '1000' : '500'} membros
+                  máximo {canAccess.currentPlan === 'diamond' ? '1000' : '500'} membros
                 </span>
               </div>
             </div>
 
             {/* Custom Roles */}
-            {canAccess.currentPlan === 'diamante' && (
+            {canAccess.currentPlan === 'diamond' && (
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <h4 className="font-medium text-gray-900 dark:text-gray-100">

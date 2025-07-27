@@ -126,7 +126,7 @@ export default function CreateEvent({ onClose, onEventCreated }: CreateEventProp
 
     // Validar preço para eventos pagos
     if (formData.type === 'paid') {
-      if (!canAccess.plan || canAccess.plan === 'free' || canAccess.plan === 'gold') {
+      if (!canAccess.currentPlan || canAccess.currentPlan === 'free' || canAccess.currentPlan === 'gold') {
         newErrors.type = 'Eventos pagos requerem plano Diamante'
       }
       if (!formData.price || formData.price <= 0) {
@@ -513,7 +513,7 @@ export default function CreateEvent({ onClose, onEventCreated }: CreateEventProp
                       Privado
                     </div>
                   </SelectItem>
-                  {(canAccess.plan === 'diamond') && (
+                  {(canAccess.currentPlan === 'diamond') && (
                     <SelectItem value="paid">
                       <div className="flex items-center gap-2">
                         <DollarSign className="w-4 h-4" />
