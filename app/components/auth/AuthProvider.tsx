@@ -20,6 +20,9 @@ interface Profile {
   plano?: string
   is_verified?: boolean
   is_premium?: boolean
+  premium_type?: string
+  premium_status?: string
+  premium_expires_at?: string
   profile_type?: 'single' | 'couple' | 'trans' | 'other'
   location?: string
   city?: string

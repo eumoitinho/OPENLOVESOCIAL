@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { TrendingUp, Eye, Heart, MessageCircle, Users, Target, Calendar, Lightbulb, RefreshCw } from "lucide-react"
 import { Card, CardBody, CardHeader, Button, Chip, Progress } from "@heroui/react"
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts"
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts"
 import { useAuth } from "@/app/components/auth/AuthProvider"
 import { Tabs } from "@/components/ui/tabs"
 import { Tooltip } from "@/components/ui/tooltip"
@@ -359,7 +359,7 @@ export default function ProfileAnalytics({ className }: ProfileAnalyticsProps) {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" fontSize={12} />
                     <YAxis fontSize={12} />
-                    <Tooltip />
+                    <RechartsTooltip />
                     <Line type="monotone" dataKey="profileViews" stroke="#8884d8" name="Visualizações" />
                     <Line type="monotone" dataKey="likesReceived" stroke="#82ca9d" name="Curtidas Recebidas" />
                     <Line type="monotone" dataKey="likesSent" stroke="#ffc658" name="Curtidas Enviadas" />
@@ -399,7 +399,7 @@ export default function ProfileAnalytics({ className }: ProfileAnalyticsProps) {
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
-                      <Tooltip />
+                      <RechartsTooltip />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
@@ -420,7 +420,7 @@ export default function ProfileAnalytics({ className }: ProfileAnalyticsProps) {
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="name" fontSize={12} />
                       <YAxis fontSize={12} />
-                      <Tooltip />
+                      <RechartsTooltip />
                       <Bar dataKey="value" fill="#8884d8" />
                     </BarChart>
                   </ResponsiveContainer>

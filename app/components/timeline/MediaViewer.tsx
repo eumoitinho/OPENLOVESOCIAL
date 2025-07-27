@@ -23,8 +23,6 @@ import {
 import { cn } from "@/lib/utils"
 import { SecureImage } from "@/app/components/security/SecureImage"
 import { SecureVideo } from "@/app/components/security/SecureVideo"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
 
 export interface MediaItem {
   id: string

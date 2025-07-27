@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui
 import { Button } from "../../../components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar"
 import { Badge } from "../../../components/ui/badge"
-import { Tabs, TabsList, TabsTrigger } from "../../../components/ui/tabs"
 import {
   Bookmark,
   Heart,
@@ -25,8 +24,6 @@ import {
   Search } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { CardContent, CardTitle } from "@/components/ui/card"
 
 interface SavedPost {
   id: string

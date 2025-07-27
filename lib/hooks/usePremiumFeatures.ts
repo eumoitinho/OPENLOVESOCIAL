@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/app/components/auth/AuthProvider"
 import { useMemo } from "react"
+import type { User } from "@/app/lib/database.types"
 
 export type PlanType = 'free' | 'gold' | 'diamond' | 'diamond_annual'
 
@@ -28,6 +29,8 @@ export interface PremiumFeatures {
   maxPhotos: number
   maxVideos: number
   maxVideoSizeMB: number
+  canUploadAudio: boolean
+  canUploadVideo: boolean
   
   // Visual
   hasVerifiedBadge: boolean
@@ -48,6 +51,10 @@ export interface PremiumFeatures {
   // Outros
   canExportData: boolean
   hasNoAds: boolean
+  canCreatePolls: boolean
+  canCreatePaidContent: boolean
+  canAccessAnalytics: boolean
+  canGetVerifiedBadge: boolean
 }
 
 const PLAN_FEATURES: Record<PlanType, PremiumFeatures> = {
@@ -65,6 +72,8 @@ const PLAN_FEATURES: Record<PlanType, PremiumFeatures> = {
     maxPhotos: -1, // Ilimitado
     maxVideos: 1,
     maxVideoSizeMB: 10,
+    canUploadAudio: false,
+    canUploadVideo: false,
     hasVerifiedBadge: false,
     hasProfileHighlight: false,
     hasCustomColors: false,
@@ -74,7 +83,11 @@ const PLAN_FEATURES: Record<PlanType, PremiumFeatures> = {
     hasDedicatedSupport: false,
     hasAdvancedModeration: false,
     canExportData: false,
-    hasNoAds: false
+    hasNoAds: false,
+    canCreatePolls: false,
+    canCreatePaidContent: false,
+    canAccessAnalytics: false,
+    canGetVerifiedBadge: false
   },
   gold: {
     maxCommunities: 3,
@@ -90,6 +103,8 @@ const PLAN_FEATURES: Record<PlanType, PremiumFeatures> = {
     maxPhotos: -1, // Ilimitado
     maxVideos: 10,
     maxVideoSizeMB: 25,
+    canUploadAudio: true,
+    canUploadVideo: true,
     hasVerifiedBadge: false,
     hasProfileHighlight: true,
     hasCustomColors: false,
@@ -99,7 +114,11 @@ const PLAN_FEATURES: Record<PlanType, PremiumFeatures> = {
     hasDedicatedSupport: false,
     hasAdvancedModeration: false,
     canExportData: false,
-    hasNoAds: true
+    hasNoAds: true,
+    canCreatePolls: true,
+    canCreatePaidContent: false,
+    canAccessAnalytics: true,
+    canGetVerifiedBadge: false
   },
   diamond: {
     maxCommunities: 5,
@@ -115,6 +134,8 @@ const PLAN_FEATURES: Record<PlanType, PremiumFeatures> = {
     maxPhotos: -1, // Ilimitado
     maxVideos: -1, // Ilimitado
     maxVideoSizeMB: 50,
+    canUploadAudio: true,
+    canUploadVideo: true,
     hasVerifiedBadge: true,
     hasProfileHighlight: true,
     hasCustomColors: true,
@@ -124,7 +145,11 @@ const PLAN_FEATURES: Record<PlanType, PremiumFeatures> = {
     hasDedicatedSupport: true,
     hasAdvancedModeration: true,
     canExportData: true,
-    hasNoAds: true
+    hasNoAds: true,
+    canCreatePolls: true,
+    canCreatePaidContent: true,
+    canAccessAnalytics: true,
+    canGetVerifiedBadge: true
   },
   diamond_annual: {
     maxCommunities: 5,
@@ -140,6 +165,8 @@ const PLAN_FEATURES: Record<PlanType, PremiumFeatures> = {
     maxPhotos: -1, // Ilimitado
     maxVideos: -1, // Ilimitado
     maxVideoSizeMB: 50,
+    canUploadAudio: true,
+    canUploadVideo: true,
     hasVerifiedBadge: true,
     hasProfileHighlight: true,
     hasCustomColors: true,
@@ -149,18 +176,22 @@ const PLAN_FEATURES: Record<PlanType, PremiumFeatures> = {
     hasDedicatedSupport: true,
     hasAdvancedModeration: true,
     canExportData: true,
-    hasNoAds: true
+    hasNoAds: true,
+    canCreatePolls: true,
+    canCreatePaidContent: true,
+    canAccessAnalytics: true,
+    canGetVerifiedBadge: true
   }
 }
 
 export function usePremiumFeatures() {
-  const { user } = useAuth()
+  const { profile } = useAuth()
   
   const features = useMemo(() => {
-    if (!user) return PLAN_FEATURES.free
+    if (!profile) return PLAN_FEATURES.free
     
-    const planType = (user.premium_type || 'free') as PlanType
-    const isPremiumActive = user.is_premium && user.premium_status === 'active'
+    const planType = (profile.premium_type || 'free') as PlanType
+    const isPremiumActive = profile.is_premium && profile.premium_status === 'active'
     
     // Se o premium não está ativo, retornar recursos gratuitos
     if (!isPremiumActive && planType !== 'free') {
@@ -168,11 +199,11 @@ export function usePremiumFeatures() {
     }
     
     return PLAN_FEATURES[planType] || PLAN_FEATURES.free
-  }, [user])
+  }, [profile])
   
-  const planType = (user?.premium_type || 'free') as PlanType
-  const isPremium = user?.is_premium && user?.premium_status === 'active'
-  const premiumExpiresAt = user?.premium_expires_at ? new Date(user.premium_expires_at) : null
+  const planType = (profile?.premium_type || 'free') as PlanType
+  const isPremium = profile?.is_premium && profile?.premium_status === 'active'
+  const premiumExpiresAt = profile?.premium_expires_at ? new Date(profile.premium_expires_at) : null
   const isExpired = premiumExpiresAt ? new Date() > premiumExpiresAt : false
   
   return {

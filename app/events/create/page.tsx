@@ -9,13 +9,12 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "@/components/ui/use-toast"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Info } from "lucide-react"
 import { useCanAccess, usePlanUsage } from "@/lib/plans/hooks"
 import { usePaywall } from "@/lib/plans/paywall"
 import PaywallModal from '@/components/plan-limits/PaywallModal'
 import PlanIndicator from '@/components/plan-limits/PlanIndicator'
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ArrowLeft, Info } from "lucide-react"
 
 export default function CreateEventPage() {
   const { profile } = useAuth()

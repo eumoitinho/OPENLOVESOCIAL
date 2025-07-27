@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from "react"
-import { Card, CardBody, Button, Badge, Skeleton, Divider, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/react"
+import { Card, CardBody, Button, Badge, Skeleton, Divider, Dropdown, DropdownTrigger, DropdownItem } from "@heroui/react"
 import { 
   Bell, 
   Heart, 
@@ -16,8 +16,8 @@ import {
 import { cn } from "@/lib/utils"
 import { formatDistanceToNow } from "date-fns"
 import { ptBR } from "date-fns/locale"
-import { Avatar } from "@/components/ui/avatar"
-import { DropdownMenu } from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { DropdownMenu as CustomDropdownMenu, DropdownMenu } from "@/components/ui/dropdown-menu"
 
 interface Notification {
   id: string
@@ -235,12 +235,15 @@ export default function NotificationsList({
                 {/* Avatar or Icon */}
                 <div className="relative">
                   {notification.sender ? (
-                    <Avatar
-                      src={notification.sender.avatar}
-                      name={notification.sender.name}
-                      size="sm"
-                      className="flex-shrink-0"
-                    />
+                    <Avatar className="flex-shrink-0">
+                      <AvatarImage
+                        src={notification.sender.avatar}
+                        alt={notification.sender.name}
+                      />
+                      <AvatarFallback>
+                        {notification.sender.name.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
                       {getNotificationIcon(notification.type, notification.icon)}

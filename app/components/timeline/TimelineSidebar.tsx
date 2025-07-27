@@ -1,6 +1,7 @@
 "use client"
 
-import { Button, Card, CardBody, CardFooter, CardHeader, Badge, Chip } from "@heroui/react"
+import { Card, CardBody, CardFooter, CardHeader, Badge, Chip } from "@heroui/react"
+import { Button } from "@/components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import {
   Heart,
@@ -109,7 +110,7 @@ export function TimelineSidebar({
         <Button size="sm" className="text-xs">
           Assinar Premium
         </Button>
-        <Button variant="outline" size="sm" className="text-xs bg-transparent">
+        <Button variant="secondary" size="sm" className="text-xs bg-transparent">
           Saiba Mais
         </Button>
       </CardFooter>
@@ -174,7 +175,7 @@ export function TimelineSidebar({
         </ul>
       </CardContent>
       <CardFooter>
-        <Button size="sm" variant="outline" className="w-full">Ver todas</Button>
+        <Button size="sm" variant="secondary" className="w-full">Ver todas</Button>
       </CardFooter>
     </Card>
   )
@@ -194,7 +195,7 @@ export function TimelineSidebar({
         </ul>
       </CardContent>
       <CardFooter>
-        <Button size="sm" variant="outline" className="w-full">Abrir mensagens</Button>
+        <Button size="sm" variant="secondary" className="w-full">Abrir mensagens</Button>
       </CardFooter>
     </Card>
   )

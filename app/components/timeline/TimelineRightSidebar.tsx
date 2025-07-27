@@ -26,8 +26,6 @@ import { cn } from "@/lib/utils"
 import Advertisement from "../ads/Advertisement"
 import PlanAdCard from '@/app/components/ads/PlanAdCard'
 import { useCanAccess } from "@/lib/plans/hooks"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { CardContent, CardTitle } from "@/components/ui/card"
 
 interface TrendingTopic {
   id: string

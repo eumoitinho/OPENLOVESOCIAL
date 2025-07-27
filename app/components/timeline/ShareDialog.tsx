@@ -22,8 +22,6 @@ import {
   Check,
   X } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 interface User {
   id: string

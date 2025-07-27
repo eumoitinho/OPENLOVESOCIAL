@@ -15,8 +15,6 @@ import {
   Clock,
   Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 interface Comment {
   id: string

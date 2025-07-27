@@ -1,17 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { cn } from "@/lib/utils"
-import { useCanAccess } from "@/lib/plans/hooks"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Button } from "../../../components/ui/button"
+import { Badge } from "../../../components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar"
+// Corrigido para evitar imports duplicados e conflitos de componentes
+import { Card, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card"
+import { Input } from "../../../components/ui/input"
+import { Textarea } from "../../../components/ui/textarea"
 import {
   Calendar,
   MapPin,
@@ -23,18 +19,29 @@ import {
   Heart,
   Share2,
   MessageCircle,
+  Settings,
+  Star,
+  Camera,
   Music,
+  Coffee,
   Wine,
   Gamepad2,
   BookOpen,
   Palette,
   Dumbbell,
   Globe,
+  Tag,
+  Image as ImageIcon,
   Lock,
   X,
   Shield,
-  CheckCircle
-} from "lucide-react"
+  CheckCircle } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { useCanAccess } from "@/lib/plans/hooks"
+import { useRouter } from "next/navigation"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { CardContent } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface Event {
   id: string
@@ -75,8 +82,7 @@ export function EventsContent() {
       setError(null)
       try {
         // Se o usuário só pode ver eventos verificados, adicionar filtro
-        // Corrigido: a propriedade correta é canJoinVerifiedOnly
-        const verifiedOnly = canAccess.canJoinVerifiedOnly
+        const verifiedOnly = canAccess?.limits?.canJoinVerifiedOnly
         const url = verifiedOnly ? "/api/events?verified=true" : "/api/events"
         
         const res = await fetch(url)
@@ -90,7 +96,7 @@ export function EventsContent() {
       }
     }
     fetchEvents()
-  }, [canAccess.canJoinVerifiedOnly])
+  }, [canAccess.limits.canJoinVerifiedOnly])
 
   const [createEventOpen, setCreateEventOpen] = useState(false)
   const [activeTab, setActiveTab] = useState("upcoming")
@@ -138,7 +144,7 @@ export function EventsContent() {
     const matchesCategory = selectedCategory === "all" || event.category?.toLowerCase() === selectedCategory
     
     // Se o usuário só pode ver eventos verificados, filtra apenas verificados
-    if (canAccess.canJoinVerifiedOnly) {
+    if (canAccess.limits.canJoinVerifiedOnly) {
       return matchesSearch && matchesCategory && event.is_verified
     }
     
