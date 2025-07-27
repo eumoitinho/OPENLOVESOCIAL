@@ -3,11 +3,11 @@
 import { useState } from "react"
 import { useAuth } from "@/app/components/auth/AuthProvider"
 import { useNotifications } from "@/app/hooks/useNotifications"
-import { Button, Chip, ScrollShadow } from "@heroui/react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Button } from "@/components/ui/button"
 import {
   Bell,
   Check,
@@ -138,17 +138,15 @@ function NotificationItem({ notification, onMarkAsRead, onDelete }: Notification
               )}
               
               {onDelete && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                <button
+                  className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md inline-flex items-center justify-center"
                   onClick={(e) => {
                     e.stopPropagation()
                     onDelete(notification.id)
                   }}
                 >
                   <Trash2 className="w-3 h-3" />
-                </Button>
+                </button>
               )}
             </div>
           </div>
@@ -311,14 +309,12 @@ export function NotificationsContent() {
                   <span className="text-sm text-blue-700 dark:text-blue-300">
                     {stats.unread} notificação{stats.unread !== 1 ? 's' : ''} não lida{stats.unread !== 1 ? 's' : ''}
                   </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
+                  <button
                     onClick={markAllAsRead}
-                    className="text-xs text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200"
+                    className="text-xs text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 px-3 py-1 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/20 transition-colors"
                   >
                     Marcar todas como lidas
-                  </Button>
+                  </button>
                 </div>
               </div>
             )}
