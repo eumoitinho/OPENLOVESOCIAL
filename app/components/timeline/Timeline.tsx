@@ -55,10 +55,10 @@ export default function Timeline() {
               <Card key={post.id}>
                 <CardBody>
                   <div className="flex gap-3">
-                    <Avatar
-                      src={post.author?.avatar || "/placeholder.svg"}
-                      name={post.author?.name}
-                    />
+                    <Avatar>
+                      <AvatarImage src={post.author?.avatar || "/placeholder.svg"} alt={post.author?.name} />
+                      <AvatarFallback>{post.author?.name?.charAt(0) || "U"}</AvatarFallback>
+                    </Avatar>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <h3 className="font-semibold">{post.author?.name || "Usuário"}</h3>
