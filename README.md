@@ -62,11 +62,16 @@ O projeto agora conta com um sistema completo de **Context Engineering** para de
 - ✅ **Recuperação de senha**
 - ✅ **Sessões persistentes**
 
-### 💳 **Sistema de Pagamentos**
+### 💳 **Sistema de Pagamentos Freemium**
 - ✅ **Integração MercadoPago** completa
 - ✅ **Planos premium** (Gold, Diamante)
 - ✅ **Webhooks** para atualização automática
 - ✅ **Histórico de assinaturas**
+- ✅ **Contadores reais de uso** por mês
+- ✅ **Limites dinâmicos** baseados no plano
+- ✅ **Indicadores visuais** de uso
+- ✅ **Sistema de paywall** inteligente
+- ✅ **Upgrade automático** quando necessário
 
 ---
 
@@ -111,6 +116,9 @@ app/
 │   │   └── FileUpload.tsx              # Upload de arquivos
 │   ├── notifications/
 │   │   └── NotificationSystem.tsx      # Sistema de notificações
+│   ├── premium/
+│   │   ├── UsageIndicator.tsx          # Indicador de uso do plano
+│   │   └── PremiumLockBadge.tsx       # Badge de bloqueio premium
 │   └── auth/
 │       └── SignUp.tsx                  # Registro com localização
 ├── api/
@@ -118,9 +126,19 @@ app/
 │   │   └── coordinates/route.ts        # API de coordenadas
 │   ├── auth/
 │   │   └── register/route.ts           # API de registro
+│   ├── users/
+│   │   ├── usage-counters/route.ts     # API de contadores de uso
+│   │   └── increment-counter/route.ts  # API de incremento de contadores
+│   ├── plans/
+│   │   └── limits-config/route.ts      # API de configuração de limites
 │   └── mercadopago/
 │       └── subscribe/route.ts          # API de assinaturas
 ├── lib/
+│   ├── plans/
+│   │   ├── hooks.ts                    # Hooks para planos e limites
+│   │   ├── config.ts                   # Configuração de planos
+│   │   ├── paywall.ts                  # Sistema de paywall
+│   │   └── server.ts                   # Validação server-side
 │   └── location.ts                     # Utilitários de localização
 └── privacy/ & terms/                   # Páginas legais
 ```
@@ -130,25 +148,43 @@ app/
 ## 🚀 Funcionalidades por Plano
 
 ### **Plano Gratuito**
-- ✅ Posts de texto
+- ✅ Posts de texto (1 por mês)
 - ✅ Perfil básico
-- ✅ Chat básico
+- ✅ Visualização de conteúdo
 - ✅ Notificações básicas
+- ❌ Upload de mídia
+- ❌ Mensagens privadas
+- ❌ Criação de eventos
+- ❌ Criação de comunidades
 
 ### **Plano Open Ouro (R$ 25,00/mês)**
 - ✅ Tudo do plano gratuito
-- ✅ Upload de imagens (máximo 5)
-- ✅ Upload de vídeos (máximo 25MB)
-- ✅ Gravação de áudio
-- ✅ Criação de enquetes
+- ✅ Upload de imagens (50 por mês)
+- ✅ Upload de vídeos (10 por mês, 25MB cada)
+- ✅ Upload de áudio (20 por mês)
+- ✅ Mensagens privadas (1000 por mês)
+- ✅ Criação de eventos (5 por mês)
+- ✅ Criação de comunidades (1 por mês)
+- ✅ Criação de enquetes (10 por mês)
+- ✅ Chamadas de voz (50 por mês)
 - ✅ Perfil destacado
+- ✅ Analytics básicos
 
 ### **Plano Open Diamante (R$ 45,90/mês)**
 - ✅ Tudo do plano Ouro
-- ✅ Upload de imagens (máximo 10)
-- ✅ Upload de vídeos (máximo 50MB)
-- ✅ Prioridade no suporte
+- ✅ Upload de imagens (200 por mês)
+- ✅ Upload de vídeos (50 por mês, 50MB cada)
+- ✅ Upload de áudio (100 por mês)
+- ✅ Mensagens privadas (5000 por mês)
+- ✅ Criação de eventos (20 por mês)
+- ✅ Criação de comunidades (5 por mês)
+- ✅ Criação de enquetes (50 por mês)
+- ✅ Chamadas de voz (200 por mês)
+- ✅ Chamadas de vídeo (100 por mês)
+- ✅ Badge verificado
 - ✅ Analytics avançados
+- ✅ Conteúdo pago
+- ✅ Moderação avançada
 
 ---
 
@@ -241,6 +277,13 @@ Execute os scripts SQL na ordem:
 - **Upload**: Drag & drop de arquivos
 - **Status**: Indicadores de online/offline
 - **Busca**: Filtro em conversas e mensagens
+
+### **Sistema Freemium**
+- **Contadores Reais**: Tracking de uso mensal por funcionalidade
+- **Limites Dinâmicos**: Configuração flexível por plano
+- **Indicadores Visuais**: Progress bars e alertas de limite
+- **Paywall Inteligente**: Modal contextual baseado na ação
+- **Upgrade Automático**: Sugestões quando próximo do limite
 
 ---
 
@@ -357,6 +400,13 @@ npm run context compress posts
 3. **Live Streaming** (RTMP)
 4. **AI Moderation** (OpenAI)
 5. **Push Notifications** (PWA)
+
+### **Melhorias do Sistema Freemium**
+1. **Gamificação**: Pontos e conquistas por uso
+2. **Trial Gratuito**: Período de teste para novos usuários
+3. **Planos Familiares**: Descontos para múltiplos usuários
+4. **Conteúdo Premium**: Posts exclusivos para assinantes
+5. **Analytics Avançados**: Métricas detalhadas de engajamento
 
 ---
 

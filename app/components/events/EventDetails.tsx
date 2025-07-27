@@ -556,7 +556,7 @@ export default function EventDetails({ eventId, onClose, onEventUpdated }: Event
         <div className="flex gap-3 pt-4 border-t">
           {getParticipationButton()}
           
-          {user && event.user_participation_status !== 'interested' && (
+          {user && (
             <Button
               variant="outline"
               onClick={() => handleParticipation('interested')}

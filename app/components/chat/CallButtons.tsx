@@ -25,7 +25,6 @@ export default function CallButtons({
       {/* Botão de Chamada de Voz */}
       <PremiumLockBadge 
         feature="canMakeVoiceCalls"
-        size="sm"
         disabled={!features.canMakeVoiceCalls}
       >
         <Button
@@ -43,7 +42,6 @@ export default function CallButtons({
       {/* Botão de Chamada de Vídeo */}
       <PremiumLockBadge 
         feature="canMakeVideoCalls"
-        size="sm"
         disabled={!features.canMakeVideoCalls}
       >
         <Button

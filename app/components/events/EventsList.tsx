@@ -149,7 +149,7 @@ export default function EventsList() {
     }
   }
 
-  const handleEventAction = async (eventId: string, action: 'join' | 'interested' | 'share') => {
+  const handleEventAction = async (eventId: string, action: 'join' | 'view' | 'share' | 'interested' | 'share_to_feed') => {
     if (!user) {
       // Redirect to login
       return
@@ -199,6 +199,16 @@ export default function EventsList() {
             }
           }
           break
+          
+        case 'view':
+          // Abrir detalhes do evento
+          setSelectedEventId(eventId)
+          break
+          
+        case 'share_to_feed':
+          // Compartilhar no feed
+          console.log('Compartilhar no feed:', eventId)
+          break
       }
     } catch (error) {
       console.error('Erro na ação do evento:', error)
@@ -207,7 +217,7 @@ export default function EventsList() {
 
   const handleCreateEvent = () => {
     // Verificar se pode criar eventos
-    if (!canAccess.features.canCreateEvents) {
+    if (!canAccess.canCreateEvents) {
       // Mostrar modal de upgrade
       return
     }
@@ -293,7 +303,7 @@ export default function EventsList() {
                 : 'Seja o primeiro a criar um evento em sua região'
               }
             </p>
-            {canAccess.features.canCreateEvents && (
+            {canAccess.canCreateEvents && (
               <Button onClick={handleCreateEvent}>
                 Criar Primeiro Evento
               </Button>

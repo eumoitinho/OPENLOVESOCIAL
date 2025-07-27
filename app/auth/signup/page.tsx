@@ -1,13 +1,13 @@
 "use client"
 
 import { Button, Input, Checkbox, Badge } from "@heroui/react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Moon, Sun, MapPin, Camera, ArrowRight, ArrowLeft, Mail, Lock, User, AtSign, Calendar, StarIcon, GemIcon, CrownIcon, CheckIcon } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import PaymentProvider from "@/app/components/PaymentProvider"
 import { createClient } from "@/app/lib/supabase-browser"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface FormData {
   firstName: string
@@ -392,7 +392,6 @@ export default function OpenLoveRegister() {
       <style jsx global>{`
         ::selection {
           background: ${isDarkMode ? "rgba(219, 39, 119, 0.3)" : "rgba(190, 24, 93, 0.2)"};
-import { SelectItem, Select } from "@/components/ui/select"
           color: ${isDarkMode ? "#ffffff" : "#1f2937"};
         }
         ::-webkit-scrollbar {
