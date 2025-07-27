@@ -6,7 +6,7 @@ import { TrendingUp, Eye, Heart, MessageCircle, Users, Target, Calendar, Lightbu
 import { Card, CardBody, CardHeader, Button, Chip, Progress } from "@heroui/react"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts"
 import { useAuth } from "@/app/components/auth/AuthProvider"
-import { Tabs } from "@/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Tooltip } from "@/components/ui/tooltip"
 
 interface Analytics {
@@ -345,8 +345,14 @@ export default function ProfileAnalytics({ className }: ProfileAnalyticsProps) {
       )}
 
       {/* Charts */}
-      <Tabs defaultSelectedKey="timeline" className="w-full">
-        <Tab key="timeline" title="Timeline">
+      <Tabs defaultValue="timeline" className="w-full">
+        <TabsList>
+          <TabsTrigger value="timeline">Timeline</TabsTrigger>
+          <TabsTrigger value="demographics">Demografia</TabsTrigger>
+          <TabsTrigger value="conversions">Conversões</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="timeline">
           <div className="space-y-4 mt-4">
           <Card>
             <CardHeader>
@@ -369,9 +375,9 @@ export default function ProfileAnalytics({ className }: ProfileAnalyticsProps) {
             </CardBody>
           </Card>
           </div>
-        </Tab>
+        </TabsContent>
         
-        <Tab key="demographics" title="Demografia">
+        <TabsContent value="demographics">
           <div className="space-y-4 mt-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card>
@@ -429,9 +435,9 @@ export default function ProfileAnalytics({ className }: ProfileAnalyticsProps) {
             </Card>
           </div>
           </div>
-        </Tab>
+        </TabsContent>
         
-        <Tab key="conversions" title="Conversões">
+        <TabsContent value="conversions">
           <div className="space-y-4 mt-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Card>
@@ -471,7 +477,7 @@ export default function ProfileAnalytics({ className }: ProfileAnalyticsProps) {
             </Card>
           </div>
           </div>
-        </Tab>
+        </TabsContent>
       </Tabs>
     </div>
   )

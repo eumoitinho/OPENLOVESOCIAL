@@ -7,6 +7,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import PaymentProvider from "@/app/components/PaymentProvider"
 import { createClient } from "@/app/lib/supabase-browser"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface FormData {
   firstName: string
@@ -684,16 +685,18 @@ import { SelectItem, Select } from "@/components/ui/select"
                     <div>
                       <label className="text-sm font-medium text-gray-900 dark:text-white">Tipo de Perfil</label>
                       <Select
-                        selectedKeys={[formData.profileType]}
-                        onSelectionChange={(keys) => {
-                          const value = Array.from(keys)[0] as "single" | "couple"
-                          setFormData((prev) => ({ ...prev, profileType: value }))
+                        value={formData.profileType}
+                        onValueChange={(value) => {
+                          setFormData((prev) => ({ ...prev, profileType: value as "single" | "couple" }))
                         }}
-                        placeholder="Selecione o tipo de perfil"
-                        className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white"
                       >
-                        <SelectItem key="single">Solteiro(a)</SelectItem>
-                        <SelectItem key="couple">Casal</SelectItem>
+                        <SelectTrigger className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white">
+                          <SelectValue placeholder="Selecione o tipo de perfil" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="single">Solteiro(a)</SelectItem>
+                          <SelectItem value="couple">Casal</SelectItem>
+                        </SelectContent>
                       </Select>
                     </div>
 
@@ -908,21 +911,24 @@ import { SelectItem, Select } from "@/components/ui/select"
                               Cor dos Olhos
                             </label>
                             <Select
-                              selectedKeys={formData.partner.eyeColor ? [formData.partner.eyeColor] : []}
-                              onSelectionChange={(keys) => {
-                                const value = Array.from(keys)[0] as string
+                              value={formData.partner.eyeColor}
+                              onValueChange={(value) => {
                                 setFormData((prev) => ({
                                   ...prev,
-                                  partner: { ...prev.partner, eyeColor: value } }))
+                                  partner: { ...prev.partner, eyeColor: value }
+                                }))
                               }}
-                              placeholder="Selecione a cor dos olhos"
-                              className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white"
                             >
-                              {["Castanho", "Azul", "Verde", "Cinza", "Outro"].map((color) => (
-                                <SelectItem key={color}>
-                                  {color}
-                                </SelectItem>
-                              ))}
+                              <SelectTrigger className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white">
+                                <SelectValue placeholder="Selecione a cor dos olhos" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {["Castanho", "Azul", "Verde", "Cinza", "Outro"].map((color) => (
+                                  <SelectItem key={color} value={color}>
+                                    {color}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
                             </Select>
                             {errors.partnerEyeColor && (
                               <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.partnerEyeColor}</p>
@@ -936,21 +942,24 @@ import { SelectItem, Select } from "@/components/ui/select"
                               Cor do Cabelo
                             </label>
                             <Select
-                              selectedKeys={formData.partner.hairColor ? [formData.partner.hairColor] : []}
-                              onSelectionChange={(keys) => {
-                                const value = Array.from(keys)[0] as string
+                              value={formData.partner.hairColor}
+                              onValueChange={(value) => {
                                 setFormData((prev) => ({
                                   ...prev,
-                                  partner: { ...prev.partner, hairColor: value } }))
+                                  partner: { ...prev.partner, hairColor: value }
+                                }))
                               }}
-                              placeholder="Selecione a cor do cabelo"
-                              className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white"
                             >
-                              {["Preto", "Castanho", "Loiro", "Ruivo", "Outro"].map((color) => (
-                                <SelectItem key={color}>
-                                  {color}
-                                </SelectItem>
-                              ))}
+                              <SelectTrigger className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white">
+                                <SelectValue placeholder="Selecione a cor do cabelo" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {["Preto", "Castanho", "Loiro", "Ruivo", "Outro"].map((color) => (
+                                  <SelectItem key={color} value={color}>
+                                    {color}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
                             </Select>
                             {errors.partnerHairColor && (
                               <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.partnerHairColor}</p>

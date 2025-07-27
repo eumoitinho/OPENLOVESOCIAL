@@ -6,7 +6,7 @@ import { Clock, Users, Calendar, AlertTriangle, TrendingUp, Eye } from "lucide-r
 import type { User } from "@supabase/supabase-js"
 import type { Database } from "@/app/lib/database.types"
 import { Card, CardHeader, CardBody, Button, Badge, Chip, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/react"
-import { Tabs } from "@/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 type Profile = Database["public"]["Tables"]["users"]["Row"]
 
@@ -74,11 +74,18 @@ export const AdminContent: React.FC<AdminContentProps> = ({ profile, stats, rece
       </div>
 
       <Tabs 
-        selectedKey={selectedTab} 
-        onSelectionChange={(key) => setSelectedTab(key as string)}
+        defaultValue={selectedTab} 
+        onValueChange={(value) => setSelectedTab(value)}
         aria-label="Admin tabs"
       >
-        <Tab key="dashboard" title="Dashboard">
+        <TabsList>
+          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+          <TabsTrigger value="users">Usuários</TabsTrigger>
+          <TabsTrigger value="moderation">Moderação</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="dashboard">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mt-6">
             <Card>
               <CardHeader className="flex justify-between items-center pb-2">
@@ -171,9 +178,47 @@ export const AdminContent: React.FC<AdminContentProps> = ({ profile, stats, rece
               </Table>
             </CardBody>
           </Card>
-        </Tab>
+        </TabsContent>
 
-        <Tab key="reports" title="Relatórios">
+        <TabsContent value="users">
+          <Card className="mt-6">
+            <CardHeader>
+              <h3 className="text-lg font-semibold">Usuários Recentes</h3>
+              <p className="text-sm text-gray-500">Últimos usuários registrados</p>
+            </CardHeader>
+            <CardBody>
+              <Table aria-label="Recent users">
+                <TableHeader>
+                  <TableColumn>Nome de Usuário</TableColumn>
+                  <TableColumn>Nome Completo</TableColumn>
+                  <TableColumn>Data de Registro</TableColumn>
+                  <TableColumn>Ações</TableColumn>
+                </TableHeader>
+                <TableBody>
+                  {recentUsers.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell className="font-medium">@{user.username}</TableCell>
+                      <TableCell>{user.full_name}</TableCell>
+                      <TableCell>{formatDate(user.created_at)}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="bordered">
+                            Ver Perfil
+                          </Button>
+                          <Button size="sm" color="danger">
+                            Suspender
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardBody>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="moderation">
           <Card className="mt-6">
             <CardHeader>
               <h3 className="text-lg font-semibold">Todos os Relatórios</h3>
@@ -228,45 +273,19 @@ export const AdminContent: React.FC<AdminContentProps> = ({ profile, stats, rece
               </Table>
             </CardBody>
           </Card>
-        </Tab>
+        </TabsContent>
 
-        <Tab key="users" title="Usuários">
+        <TabsContent value="analytics">
           <Card className="mt-6">
             <CardHeader>
-              <h3 className="text-lg font-semibold">Usuários Recentes</h3>
-              <p className="text-sm text-gray-500">Últimos usuários registrados</p>
+              <h3 className="text-lg font-semibold">Analytics</h3>
+              <p className="text-sm text-gray-500">Visualize métricas e tendências</p>
             </CardHeader>
             <CardBody>
-              <Table aria-label="Recent users">
-                <TableHeader>
-                  <TableColumn>Nome de Usuário</TableColumn>
-                  <TableColumn>Nome Completo</TableColumn>
-                  <TableColumn>Data de Registro</TableColumn>
-                  <TableColumn>Ações</TableColumn>
-                </TableHeader>
-                <TableBody>
-                  {recentUsers.map((user) => (
-                    <TableRow key={user.id}>
-                      <TableCell className="font-medium">@{user.username}</TableCell>
-                      <TableCell>{user.full_name}</TableCell>
-                      <TableCell>{formatDate(user.created_at)}</TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="bordered">
-                            Ver Perfil
-                          </Button>
-                          <Button size="sm" color="danger">
-                            Suspender
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <p>Conteúdo de analytics aqui.</p>
             </CardBody>
           </Card>
-        </Tab>
+        </TabsContent>
       </Tabs>
     </div>
   )
