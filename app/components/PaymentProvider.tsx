@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from "react"
-import { Card, CardBody } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import CheckoutFormStripe from './CheckoutFormStripe'
 import CheckoutFormAbacatePay from './CheckoutFormAbacatePay'
@@ -34,7 +34,7 @@ export default function PaymentProvider({
     <div className="max-w-md mx-auto space-y-6">
       {/* Seleção do Provedor */}
       <Card>
-        <CardBody className="p-4">
+        <CardContent className="p-4">
           <h3 className="text-lg font-semibold mb-4">Escolha a forma de pagamento</h3>
           
           <div className="space-y-3">
@@ -109,7 +109,7 @@ export default function PaymentProvider({
               </div>
             )}
           </div>
-        </CardBody>
+        </CardContent>
       </Card>
 
       {/* Formulário de Pagamento */}
