@@ -9,7 +9,7 @@ import { useConversations } from "@/app/hooks/useConversations"
 import { useAuth } from "@/app/components/auth/AuthProvider"
 import { ConversationList } from "./ConversationList"
 import { FileUpload } from "./FileUpload"
-import { Avatar } from "@/components/ui/avatar"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
 interface ChatInterfaceProps {
   className?: string
@@ -187,17 +187,15 @@ export function ChatInterface({ className, isOpen = false, onClose }: ChatInterf
             {/* Informações da conversa */}
             {activeConversationData ? (
               <div className="flex items-center gap-3">
-                <Avatar 
-                  src={activeConversationData.participants[0]?.avatar_url}
-                  className="h-10 w-10"
-                  showFallback
-                  name={activeConversationData.participants[0]?.name}
-                  fallback={
-                    <div className="w-full h-full bg-gradient-to-br from-pink-500 to-purple-500 text-white flex items-center justify-center">
-                      {activeConversationData.participants[0]?.name?.charAt(0).toUpperCase()}
-                    </div>
-                  }
-                />
+                <Avatar className="h-10 w-10">
+                  <AvatarImage 
+                    src={activeConversationData.participants[0]?.avatar_url}
+                    alt={activeConversationData.participants[0]?.name}
+                  />
+                  <AvatarFallback className="bg-gradient-to-br from-pink-500 to-purple-500 text-white">
+                    {activeConversationData.participants[0]?.name?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
                 <div>
                   <h3 className="font-semibold text-gray-900 dark:text-gray-100">
                     {activeConversationData.name || activeConversationData.participants[0]?.name}
@@ -270,17 +268,15 @@ export function ChatInterface({ className, isOpen = false, onClose }: ChatInterf
                         >
                           <div className={`flex items-end gap-2 max-w-xs lg:max-w-md ${isOwnMessage ? 'flex-row-reverse' : ''}`}>
                             {!isOwnMessage && (
-                              <Avatar 
-                                src={msg.sender?.avatar_url}
-                                className="h-6 w-6"
-                                showFallback
-                                name={msg.sender?.name}
-                                fallback={
-                                  <div className="w-full h-full bg-gradient-to-br from-pink-500 to-purple-500 text-white flex items-center justify-center text-xs">
-                                    {msg.sender?.name?.charAt(0).toUpperCase()}
-                                  </div>
-                                }
-                              />
+                              <Avatar className="h-6 w-6">
+                                <AvatarImage 
+                                  src={msg.sender?.avatar_url}
+                                  alt={msg.sender?.name}
+                                />
+                                <AvatarFallback className="bg-gradient-to-br from-pink-500 to-purple-500 text-white text-xs">
+                                  {msg.sender?.name?.charAt(0).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
                             )}
                             
                             <div className={`rounded-lg px-3 py-2 ${
