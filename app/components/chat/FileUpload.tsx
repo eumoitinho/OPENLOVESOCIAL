@@ -207,9 +207,6 @@ export function FileUpload({
     return (
       <PremiumLockBadge
         feature={currentFeature as any}
-        size="md"
-        disabled
-        onUpgradeClick={() => window.location.href = '/pricing'}
       >
         {uploadComponent}
       </PremiumLockBadge>

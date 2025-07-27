@@ -33,9 +33,7 @@ export default function EventPremiumButtons({
       {/* Botão de Criar Evento */}
       {onCreateEvent && (
         <PremiumLockBadge 
-          feature="canCreateEvents"
-          size="sm"
-          disabled={!canCreateEvent}
+          feature="create_event"
         >
           <Button
             color="primary"
@@ -53,9 +51,7 @@ export default function EventPremiumButtons({
       {/* Botão de Analytics de Eventos */}
       {onViewAnalytics && (
         <PremiumLockBadge 
-          feature="hasAdvancedAnalytics"
-          size="sm"
-          disabled={!features.hasAdvancedAnalytics}
+          feature="analytics"
         >
           <Button
             variant="light"
@@ -73,9 +69,7 @@ export default function EventPremiumButtons({
       {/* Botão de Gerenciar Evento */}
       {onManageEvent && (
         <PremiumLockBadge 
-          feature="hasAdvancedModeration"
-          size="sm"
-          disabled={!features.hasAdvancedModeration}
+          feature="moderation"
         >
           <Button
             variant="light"

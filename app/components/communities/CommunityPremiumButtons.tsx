@@ -29,9 +29,7 @@ export default function CommunityPremiumButtons({
       {/* Botão de Criar Comunidade */}
       {onCreateCommunity && (
         <PremiumLockBadge 
-          feature="canCreateCommunities"
-          size="sm"
-          disabled={!features.canCreateCommunities}
+          feature="create_community"
         >
           <Button
             color="primary"
@@ -49,9 +47,7 @@ export default function CommunityPremiumButtons({
       {/* Botão de Analytics Avançados */}
       {onViewAnalytics && (
         <PremiumLockBadge 
-          feature="hasAdvancedAnalytics"
-          size="sm"
-          disabled={!features.hasAdvancedAnalytics}
+          feature="analytics"
         >
           <Button
             variant="light"
@@ -69,9 +65,7 @@ export default function CommunityPremiumButtons({
       {/* Botão de Moderação Avançada */}
       {onManageCommunity && (
         <PremiumLockBadge 
-          feature="hasAdvancedModeration"
-          size="sm"
-          disabled={!features.hasAdvancedModeration}
+          feature="moderation"
         >
           <Button
             variant="light"
