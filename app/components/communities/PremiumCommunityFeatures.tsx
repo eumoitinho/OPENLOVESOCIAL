@@ -68,22 +68,22 @@ export default function PremiumCommunityFeatures({
       title: 'Funções Personalizadas',
       description: 'Crie funções customizadas para membros',
       icon: Crown,
-      requiredPlan: 'diamante' as const,
-      available: canAccess.currentPlan === 'diamante'
+      requiredPlan: 'diamond' as const,
+      available: canAccess.currentPlan === 'diamond'
     },
     {
       title: 'Eventos Exclusivos',
       description: 'Organize eventos apenas para membros',
       icon: Calendar,
-      requiredPlan: 'diamante' as const,
-      available: canAccess.currentPlan === 'diamante'
+      requiredPlan: 'diamond' as const,
+      available: canAccess.currentPlan === 'diamond'
     },
     {
       title: 'Analytics Avançados',
       description: 'Estatísticas detalhadas da comunidade',
       icon: Zap,
-      requiredPlan: 'diamante' as const,
-      available: canAccess.currentPlan === 'diamante'
+      requiredPlan: 'diamond' as const,
+      available: canAccess.currentPlan === 'diamond'
     }
   ]
 
