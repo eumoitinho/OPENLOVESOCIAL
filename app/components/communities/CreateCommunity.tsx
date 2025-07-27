@@ -459,7 +459,7 @@ export default function CreateCommunity({ onClose, onCommunityCreated }: CreateC
                     <span className="font-medium text-sm">{label}</span>
                   </div>
                   <p className="text-xs text-gray-600">{desc}</p>
-                  {type === 'premium' && canAccess.plan !== 'diamond' && (
+                  {type === 'premium' && canAccess.currentPlan !== 'diamond' && (
                     <p className="text-xs text-red-500 mt-1">Requer Diamante</p>
                   )}
                 </div>
@@ -500,13 +500,13 @@ export default function CreateCommunity({ onClose, onCommunityCreated }: CreateC
             {formData.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-2">
                 {formData.tags.map(tag => (
-                  <Badge key={tag} variant="secondary" className="flex items-center gap-1">
+                  <Chip 
+                    key={tag} 
+                    variant="flat" 
+                    onClose={() => removeTag(tag)}
+                  >
                     {tag}
-                    <X 
-                      className="w-3 h-3 cursor-pointer hover:text-red-500" 
-                      onClick={() => removeTag(tag)}
-                    />
-                  </Badge>
+                  </Chip>
                 ))}
               </div>
             )}
@@ -514,7 +514,7 @@ export default function CreateCommunity({ onClose, onCommunityCreated }: CreateC
 
           {/* Regras */}
           <div>
-            <Label htmlFor="rules">Regras da Comunidade (Opcional)</Label>
+            <label htmlFor="rules">Regras da Comunidade (Opcional)</label>
             <Textarea
               id="rules"
               value={formData.rules}
@@ -526,7 +526,7 @@ export default function CreateCommunity({ onClose, onCommunityCreated }: CreateC
 
           {/* Actions */}
           <div className="flex gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+            <Button type="button" variant="bordered" onClick={onClose} className="flex-1">
               Cancelar
             </Button>
             <Button type="submit" disabled={isLoading} className="flex-1">
