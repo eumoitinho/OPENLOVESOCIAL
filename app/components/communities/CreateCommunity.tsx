@@ -92,7 +92,7 @@ export default function CreateCommunity({ onClose, onCommunityCreated }: CreateC
     if (!formData.category) newErrors.category = 'Categoria é obrigatória'
 
     // Validar tipo premium
-    if (formData.type === 'premium' && canAccess.plan !== 'diamond') {
+    if (formData.type === 'premium' && canAccess.currentPlan !== 'diamond') {
       newErrors.type = 'Comunidades premium requerem plano Diamante'
     }
 
