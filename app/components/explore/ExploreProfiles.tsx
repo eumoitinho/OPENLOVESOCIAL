@@ -365,5 +365,7 @@ export function ExploreProfiles({
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
+
+export default ExploreProfiles;
