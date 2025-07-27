@@ -27,9 +27,12 @@ import {
   Settings,
   Trash2,
   Archive,
-  X,
-} from "lucide-react"
+  X } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { CardContent } from "@/components/ui/card"
 
 interface Message {
   id: string
@@ -439,6 +442,3 @@ export const MessagesDialog = function MessagesDialog({ open, onOpenChange }: Me
     </Dialog>
   )
 }
-import { AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { CardContent } from "@/components/ui/card"
-import { DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"

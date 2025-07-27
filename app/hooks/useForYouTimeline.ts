@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from "react"
 
 interface ForYouTimelineResponse {
   data: any[]
@@ -47,9 +47,7 @@ export function useForYouTimeline(options: UseForYouTimelineOptions = {}) {
         {
           method: 'GET',
           headers: {
-            'Content-Type': 'application/json',
-          },
-        }
+            'Content-Type': 'application/json' } }
       )
 
       if (!response.ok) {

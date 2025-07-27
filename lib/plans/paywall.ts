@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useCallback } from 'react'
-import { usePlanLimits, useCanAccess } from './hooks'
-import { PlanType } from './config'
+import { useState, useCallback } from "react"
+import { usePlanLimits, useCanAccess } from "./hooks"
+import { PlanType } from "./config"
 
 export interface PaywallConfig {
   feature: string

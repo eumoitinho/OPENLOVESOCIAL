@@ -76,8 +76,7 @@ export async function GET(
         username: comment.users?.[0]?.username || '',
         avatar: comment.users?.[0]?.avatar_url || '',
         verified: comment.users?.[0]?.is_verified || false,
-        premium: comment.users?.[0]?.is_premium || false,
-      }
+        premium: comment.users?.[0]?.is_premium || false }
     })) || []
 
     return NextResponse.json({ data: formattedComments })
@@ -167,8 +166,7 @@ export async function POST(
         username: comment.users?.[0]?.username || '',
         avatar: comment.users?.[0]?.avatar_url || '',
         verified: comment.users?.[0]?.is_verified || false,
-        premium: comment.users?.[0]?.is_premium || false,
-      }
+        premium: comment.users?.[0]?.is_premium || false }
     }
 
     return NextResponse.json({ data: formattedComment }, { status: 201 })
@@ -263,8 +261,7 @@ export async function PUT(
         username: updatedComment.users?.[0]?.username || '',
         avatar: updatedComment.users?.[0]?.avatar_url || '',
         verified: updatedComment.users?.[0]?.is_verified || false,
-        premium: updatedComment.users?.[0]?.is_premium || false,
-      }
+        premium: updatedComment.users?.[0]?.is_premium || false }
     }
 
     return NextResponse.json({ data: formattedComment })

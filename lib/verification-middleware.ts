@@ -1,5 +1,5 @@
-import { createRouteHandlerClient, createSupabaseAdmin } from '@/app/lib/supabase-server'
-import { NextRequest, NextResponse } from 'next/server'
+import { createRouteHandlerClient, createSupabaseAdmin } from "@/app/lib/supabase-server"
+import { NextRequest, NextResponse } from "next/server"
 
 export interface VerificationContext {
   user: {

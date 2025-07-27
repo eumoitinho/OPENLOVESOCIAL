@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Bookmark, BookmarkCheck } from 'lucide-react'
+import { useState, useEffect } from "react"
+import { Bookmark, BookmarkCheck } from "lucide-react"
 import { Button } from "@heroui/react"
-import { cn } from '@/lib/utils'
+import { cn } from "@/lib/utils"
+import { Tooltip } from "@/components/ui/tooltip"
 
 interface SaveButtonProps {
   postId: string
@@ -57,8 +58,7 @@ export default function SaveButton({
       const response = await fetch('/api/posts/save', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           postId,
           folder_name: folder 

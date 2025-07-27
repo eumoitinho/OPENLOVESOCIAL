@@ -19,8 +19,7 @@ export function PlaceholderView({ viewName, icon }: PlaceholderViewProps) {
       <div className="p-8 text-center text-openlove-600">
         <div className="w-16 h-16 mx-auto mb-4 bg-openlove-100 rounded-full flex items-center justify-center">
           {React.createElement(icon || Home, {
-            className: "w-8 h-8 text-openlove-600",
-          })}
+            className: "w-8 h-8 text-openlove-600" })}
         </div>
         <p>Esta seção está em desenvolvimento.</p>
         <p className="text-sm mt-2">

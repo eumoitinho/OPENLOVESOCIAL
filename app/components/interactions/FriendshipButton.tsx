@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { UserPlus, UserCheck, UserX, Users, Clock } from 'lucide-react'
-import { Button, Dropdown, DropdownTrigger, DropdownItem } from "@heroui/react"
-import { cn } from '@/lib/utils'
+import { useState, useEffect } from "react"
+import { UserPlus, UserCheck, UserX, Users, Clock } from "lucide-react"
+import { Button } from "@heroui/react"
+import { cn } from "@/lib/utils"
 import FollowButton from './FollowButton'
+import { DropdownMenu } from "@/components/ui/dropdown-menu"
 
 interface FriendshipStatus {
   isFriend: boolean
@@ -84,8 +85,7 @@ export default function FriendshipButton({
       const response = await fetch('/api/friends/request', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: userId })
       })
 
@@ -115,8 +115,7 @@ export default function FriendshipButton({
       const response = await fetch('/api/friends/respond', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           request_id: userId, // Em uma implementação real, seria o ID da solicitação
           accept 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react"
 import { Card, CardBody, CardHeader, Chip, Progress } from "@heroui/react"
 import { 
   Eye, 
@@ -14,8 +14,8 @@ import {
   Lock,
   BarChart3
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { useCanAccess } from '@/lib/plans/hooks'
+import { cn } from "@/lib/utils"
+import { useCanAccess } from "@/lib/plans/hooks"
 import PremiumFeature from '@/app/components/premium/PremiumFeature'
 
 interface PlanStatsProps {

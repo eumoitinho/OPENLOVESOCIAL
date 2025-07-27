@@ -1,4 +1,4 @@
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 
 export type NotificationType = 
   | 'follow' | 'unfollow' | 'friend_request' | 'friend_accept'
@@ -24,8 +24,7 @@ export async function createNotification(params: CreateNotificationParams) {
     const response = await fetch('/api/notifications', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-      },
+        'Content-Type': 'application/json' },
       body: JSON.stringify({
         action: 'create',
         targetUserId: params.recipientId,

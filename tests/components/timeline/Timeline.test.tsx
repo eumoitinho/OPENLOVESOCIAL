@@ -8,16 +8,13 @@ global.fetch = jest.fn()
 
 // Mock date-fns
 jest.mock("date-fns", () => ({
-  formatDistanceToNow: () => "há 2 horas",
-}))
+  formatDistanceToNow: () => "há 2 horas" }))
 
 // Mock sonner
 jest.mock("sonner", () => ({
   toast: {
     error: jest.fn(),
-    success: jest.fn(),
-  },
-}))
+    success: jest.fn() } }))
 
 const mockPosts = [
   {
@@ -30,12 +27,10 @@ const mockPosts = [
       name: "John Doe",
       username: "johndoe",
       profile_type: "single",
-      avatar_url: null,
-    },
+      avatar_url: null },
     comments: [],
     isLiked: false,
-    likesCount: 0,
-  },
+    likesCount: 0 },
 ]
 
 describe("Timeline Component", () => {
@@ -54,8 +49,7 @@ describe("Timeline Component", () => {
   it("renders posts after loading", async () => {
     ;(fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve(mockPosts),
-    })
+      json: () => Promise.resolve(mockPosts) })
 
     render(<Timeline />)
 
@@ -70,12 +64,10 @@ describe("Timeline Component", () => {
     ;(fetch as jest.Mock)
       .mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockPosts),
-      })
+        json: () => Promise.resolve(mockPosts) })
       .mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ action: "liked" }),
-      })
+        json: () => Promise.resolve({ action: "liked" }) })
 
     const user = userEvent.setup()
     render(<Timeline />)
@@ -90,16 +82,14 @@ describe("Timeline Component", () => {
     expect(fetch).toHaveBeenCalledWith("/api/interactions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ postId: "1", action: "like" }),
-    })
+      body: JSON.stringify({ postId: "1", action: "like" }) })
   })
 
   it("handles comment submission", async () => {
     ;(fetch as jest.Mock)
       .mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve(mockPosts),
-      })
+        json: () => Promise.resolve(mockPosts) })
       .mockResolvedValueOnce({
         ok: true,
         json: () =>
@@ -107,9 +97,7 @@ describe("Timeline Component", () => {
             id: "comment1",
             content: "Test comment",
             created_at: "2024-01-01T00:00:00Z",
-            users: { name: "Jane Doe", username: "janedoe" },
-          }),
-      })
+            users: { name: "Jane Doe", username: "janedoe" } }) })
 
     const user = userEvent.setup()
     render(<Timeline />)
@@ -127,7 +115,6 @@ describe("Timeline Component", () => {
     expect(fetch).toHaveBeenCalledWith("/api/interactions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ postId: "1", action: "comment", content: "Test comment" }),
-    })
+      body: JSON.stringify({ postId: "1", action: "comment", content: "Test comment" }) })
   })
 })

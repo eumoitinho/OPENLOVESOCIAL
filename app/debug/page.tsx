@@ -117,8 +117,7 @@ export default function DebugPage() {
                       email: user.email,
                       email_confirmed: user.email_confirmed_at,
                       created_at: user.created_at,
-                      last_sign_in: user.last_sign_in_at,
-                    }, null, 2)}
+                      last_sign_in: user.last_sign_in_at }, null, 2)}
                   </pre>
                 </div>
               )}
@@ -132,8 +131,7 @@ export default function DebugPage() {
                       expires_in: session.expires_in,
                       token_type: session.token_type,
                       access_token_length: session.access_token?.length || 0,
-                      refresh_token_length: session.refresh_token?.length || 0,
-                    }, null, 2)}
+                      refresh_token_length: session.refresh_token?.length || 0 }, null, 2)}
                   </pre>
                 </div>
               )}

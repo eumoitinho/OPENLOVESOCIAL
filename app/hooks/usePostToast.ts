@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback } from "react"
 
 interface PostToast {
   id: string;
@@ -16,8 +16,7 @@ export const usePostToast = () => {
     const newToast: PostToast = {
       ...toast,
       id: Math.random().toString(36).substr(2, 9),
-      timestamp: new Date(),
-    };
+      timestamp: new Date() };
     
     setToasts(prev => [...prev, newToast]);
     
@@ -39,6 +38,5 @@ export const usePostToast = () => {
     toasts,
     showToast,
     hideToast,
-    hideAllToasts,
-  };
+    hideAllToasts };
 }; 

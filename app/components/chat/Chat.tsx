@@ -63,8 +63,7 @@ const Chat: React.FC<ChatProps> = ({
   currentUserId,
   onSendMessage,
   onLoadMoreMessages,
-  isLoading = false,
-}) => {
+  isLoading = false }) => {
   const [newMessage, setNewMessage] = useState("")
   const [isTyping, setIsTyping] = useState(false)
   const [showReactions, setShowReactions] = useState<string | null>(null)
@@ -100,8 +99,7 @@ const Chat: React.FC<ChatProps> = ({
     const date = new Date(timestamp)
     return date.toLocaleTimeString("pt-BR", {
       hour: "2-digit",
-      minute: "2-digit",
-    })
+      minute: "2-digit" })
   }
 
   const formatDateSeparator = (timestamp: string) => {
@@ -119,8 +117,7 @@ const Chat: React.FC<ChatProps> = ({
         weekday: "long",
         day: "2-digit",
         month: "2-digit",
-        year: "numeric",
-      })
+        year: "numeric" })
     }
   }
 
@@ -157,8 +154,7 @@ const Chat: React.FC<ChatProps> = ({
       const response = await fetch('/api/chat/reactions', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json' },
         body: JSON.stringify({
           messageId,
           reaction

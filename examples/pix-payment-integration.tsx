@@ -1,13 +1,13 @@
 // Exemplo de integração do AbacatePay com PIX
 // Este arquivo demonstra como usar os componentes criados
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import PaymentMethodSelector from '@/components/payments/PaymentMethodSelector'
 import PixPayment from '@/components/payments/PixPayment'
-import { toast } from '@/components/ui/use-toast'
+import { toast } from "@/components/ui/use-toast"
 
 // Exemplo 1: Página de assinatura completa
 export function SubscriptionPage() {

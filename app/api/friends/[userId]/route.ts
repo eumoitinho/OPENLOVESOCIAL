@@ -11,8 +11,7 @@ export async function GET(
 
     const {
       data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
+      error: authError } = await supabase.auth.getUser()
     
     if (authError || !user) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
@@ -61,8 +60,7 @@ export async function DELETE(
 
     const {
       data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
+      error: authError } = await supabase.auth.getUser()
     
     if (authError || !user) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })

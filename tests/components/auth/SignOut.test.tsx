@@ -6,13 +6,11 @@ import jest from "jest" // Import jest to fix the undeclared variable error
 
 // Mock do Next.js router
 jest.mock("next/navigation", () => ({
-  useRouter: jest.fn(),
-}))
+  useRouter: jest.fn() }))
 
 // Mock do Supabase client
 jest.mock("@/lib/auth-client", () => ({
-  createClientSupabaseClient: jest.fn(),
-}))
+  createClientSupabaseClient: jest.fn() }))
 
 const mockPush = jest.fn()
 const mockRefresh = jest.fn()
@@ -21,13 +19,10 @@ const mockSignOut = jest.fn()
 beforeEach(() => {
   ;(useRouter as jest.Mock).mockReturnValue({
     push: mockPush,
-    refresh: mockRefresh,
-  })
+    refresh: mockRefresh })
   ;(createClientSupabaseClient as jest.Mock).mockReturnValue({
     auth: {
-      signOut: mockSignOut,
-    },
-  })
+      signOut: mockSignOut } })
 
   // Reset mocks
   jest.clearAllMocks()

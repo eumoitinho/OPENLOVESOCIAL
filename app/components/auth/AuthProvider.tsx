@@ -174,8 +174,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Escutar mudanças de autenticação
     const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("[AuthProvider] Auth state changed:", event, session?.user?.email)
       
       if (event === 'SIGNED_OUT') {
@@ -212,8 +211,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     session,
     loading,
     signOut,
-    refreshProfile,
-  }
+    refreshProfile }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

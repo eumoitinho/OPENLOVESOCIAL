@@ -16,8 +16,7 @@ export async function POST(request: NextRequest) {
     // Verificar usuário autenticado
     const {
       data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
+      error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
       return NextResponse.json({ error: "Usuário não autenticado" }, { status: 401 })
     }
@@ -58,8 +57,7 @@ export async function POST(request: NextRequest) {
         content_id: contentId,
         user_id: user.id,
         price: price,
-        purchased_at: new Date().toISOString(),
-      },
+        purchased_at: new Date().toISOString() },
     ])
 
     if (purchaseError) {
@@ -70,29 +68,25 @@ export async function POST(request: NextRequest) {
     await supabase
       .from("users")
       .update({
-        wallet_balance: (profile.wallet_balance || 0) - price,
-      })
+        wallet_balance: (profile.wallet_balance || 0) - price })
       .eq("id", user.id)
 
     // Atualizar ganhos do criador (80% para o criador)
     const creatorEarnings = price * 0.8
     await supabase.rpc("update_creator_earnings", {
       creator_id: content.user_id,
-      amount: creatorEarnings,
-    })
+      amount: creatorEarnings })
 
     // Atualizar contador de compras
     await supabase
       .from("paid_content")
       .update({
-        purchase_count: (content.purchase_count || 0) + 1,
-      })
+        purchase_count: (content.purchase_count || 0) + 1 })
       .eq("id", contentId)
 
     return NextResponse.json({
       success: true,
-      message: "Conteúdo comprado com sucesso!",
-    })
+      message: "Conteúdo comprado com sucesso!" })
   } catch (error) {
     console.error("Erro na compra de conteúdo:", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })

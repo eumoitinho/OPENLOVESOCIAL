@@ -171,8 +171,7 @@ export function MessagesContent() {
       const response = await fetch('/api/chat/messages', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json' },
         body: JSON.stringify({
           conversationId: selectedConversationId,
           content,

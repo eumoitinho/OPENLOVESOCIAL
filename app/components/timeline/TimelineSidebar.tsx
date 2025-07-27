@@ -23,12 +23,11 @@ import {
   MessageCircle,
   BarChart3,
   Shield,
-  FileText,
-} from "lucide-react"
+  FileText } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Logo from "../Logo"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,  } from "@/components/ui/tooltip"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,  } from "@/components/ui/dropdown-menu"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useAuth } from "@/app/components/auth/AuthProvider"
 import { useNotifications } from "@/app/hooks/useNotifications"
 import { useMessageStats } from "@/app/hooks/useMessageStats"
@@ -404,7 +403,6 @@ export function TimelineSidebar({
             <Settings className="w-5 h-5 xs:w-6 xs:h-6 text-gray-600 dark:text-gray-400" /> 
             <span className="text-base xs:text-lg font-normal text-gray-600 dark:text-gray-400 hidden lg:inline">Configurações</span> 
           </Button>
-
 
           {/* Botão Postar */}
           <div className="inline-flex w-full justify-center items-center gap-2 bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 dark:from-pink-500 dark:via-rose-500 dark:to-purple-500 p-[1px] rounded-full group hover:scale-105 transition-all duration-300 hover:shadow-xl">

@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Card, CardBody, Button, Badge, Skeleton, Divider, Dropdown, DropdownTrigger, DropdownItem } from "@heroui/react"
+import { useState, useEffect } from "react"
+import { Card, CardBody, Button, Badge, Skeleton, Divider } from "@heroui/react"
 import { 
   Bell, 
   Heart, 
@@ -13,9 +13,11 @@ import {
   Check,
   X
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { formatDistanceToNow } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
+import { cn } from "@/lib/utils"
+import { formatDistanceToNow } from "date-fns"
+import { ptBR } from "date-fns/locale"
+import { Avatar } from "@/components/ui/avatar"
+import { DropdownMenu } from "@/components/ui/dropdown-menu"
 
 interface Notification {
   id: string
@@ -101,8 +103,7 @@ export default function NotificationsList({
       const response = await fetch('/api/notifications', {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json' },
         body: JSON.stringify({
           notification_ids: notificationIds,
           action: 'mark_read'
@@ -128,8 +129,7 @@ export default function NotificationsList({
       const response = await fetch('/api/notifications', {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json' },
         body: JSON.stringify({
           notification_ids: notificationIds,
           action: 'delete'
@@ -323,4 +323,3 @@ export default function NotificationsList({
     </div>
   )
 }
-import { DropdownMenu } from "@/components/ui/dropdown-menu"

@@ -3,6 +3,7 @@
 import { Button } from "../../../components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "../../../components/ui/motion-tabs"
 import { Sun, Moon } from "lucide-react"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface TimelineHeaderProps {
   isDarkMode: boolean

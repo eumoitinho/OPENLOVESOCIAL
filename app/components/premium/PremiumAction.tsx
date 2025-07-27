@@ -1,12 +1,12 @@
 "use client"
 
-import { ReactNode, useState } from 'react'
+import { ReactNode, useState } from "react"
 import { Button } from "@heroui/react"
-import { useCanAccess } from '@/lib/plans/hooks'
-import { usePaywall } from '@/lib/plans/paywall'
+import { useCanAccess } from "@/lib/plans/hooks"
+import { usePaywall } from "@/lib/plans/paywall"
 import PaywallModal from '@/components/plan-limits/PaywallModal'
-import { Crown, Star, Zap } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { Crown, Star, Zap } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface PremiumActionProps {
   children: ReactNode

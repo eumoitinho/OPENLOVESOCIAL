@@ -8,8 +8,7 @@ export async function POST(request: NextRequest) {
 
     const {
       data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
+      error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -36,8 +35,7 @@ export async function POST(request: NextRequest) {
         await supabase.from("friendships").insert({
           user_id: request_data.friend_id,
           friend_id: request_data.user_id,
-          status: "accepted",
-        })
+          status: "accepted" })
       }
     } else {
       // Reject the request

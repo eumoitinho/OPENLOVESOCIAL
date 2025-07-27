@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
 import { 
   Calendar, 
   MapPin, 
@@ -16,12 +16,12 @@ import {
   Heart,
   Share2
 } from 'lucide-react'
-import { useAuth } from '@/app/components/auth/AuthProvider'
-import { useCanAccess } from '@/lib/plans/hooks'
+import { useAuth } from "@/app/components/auth/AuthProvider"
+import { useCanAccess } from "@/lib/plans/hooks"
 import EventCard from './EventCard'
 import CreateEvent from './CreateEvent'
 import EventFilters from './EventFilters'
-import { cn } from '@/lib/utils'
+import { cn } from "@/lib/utils"
 
 interface Event {
   id: string

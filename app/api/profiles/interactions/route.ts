@@ -38,8 +38,7 @@ export async function POST(request: NextRequest) {
     // Buscar usuário autenticado
     const {
       data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
+      error: userError } = await supabase.auth.getUser()
 
     if (userError || !user) {
       return NextResponse.json({ 
@@ -155,8 +154,7 @@ export async function GET(request: NextRequest) {
     // Buscar usuário autenticado
     const {
       data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
+      error: userError } = await supabase.auth.getUser()
 
     if (userError || !user) {
       return NextResponse.json({ 

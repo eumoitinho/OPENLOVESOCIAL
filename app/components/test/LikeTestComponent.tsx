@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import { Heart, MessageCircle, Share2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { useState } from "react"
+import { Heart, MessageCircle, Share2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { toast } from 'sonner'
+import { toast } from "sonner"
 
 interface Post {
   id: string

@@ -26,8 +26,7 @@ export class WebRTCSignalingClient {
     userId,
     onSignal,
     onOpen,
-    onError,
-  }: {
+    onError }: {
     userId: string;
     onSignal: OnSignalCallback;
     onOpen?: OnOpenCallback;
@@ -65,8 +64,7 @@ export class WebRTCSignalingClient {
       JSON.stringify({
         type: 'signal',
         to,
-        signal,
-      })
+        signal })
     );
   }
 

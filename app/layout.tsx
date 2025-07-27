@@ -14,21 +14,17 @@ export const metadata: Metadata = {
   icons: {
     icon: "/logo.svg",
     shortcut: "/logo.svg",
-    apple: "/logo.svg",
-  },
-  manifest: "/manifest.json",
-}
+    apple: "/logo.svg" },
+  manifest: "/manifest.json" }
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  userScalable: false,
-}
+  userScalable: false }
 
 export default function RootLayout({
-  children,
-}: {
+  children }: {
   children: React.ReactNode
 }) {
   return (

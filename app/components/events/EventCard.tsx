@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from 'react'
+import { useState } from "react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { 
   Calendar, 
@@ -18,8 +18,8 @@ import {
   Star,
   Navigation
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { useAuth } from '@/app/components/auth/AuthProvider'
+import { cn } from "@/lib/utils"
+import { useAuth } from "@/app/components/auth/AuthProvider"
 
 interface Event {
   id: string

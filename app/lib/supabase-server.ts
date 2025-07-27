@@ -1,6 +1,6 @@
-import { createServerClient } from '@supabase/ssr'
-import { createClient as createSupabaseClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
+import { createServerClient } from "@supabase/ssr"
+import { createClient as createSupabaseClient } from "@supabase/supabase-js"
+import { cookies } from "next/headers"
 import type { Database } from './database.types'
 
 export async function createServerComponentClient() {
@@ -21,9 +21,7 @@ export async function createServerComponentClient() {
           } catch {
             // Ignorar erros em Server Components
           }
-        },
-      },
-    }
+        } } }
   )
 }
 
@@ -41,9 +39,7 @@ export async function createRouteHandlerClient() {
           cookiesToSet.forEach(({ name, value, options }) => {
             cookieStore.set(name, value, options)
           })
-        },
-      },
-    }
+        } } }
   )
 }
 

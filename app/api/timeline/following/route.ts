@@ -15,8 +15,7 @@ export async function GET(request: NextRequest) {
     // Buscar usuário autenticado
     const {
       data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
+      error: userError } = await supabase.auth.getUser()
 
     if (userError || !user) {
       console.log("❌ [Following] Usuário não autenticado")
@@ -129,8 +128,7 @@ export async function GET(request: NextRequest) {
         premium: author.is_premium || false,
         bio: author.bio || "",
         relationshipType: "single",
-        isPrivate: false,
-      })
+        isPrivate: false })
     })
 
     // Step 4: Buscar interações (likes e comentários)
@@ -200,10 +198,8 @@ export async function GET(request: NextRequest) {
           name: comment.users.name || "Usuário",
           username: comment.users.username || "unknown",
           avatar: comment.users.avatar_url,
-          verified: comment.users.is_verified || false,
-        },
-        likes: comment.stats?.likes || 0,
-      })
+          verified: comment.users.is_verified || false },
+        likes: comment.stats?.likes || 0 })
     })
 
     // Step 5: Processar posts finais
@@ -231,8 +227,7 @@ export async function GET(request: NextRequest) {
           premium: false,
           bio: "",
           relationshipType: "single",
-          isPrivate: false,
-        },
+          isPrivate: false },
         likes: postLikes.length,
         likesCount: postLikes.length,
         liked: postLikes.includes(user.id),
@@ -263,8 +258,7 @@ export async function GET(request: NextRequest) {
         mentions: post.mentions || [],
         location: post.location,
         isPremium: post.is_premium_content || false,
-        price: post.price || null,
-      }
+        price: post.price || null }
     })
 
     const result = {
@@ -278,8 +272,7 @@ export async function GET(request: NextRequest) {
         postsFound: posts.length,
         authorsFound: (authors || []).length,
         likesFound: (likes || []).length,
-        commentsFound: (comments || []).length,
-      }
+        commentsFound: (comments || []).length }
     }
 
     console.log("✅ [Following] Retornando", timelinePosts.length, "posts de seguidos")

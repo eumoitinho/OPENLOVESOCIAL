@@ -8,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../components/ui
 import { Bell, Check, Settings, Clock, Trash2, Heart, MessageCircle, UserPlus, Calendar, AtSign, Star } from "lucide-react"
 import { cn } from "../../../lib/utils"
 import { useAuth } from "../../components/auth/AuthProvider"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { CardContent } from "@/components/ui/card"
 
 interface Notification {
   id: string
@@ -490,4 +492,3 @@ export function NotificationsContent() {
     </div>
   )
 }
-import { CardContent } from "@/components/ui/card"

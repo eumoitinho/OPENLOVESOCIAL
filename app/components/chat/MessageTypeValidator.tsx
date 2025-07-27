@@ -1,7 +1,7 @@
 "use client"
 
-import { useAuth } from '@/app/components/auth/AuthProvider'
-import { useCanAccess } from '@/lib/plans/hooks'
+import { useAuth } from "@/app/components/auth/AuthProvider"
+import { useCanAccess } from "@/lib/plans/hooks"
 
 interface MessageTypeValidatorProps {
   messageType: 'text' | 'voice' | 'video' | 'file' | 'video_call' | 'voice_call'

@@ -1,15 +1,15 @@
 "use client"
 
 import React, { useState } from 'react'
-import { Upload, X, ImageIcon, Video, File, Loader2, Zap, CheckCircle, Info } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Upload, X, ImageIcon, Video, File, Loader2, Zap, CheckCircle, Info } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from '@/components/ui/progress'
-import { Badge } from '@/components/ui/badge'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { toast } from '@/hooks/use-toast'
-import { useOptimizedUpload } from '@/hooks/use-optimized-upload'
-import { formatFileSize } from '@/lib/media-optimization'
+import { Progress } from "@/components/ui/progress"
+import { Badge } from "@/components/ui/badge"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { toast } from "@/hooks/use-toast"
+import { useOptimizedUpload } from "@/hooks/use-optimized-upload"
+import { formatFileSize } from "@/lib/media-optimization"
 
 interface OptimizedMediaUploadProps {
   onUpload: (files: File[]) => Promise<void>
@@ -49,8 +49,7 @@ export default function OptimizedMediaUpload({
       if (optimizedCount > 0) {
         toast({
           title: 'Otimização concluída',
-          description: `${optimizedCount} arquivo(s) otimizado(s) automaticamente!`,
-        })
+          description: `${optimizedCount} arquivo(s) otimizado(s) automaticamente!` })
       }
     },
     onError: (error) => {
@@ -119,13 +118,11 @@ export default function OptimizedMediaUpload({
       if (stats.optimizedFiles > 0) {
         toast({
           title: 'Upload concluído com otimização',
-          description: `${stats.totalFiles} arquivo(s) enviado(s). ${formatFileSize(stats.savedSize)} economizados!`,
-        })
+          description: `${stats.totalFiles} arquivo(s) enviado(s). ${formatFileSize(stats.savedSize)} economizados!` })
       } else {
         toast({
           title: 'Upload concluído',
-          description: `${stats.totalFiles} arquivo(s) enviado(s) com sucesso.`,
-        })
+          description: `${stats.totalFiles} arquivo(s) enviado(s) com sucesso.` })
       }
 
       // Limpar arquivos após upload

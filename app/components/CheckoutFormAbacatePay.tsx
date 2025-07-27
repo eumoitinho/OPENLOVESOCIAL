@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState } from "react"
 import { Button, Card, CardBody } from "@heroui/react"
-import { STRIPE_PRODUCTS } from '@/types/stripe'
-import { QrCode } from 'lucide-react'
+import { STRIPE_PRODUCTS } from "@/types/stripe"
+import { QrCode } from "lucide-react"
 
 interface CheckoutFormAbacatePayProps {
   planType: keyof typeof STRIPE_PRODUCTS
@@ -34,16 +34,13 @@ export default function CheckoutFormAbacatePay({
       const response = await fetch('/api/abacatepay/checkout', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json' },
         body: JSON.stringify({
           plan: planType,
           userId,
           email: userEmail,
           successUrl: `${window.location.origin}/timeline?payment=success&upgrade=${isUpgrade}`,
-          cancelUrl: `${window.location.origin}/timeline?payment=cancelled`,
-        }),
-      })
+          cancelUrl: `${window.location.origin}/timeline?payment=cancelled` }) })
 
       const data = await response.json()
 

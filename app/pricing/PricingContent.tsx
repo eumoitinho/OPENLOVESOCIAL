@@ -45,8 +45,7 @@ const PLANS: Plan[] = [
       "Sem estatísticas",
       "Sem chamadas de voz/vídeo",
       "Sem envio de áudio/vídeo no chat"
-    ],
-  },
+    ] },
   {
     id: "ouro",
     name: "Open Ouro",
@@ -73,8 +72,7 @@ const PLANS: Plan[] = [
       "Sem badge verificado",
       "Sem moderação avançada",
       "Sem analytics avançado"
-    ],
-  },
+    ] },
   {
     id: "diamante",
     name: "Open Diamante",
@@ -98,8 +96,7 @@ const PLANS: Plan[] = [
     ],
     limitations: [
       "Sem acesso à API"
-    ],
-  },
+    ] },
 ]
 
 const PricingContent: React.FC = () => {

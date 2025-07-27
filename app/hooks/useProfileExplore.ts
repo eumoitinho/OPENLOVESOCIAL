@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from "react"
 
 export interface ProfileFilters {
   gender?: string
@@ -147,9 +147,7 @@ export function useProfileExplore(options: UseProfileExploreOptions = {}) {
       const response = await fetch(`/api/profiles/explore?${queryParams}`, {
         method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
-        },
-      })
+          'Content-Type': 'application/json' } })
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)

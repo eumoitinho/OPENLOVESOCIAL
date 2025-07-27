@@ -22,8 +22,7 @@ async function fetchFriendSuggestions(): Promise<Suggestion[]> {
 export function FriendSuggestions() {
   const { data: suggestions, isLoading, isError } = useQuery({
     queryKey: ["friendSuggestions"],
-    queryFn: fetchFriendSuggestions,
-  })
+    queryFn: fetchFriendSuggestions })
 
   if (isLoading) return <p className="text-sm text-gray-500">Carregando sugestões...</p>
   if (isError) return <p className="text-sm text-red-500">Erro ao carregar sugestões.</p>

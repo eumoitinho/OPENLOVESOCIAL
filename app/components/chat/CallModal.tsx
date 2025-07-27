@@ -1,10 +1,10 @@
 "use client"
 
 import React, { useEffect, useRef } from 'react'
-import { Phone, PhoneOff, Mic, MicOff, Video, VideoOff, Volume2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Phone, PhoneOff, Mic, MicOff, Video, VideoOff, Volume2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { useWebRTC } from './WebRTCContext'
+import { useWebRTC } from "./WebRTCContext"
 
 const CallModal: React.FC = () => {
   const {
@@ -21,8 +21,7 @@ const CallModal: React.FC = () => {
     toggleMute,
     toggleVideo,
     isMuted,
-    isVideoEnabled,
-  } = useWebRTC()
+    isVideoEnabled } = useWebRTC()
 
   const localVideoRef = useRef<HTMLVideoElement>(null)
   const remoteVideoRef = useRef<HTMLVideoElement>(null)

@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useRef } from 'react'
-import { Modal, ModalContent, ModalHeader, ModalBody, Button, Input, Textarea, SelectItem, Chip } from "@heroui/react"
+import { useState, useRef } from "react"
+import { Modal, ModalContent, ModalHeader, ModalBody, Button, Input, Textarea, Chip } from "@heroui/react"
 import { 
   Users,
   Upload,
@@ -11,10 +11,11 @@ import {
   Crown,
   Image as ImageIcon
 } from 'lucide-react'
-import { useAuth } from '@/app/components/auth/AuthProvider'
-import { useCanAccess } from '@/lib/plans/hooks'
+import { useAuth } from "@/app/components/auth/AuthProvider"
+import { useCanAccess } from "@/lib/plans/hooks"
 import LocationPicker from '../location/LocationPicker'
 import PremiumLockBadge from '@/app/components/premium/PremiumLockBadge'
+import { SelectItem, Select } from "@/components/ui/select"
 
 interface CreateCommunityProps {
   onClose: () => void

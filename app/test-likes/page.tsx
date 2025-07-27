@@ -1,5 +1,5 @@
-import { LikeTestComponent } from '@/app/components/test/LikeTestComponent'
-import { NotificationSystem } from '@/app/components/notifications/NotificationSystem'
+import { LikeTestComponent } from "@/app/components/test/LikeTestComponent"
+import { NotificationSystem } from "@/app/components/notifications/NotificationSystem"
 
 export default function TestLikesPage() {
   return (

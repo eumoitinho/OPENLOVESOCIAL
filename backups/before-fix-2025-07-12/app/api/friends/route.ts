@@ -8,8 +8,7 @@ export async function GET(request: NextRequest) {
 
     const {
       data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
+      error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -49,8 +48,7 @@ export async function GET(request: NextRequest) {
         username: f.profiles.username,
         avatar_url: f.profiles.avatar_url,
         location: f.profiles.location,
-        is_friend: true,
-      })) || []
+        is_friend: true })) || []
 
     return NextResponse.json(friends)
   } catch (error) {

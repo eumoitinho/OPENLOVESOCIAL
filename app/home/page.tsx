@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { useAuth } from "@/app/components/auth/AuthProvider";
-import { Button, Chip, Card, CardBody, CardFooter, CardHeader, Textarea } from "@heroui/react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CardContent } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { RobustAvatar } from "@/app/components/ui/robust-avatar";
+import { useState, useEffect, useMemo } from "react"
+import { useAuth } from "@/app/components/auth/AuthProvider"
+import { Button, Chip, Card, CardBody, CardFooter, CardHeader, Textarea } from "@heroui/react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { CardContent } from "@/components/ui/card"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { RobustAvatar } from "@/app/components/ui/robust-avatar"
 import {
   Heart,
   Moon,
@@ -54,33 +54,32 @@ import {
   Eye,
   EyeOff,
   Volume2,
-  VolumeX,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
+  VolumeX } from "lucide-react";
+import { cn } from "@/lib/utils"
 
 import PostCard from "@/app/components/timeline/PostCard";
 
-import { SavedContent } from "@/app/components/timeline/SavedContent";
+import { SavedContent } from "@/app/components/timeline/SavedContent"
 import ProfileSearch from "@/app/components/timeline/ProfileSearch";
-import { Separator } from "@/components/ui/separator";
-import { MobileNav } from "@/app/components/timeline/layout/MobileNav";
-import { TimelineRightSidebar } from "@/app/components/timeline/TimelineRightSidebar";
+import { Separator } from "@/components/ui/separator"
+import { MobileNav } from "@/app/components/timeline/layout/MobileNav"
+import { TimelineRightSidebar } from "@/app/components/timeline/TimelineRightSidebar"
 import Advertisement from "@/app/components/ads/Advertisement";
 
-import { TimelineSidebar } from "@/app/components/timeline/TimelineSidebar";
-import { NotificationsContent } from "@/app/components/timeline/NotificationsContent";
-import { MessagesContent } from "@/app/components/timeline/MessagesContent";
-import { EventsContent } from "@/app/components/timeline/EventsContent";
-import { CommunitiesContent } from "@/app/components/timeline/CommunitiesContent";
-import { useRecommendationAlgorithm } from "@/app/hooks/useRecommendationAlgorithm";
+import { TimelineSidebar } from "@/app/components/timeline/TimelineSidebar"
+import { NotificationsContent } from "@/app/components/timeline/NotificationsContent"
+import { MessagesContent } from "@/app/components/timeline/MessagesContent"
+import { EventsContent } from "@/app/components/timeline/EventsContent"
+import { CommunitiesContent } from "@/app/components/timeline/CommunitiesContent"
+import { useRecommendationAlgorithm } from "@/app/hooks/useRecommendationAlgorithm"
 import RecommendedPostCard from "@/app/components/timeline/RecommendedPostCard";
-import { OpenDatesStack } from "@/app/components/timeline/OpenDatesStack";
+import { OpenDatesStack } from "@/app/components/timeline/OpenDatesStack"
 import UserProfile from "@/app/components/profile/UserProfile";
-import { ProfileEditor } from "@/app/components/profile/ProfileEditor";
+import { ProfileEditor } from "@/app/components/profile/ProfileEditor"
 import ForYouTimeline from "@/app/components/timeline/ForYouTimeline";
-import { ExploreProfiles } from "@/app/components/explore/ExploreProfiles";
+import { ExploreProfiles } from "@/app/components/explore/ExploreProfiles"
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation"
 
 import CreatePost from "../components/timeline/CreatePost";
 
@@ -88,10 +87,10 @@ import CreatePost from "../components/timeline/CreatePost";
 // Componentes serão implementados conforme necessário
 
 // Novos hooks
-import { useNotifications } from "@/app/hooks/useNotifications";
-import { useConversations } from "@/app/hooks/useConversations";
-import { usePostToast } from "@/app/hooks/usePostToast";
-import { useAppState } from "@/app/hooks/useAppState";
+import { useNotifications } from "@/app/hooks/useNotifications"
+import { useConversations } from "@/app/hooks/useConversations"
+import { usePostToast } from "@/app/hooks/usePostToast"
+import { useAppState } from "@/app/hooks/useAppState"
 import { useIsMobile } from "@/hooks/use-mobile"
 
 // --- Tipos e Dados para a Sidebar ---
@@ -107,8 +106,7 @@ type NavigationItem = {
 const NavLink = ({
   item,
   isActive,
-  onClick,
-}: {
+  onClick }: {
   item: NavigationItem;
   isActive: boolean;
   onClick: (item: NavigationItem) => void;
@@ -280,8 +278,7 @@ export default function HomePage() {
   const {
     recommendations,
     loading: loadingRecommendations,
-    error: errorRecommendations,
-  } = useRecommendationAlgorithm();
+    error: errorRecommendations } = useRecommendationAlgorithm();
 
   // Novos hooks avançados
   const { notifications, markAsRead, markAllAsRead } = useNotifications();
@@ -338,8 +335,7 @@ export default function HomePage() {
       const res = await fetch("/api/timeline", {
         headers: {
           // Cookie-based auth, não precisa enviar Authorization
-        },
-      });
+        } });
       console.log("HomePage: Status da resposta:", res.status);
 
       if (!res.ok) {
@@ -439,8 +435,7 @@ export default function HomePage() {
           ? {
               ...post,
               liked: !post.liked,
-              likes: post.liked ? post.likes - 1 : post.likes + 1,
-            }
+              likes: post.liked ? post.likes - 1 : post.likes + 1 }
           : post
       )
     );
@@ -452,8 +447,7 @@ export default function HomePage() {
         post.id === postId
           ? {
               ...post,
-              saved: !post.saved,
-            }
+              saved: !post.saved }
           : post
       )
     );
@@ -950,8 +944,7 @@ export default function HomePage() {
                       ? "events"
                       : p.images || p.video
                       ? "media"
-                      : "posts",
-                  }))}
+                      : "posts" }))}
                 onRemoveFromSaved={(postId) => {
                   setPosts((prev) =>
                     prev.map((p) =>

@@ -7,13 +7,11 @@ import jest from "jest" // Import jest to declare it
 
 // Mock do Next.js router
 jest.mock("next/navigation", () => ({
-  useRouter: jest.fn(),
-}))
+  useRouter: jest.fn() }))
 
 // Mock do Supabase client
 jest.mock("@/lib/auth-client", () => ({
-  createClientSupabaseClient: jest.fn(),
-}))
+  createClientSupabaseClient: jest.fn() }))
 
 // Mock do Next.js Link
 jest.mock("next/link", () => {
@@ -30,14 +28,11 @@ const mockSignInWithOAuth = jest.fn()
 beforeEach(() => {
   ;(useRouter as jest.Mock).mockReturnValue({
     push: mockPush,
-    refresh: mockRefresh,
-  })
+    refresh: mockRefresh })
   ;(createClientSupabaseClient as jest.Mock).mockReturnValue({
     auth: {
       signInWithPassword: mockSignInWithPassword,
-      signInWithOAuth: mockSignInWithOAuth,
-    },
-  })
+      signInWithOAuth: mockSignInWithOAuth } })
 
   // Reset mocks
   jest.clearAllMocks()
@@ -57,8 +52,7 @@ describe("SignIn Component", () => {
   it("handles email sign in successfully", async () => {
     mockSignInWithPassword.mockResolvedValue({
       data: { user: { id: "123", email: "test@example.com" } },
-      error: null,
-    })
+      error: null })
 
     render(<SignIn />)
 
@@ -73,8 +67,7 @@ describe("SignIn Component", () => {
     await waitFor(() => {
       expect(mockSignInWithPassword).toHaveBeenCalledWith({
         email: "test@example.com",
-        password: "password123",
-      })
+        password: "password123" })
     })
 
     await waitFor(() => {
@@ -87,8 +80,7 @@ describe("SignIn Component", () => {
     const errorMessage = "Invalid credentials"
     mockSignInWithPassword.mockResolvedValue({
       data: null,
-      error: { message: errorMessage },
-    })
+      error: { message: errorMessage } })
 
     render(<SignIn />)
 
@@ -110,14 +102,12 @@ describe("SignIn Component", () => {
   it("handles Google sign in", async () => {
     mockSignInWithOAuth.mockResolvedValue({
       data: null,
-      error: null,
-    })
+      error: null })
 
     // Mock window.location.origin
     Object.defineProperty(window, "location", {
       value: { origin: "http://localhost:3000" },
-      writable: true,
-    })
+      writable: true })
 
     render(<SignIn />)
 
@@ -128,9 +118,7 @@ describe("SignIn Component", () => {
       expect(mockSignInWithOAuth).toHaveBeenCalledWith({
         provider: "google",
         options: {
-          redirectTo: "http://localhost:3000/auth/callback",
-        },
-      })
+          redirectTo: "http://localhost:3000/auth/callback" } })
     })
   })
 

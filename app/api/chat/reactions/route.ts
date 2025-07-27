@@ -11,8 +11,7 @@ export async function POST(request: NextRequest) {
     // Verificar autenticação
     const {
       data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
+      error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
@@ -125,8 +124,7 @@ export async function GET(request: NextRequest) {
     // Verificar autenticação
     const {
       data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
+      error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })

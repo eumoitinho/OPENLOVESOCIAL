@@ -23,8 +23,7 @@ export class AbacatePayClient {
 
     const config: RequestInit = {
       method,
-      headers,
-    }
+      headers }
 
     if (data && (method === 'POST' || method === 'PUT')) {
       config.body = JSON.stringify(data)

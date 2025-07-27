@@ -16,8 +16,7 @@ export async function GET(request: NextRequest) {
     // Buscar usuário autenticado
     const {
       data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
+      error: userError } = await supabase.auth.getUser()
 
     if (userError || !user) {
       console.log("❌ [For You] Usuário não autenticado")
@@ -264,10 +263,8 @@ export async function GET(request: NextRequest) {
           name: comment.users?.[0]?.name || "Usuário",
           username: comment.users?.[0]?.username || "unknown",
           avatar: comment.users?.[0]?.avatar_url || '',
-          verified: comment.users?.[0]?.is_verified || false,
-        },
-        likes: comment.stats?.likes || 0,
-      })
+          verified: comment.users?.[0]?.is_verified || false },
+        likes: comment.stats?.likes || 0 })
     })
 
     // Step 9: Formatar resposta final
@@ -294,8 +291,7 @@ export async function GET(request: NextRequest) {
           location: author.location || "Localização não informada",
           bio: author.bio || "",
           relationshipType: "single",
-          isPrivate: false,
-        },
+          isPrivate: false },
         likes: postLikes.length,
         likesCount: postLikes.length,
         liked: postLikes.includes(user.id),

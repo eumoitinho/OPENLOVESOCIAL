@@ -23,8 +23,7 @@ export function ExploreView({
   setSearchQuery,
   searchFilters,
   setSearchFilters,
-  toggleFollow,
-}: ExploreViewProps) {
+  toggleFollow }: ExploreViewProps) {
   return (
     <div className="space-y-6">
       <Card className="border-0 shadow-sm bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-2xl">

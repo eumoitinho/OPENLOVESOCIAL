@@ -10,35 +10,24 @@ jest.mock("fs", () => ({
   promises: {
     mkdir: jest.fn(),
     writeFile: jest.fn(),
-    unlink: jest.fn(),
-  },
-}))
+    unlink: jest.fn() } }))
 jest.mock("@/lib/media-utils")
 jest.mock("next/headers", () => ({
-  cookies: jest.fn(() => ({})),
-}))
+  cookies: jest.fn(() => ({})) }))
 
 const mockSupabase = {
   auth: {
-    getUser: jest.fn(),
-  },
+    getUser: jest.fn() },
   from: jest.fn(() => ({
     insert: jest.fn(() => ({
       select: jest.fn(() => ({
-        single: jest.fn(),
-      })),
-    })),
+        single: jest.fn() })) })),
     select: jest.fn(() => ({
       eq: jest.fn(() => ({
-        single: jest.fn(),
-      })),
-    })),
+        single: jest.fn() })) })),
     delete: jest.fn(() => ({
-      eq: jest.fn(),
-    })),
-  })),
-  rpc: jest.fn(),
-}
+      eq: jest.fn() })) })),
+  rpc: jest.fn() }
 
 beforeEach(() => {
   ;(createRouteHandlerClient as jest.Mock).mockReturnValue(mockSupabase)
@@ -51,14 +40,12 @@ describe("Upload API", () => {
       // Mock user authentication
       mockSupabase.auth.getUser.mockResolvedValue({
         data: { user: { id: "user123", email: "test@example.com" } },
-        error: null,
-      })
+        error: null })
 
       // Mock file validation
       ;(validateMediaFile as jest.Mock).mockReturnValue({
         isValid: true,
-        fileType: "image",
-      })
+        fileType: "image" })
 
       // Mock database insert
       const mockMedia = {
@@ -66,8 +53,7 @@ describe("Upload API", () => {
         url: "http://localhost:3000/storage/test.jpg",
         filename: "test.jpg",
         file_type: "image",
-        file_size: 1024,
-      }
+        file_size: 1024 }
 
       mockSupabase
         .from()
@@ -75,8 +61,7 @@ describe("Upload API", () => {
         .select()
         .single.mockResolvedValue({
           data: mockMedia,
-          error: null,
-        })
+          error: null })
 
       // Mock file system operations
       ;(fs.mkdir as jest.Mock).mockResolvedValue(undefined)
@@ -90,8 +75,7 @@ describe("Upload API", () => {
 
       const request = new Request("http://localhost/api/upload", {
         method: "POST",
-        body: formData,
-      })
+        body: formData })
 
       const response = await POST(request)
       const result = await response.json()
@@ -103,21 +87,18 @@ describe("Upload API", () => {
         url: "http://localhost:3000/storage/test.jpg",
         filename: "test.jpg",
         fileType: "image",
-        fileSize: 1024,
-      })
+        fileSize: 1024 })
     })
 
     it("returns 401 for unauthenticated user", async () => {
       mockSupabase.auth.getUser.mockResolvedValue({
         data: { user: null },
-        error: { message: "Not authenticated" },
-      })
+        error: { message: "Not authenticated" } })
 
       const formData = new FormData()
       const request = new Request("http://localhost/api/upload", {
         method: "POST",
-        body: formData,
-      })
+        body: formData })
 
       const response = await POST(request)
       const result = await response.json()
@@ -129,14 +110,12 @@ describe("Upload API", () => {
     it("returns 400 for missing file", async () => {
       mockSupabase.auth.getUser.mockResolvedValue({
         data: { user: { id: "user123" } },
-        error: null,
-      })
+        error: null })
 
       const formData = new FormData()
       const request = new Request("http://localhost/api/upload", {
         method: "POST",
-        body: formData,
-      })
+        body: formData })
 
       const response = await POST(request)
       const result = await response.json()
@@ -148,12 +127,10 @@ describe("Upload API", () => {
     it("returns 400 for invalid file", async () => {
       mockSupabase.auth.getUser.mockResolvedValue({
         data: { user: { id: "user123" } },
-        error: null,
-      })
+        error: null })
       ;(validateMediaFile as jest.Mock).mockReturnValue({
         isValid: false,
-        error: "Tipo de arquivo não suportado",
-      })
+        error: "Tipo de arquivo não suportado" })
 
       const file = new File(["test"], "test.txt", { type: "text/plain" })
       const formData = new FormData()
@@ -161,8 +138,7 @@ describe("Upload API", () => {
 
       const request = new Request("http://localhost/api/upload", {
         method: "POST",
-        body: formData,
-      })
+        body: formData })
 
       const response = await POST(request)
       const result = await response.json()
@@ -176,28 +152,23 @@ describe("Upload API", () => {
     it("deletes media successfully", async () => {
       mockSupabase.auth.getUser.mockResolvedValue({
         data: { user: { id: "user123" } },
-        error: null,
-      })
+        error: null })
 
       const mockMedia = {
         id: "media123",
         filename: "test.jpg",
-        user_id: "user123",
-      }
+        user_id: "user123" }
 
       mockSupabase.from().select().eq().single.mockResolvedValue({
         data: mockMedia,
-        error: null,
-      })
+        error: null })
 
       mockSupabase.from().delete().eq.mockResolvedValue({
-        error: null,
-      })
+        error: null })
       ;(fs.unlink as jest.Mock).mockResolvedValue(undefined)
 
       const request = new Request("http://localhost/api/upload?id=media123", {
-        method: "DELETE",
-      })
+        method: "DELETE" })
 
       const response = await DELETE(request)
       const result = await response.json()
@@ -209,8 +180,7 @@ describe("Upload API", () => {
     it("returns 404 for non-existent media", async () => {
       mockSupabase.auth.getUser.mockResolvedValue({
         data: { user: { id: "user123" } },
-        error: null,
-      })
+        error: null })
 
       mockSupabase
         .from()
@@ -218,12 +188,10 @@ describe("Upload API", () => {
         .eq()
         .single.mockResolvedValue({
           data: null,
-          error: { message: "Not found" },
-        })
+          error: { message: "Not found" } })
 
       const request = new Request("http://localhost/api/upload?id=nonexistent", {
-        method: "DELETE",
-      })
+        method: "DELETE" })
 
       const response = await DELETE(request)
       const result = await response.json()

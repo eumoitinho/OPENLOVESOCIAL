@@ -1,6 +1,6 @@
-import { create } from 'zustand';
-import { subscribeWithSelector } from 'zustand/middleware';
-import { shallow } from 'zustand/shallow';
+import { create } from "zustand"
+import { subscribeWithSelector } from "zustand/middleware"
+import { shallow } from "zustand/shallow"
 
 // Exemplo de store otimizada
 interface StoreState {
@@ -25,8 +25,7 @@ export const useStore = create<StoreState>()(
     // Actions otimizadas
     setUser: (user) => set({ user }, false, 'setUser'),
     setPosts: (posts) => set({ posts }, false, 'setPosts'),
-    setLoading: (isLoading) => set({ isLoading }, false, 'setLoading'),
-  }))
+    setLoading: (isLoading) => set({ isLoading }, false, 'setLoading') }))
 );
 
 // Selectors otimizados

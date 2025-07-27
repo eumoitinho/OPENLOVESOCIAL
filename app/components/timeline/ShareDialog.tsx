@@ -20,9 +20,10 @@ import {
   Lock,
   BadgeCheckIcon,
   Check,
-  X,
-} from "lucide-react"
+  X } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 interface User {
   id: string
@@ -69,8 +70,7 @@ export function ShareDialog({
   currentUser,
   onShareToDirect,
   onShareToTimeline,
-  onCopyLink,
-}: ShareDialogProps) {
+  onCopyLink }: ShareDialogProps) {
   const [activeTab, setActiveTab] = useState<"direct" | "timeline" | "link">("direct")
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set())
   const [message, setMessage] = useState("")
@@ -87,8 +87,7 @@ export function ShareDialog({
       avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-5.png",
       verified: true,
       premium: true,
-      isOnline: true,
-    },
+      isOnline: true },
     {
       id: "2",
       name: "Sofia Mendes",
@@ -96,8 +95,7 @@ export function ShareDialog({
       avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-3.png",
       verified: false,
       premium: false,
-      isOnline: false,
-    },
+      isOnline: false },
     {
       id: "3",
       name: "Lisa & João",
@@ -105,8 +103,7 @@ export function ShareDialog({
       avatar: "https://cdn.shadcnstudio.com/ss-assets/avatar/avatar-6.png",
       verified: true,
       premium: true,
-      isOnline: true,
-    },
+      isOnline: true },
   ]
 
   const handleUserToggle = (userId: string) => {
@@ -409,4 +406,3 @@ export function ShareDialog({
     </Dialog>
   )
 }
-import { DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"

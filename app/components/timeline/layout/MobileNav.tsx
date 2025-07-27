@@ -16,8 +16,7 @@ import {
   LogOut,
   Menu,
   X,
-  ArrowUp,
-} from "lucide-react"
+  ArrowUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/app/components/auth/AuthProvider"
@@ -67,8 +66,7 @@ export function MobileNav({
   onNavigateToSettings,
   onNavigateToProfiles,
   activeView = "home",
-  setActiveView,
-}: MobileNavProps) {
+  setActiveView }: MobileNavProps) {
   const { signOut, user } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
   const [showScrollTop, setShowScrollTop] = useState(false)

@@ -8,8 +8,7 @@ export async function POST(request: NextRequest) {
 
     const {
       data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
+      error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -40,8 +39,7 @@ export async function POST(request: NextRequest) {
     const { error } = await supabase.from("friends").insert({
       user_id: profile.id,
       friend_id: targetUserId,
-      status: "pending",
-    })
+      status: "pending" })
 
     if (error) {
       console.error("Error creating friend request:", error)

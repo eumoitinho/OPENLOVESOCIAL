@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useEffect } from 'react'
-import { useAuth } from '@/app/components/auth/AuthProvider'
-import { Button } from '@/components/ui/button'
+import { useState, useEffect } from "react"
+import { useAuth } from "@/app/components/auth/AuthProvider"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from '@/components/ui/badge'
-import { AlertCircle, CheckCircle, XCircle, User, Database, Link as LinkIcon } from 'lucide-react'
+import { Badge } from "@/components/ui/badge"
+import { AlertCircle, CheckCircle, XCircle, User, Database, Link as LinkIcon } from "lucide-react"
 
 interface DebugInfo {
   authUser: any

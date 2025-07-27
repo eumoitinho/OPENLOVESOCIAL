@@ -1,19 +1,20 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
-import { Icon } from '@iconify/react'
-import { Button, Card, CardBody, CardHeader, Chip, Divider, Image, Link, Tab, User, Spinner, Badge } from "@heroui/react"
+import { useParams, useRouter } from "next/navigation"
+import { Icon } from "@iconify/react"
+import { Button, Card, CardBody, CardHeader, Chip, Divider, Image, Link, User, Spinner, Badge } from "@heroui/react"
 import { AvatarBadge } from "@/app/components/ui/avatar-badge"
 import { RobustAvatar } from "@/app/components/ui/robust-avatar"
 import MediaGallery from '@/app/components/profile/MediaGallery'
 import ProfileStats from '@/app/components/profile/ProfileStats'
 import PrivateContentGuard from '@/app/components/profile/PrivateContentGuard'
-import { useAuth } from '@/app/components/auth/AuthProvider'
-import { toast } from 'sonner'
+import { useAuth } from "@/app/components/auth/AuthProvider"
+import { toast } from "sonner"
 import PlanAdCard from '@/app/components/ads/PlanAdCard'
 import PremiumAction from '@/app/components/premium/PremiumAction'
-import { useCanAccess } from '@/lib/plans/hooks'
+import { useCanAccess } from "@/lib/plans/hooks"
+import { Tabs } from "@/components/ui/tabs"
 
 interface Profile {
   id: string
@@ -125,10 +126,8 @@ export default function UserProfile({ username, isView = false }: UserProfilePro
       const response = await fetch("/api/follows", {
         method: isFollowing ? "DELETE" : "POST",
         headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ following_id: profile.id }),
-      })
+          "Content-Type": "application/json" },
+        body: JSON.stringify({ following_id: profile.id }) })
 
       if (response.ok) {
         setIsFollowing(!isFollowing)

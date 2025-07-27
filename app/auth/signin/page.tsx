@@ -27,7 +27,6 @@ export default function SignInPage() {
 
   const { user, loading: authLoading } = useAuth()
 
-
   // Check system preference on initial load
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -56,8 +55,7 @@ export default function SignInPage() {
     try {
       const { error } = await supabase.auth.resend({
         type: "signup",
-        email,
-      })
+        email })
 
       if (error) {
         console.error("Error sending verification code:", error)
@@ -94,8 +92,7 @@ export default function SignInPage() {
       try {
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
-          password,
-        })
+          password })
 
         if (error) {
           if (error.message.includes("Email not confirmed")) {
@@ -145,8 +142,7 @@ export default function SignInPage() {
       // Tentar fazer login novamente após verificação
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        password,
-      })
+        password })
 
       if (error) {
         setErrors({ email: "", password: "", code: "Código inválido ou expirado" })

@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import { loadStripe } from '@stripe/stripe-js'
-import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
+import { useState } from "react"
+import { loadStripe } from "@stripe/stripe-js"
+import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js"
 import { Button } from "@heroui/react"
-import { STRIPE_PRODUCTS } from '@/types/stripe'
+import { STRIPE_PRODUCTS } from "@/types/stripe"
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
@@ -49,9 +49,7 @@ function CheckoutFormContent({ planType, userEmail, userId, isUpgrade = false, o
         type: 'card',
         card: cardElement,
         billing_details: {
-          email: userEmail,
-        },
-      })
+          email: userEmail } })
 
       if (paymentError) {
         setError(paymentError.message || 'Erro ao processar cartão')
@@ -63,15 +61,12 @@ function CheckoutFormContent({ planType, userEmail, userId, isUpgrade = false, o
       const response = await fetch('/api/stripe/subscribe', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: userEmail,
           paymentMethodId: paymentMethod.id,
           planType,
-          userId,
-        }),
-      })
+          userId }) })
 
       const result = await response.json()
 
@@ -131,15 +126,10 @@ function CheckoutFormContent({ planType, userEmail, userId, isUpgrade = false, o
                     fontSize: '16px',
                     color: '#424770',
                     '::placeholder': {
-                      color: '#aab7c4',
-                    },
-                  },
+                      color: '#aab7c4' } },
                   invalid: {
-                    color: '#9e2146',
-                  },
-                },
-                hidePostalCode: true,
-              }}
+                    color: '#9e2146' } },
+                hidePostalCode: true }}
             />
           </div>
         </div>

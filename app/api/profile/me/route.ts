@@ -1,5 +1,5 @@
-import { createServerComponentClient } from '@/app/lib/supabase-server'
-import { NextRequest, NextResponse } from 'next/server'
+import { createServerComponentClient } from "@/app/lib/supabase-server"
+import { NextRequest, NextResponse } from "next/server"
 
 export async function GET() {
   try {

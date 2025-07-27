@@ -100,8 +100,7 @@ export default function ProfileRecommendations({ className }: ProfileRecommendat
       const response = await fetch('/api/profiles/interactions', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json' },
         body: JSON.stringify({
           targetUserId,
           interactionType,

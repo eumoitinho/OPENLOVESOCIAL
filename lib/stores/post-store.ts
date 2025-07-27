@@ -1,7 +1,7 @@
-import { create } from 'zustand'
-import { subscribeWithSelector } from 'zustand/middleware'
-import { immer } from 'zustand/middleware/immer'
-import { PLAN_LIMITS, PlanType } from '@/lib/plans/config'
+import { create } from "zustand"
+import { subscribeWithSelector } from "zustand/middleware"
+import { immer } from "zustand/middleware/immer"
+import { PLAN_LIMITS, PlanType } from "@/lib/plans/config"
 import type {
   Post,
   PostId,
@@ -127,22 +127,17 @@ const initialState: PostState = {
     posts: false,
     comments: {},
     creating: false,
-    updating: {},
-  },
+    updating: {} },
   errors: {
     posts: undefined,
     comments: {},
     creating: undefined,
-    updating: {},
-  },
+    updating: {} },
   pagination: {
     posts: {
       cursor: undefined,
-      hasMore: true,
-    },
-    comments: {},
-  },
-}
+      hasMore: true },
+    comments: {} } }
 
 export const usePostStore = create<PostStore>()(
   subscribeWithSelector(
@@ -166,8 +161,7 @@ export const usePostStore = create<PostStore>()(
           const response = await fetch('/api/posts', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-          })
+            body: JSON.stringify(data) })
           
           if (!response.ok) {
             const error = await response.json()
@@ -207,8 +201,7 @@ export const usePostStore = create<PostStore>()(
           const response = await fetch(`/api/posts/${id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-          })
+            body: JSON.stringify(data) })
           
           if (!response.ok) {
             const error = await response.json()
@@ -241,8 +234,7 @@ export const usePostStore = create<PostStore>()(
       deletePost: async (id: PostId) => {
         try {
           const response = await fetch(`/api/posts/${id}`, {
-            method: 'DELETE',
-          })
+            method: 'DELETE' })
           
           if (!response.ok) {
             const error = await response.json()
@@ -348,8 +340,7 @@ export const usePostStore = create<PostStore>()(
         
         try {
           const response = await fetch(`/api/posts/${postId}/like`, {
-            method: 'POST',
-          })
+            method: 'POST' })
           
           if (!response.ok) {
             // Revert optimistic update
@@ -378,8 +369,7 @@ export const usePostStore = create<PostStore>()(
           const response = await fetch(`/api/posts/${postId}/reaction`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ reaction }),
-          })
+            body: JSON.stringify({ reaction }) })
           
           if (!response.ok) {
             throw new Error('Failed to add reaction')
@@ -397,8 +387,7 @@ export const usePostStore = create<PostStore>()(
       removeReaction: async (postId: PostId) => {
         try {
           const response = await fetch(`/api/posts/${postId}/reaction`, {
-            method: 'DELETE',
-          })
+            method: 'DELETE' })
           
           if (!response.ok) {
             throw new Error('Failed to remove reaction')
@@ -431,8 +420,7 @@ export const usePostStore = create<PostStore>()(
           const response = await fetch('/api/posts/save', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ postId }),
-          })
+            body: JSON.stringify({ postId }) })
           
           if (!response.ok) {
             // Revert optimistic update
@@ -452,8 +440,7 @@ export const usePostStore = create<PostStore>()(
       sharePost: async (postId: PostId) => {
         try {
           const response = await fetch(`/api/posts/${postId}/share`, {
-            method: 'POST',
-          })
+            method: 'POST' })
           
           if (!response.ok) {
             throw new Error('Failed to share post')
@@ -487,8 +474,7 @@ export const usePostStore = create<PostStore>()(
         
         try {
           await fetch(`/api/posts/${postId}/view`, {
-            method: 'POST',
-          })
+            method: 'POST' })
         } catch (error) {
           console.error('Failed to record view:', error)
         }
@@ -554,8 +540,7 @@ export const usePostStore = create<PostStore>()(
           const response = await fetch(`/api/posts/${data.postId}/comments`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-          })
+            body: JSON.stringify(data) })
           
           if (!response.ok) {
             const error = await response.json()
@@ -584,8 +569,7 @@ export const usePostStore = create<PostStore>()(
           const response = await fetch(`/api/comments/${id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ content }),
-          })
+            body: JSON.stringify({ content }) })
           
           if (!response.ok) {
             const error = await response.json()
@@ -610,8 +594,7 @@ export const usePostStore = create<PostStore>()(
         
         try {
           const response = await fetch(`/api/comments/${id}`, {
-            method: 'DELETE',
-          })
+            method: 'DELETE' })
           
           if (!response.ok) {
             const error = await response.json()
@@ -649,8 +632,7 @@ export const usePostStore = create<PostStore>()(
         
         try {
           const response = await fetch(`/api/comments/${commentId}/like`, {
-            method: 'POST',
-          })
+            method: 'POST' })
           
           if (!response.ok) {
             // Revert optimistic update
@@ -755,8 +737,7 @@ export const usePostStore = create<PostStore>()(
           posts: undefined,
           comments: {},
           creating: undefined,
-          updating: {},
-        }
+          updating: {} }
       }),
       
       // ===== PAGINATION =====
@@ -835,8 +816,7 @@ export const usePostStore = create<PostStore>()(
       unsubscribeFromPost: (postId: PostId) => {
         // Unsubscribe from real-time updates for a specific post
         // Implementation would depend on Supabase real-time setup
-      },
-    }))
+      } }))
   )
 )
 
@@ -849,8 +829,7 @@ export const usePost = (postId: PostId) => {
   return {
     post,
     engagement,
-    updatePost: (updates: Partial<Post>) => updatePost(postId, updates),
-  }
+    updatePost: (updates: Partial<Post>) => updatePost(postId, updates) }
 }
 
 // Utility hook for comment-specific operations
@@ -860,6 +839,5 @@ export const useComment = (commentId: CommentId) => {
   
   return {
     comment,
-    updateComment: (updates: Partial<Comment>) => updateComment(commentId, updates),
-  }
+    updateComment: (updates: Partial<Comment>) => updateComment(commentId, updates) }
 }

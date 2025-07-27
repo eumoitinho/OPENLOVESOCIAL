@@ -48,8 +48,6 @@ interface MediaUploadProps {
   onUploadError?: (error: string) => void
 }
 
-
-
 const MediaUpload: React.FC<MediaUploadProps> = ({
   onUpload,
   maxFiles = 5,
@@ -86,8 +84,7 @@ const MediaUpload: React.FC<MediaUploadProps> = ({
       type: fileType,
       uploadProgress: 0,
       isUploading: false,
-      originalSize: file.size,
-    }
+      originalSize: file.size }
 
     // Create preview
     if (fileType === "image" || fileType === "video") {
@@ -140,16 +137,14 @@ const MediaUpload: React.FC<MediaUploadProps> = ({
               ? (typeof window !== "undefined" && typeof window.File === "function"
                   ? new window.File([optimizedFile], mediaFile.file.name, {
                       type: optimizedFile.type || mediaFile.file.type,
-                      lastModified: mediaFile.file.lastModified ?? Date.now(),
-                    })
+                      lastModified: mediaFile.file.lastModified ?? Date.now() })
                   : mediaFile.file)
               : mediaFile.file),
         originalSize: result.originalSize,
         optimizedSize: result.optimizedSize,
         compressionRatio: result.compressionRatio,
         isOptimized: result.needsOptimization,
-        isOptimizing: false,
-      }
+        isOptimizing: false }
 
       // Atualizar preview se necessário
       if (result.needsOptimization && (mediaFile.type === "image" || mediaFile.type === "video")) {
@@ -173,8 +168,7 @@ const MediaUpload: React.FC<MediaUploadProps> = ({
       toast({
         title: "Limite de arquivos excedido",
         description: `Você pode enviar no máximo ${maxFiles} arquivos.`,
-        variant: "destructive",
-      })
+        variant: "destructive" })
       return
     }
 
@@ -189,8 +183,7 @@ const MediaUpload: React.FC<MediaUploadProps> = ({
         toast({
           title: "Erro ao processar arquivo",
           description: error instanceof Error ? error.message : "Arquivo inválido",
-          variant: "destructive",
-        })
+          variant: "destructive" })
       }
     }
 
@@ -263,13 +256,11 @@ const MediaUpload: React.FC<MediaUploadProps> = ({
         
         toast({
           title: "Upload concluído com otimização",
-          description: `${filesToUpload.length} arquivo(s) enviado(s). ${stats.savedSize} economizados!`,
-        })
+          description: `${filesToUpload.length} arquivo(s) enviado(s). ${stats.savedSize} economizados!` })
       } else {
         toast({
           title: "Upload concluído",
-          description: `${filesToUpload.length} arquivo(s) enviado(s) com sucesso.`,
-        })
+          description: `${filesToUpload.length} arquivo(s) enviado(s) com sucesso.` })
       }
 
       // Clear files after successful upload
@@ -286,8 +277,7 @@ const MediaUpload: React.FC<MediaUploadProps> = ({
       toast({
         title: "Erro no upload",
         description: "Ocorreu um erro ao enviar os arquivos. Tente novamente.",
-        variant: "destructive",
-      })
+        variant: "destructive" })
     }
   }
 

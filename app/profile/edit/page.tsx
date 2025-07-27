@@ -5,9 +5,12 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/app/components/auth/AuthProvider"
-import { Button, Input, Textarea, Card, CardBody, CardHeader, SelectItem, Checkbox } from "@heroui/react"
+import { Button, Input, Textarea, Card, CardBody, CardHeader, Checkbox } from "@heroui/react"
 import { toast } from "sonner"
 import { ArrowLeft, Camera, MapPin, Calendar, Heart, Music, Book, Gamepad2, Plane, Coffee } from "lucide-react"
+import { SelectItem, Select, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { CardContent, CardTitle } from "@/components/ui/card"
 
 const INTERESTS = [
   { id: "technology", label: "Tecnologia", icon: <Gamepad2 className="w-4 h-4" /> },
@@ -41,8 +44,7 @@ export default function EditProfilePage() {
     birth_date: "",
     profile_type: "personal",
     interests: [] as string[],
-    avatar_url: "",
-  })
+    avatar_url: "" })
 
   useEffect(() => {
     if (!user) {
@@ -72,16 +74,13 @@ export default function EditProfilePage() {
       const response = await fetch("/api/profile", {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(profile),
-      })
+          "Content-Type": "application/json" },
+        body: JSON.stringify(profile) })
 
       if (response.ok) {
         toast({
           title: "Perfil atualizado!",
-          description: "Suas informações foram salvas com sucesso.",
-        })
+          description: "Suas informações foram salvas com sucesso." })
         router.push("/profile")
       } else {
         throw new Error("Erro ao atualizar perfil")
@@ -90,8 +89,7 @@ export default function EditProfilePage() {
       toast({
         title: "Erro",
         description: "Não foi possível atualizar o perfil. Tente novamente.",
-        variant: "destructive",
-      })
+        variant: "destructive" })
     } finally {
       setLoading(false)
     }
@@ -102,8 +100,7 @@ export default function EditProfilePage() {
       ...prev,
       interests: prev.interests.includes(interestId)
         ? prev.interests.filter((id) => id !== interestId)
-        : [...prev.interests, interestId],
-    }))
+        : [...prev.interests, interestId] }))
   }
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,8 +112,7 @@ export default function EditProfilePage() {
       toast({
         title: "Erro",
         description: "Por favor, selecione uma imagem.",
-        variant: "destructive",
-      })
+        variant: "destructive" })
       return
     }
 
@@ -125,8 +121,7 @@ export default function EditProfilePage() {
       toast({
         title: "Erro",
         description: "A imagem deve ter no máximo 10MB.",
-        variant: "destructive",
-      })
+        variant: "destructive" })
       return
     }
 
@@ -144,10 +139,8 @@ export default function EditProfilePage() {
       const response = await fetch("/api/profile/avatar", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ avatar: base64 }),
-      })
+          "Content-Type": "application/json" },
+        body: JSON.stringify({ avatar: base64 }) })
 
       if (!response.ok) {
         throw new Error("Erro ao fazer upload da imagem")
@@ -160,15 +153,13 @@ export default function EditProfilePage() {
       
       toast({
         title: "Sucesso!",
-        description: "Foto de perfil atualizada.",
-      })
+        description: "Foto de perfil atualizada." })
     } catch (error) {
       console.error("Erro ao fazer upload:", error)
       toast({
         title: "Erro",
         description: "Não foi possível atualizar a foto. Tente novamente.",
-        variant: "destructive",
-      })
+        variant: "destructive" })
     } finally {
       setUploadingAvatar(false)
     }
@@ -370,5 +361,3 @@ export default function EditProfilePage() {
     </div>
   )
 }
-import { CardContent } from "@/components/ui/card"
-import { SelectContent, SelectItem, SelectTrigger, SelectValue, Select } from "@/components/ui/select"

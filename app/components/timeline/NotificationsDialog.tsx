@@ -19,9 +19,12 @@ import {
   Trash2,
   Settings,
   Filter,
-  Search,
-} from "lucide-react"
+  Search } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { CardContent } from "@/components/ui/card"
 
 interface Notification {
   id: string
@@ -349,6 +352,3 @@ export function NotificationsDialog({ open, onOpenChange }: NotificationsDialogP
     </Dialog>
   )
 }
-import { AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { CardContent } from "@/components/ui/card"
-import { DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"

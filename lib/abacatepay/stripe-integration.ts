@@ -1,9 +1,8 @@
 import Stripe from 'stripe'
-import { abacatePayClient, AbacatePayPixPayment, CreatePixPaymentParams } from './client'
+import { abacatePayClient, AbacatePayPixPayment, CreatePixPaymentParams } from "./client"
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-06-30.basil',
-})
+  apiVersion: '2025-06-30.basil' })
 
 export interface PixPaymentIntentData {
   amount: number

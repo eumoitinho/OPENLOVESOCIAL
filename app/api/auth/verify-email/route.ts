@@ -18,8 +18,7 @@ export async function POST(request: Request) {
     // Enviar email de confirmação
     const { error } = await supabase.auth.resend({
       type: "signup",
-      email,
-    })
+      email })
 
     if (error) {
       console.error("Error sending verification email:", error)

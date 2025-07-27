@@ -29,8 +29,7 @@ export function FriendshipButton({ profile }: FriendshipButtonProps) {
       const response = await fetch("/api/friends/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ target_user_id: profile.id }),
-      })
+        body: JSON.stringify({ target_user_id: profile.id }) })
       if (response.ok) {
         setStatus("pending_sent")
       }
@@ -45,8 +44,7 @@ export function FriendshipButton({ profile }: FriendshipButtonProps) {
       const res = await fetch("/api/friends/respond", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ requester_id: profile.id, response }),
-      })
+        body: JSON.stringify({ requester_id: profile.id, response }) })
       if (res.ok) {
         setStatus(response === "accepted" ? "friends" : "not_friends")
       }
@@ -59,8 +57,7 @@ export function FriendshipButton({ profile }: FriendshipButtonProps) {
     setLoading(true)
     try {
       const response = await fetch(`/api/friends/${profile.id}`, {
-        method: "DELETE",
-      })
+        method: "DELETE" })
       if (response.ok) {
         setStatus("not_friends")
       }

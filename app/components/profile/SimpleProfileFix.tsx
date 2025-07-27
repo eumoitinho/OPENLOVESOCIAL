@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useState } from 'react'
-import { useAuth } from '@/app/components/auth/AuthProvider'
-import { useRouter } from 'next/navigation'
+import { useEffect, useState } from "react"
+import { useAuth } from "@/app/components/auth/AuthProvider"
+import { useRouter } from "next/navigation"
 
 interface SimpleProfileFixProps {
   username: string
@@ -82,12 +82,9 @@ export default function SimpleProfileFix({ username }: SimpleProfileFixProps) {
       const response = await fetch('/api/profile', {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json' },
         body: JSON.stringify({
-          username: newUsername,
-        }),
-      })
+          username: newUsername }) })
 
       if (!response.ok) {
         throw new Error('Erro ao criar username')

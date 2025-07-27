@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createRouteHandlerClient } from '@/app/lib/supabase-server'
-import { verifyAuth } from '@/app/lib/auth-helpers'
+import { NextRequest, NextResponse } from "next/server"
+import { createRouteHandlerClient } from "@/app/lib/supabase-server"
+import { verifyAuth } from "@/app/lib/auth-helpers"
 
 export async function GET(request: NextRequest) {
   try {

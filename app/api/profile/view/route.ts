@@ -24,8 +24,7 @@ export async function POST(request: Request) {
   }
 
   const { error } = await supabase.rpc("register_profile_view", {
-    target_profile_id: profile_id,
-  })
+    target_profile_id: profile_id })
 
   if (error) {
     console.error("Error registering profile view:", error)

@@ -15,8 +15,7 @@ export async function GET(request: NextRequest) {
     // Buscar usuário autenticado
     const {
       data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
+      error: userError } = await supabase.auth.getUser()
 
     if (userError || !user) {
       return NextResponse.json({ 
@@ -157,8 +156,7 @@ function processAnalyticsData(
     likesSent: sentInteractions.filter(i => i.interaction_type === 'like').length,
     superLikesSent: sentInteractions.filter(i => i.interaction_type === 'super_like').length,
     messagesSent: sentInteractions.filter(i => i.interaction_type === 'message').length,
-    profilesViewed: sentInteractions.filter(i => i.interaction_type === 'view_profile').length,
-  }
+    profilesViewed: sentInteractions.filter(i => i.interaction_type === 'view_profile').length }
 
   // Calcular matches (likes mútuos)
   const likesSent = sentInteractions.filter(i => i.interaction_type === 'like')

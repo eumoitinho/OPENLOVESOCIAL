@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { Dialog, DialogContent,  } from "@/components/ui/dialog"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -172,7 +172,6 @@ function ActiveChat({
     )
 }
 
-
 export function ChatDialog({
   isOpen,
   onOpenChange,
@@ -182,8 +181,7 @@ export function ChatDialog({
   onActiveChatChange,
   newMessage,
   onNewMessageChange,
-  onSendMessage,
-}: ChatDialogProps) {
+  onSendMessage }: ChatDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md h-[600px] p-0 bg-white">

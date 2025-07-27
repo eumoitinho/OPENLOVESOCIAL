@@ -1,5 +1,5 @@
-import { createSupabaseAdmin } from '@/app/lib/supabase-server'
-import { PLAN_LIMITS, PlanType, PlanLimits, getEffectivePlan } from './config'
+import { createSupabaseAdmin } from "@/app/lib/supabase-server"
+import { PLAN_LIMITS, PlanType, PlanLimits, getEffectivePlan } from "./config"
 
 // Classe para verificações server-side
 export class PlanValidator {

@@ -1,4 +1,4 @@
-import { PlanType } from '@/lib/plans/config'
+import { PlanType } from "@/lib/plans/config"
 
 // Tipos principais do AbacatePay
 export type AbacatePayTransactionId = string

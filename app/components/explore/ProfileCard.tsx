@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { RobustAvatar } from "@/app/components/ui/robust-avatar"
 import { ExploreProfile } from "@/app/hooks/useProfileExplore"
+import { CardContent } from "@/components/ui/card"
 
 interface ProfileCardProps {
   profile: ExploreProfile

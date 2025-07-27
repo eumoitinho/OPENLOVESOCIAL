@@ -1,5 +1,5 @@
-import { createRouteHandlerClient } from '@/app/lib/supabase-server'
-import { cookies } from 'next/headers'
+import { createRouteHandlerClient } from "@/app/lib/supabase-server"
+import { cookies } from "next/headers"
 
 export type NotificationType = 
   | 'follow' | 'unfollow' | 'friend_request' | 'friend_accept'

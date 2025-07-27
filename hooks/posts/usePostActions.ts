@@ -1,6 +1,6 @@
-import { useCallback } from 'react'
-import { usePostStore } from '@/lib/stores/post-store'
-import { toast } from 'sonner'
+import { useCallback } from "react"
+import { usePostStore } from "@/lib/stores/post-store"
+import { toast } from "sonner"
 import type { 
   PostId, 
   CommentId, 
@@ -25,8 +25,7 @@ export function usePostActions() {
     updateComment,
     deleteComment,
     toggleCommentLike,
-    clearErrors,
-  } = usePostStore()
+    clearErrors } = usePostStore()
 
   // Post actions with error handling and user feedback
   const handleCreatePost = useCallback(async (data: PostCreate) => {
@@ -179,8 +178,7 @@ export function usePostActions() {
     toggleCommentLike: handleToggleCommentLike,
     
     // Utility
-    clearErrors: handleClearErrors,
-  }
+    clearErrors: handleClearErrors }
 }
 
 // Specialized hook for post engagement
@@ -216,9 +214,7 @@ export function usePostEngagement(postId: PostId) {
       like: handleLike,
       reaction: handleReaction,
       save: handleSave,
-      share: handleShare,
-    },
-  }
+      share: handleShare } }
 }
 
 // Hook for comment engagement
@@ -233,7 +229,5 @@ export function useCommentEngagement(commentId: CommentId) {
   return {
     comment,
     actions: {
-      like: handleLike,
-    },
-  }
+      like: handleLike } }
 }

@@ -17,8 +17,7 @@ export default function AvatarGroup({
   avatars,
   count = 10000,
   label = "desenvolvedores",
-  className = "",
-}: AvatarGroupProps) {
+  className = "" }: AvatarGroupProps) {
   const formatCount = (num: number) => {
     if (num >= 1000) {
       return (num / 1000).toFixed(0) + "K+"

@@ -1,8 +1,8 @@
 'use client'
 
-import { useMemo } from 'react'
-import { PLAN_LIMITS, PlanType, PlanLimits, getEffectivePlan } from './config'
-import { useAuth } from '@/app/components/auth/AuthProvider'
+import { useMemo } from "react"
+import { PLAN_LIMITS, PlanType, PlanLimits, getEffectivePlan } from "./config"
+import { useAuth } from "@/app/components/auth/AuthProvider"
 
 // Hook para obter os limites do plano atual do usuário
 export function usePlanLimits(): PlanLimits {

@@ -30,8 +30,7 @@ export function ChatDialog({
   setActiveChat,
   newMessage,
   setNewMessage,
-  handleSendMessage,
-}: ChatDialogProps) {
+  handleSendMessage }: ChatDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="max-w-md h-[600px] p-0 bg-white dark:bg-gray-900">

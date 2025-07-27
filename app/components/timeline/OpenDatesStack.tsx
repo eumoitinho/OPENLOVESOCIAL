@@ -105,8 +105,7 @@ export function OpenDatesStack() {
       if (data.match) {
         toast({
           title: "🎉 Match!",
-          description: `Você e ${data.match.other_user_name} curtiram um ao outro!`,
-        })
+          description: `Você e ${data.match.other_user_name} curtiram um ao outro!` })
         fetchMatches() // Atualizar lista de matches
       }
       
@@ -117,13 +116,11 @@ export function OpenDatesStack() {
       if (action === 'like') {
         toast({
           title: "Curtido!",
-          description: "Você curtiu este perfil",
-        })
+          description: "Você curtiu este perfil" })
       } else if (action === 'super_like') {
         toast({
           title: "Super Like!",
-          description: "Você deu um super like!",
-        })
+          description: "Você deu um super like!" })
       }
       
     } catch (error) {

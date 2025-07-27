@@ -22,9 +22,11 @@ import {
   Save,
   Clock,
   Filter,
-  Search,
-} from "lucide-react"
+  Search } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { CardContent, CardTitle } from "@/components/ui/card"
 
 interface SavedPost {
   id: string
@@ -70,8 +72,7 @@ export function SavedContent({
   onLike,
   onComment,
   onShare,
-  onViewMedia,
-}: SavedContentProps) {
+  onViewMedia }: SavedContentProps) {
   const [activeTab, setActiveTab] = useState<"all" | "posts" | "events" | "media">("all")
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState<"recent" | "oldest" | "popular">("recent")
@@ -383,5 +384,3 @@ export function SavedContent({
     </div>
   )
 }
-import { AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { CardContent } from "@/components/ui/card"

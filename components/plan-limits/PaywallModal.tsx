@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState } from "react"
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Card, CardBody } from "@heroui/react"
-import { Crown, Check, X, Sparkles } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { usePlanLimits, useUpgradeInfo } from '@/lib/plans/hooks'
-import { PLAN_NAMES, PLAN_PRICES } from '@/lib/plans/config'
+import { Crown, Check, X, Sparkles } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { usePlanLimits, useUpgradeInfo } from "@/lib/plans/hooks"
+import { PLAN_NAMES, PLAN_PRICES } from "@/lib/plans/config"
 
 interface PaywallModalProps {
   isOpen: boolean

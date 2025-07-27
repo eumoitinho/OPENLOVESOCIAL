@@ -1,12 +1,12 @@
 "use client"
 
-import { ReactNode } from 'react'
-import { useCanAccess } from '@/lib/plans/hooks'
-import { usePaywall } from '@/lib/plans/paywall'
+import { ReactNode } from "react"
+import { useCanAccess } from "@/lib/plans/hooks"
+import { usePaywall } from "@/lib/plans/paywall"
 import PaywallModal from '@/components/plan-limits/PaywallModal'
-import { Crown, Star, Lock } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import { Crown, Star, Lock } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 
 interface PremiumFeatureProps {
   children: ReactNode

@@ -7,8 +7,7 @@ import jest from "jest" // Import jest to declare it
 
 // Mock do Supabase client
 jest.mock("@/lib/auth-helpers", () => ({
-  createClientSupabaseClient: jest.fn(),
-}))
+  createClientSupabaseClient: jest.fn() }))
 
 const mockGetSession = jest.fn()
 const mockOnAuthStateChange = jest.fn()
@@ -23,17 +22,11 @@ beforeEach(() => {
     auth: {
       getSession: mockGetSession,
       onAuthStateChange: mockOnAuthStateChange.mockReturnValue({
-        data: { subscription: mockSubscription },
-      }),
-    },
+        data: { subscription: mockSubscription } }) },
     from: mockFrom.mockReturnValue({
       select: mockSelect.mockReturnValue({
         eq: mockEq.mockReturnValue({
-          single: mockSingle,
-        }),
-      }),
-    }),
-  })
+          single: mockSingle }) }) }) })
 
   jest.clearAllMocks()
 })
@@ -68,8 +61,7 @@ describe("AuthProvider", () => {
   it("provides user and profile data when authenticated", async () => {
     const mockUser = {
       id: "123",
-      email: "test@example.com",
-    }
+      email: "test@example.com" }
 
     const mockProfile = {
       id: "123",
@@ -82,17 +74,14 @@ describe("AuthProvider", () => {
       website: null,
       is_verified: false,
       created_at: "2024-01-01T00:00:00Z",
-      updated_at: "2024-01-01T00:00:00Z",
-    }
+      updated_at: "2024-01-01T00:00:00Z" }
 
     mockGetSession.mockResolvedValue({
-      data: { session: { user: mockUser } },
-    })
+      data: { session: { user: mockUser } } })
 
     mockSingle.mockResolvedValue({
       data: mockProfile,
-      error: null,
-    })
+      error: null })
 
     render(
       <AuthProvider>

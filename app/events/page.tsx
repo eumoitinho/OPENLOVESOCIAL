@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { useCanAccess, usePlanUsage } from '@/lib/plans/hooks'
-import { usePaywall } from '@/lib/plans/paywall'
+import { useCanAccess, usePlanUsage } from "@/lib/plans/hooks"
+import { usePaywall } from "@/lib/plans/paywall"
 import PaywallModal from '@/components/plan-limits/PaywallModal'
 import PlanIndicator from '@/components/plan-limits/PlanIndicator'
 import { Button } from "@/components/ui/button"
@@ -59,8 +59,7 @@ import {
   User,
   Sun,
   Settings,
-  Lock,
-} from "lucide-react"
+  Lock } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface Event {

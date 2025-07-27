@@ -83,8 +83,7 @@ export default function FriendsPage() {
       toast({
         title: "Erro",
         description: "Não foi possível realizar a busca.",
-        variant: "destructive",
-      })
+        variant: "destructive" })
     } finally {
       setLoading(false)
     }
@@ -95,14 +94,12 @@ export default function FriendsPage() {
       const response = await fetch("/api/friends/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId }),
-      })
+        body: JSON.stringify({ user_id: userId }) })
 
       if (response.ok) {
         toast({
           title: "Solicitação enviada!",
-          description: "Sua solicitação de amizade foi enviada.",
-        })
+          description: "Sua solicitação de amizade foi enviada." })
         // Update search results
         setSearchResults((prev) => prev.map((user) => (user.id === userId ? { ...user, request_sent: true } : user)))
       }
@@ -110,8 +107,7 @@ export default function FriendsPage() {
       toast({
         title: "Erro",
         description: "Não foi possível enviar a solicitação.",
-        variant: "destructive",
-      })
+        variant: "destructive" })
     }
   }
 
@@ -120,14 +116,12 @@ export default function FriendsPage() {
       const response = await fetch("/api/friends/respond", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ request_id: requestId, accept }),
-      })
+        body: JSON.stringify({ request_id: requestId, accept }) })
 
       if (response.ok) {
         toast({
           title: accept ? "Solicitação aceita!" : "Solicitação recusada",
-          description: accept ? "Vocês agora são amigos!" : "A solicitação foi recusada.",
-        })
+          description: accept ? "Vocês agora são amigos!" : "A solicitação foi recusada." })
         loadFriendRequests()
         if (accept) loadFriends()
       }
@@ -135,8 +129,7 @@ export default function FriendsPage() {
       toast({
         title: "Erro",
         description: "Não foi possível processar a solicitação.",
-        variant: "destructive",
-      })
+        variant: "destructive" })
     }
   }
 
@@ -145,22 +138,19 @@ export default function FriendsPage() {
       const response = await fetch("/api/friends/remove", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: userId }),
-      })
+        body: JSON.stringify({ user_id: userId }) })
 
       if (response.ok) {
         toast({
           title: "Amigo removido",
-          description: "A pessoa foi removida da sua lista de amigos.",
-        })
+          description: "A pessoa foi removida da sua lista de amigos." })
         loadFriends()
       }
     } catch (error) {
       toast({
         title: "Erro",
         description: "Não foi possível remover o amigo.",
-        variant: "destructive",
-      })
+        variant: "destructive" })
     }
   }
 

@@ -1,9 +1,9 @@
 "use client"
 
-import { ImageIcon, Video, Mic, FileImage } from 'lucide-react'
+import { ImageIcon, Video, Mic, FileImage } from "lucide-react"
 import { Button } from "@heroui/react"
 import PremiumLockBadge from '@/app/components/premium/PremiumLockBadge'
-import { usePremiumFeatures } from '@/lib/hooks/usePremiumFeatures'
+import { usePremiumFeatures } from "@/lib/hooks/usePremiumFeatures"
 
 interface MediaUploadButtonsProps {
   onImageUpload?: () => void

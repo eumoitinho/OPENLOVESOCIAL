@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react"
 import { Card, CardBody, CardHeader, Button, Chip, Input } from "@heroui/react"
 import { 
   Users, 
@@ -14,10 +14,11 @@ import {
   MapPin,
   Filter
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { useAuth } from '@/app/components/auth/AuthProvider'
-import { useCanAccess } from '@/lib/plans/hooks'
+import { cn } from "@/lib/utils"
+import { useAuth } from "@/app/components/auth/AuthProvider"
+import { useCanAccess } from "@/lib/plans/hooks"
 import CreateCommunity from './CreateCommunity'
+import { Avatar } from "@/components/ui/avatar"
 
 interface Community {
   id: string

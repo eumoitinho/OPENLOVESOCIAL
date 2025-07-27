@@ -57,8 +57,7 @@ export const TABLES = {
   PAYMENT_INTENTS: 'payment_intents',
   WEBHOOK_LOGS: 'webhook_logs',
   USER_MONTHLY_USAGE: 'user_monthly_usage',
-  USER_MONTHLY_EVENTS: 'user_monthly_events',
-} as const
+  USER_MONTHLY_EVENTS: 'user_monthly_events' } as const
 
 // ================================================================
 // PLAN TYPES (UNIFIED ENGLISH NOMENCLATURE)

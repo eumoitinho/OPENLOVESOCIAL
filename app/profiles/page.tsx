@@ -31,8 +31,7 @@ import {
   Map,
   Camera,
   Edit,
-  Settings,
-} from "lucide-react"
+  Settings } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Separator } from "@/components/ui/separator"
 import { useRouter } from "next/navigation"
@@ -61,8 +60,7 @@ const mockProfiles = [
     relationshipStatus: "Solteira",
     age: 28,
     occupation: "Designer",
-    education: "Universidade de São Paulo",
-  },
+    education: "Universidade de São Paulo" },
   {
     id: 2,
     name: "Carlos Mendes",
@@ -84,8 +82,7 @@ const mockProfiles = [
     relationshipStatus: "Solteiro",
     age: 32,
     occupation: "Desenvolvedor",
-    education: "PUC-Rio",
-  },
+    education: "PUC-Rio" },
   {
     id: 3,
     name: "Mariana Costa",
@@ -107,8 +104,7 @@ const mockProfiles = [
     relationshipStatus: "Solteira",
     age: 26,
     occupation: "Artista",
-    education: "Escola de Belas Artes",
-  },
+    education: "Escola de Belas Artes" },
   {
     id: 4,
     name: "Pedro Santos",
@@ -130,8 +126,7 @@ const mockProfiles = [
     relationshipStatus: "Solteiro",
     age: 35,
     occupation: "Chef",
-    education: "Escola de Gastronomia",
-  },
+    education: "Escola de Gastronomia" },
 ]
 
 export default function ProfilesPage() {

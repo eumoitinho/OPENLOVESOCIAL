@@ -1,10 +1,10 @@
 "use client"
 
-import { useState } from 'react'
+import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { toast } from 'sonner'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { toast } from "sonner"
 
 export default function TestStoragePage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -75,10 +75,8 @@ export default function TestStoragePage() {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(testData),
-      })
+          'Content-Type': 'application/json' },
+        body: JSON.stringify(testData) })
 
       const result = await response.json()
 
@@ -103,8 +101,7 @@ export default function TestStoragePage() {
     setLoading(true)
     try {
       const response = await fetch('/api/test-buckets', {
-        method: 'GET',
-      })
+        method: 'GET' })
 
       const result = await response.json()
       console.log("Buckets:", result)

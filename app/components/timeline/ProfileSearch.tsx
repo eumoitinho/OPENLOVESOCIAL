@@ -9,6 +9,9 @@ import { Slider } from "../../../components/ui/slider"
 import { Input } from "../../../components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar"
 import { useRouter } from "next/navigation"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { CardContent, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const PROFILE_TYPES = [
   "Não importa / Todos",
@@ -245,5 +248,3 @@ export default function ProfileSearch({ onProfileClick }: ProfileSearchProps) {
     </div>
   )
 }
-import { CardContent } from "@/components/ui/card"
-import { SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"

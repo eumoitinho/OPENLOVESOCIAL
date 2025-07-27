@@ -30,8 +30,7 @@ export async function GET(request: NextRequest) {
     // Buscar usuário autenticado
     const {
       data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
+      error: userError } = await supabase.auth.getUser()
 
     if (userError || !user) {
       console.log("❌ [Explore] Usuário não autenticado")
@@ -464,8 +463,7 @@ export async function GET(request: NextRequest) {
         "18-25": sortedProfiles.filter(p => p.age && p.age >= 18 && p.age <= 25).length,
         "26-35": sortedProfiles.filter(p => p.age && p.age >= 26 && p.age <= 35).length,
         "36-45": sortedProfiles.filter(p => p.age && p.age >= 36 && p.age <= 45).length,
-        "46+": sortedProfiles.filter(p => p.age && p.age >= 46).length,
-      }
+        "46+": sortedProfiles.filter(p => p.age && p.age >= 46).length }
     }
 
     const result = {

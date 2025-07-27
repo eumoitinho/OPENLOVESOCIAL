@@ -1,9 +1,9 @@
 'use client'
 
-import { Badge } from '@/components/ui/badge'
-import { Star, Crown, CheckCircle, XCircle } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { PlanType } from '@/lib/plans/config'
+import { Badge } from "@/components/ui/badge"
+import { Star, Crown, CheckCircle, XCircle } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { PlanType } from "@/lib/plans/config"
 
 interface PlanBadgeProps {
   plan: PlanType
@@ -19,26 +19,22 @@ export default function PlanBadge({ plan, verified = false, variant = 'default',
       label: 'Gratuito',
       icon: null,
       color: 'bg-gray-100 text-gray-700 border-gray-300',
-      hover: 'hover:bg-gray-200 hover:text-gray-900 hover:border-gray-400',
-    },
+      hover: 'hover:bg-gray-200 hover:text-gray-900 hover:border-gray-400' },
     gold: {
       label: 'Ouro',
       icon: Star,
       color: 'bg-amber-100 text-amber-700 border-amber-300',
-      hover: 'hover:bg-amber-200 hover:text-amber-900 hover:border-amber-400',
-    },
+      hover: 'hover:bg-amber-200 hover:text-amber-900 hover:border-amber-400' },
     diamante: {
       label: 'Diamante',
       icon: Crown,
       color: 'bg-purple-100 text-purple-700 border-purple-300',
-      hover: 'hover:bg-purple-200 hover:text-purple-900 hover:border-purple-400',
-    },
+      hover: 'hover:bg-purple-200 hover:text-purple-900 hover:border-purple-400' },
     diamante_anual: {
       label: 'Diamante',
       icon: Crown,
       color: 'bg-purple-100 text-purple-700 border-purple-300',
-      hover: 'hover:bg-purple-200 hover:text-purple-900 hover:border-purple-400',
-    }
+      hover: 'hover:bg-purple-200 hover:text-purple-900 hover:border-purple-400' }
   } as const
 
   const config = planConfig[plan as keyof typeof planConfig]

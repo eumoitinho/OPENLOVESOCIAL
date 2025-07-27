@@ -9,8 +9,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2025-06-30.basil",
-})
+  apiVersion: "2025-06-30.basil" })
 
 export async function POST(request: NextRequest) {
   try {
@@ -75,9 +74,7 @@ export async function POST(request: NextRequest) {
         type: "ad_balance"
       },
       automatic_payment_methods: {
-        enabled: true,
-      },
-    })
+        enabled: true } })
 
     // Registrar transação no banco
     const { data: transaction, error: transactionError } = await supabase

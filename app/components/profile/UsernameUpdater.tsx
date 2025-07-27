@@ -28,10 +28,8 @@ export default function UsernameUpdater() {
       const response = await fetch("/api/profile/update-username", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username: newUsername }),
-      })
+          "Content-Type": "application/json" },
+        body: JSON.stringify({ username: newUsername }) })
 
       const data = await response.json()
 

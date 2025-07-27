@@ -2,7 +2,7 @@ import { createRouteHandlerClient } from "@/app/lib/supabase-server"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 import type { Database } from "@/app/lib/database.types"
-import { planValidator } from '@/lib/plans/server'
+import { planValidator } from "@/lib/plans/server"
 
 export async function GET(request: Request) {
   const supabase = await createRouteHandlerClient()
@@ -68,8 +68,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
    const supabase = await createRouteHandlerClient()
   const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
     return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 })
@@ -90,8 +89,7 @@ export async function POST(request: Request) {
       ...eventData,
       creator_id: user.id,
       is_verified: false, // Novos eventos não são verificados
-      current_attendees: 0,
-    })
+      current_attendees: 0 })
     .select()
     .single()
 

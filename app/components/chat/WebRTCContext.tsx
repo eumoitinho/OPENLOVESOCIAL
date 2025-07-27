@@ -56,8 +56,7 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children, curren
 
   const createPeerConnection = useCallback(() => {
     const pc = new RTCPeerConnection({
-      iceServers,
-    })
+      iceServers })
 
     pc.ontrack = (event) => {
       setRemoteStream(event.streams[0])
@@ -78,8 +77,7 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children, curren
       // Simular acesso à mídia
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: true,
-        video: type === 'video',
-      })
+        video: type === 'video' })
 
       setLocalStream(stream)
       setRemoteUser({ id: userId, name: userName })
@@ -105,8 +103,7 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children, curren
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: true,
-        video: callType === 'video',
-      })
+        video: callType === 'video' })
 
       setLocalStream(stream)
       setIsIncomingCall(false)
@@ -191,8 +188,7 @@ export const WebRTCProvider: React.FC<WebRTCProviderProps> = ({ children, curren
     toggleMute,
     toggleVideo,
     isMuted,
-    isVideoEnabled,
-  }
+    isVideoEnabled }
 
   return (
     <WebRTCContext.Provider value={value}>

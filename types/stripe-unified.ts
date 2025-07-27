@@ -1,5 +1,5 @@
-import { Stripe } from 'stripe'
-import { PlanType } from '@/lib/plans/config'
+import { Stripe } from "stripe"
+import { PlanType } from "@/lib/plans/config"
 
 // Tipos de planos disponíveis (usando tipo unificado)
 export type StripePlanType = PlanType

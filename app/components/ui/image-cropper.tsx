@@ -2,10 +2,10 @@
 
 import React, { useState, useCallback } from 'react'
 import Cropper from 'react-easy-crop'
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Slider } from '@/components/ui/slider'
-import { RotateCcw, RotateCw, ZoomIn, ZoomOut, Check, X } from 'lucide-react'
+import { Slider } from "@/components/ui/slider"
+import { RotateCcw, RotateCw, ZoomIn, ZoomOut, Check, X } from "lucide-react"
 
 interface Point {
   x: number
@@ -102,8 +102,7 @@ const getBoundingBox = (
     width:
       Math.abs(Math.cos(rotRad) * width) + Math.abs(Math.sin(rotRad) * height),
     height:
-      Math.abs(Math.sin(rotRad) * width) + Math.abs(Math.cos(rotRad) * height),
-  }
+      Math.abs(Math.sin(rotRad) * width) + Math.abs(Math.cos(rotRad) * height) }
 }
 
 export const ImageCropper: React.FC<ImageCropperProps> = ({

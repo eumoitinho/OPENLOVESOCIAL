@@ -113,23 +113,19 @@ export function OpenDatesCard({
         y: yOffset,
         x: xOffset,
         scale: 1 - index * 0.04,
-        rotateZ: index * -3,
-      }}
+        rotateZ: index * -3 }}
       exit={{
         opacity: 0,
-        transition: { duration: 0.2 },
-      }}
+        transition: { duration: 0.2 } }}
       transition={{
         type: "spring",
         stiffness: 500,
         damping: 50,
-        mass: 1,
-      }}
+        mass: 1 }}
       style={{
         zIndex,
         boxShadow: `0 ${10 + index * 5}px ${30 + index * 10}px ${card.colors.shadow}`,
-        backgroundColor: card.colors.primary,
-      }}
+        backgroundColor: card.colors.primary }}
       className="absolute left-0 top-0 h-full w-full cursor-grab overflow-hidden rounded-2xl active:cursor-grabbing"
       drag={index === 0 ? "x" : false}
       dragConstraints={{ left: -200, right: 200 }}
@@ -138,8 +134,7 @@ export function OpenDatesCard({
       onDragEnd={handleDragEnd}
       whileDrag={{
         scale: 1.05,
-        boxShadow: `0 ${15 + index * 5}px ${40 + index * 10}px ${card.colors.shadow}`,
-      }}
+        boxShadow: `0 ${15 + index * 5}px ${40 + index * 10}px ${card.colors.shadow}` }}
     >
       <motion.div
         className="relative flex h-full flex-col overflow-hidden rounded-2xl"
@@ -175,8 +170,7 @@ export function OpenDatesCard({
             className="aspect-video w-full overflow-hidden rounded-xl bg-cover bg-center"
             style={{
               backgroundImage: `url(${card.image_url})`,
-              boxShadow: `0 10px 30px ${card.colors.shadow}`,
-            }}
+              boxShadow: `0 10px 30px ${card.colors.shadow}` }}
           />
         </div>
 
@@ -251,8 +245,7 @@ export function OpenDatesCard({
               backgroundColor: `${card.colors.text}20`,
               display: "inline-flex",
               alignItems: "center",
-              gap: "0.25rem",
-            }}
+              gap: "0.25rem" }}
           >
             <Heart className="h-4 w-4" />
             {card.subtitle}

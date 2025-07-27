@@ -1,14 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
+import { useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from '@/components/ui/badge'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Separator } from '@/components/ui/separator'
-import { QrCode, Copy, Clock, CheckCircle, XCircle, RefreshCw } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { toast } from '@/components/ui/use-toast'
+import { Badge } from "@/components/ui/badge"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Separator } from "@/components/ui/separator"
+import { QrCode, Copy, Clock, CheckCircle, XCircle, RefreshCw } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { toast } from "@/components/ui/use-toast"
 
 interface PixPaymentProps {
   planType: 'gold' | 'diamante' | 'diamante_anual'

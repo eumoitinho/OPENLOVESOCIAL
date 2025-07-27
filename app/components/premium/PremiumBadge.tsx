@@ -1,7 +1,7 @@
 "use client"
 
-import { Crown, Star, Zap } from 'lucide-react'
-import { usePremiumFeatures, getPlanName, getPlanColor, type PlanType } from '@/lib/hooks/usePremiumFeatures'
+import { Crown, Star, Zap } from "lucide-react"
+import { usePremiumFeatures, getPlanName, getPlanColor, type PlanType } from "@/lib/hooks/usePremiumFeatures"
 
 interface PremiumBadgeProps {
   planType?: PlanType

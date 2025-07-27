@@ -9,8 +9,7 @@ export async function GET(request: NextRequest) {
     // Verificar autenticação
     const {
       data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
+      error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
       console.log("API Test - Usuário não autenticado:", authError)

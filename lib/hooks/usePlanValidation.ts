@@ -1,6 +1,6 @@
-import { useAuth } from '@/app/components/auth/AuthProvider'
-import { useCanAccess } from '@/lib/plans/hooks'
-import { PLAN_LIMITS, PlanType } from '@/lib/plans/config'
+import { useAuth } from "@/app/components/auth/AuthProvider"
+import { useCanAccess } from "@/lib/plans/hooks"
+import { PLAN_LIMITS, PlanType } from "@/lib/plans/config"
 
 export interface ValidationResult {
   allowed: boolean

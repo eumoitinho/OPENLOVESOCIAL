@@ -30,10 +30,13 @@ import {
   Flame,
   Save,
   Send,
-  Play,
-} from "lucide-react"
+  Play } from "lucide-react"
 import { cn } from "@/lib/utils"
 import PostCard from "./PostCard"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { CardContent, CardTitle } from "@/components/ui/card"
 
 interface UserProfile {
   id: string
@@ -90,8 +93,7 @@ export function ProfileViewer({
   onSave,
   onComment,
   onSharePost,
-  onViewMedia,
-}: ProfileViewerProps) {
+  onViewMedia }: ProfileViewerProps) {
   const [activeTab, setActiveTab] = useState<"posts" | "photos" | "videos" | "about">("posts")
 
   const getFollowButtonText = () => {
@@ -416,6 +418,3 @@ export function ProfileViewer({
     </Dialog>
   )
 }
-import { AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { CardContent } from "@/components/ui/card"
-import { DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"

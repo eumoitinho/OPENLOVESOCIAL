@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Button, Card, CardBody, Chip, Tab } from "@heroui/react"
+import { Button, Card, CardBody, Chip } from "@heroui/react"
 import { 
   Users, 
   Grid3X3, 
@@ -20,6 +20,8 @@ import { motion } from "framer-motion"
 import { useProfileExplore } from "@/app/hooks/useProfileExplore"
 import { ProfileCard } from "./ProfileCard"
 import { ExploreFilters } from "./ExploreFilters"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { CardContent } from "@/components/ui/card"
 
 interface ExploreProfilesProps {
   currentUser?: {
@@ -364,4 +366,3 @@ export function ExploreProfiles({
     </div>
   )
 }
-import { CardContent } from "@/components/ui/card"

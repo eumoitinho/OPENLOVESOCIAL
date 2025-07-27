@@ -23,8 +23,7 @@ export function CreatePostForm({ newPost, setNewPost, handleCreatePost }: Create
   const currentUser = {
     name: "João Vitor",
     username: "joao_vitor",
-    avatar: "/placeholder.svg?height=40&width=40",
-  }
+    avatar: "/placeholder.svg?height=40&width=40" }
 
   return (
     <Card className="border-0 shadow-sm bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-2xl overflow-hidden">
@@ -121,8 +120,7 @@ export function CreatePostForm({ newPost, setNewPost, handleCreatePost }: Create
                       onChange={(e) =>
                         setNewPost({
                           ...newPost,
-                          eventDetails: { ...newPost.eventDetails, date: e.target.value },
-                        })
+                          eventDetails: { ...newPost.eventDetails, date: e.target.value } })
                       }
                       className="border-pink-300 dark:border-pink-700"
                     />
@@ -138,8 +136,7 @@ export function CreatePostForm({ newPost, setNewPost, handleCreatePost }: Create
                       onChange={(e) =>
                         setNewPost({
                           ...newPost,
-                          eventDetails: { ...newPost.eventDetails, time: e.target.value },
-                        })
+                          eventDetails: { ...newPost.eventDetails, time: e.target.value } })
                       }
                       className="border-pink-300 dark:border-pink-700"
                     />
@@ -156,8 +153,7 @@ export function CreatePostForm({ newPost, setNewPost, handleCreatePost }: Create
                     onChange={(e) =>
                       setNewPost({
                         ...newPost,
-                        eventDetails: { ...newPost.eventDetails, location: e.target.value },
-                      })
+                        eventDetails: { ...newPost.eventDetails, location: e.target.value } })
                     }
                     className="border-pink-300 dark:border-pink-700"
                   />
@@ -174,8 +170,7 @@ export function CreatePostForm({ newPost, setNewPost, handleCreatePost }: Create
                     onChange={(e) =>
                       setNewPost({
                         ...newPost,
-                        eventDetails: { ...newPost.eventDetails, maxParticipants: Number.parseInt(e.target.value) },
-                      })
+                        eventDetails: { ...newPost.eventDetails, maxParticipants: Number.parseInt(e.target.value) } })
                     }
                     className="border-pink-300 dark:border-pink-700"
                   />

@@ -85,8 +85,7 @@ export function OpenDatesPreferences() {
       if (response.ok) {
         toast({
           title: "Preferências salvas!",
-          description: "Suas preferências foram atualizadas com sucesso.",
-        })
+          description: "Suas preferências foram atualizadas com sucesso." })
       } else {
         throw new Error('Erro ao salvar preferências')
       }

@@ -32,8 +32,7 @@ export async function GET(request: NextRequest) {
         search_query: query,
         interest_filter: interests,
         limit_count: limit,
-        offset_count: offset,
-      })
+        offset_count: offset })
 
       if (error) {
         console.error("Erro na busca de usuários:", error)

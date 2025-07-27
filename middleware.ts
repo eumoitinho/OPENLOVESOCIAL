@@ -1,6 +1,6 @@
 // middleware.ts
-import { createServerClient } from '@supabase/ssr'
-import { NextResponse } from 'next/server'
+import { createServerClient } from "@supabase/ssr"
+import { NextResponse } from "next/server"
 import type { NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
@@ -10,8 +10,7 @@ export async function middleware(request: NextRequest) {
   }
 
   let supabaseResponse = NextResponse.next({
-    request,
-  })
+    request })
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -26,15 +25,12 @@ export async function middleware(request: NextRequest) {
             request.cookies.set(name, value)
             supabaseResponse.cookies.set(name, value, options)
           })
-        },
-      },
-    }
+        } } }
   )
 
   // IMPORTANTE: Usar getUser() ao invés de getSession() para validação server-side
   const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    data: { user } } = await supabase.auth.getUser()
 
   // Rotas públicas que não precisam de autenticação
   const publicRoutes = ['/', '/auth/signin', '/auth/signup', '/auth/callback', '/auth/confirm-email', '/privacy', '/terms']
@@ -72,5 +68,4 @@ export const config = {
      * - api routes (explicitly excluded in middleware)
      */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
-}
+  ] }

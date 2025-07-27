@@ -1,16 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { CardPayment, initMercadoPago } from "@mercadopago/sdk-react";
-import { PUBLIC_KEY } from "@/app/lib/constants";
+import { useEffect, useState } from "react"
+import { CardPayment, initMercadoPago } from "@mercadopago/sdk-react"
+import { PUBLIC_KEY } from "@/app/lib/constants"
 
 type PlanoType = "gold" | "diamante" | "diamante_anual";
 
 const PLANOS_PRECOS = {
   gold: 25.0,
   diamante: 45.9,
-  diamante_anual: 459.0,
-} as const;
+  diamante_anual: 459.0 } as const;
 
 interface CheckoutFormProps {
   user: any;
@@ -39,9 +38,7 @@ export default function CheckoutForm({ user, plano, onSuccess, onError }: Checko
       }
     },
     form: {
-      includeEmail: true,
-    },
-  };
+      includeEmail: true } };
 
   useEffect(() => {
     const initializeMercadoPago = async () => {
@@ -67,14 +64,12 @@ export default function CheckoutForm({ user, plano, onSuccess, onError }: Checko
       const response = await fetch("/api/mercadopago/subscribe", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-        },
+          "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
           plano: plano,
           email: formData.payer?.email || user.email, // Usa o email do formulário ou o do usuário como fallback
-        }),
-      });
+        }) });
 
       const result = await response.json();
 

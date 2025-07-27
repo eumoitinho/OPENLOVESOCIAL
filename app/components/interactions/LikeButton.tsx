@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Heart, ThumbsUp, Laugh, Eye, Frown, Angry } from 'lucide-react'
+import { useState, useEffect } from "react"
+import { Heart, ThumbsUp, Laugh, Eye, Frown, Angry } from "lucide-react"
 import { Button } from "@heroui/react"
-import { cn } from '@/lib/utils'
+import { cn } from "@/lib/utils"
 
 interface LikeButtonProps {
   targetId: string
@@ -67,8 +67,7 @@ export default function LikeButton({
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json' },
         body: JSON.stringify({ reaction_type: reactionType })
       })
 

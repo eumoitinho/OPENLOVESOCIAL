@@ -31,8 +31,7 @@ export default function FriendsContent({ initialRequests, initialFriends }: Frie
       const res = await fetch("/api/friends/respond", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ requester_id: requesterId, response }),
-      })
+        body: JSON.stringify({ requester_id: requesterId, response }) })
       if (res.ok) {
         setRequests(prev => prev.filter(req => req.user_id !== requesterId))
         if (response === "accepted") {
@@ -54,8 +53,7 @@ export default function FriendsContent({ initialRequests, initialFriends }: Frie
   const handleRemoveFriend = async (friendId: string) => {
     try {
       const response = await fetch(`/api/friends/${friendId}`, {
-        method: "DELETE",
-      })
+        method: "DELETE" })
       if (response.ok) {
         setFriends(prev => prev.filter(friend => friend.id !== friendId))
         toast({ title: "Success", description: "Friend removed." })

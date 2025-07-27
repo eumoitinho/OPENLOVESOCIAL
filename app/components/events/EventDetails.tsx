@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -28,8 +28,8 @@ import {
   QrCode,
   Download
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { useAuth } from '@/app/components/auth/AuthProvider'
+import { cn } from "@/lib/utils"
+import { useAuth } from "@/app/components/auth/AuthProvider"
 import EventParticipants from './EventParticipants'
 
 interface Event {

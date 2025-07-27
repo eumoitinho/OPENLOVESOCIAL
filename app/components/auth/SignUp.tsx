@@ -4,7 +4,7 @@ import { useState } from "react"
 import { createClient } from "@/app/lib/supabase-browser"
 import { Button, Input, Card, CardBody, CardHeader, Checkbox, Chip, Progress } from "@heroui/react"
 import { ArrowLeft, ArrowRight, Check, Crown, Star, Zap, Upload, X, Camera } from "lucide-react"
-import { EnhancedImageUpload } from '@/app/components/ui/enhanced-image-upload'
+import { EnhancedImageUpload } from "@/app/components/ui/enhanced-image-upload"
 import { useRouter } from "next/navigation"
 import { LocationSearch } from "@/app/components/location/LocationSearch"
 import PlanSelection from "@/app/components/auth/PlanSelection"
@@ -72,8 +72,7 @@ const PLANS = [
     ],
     icon: Zap,
     color: "text-gray-500",
-    bgColor: "bg-gray-50",
-  },
+    bgColor: "bg-gray-50" },
   {
     id: "gold",
     name: "Open Gold",
@@ -91,8 +90,7 @@ const PLANS = [
     icon: Crown,
     color: "text-yellow-500",
     bgColor: "bg-yellow-50",
-    popular: true,
-  },
+    popular: true },
   {
     id: "diamond",
     name: "Open Diamond",
@@ -109,8 +107,7 @@ const PLANS = [
     ],
     icon: Star,
     color: "text-blue-500",
-    bgColor: "bg-blue-50",
-  },
+    bgColor: "bg-blue-50" },
 ]
 
 export default function SignUp() {
@@ -146,13 +143,11 @@ export default function SignUp() {
     offersPrograms: false,
 
     // Etapa 3
-    selectedPlan: "free",
-  })
+    selectedPlan: "free" })
 
   const router = useRouter()
   // Usar instância única do client
   const supabase = createClient()
-
 
   const handleLocationSelect = (location: {
     id: number
@@ -174,8 +169,7 @@ export default function SignUp() {
       ...prev,
       interests: prev.interests.includes(interest)
         ? prev.interests.filter((i) => i !== interest)
-        : [...prev.interests, interest],
-    }))
+        : [...prev.interests, interest] }))
   }
 
   const validateStep = (stepNumber: number) => {
@@ -231,8 +225,7 @@ export default function SignUp() {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json' },
         body: JSON.stringify({
           firstName: formData.fullName.split(' ')[0],
           lastName: formData.fullName.split(' ').slice(1).join(' '),
@@ -254,8 +247,7 @@ export default function SignUp() {
           partner: null,
           avatar_url: avatarBase64,
           cover_url: coverBase64
-        }),
-      })
+        }) })
 
       const result = await response.json()
 

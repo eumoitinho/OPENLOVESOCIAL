@@ -9,8 +9,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2025-06-30.basil",
-})
+  apiVersion: "2025-06-30.basil" })
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,22 +34,17 @@ export async function POST(request: NextRequest) {
       line_items: [
         {
           price: priceId,
-          quantity: 1,
-        },
+          quantity: 1 },
       ],
       mode: "subscription",
       success_url: `${request.nextUrl.origin}/dashboard?success=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${request.nextUrl.origin}/pricing?canceled=true`,
       metadata: {
         userId: userId,
-        priceId: priceId,
-      },
+        priceId: priceId },
       subscription_data: {
         metadata: {
-          userId: userId,
-        },
-      },
-    })
+          userId: userId } } })
 
     return NextResponse.json({ sessionId: session.id, url: session.url })
   } catch (error) {

@@ -31,8 +31,7 @@ export default function Card08({
   rating = 4.5,
   verified = false,
   premium = false,
-  tags = [],
-}: Card08Props) {
+  tags = [] }: Card08Props) {
   const getBadgeColor = (variant: string) => {
     switch (variant) {
       case "pink":

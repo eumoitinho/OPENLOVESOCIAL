@@ -6,8 +6,7 @@ import { redirect } from "next/navigation"
 
 export const metadata: Metadata = {
   title: "Perfil - OpenLove",
-  description: "Gerencie seu perfil no OpenLove",
-}
+  description: "Gerencie seu perfil no OpenLove" }
 
 export default async function ProfilePage() {
   const user = await getCurrentUser()

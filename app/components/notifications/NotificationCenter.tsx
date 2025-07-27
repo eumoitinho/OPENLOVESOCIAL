@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
-import { Bell, Check, X, MessageCircle, Heart, UserPlus, AtSign, Calendar } from 'lucide-react'
-import { useNotifications } from '@/app/hooks/useNotifications'
-import { cn } from '@/lib/utils'
-import { formatDistanceToNow } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
+import { useState } from "react"
+import { Bell, Check, X, MessageCircle, Heart, UserPlus, AtSign, Calendar } from "lucide-react"
+import { useNotifications } from "@/app/hooks/useNotifications"
+import { cn } from "@/lib/utils"
+import { formatDistanceToNow } from "date-fns"
+import { ptBR } from "date-fns/locale"
 
 interface NotificationCenterProps {
   isOpen: boolean

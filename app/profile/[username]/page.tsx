@@ -1,12 +1,14 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
-import { Icon } from '@iconify/react'
-import { Button, Card, CardBody, CardHeader, Chip, Divider, Image, Link, Tab, User, Spinner, Badge } from "@heroui/react"
-import { useAuth } from '@/app/components/auth/AuthProvider'
-import { toast } from 'sonner'
+import { useParams, useRouter } from "next/navigation"
+import { Icon } from "@iconify/react"
+import { Button, Card, CardBody, CardHeader, Chip, Divider, Image, Link, User, Spinner, Badge } from "@heroui/react"
+import { useAuth } from "@/app/components/auth/AuthProvider"
+import { toast } from "sonner"
 import SimpleProfileFix from '@/app/components/profile/SimpleProfileFix'
+import { Tabs } from "@/components/ui/tabs"
+import { Avatar } from "@/components/ui/avatar"
 
 interface Profile {
   id: string
@@ -103,10 +105,8 @@ export default function UserProfile() {
       const response = await fetch("/api/follows", {
         method: isFollowing ? "DELETE" : "POST",
         headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ following_id: profile.id }),
-      })
+          "Content-Type": "application/json" },
+        body: JSON.stringify({ following_id: profile.id }) })
 
       if (response.ok) {
         setIsFollowing(!isFollowing)
@@ -578,4 +578,3 @@ export default function UserProfile() {
     </div>
   )
 }
-import { Tabs } from "@/components/ui/tabs"

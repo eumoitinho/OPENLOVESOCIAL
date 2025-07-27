@@ -52,8 +52,7 @@ import {
   Mail,
   Bookmark,
   User,
-  Sun,
-} from "lucide-react"
+  Sun } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface Community {

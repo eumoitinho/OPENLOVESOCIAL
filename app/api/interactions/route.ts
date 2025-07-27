@@ -10,8 +10,7 @@ export async function POST(request: NextRequest) {
     // Get current user
     const {
       data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
+      error: userError } = await supabase.auth.getUser()
     
     if (userError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -77,8 +76,7 @@ export async function POST(request: NextRequest) {
           .insert({
             target_type: "post",
             target_id: postId,
-            user_id: currentUser.id,
-          })
+            user_id: currentUser.id })
 
         if (insertError) {
           console.error("Error liking post:", insertError)
@@ -127,8 +125,7 @@ export async function POST(request: NextRequest) {
         .insert({
           post_id: postId,
           user_id: currentUser.id,
-          content: content.trim(),
-        })
+          content: content.trim() })
         .select()
         .single()
 
@@ -159,9 +156,7 @@ export async function POST(request: NextRequest) {
           username: currentUser.username || "unknown",
           avatar: currentUser.avatar_url || "/placeholder.svg",
           verified: currentUser.is_verified || false,
-          premium: currentUser.is_premium || false,
-        },
-      }
+          premium: currentUser.is_premium || false } }
 
       console.log("[Interactions API] Comentário criado:", comment.id)
       return NextResponse.json({ data: formattedComment })
@@ -297,8 +292,7 @@ export async function POST(request: NextRequest) {
           .insert({
             target_type: "comment",
             target_id: commentId,
-            user_id: currentUser.id,
-          })
+            user_id: currentUser.id })
 
         if (insertError) {
           console.error("Error liking comment:", insertError)
@@ -370,9 +364,7 @@ export async function POST(request: NextRequest) {
           username: currentUser.username || "unknown",
           avatar: currentUser.avatar_url || "/placeholder.svg",
           verified: currentUser.is_verified || false,
-          premium: currentUser.is_premium || false,
-        },
-      }
+          premium: currentUser.is_premium || false } }
 
       console.log("[Interactions API] Resposta criada:", reply.id)
       return NextResponse.json({ data: formattedReply })

@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
-import { PlanValidator } from '@/lib/plans/server'
-import { PLAN_LIMITS } from '@/lib/plans/config'
+import { NextRequest, NextResponse } from "next/server"
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
+import { cookies } from "next/headers"
+import { PlanValidator } from "@/lib/plans/server"
+import { PLAN_LIMITS } from "@/lib/plans/config"
 
 export async function GET(request: NextRequest) {
   try {

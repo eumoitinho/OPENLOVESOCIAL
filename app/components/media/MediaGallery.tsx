@@ -52,8 +52,7 @@ const MediaGallery: React.FC<MediaGalleryProps> = ({
   columns = 3,
   showAuthor = true,
   showStats = true,
-  showActions = true,
-}) => {
+  showActions = true }) => {
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return "0 Bytes"
     const k = 1024
@@ -66,8 +65,7 @@ const MediaGallery: React.FC<MediaGalleryProps> = ({
     return new Date(dateString).toLocaleDateString("pt-BR", {
       year: "numeric",
       month: "short",
-      day: "numeric",
-    })
+      day: "numeric" })
   }
 
   const isImage = (mimeType: string): boolean => {
@@ -90,8 +88,7 @@ const MediaGallery: React.FC<MediaGalleryProps> = ({
     3: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
     4: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4",
     5: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-5",
-    6: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-6",
-  }
+    6: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-6" }
 
   if (items.length === 0) {
     return (

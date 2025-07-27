@@ -232,5 +232,4 @@ export {
   MenubarSubTrigger,
   MenubarGroup,
   MenubarSub,
-  MenubarShortcut,
-}
+  MenubarShortcut }

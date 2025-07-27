@@ -25,17 +25,13 @@ const PLANOS_FREQUENCIAS = {
 const planData = {
   gold: {
     plan_id: PLANOS_CODIGOS.gold,
-    redirect: "https://openlove.com.br/planoativado/gold",
-  },
+    redirect: "https://openlove.com.br/planoativado/gold" },
   diamante: {
     plan_id: PLANOS_CODIGOS.diamante,
-    redirect: "https://openlove.com.br/planoativado/diamante",
-  },
+    redirect: "https://openlove.com.br/planoativado/diamante" },
   diamante_anual: {
     plan_id: PLANOS_CODIGOS.diamante_anual,
-    redirect: "https://openlove.com.br/planoativado/diamante-anual",
-  },
-} as const
+    redirect: "https://openlove.com.br/planoativado/diamante-anual" } } as const
 
 export async function POST(req: NextRequest) {
   const formData = await req.json()
@@ -115,9 +111,7 @@ async function getOrCreateCustomer(email: string, name: string, identificationTy
   // Primeiro, tenta buscar cliente existente
   const searchResponse = await fetch(`https://api.mercadopago.com/v1/customers/search?email=${email}`, {
     headers: {
-      "Authorization": `Bearer ${accessToken}`,
-    },
-  })
+      "Authorization": `Bearer ${accessToken}` } })
 
   const searchResult = await searchResponse.json()
   
@@ -130,8 +124,7 @@ async function getOrCreateCustomer(email: string, name: string, identificationTy
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${accessToken}`,
-    },
+      "Authorization": `Bearer ${accessToken}` },
     body: JSON.stringify({
       email,
       first_name: name && name.trim() ? name.split(" ")[0] : "Cliente",
@@ -139,11 +132,7 @@ async function getOrCreateCustomer(email: string, name: string, identificationTy
       ...(identificationType && identificationNumber && {
         identification: {
           type: identificationType,
-          number: identificationNumber,
-        },
-      }),
-    }),
-  })
+          number: identificationNumber } }) }) })
 
   const customer = await createResponse.json()
   
@@ -178,10 +167,8 @@ async function createSubscription(customerId: string, token: string | null, plan
       frequency: planId === PLANOS_CODIGOS.diamante_anual ? PLANOS_FREQUENCIAS.diamante_anual : PLANOS_FREQUENCIAS.gold,
       frequency_type: "months",
       transaction_amount: planId === PLANOS_CODIGOS.gold ? PLANOS_PRECOS.gold : planId === PLANOS_CODIGOS.diamante ? PLANOS_PRECOS.diamante : PLANOS_PRECOS.diamante_anual,
-      currency_id: "BRL",
-    },
-    back_url: "https://openlove.com.br/dashboard",
-  }
+      currency_id: "BRL" },
+    back_url: "https://openlove.com.br/dashboard" }
 
   console.log("Dados da assinatura:", subscriptionData)
   
@@ -189,10 +176,8 @@ async function createSubscription(customerId: string, token: string | null, plan
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${accessToken}`,
-    },
-    body: JSON.stringify(subscriptionData),
-  })
+      "Authorization": `Bearer ${accessToken}` },
+    body: JSON.stringify(subscriptionData) })
 
   const result = await response.json()
   
@@ -209,31 +194,25 @@ async function createCheckoutPreference(planId: string, email: string, customerI
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${accessToken}`,
-    },
+      "Authorization": `Bearer ${accessToken}` },
     body: JSON.stringify({
       items: [
         {
           title: `OpenLove ${planId === PLANOS_CODIGOS.gold ? 'Gold' : planId === PLANOS_CODIGOS.diamante ? 'Diamante' : 'Diamante Anual'}`,
           unit_price: planId === PLANOS_CODIGOS.gold ? PLANOS_PRECOS.gold : planId === PLANOS_CODIGOS.diamante ? PLANOS_PRECOS.diamante : PLANOS_PRECOS.diamante_anual,
           quantity: 1,
-          currency_id: "BRL",
-        }
+          currency_id: "BRL" }
       ],
       payer: {
         email: email,
-        name: "Cliente OpenLove",
-      },
+        name: "Cliente OpenLove" },
       back_urls: {
         success: "https://openlove.com.br/dashboard",
         failure: "https://openlove.com.br/auth/signup",
-        pending: "https://openlove.com.br/dashboard",
-      },
+        pending: "https://openlove.com.br/dashboard" },
       auto_return: "approved",
       external_reference: `subscription_${customerId}_${planId}`,
-      notification_url: "https://openlove.com.br/api/mercadopago/webhook",
-    }),
-  })
+      notification_url: "https://openlove.com.br/api/mercadopago/webhook" }) })
 
   const result = await response.json()
   
@@ -244,6 +223,5 @@ async function createCheckoutPreference(planId: string, email: string, customerI
   return {
     status: "pending",
     id: result.id,
-    init_point: result.init_point,
-  }
+    init_point: result.init_point }
 } 

@@ -1,11 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from "next/server"
 import Stripe from 'stripe'
-import { createServerComponentClient } from '@/app/lib/supabase-server'
-import { STRIPE_PRODUCTS, STRIPE_STATUS_MAP } from '@/types/stripe'
+import { createServerComponentClient } from "@/app/lib/supabase-server"
+import { STRIPE_PRODUCTS, STRIPE_STATUS_MAP } from "@/types/stripe"
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-06-30.basil',
-})
+  apiVersion: '2025-06-30.basil' })
 
 export async function POST(request: NextRequest) {
   try {
@@ -61,9 +60,7 @@ export async function POST(request: NextRequest) {
       const customer = await stripe.customers.create({
         email,
         metadata: {
-          userId,
-        },
-      })
+          userId } })
       customerId = customer.id
 
       // Atualizar customer_id no banco
@@ -78,15 +75,12 @@ export async function POST(request: NextRequest) {
 
     // Anexar método de pagamento ao cliente
     await stripe.paymentMethods.attach(paymentMethodId, {
-      customer: customerId,
-    })
+      customer: customerId })
 
     // Definir como método de pagamento padrão
     await stripe.customers.update(customerId, {
       invoice_settings: {
-        default_payment_method: paymentMethodId,
-      },
-    })
+        default_payment_method: paymentMethodId } })
 
     // Criar assinatura
     const subscription = await stripe.subscriptions.create({
@@ -94,14 +88,11 @@ export async function POST(request: NextRequest) {
       items: [{ price: plan.priceId }],
       payment_settings: {
         payment_method_types: ['card'],
-        save_default_payment_method: 'on_subscription',
-      },
+        save_default_payment_method: 'on_subscription' },
       expand: ['latest_invoice.payment_intent'],
       metadata: {
         userId,
-        planType,
-      },
-    })
+        planType } })
 
     // Atualizar banco com dados da assinatura
     const status = STRIPE_STATUS_MAP[subscription.status as keyof typeof STRIPE_STATUS_MAP] || 'pending'
@@ -114,8 +105,7 @@ export async function POST(request: NextRequest) {
         plano: planType as any,
         status_assinatura: status as any,
         payment_provider: 'stripe',
-        is_premium: planType !== 'free',
-      })
+        is_premium: planType !== 'free' })
       .eq('id', userId)
 
     // Preparar resposta - simplificado para evitar erros de tipo
@@ -125,8 +115,7 @@ export async function POST(request: NextRequest) {
       success: true,
       subscriptionId: subscription.id,
       status: subscription.status,
-      customerId,
-    })
+      customerId })
 
   } catch (error) {
     console.error('Erro ao criar assinatura:', error)
@@ -183,14 +172,12 @@ export async function DELETE(request: NextRequest) {
       .update({
         plano: 'free',
         status_assinatura: 'cancelled',
-        is_premium: false,
-      })
+        is_premium: false })
       .eq('id', userId)
 
     return NextResponse.json({
       success: true,
-      message: 'Assinatura cancelada com sucesso',
-    })
+      message: 'Assinatura cancelada com sucesso' })
 
   } catch (error) {
     console.error('Erro ao cancelar assinatura:', error)

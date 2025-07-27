@@ -3,7 +3,9 @@
 import { useState } from "react"
 import { useAuth } from "@/app/components/auth/AuthProvider"
 import { useNotifications } from "@/app/hooks/useNotifications"
-import { Button, Chip, Tab, ScrollShadow } from "@heroui/react"
+import { Button, Chip, ScrollShadow } from "@heroui/react"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import {
   Bell,
   Check,
@@ -333,4 +335,3 @@ export function NotificationsContent() {
     </div>
   )
 }
-import { AvatarImage, AvatarFallback, Avatar } from "@/components/ui/avatar"

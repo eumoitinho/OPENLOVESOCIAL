@@ -17,8 +17,7 @@ export async function GET(request: NextRequest) {
     // Buscar usuário autenticado (opcional para posts públicos)
     const {
       data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
+      error: userError } = await supabase.auth.getUser()
 
     if (userError) {
       console.log("⚠️ [Timeline] Usuário não autenticado, mas continuando...")
@@ -105,8 +104,7 @@ export async function GET(request: NextRequest) {
         premium: author.is_premium || false,
         bio: author.bio || "",
         relationshipType: "single",
-        isPrivate: false,
-      })
+        isPrivate: false })
     })
 
     // Step 4: Get post IDs for likes and comments
@@ -178,10 +176,8 @@ export async function GET(request: NextRequest) {
           name: comment.users.name || "Usuário",
           username: comment.users.username || "unknown",
           avatar: comment.users.avatar_url,
-          verified: comment.users.is_verified || false,
-        },
-        likes: comment.stats?.likes || 0,
-      })
+          verified: comment.users.is_verified || false },
+        likes: comment.stats?.likes || 0 })
     })
 
     // Step 7: Combine all data
@@ -210,8 +206,7 @@ export async function GET(request: NextRequest) {
           premium: false,
           bio: "",
           relationshipType: "single",
-          isPrivate: false,
-        },
+          isPrivate: false },
         likes: postLikes.length,
         likesCount: postLikes.length,
         liked: user ? postLikes.includes(user.id) : false,
@@ -242,8 +237,7 @@ export async function GET(request: NextRequest) {
         mentions: post.mentions || [],
         location: post.location,
         isPremium: post.is_premium_content || false,
-        price: post.price || null,
-      }
+        price: post.price || null }
     })
 
     const result = {

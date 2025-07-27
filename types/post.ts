@@ -1,4 +1,4 @@
-import { Database } from './database'
+import { Database } from "./database"
 
 // ===== BASE TYPES =====
 export type PostId = string
@@ -391,5 +391,4 @@ export const POST_CONSTANTS = {
   MAX_HASHTAGS: 20,
   MAX_MENTIONS: 50,
   DEFAULT_POSTS_LIMIT: 20,
-  DEFAULT_COMMENTS_LIMIT: 10,
-} as const
+  DEFAULT_COMMENTS_LIMIT: 10 } as const

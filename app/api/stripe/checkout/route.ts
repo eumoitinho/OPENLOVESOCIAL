@@ -1,15 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from "next/server"
 import Stripe from 'stripe'
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from "@supabase/supabase-js"
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-06-30.basil',
-})
+  apiVersion: '2025-06-30.basil' })
 
 const PLAN_PRICES = {
   gold: process.env.STRIPE_PRICE_GOLD_MONTHLY || '2500',
-  diamond: process.env.STRIPE_PRICE_DIAMOND_MONTHLY || '4590',
-}
+  diamond: process.env.STRIPE_PRICE_DIAMOND_MONTHLY || '4590' }
 
 export async function POST(request: NextRequest) {
   try {
@@ -61,9 +59,7 @@ export async function POST(request: NextRequest) {
     const customer = await stripe.customers.create({
       email: userData?.email || email,
       metadata: {
-        userId,
-      },
-    })
+        userId } })
     customerId = customer.id
 
     // Tentar atualizar o banco se o usuário existir
@@ -89,35 +85,26 @@ export async function POST(request: NextRequest) {
               name: plan === 'gold' ? 'Plano Gold' : 'Plano Diamond',
               description: plan === 'gold' 
                 ? 'Mais recursos e visibilidade' 
-                : 'Experiência completa e exclusiva',
-            },
+                : 'Experiência completa e exclusiva' },
             unit_amount: parseInt(PLAN_PRICES[plan as keyof typeof PLAN_PRICES]),
             recurring: {
-              interval: 'month',
-            },
-          },
-          quantity: 1,
-        },
+              interval: 'month' } },
+          quantity: 1 },
       ],
       mode: 'subscription',
       success_url: successUrl || `${process.env.NEXT_PUBLIC_APP_URL}/timeline?payment=success`,
       cancel_url: cancelUrl || `${process.env.NEXT_PUBLIC_APP_URL}/timeline?payment=cancelled`,
       metadata: {
         userId,
-        plan,
-      },
+        plan },
       subscription_data: {
         metadata: {
           userId,
-          plan,
-        },
-      },
-    })
+          plan } } })
 
     return NextResponse.json({
       url: session.url,
-      sessionId: session.id,
-    })
+      sessionId: session.id })
 
   } catch (error) {
     console.error('Erro ao criar checkout session:', error)

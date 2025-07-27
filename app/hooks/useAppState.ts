@@ -1,7 +1,7 @@
 "use client"
 
-import { create } from 'zustand'
-import { createClient } from '@/app/lib/supabase-browser'
+import { create } from "zustand"
+import { createClient } from "@/app/lib/supabase-browser"
 
 // Tipos
 interface User {

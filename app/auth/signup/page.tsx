@@ -1,6 +1,6 @@
 "use client"
 
-import { Button, Input, SelectItem, Checkbox, Badge } from "@heroui/react"
+import { Button, Input, Checkbox, Badge } from "@heroui/react"
 import { Moon, Sun, MapPin, Camera, ArrowRight, ArrowLeft, Mail, Lock, User, AtSign, Calendar, StarIcon, GemIcon, CrownIcon, CheckIcon } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
@@ -71,14 +71,12 @@ export default function OpenLoveRegister() {
       height: "",
       weight: "",
       eyeColor: "",
-      hairColor: "",
-    },
+      hairColor: "" },
     city: "",
     plan: "free", // free or premium
     latitude: null,
     longitude: null,
-    uf: "",
-  })
+    uf: "" })
   const [errors, setErrors] = useState<FormErrors>({})
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null)
   const [checkingUsername, setCheckingUsername] = useState(false)
@@ -165,8 +163,7 @@ export default function OpenLoveRegister() {
       const field = name.split(".")[1]
       setFormData((prev) => ({
         ...prev,
-        partner: { ...prev.partner, [field]: value },
-      }))
+        partner: { ...prev.partner, [field]: value } }))
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }))
 
@@ -198,8 +195,7 @@ export default function OpenLoveRegister() {
       ...prev,
       [field]: (prev[field] as string[]).includes(value) 
         ? (prev[field] as string[]).filter((item: string) => item !== value) 
-        : [...(prev[field] as string[]), value],
-    }))
+        : [...(prev[field] as string[]), value] }))
   }
 
   // Handle textarea changes
@@ -321,10 +317,8 @@ export default function OpenLoveRegister() {
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dataToSend),
-      })
+          "Content-Type": "application/json" },
+        body: JSON.stringify(dataToSend) })
 
       // Verificar se a resposta tem conteúdo antes de tentar fazer .json()
       const text = await response.text()
@@ -919,8 +913,7 @@ import { SelectItem, Select } from "@/components/ui/select"
                                 const value = Array.from(keys)[0] as string
                                 setFormData((prev) => ({
                                   ...prev,
-                                  partner: { ...prev.partner, eyeColor: value },
-                                }))
+                                  partner: { ...prev.partner, eyeColor: value } }))
                               }}
                               placeholder="Selecione a cor dos olhos"
                               className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white"
@@ -948,8 +941,7 @@ import { SelectItem, Select } from "@/components/ui/select"
                                 const value = Array.from(keys)[0] as string
                                 setFormData((prev) => ({
                                   ...prev,
-                                  partner: { ...prev.partner, hairColor: value },
-                                }))
+                                  partner: { ...prev.partner, hairColor: value } }))
                               }}
                               placeholder="Selecione a cor do cabelo"
                               className="bg-gray-50 dark:bg-gray-800 border-gray-300 dark:border-white/20 text-gray-900 dark:text-white"

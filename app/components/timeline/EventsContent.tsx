@@ -4,11 +4,10 @@ import { useState, useEffect } from "react"
 import { Button } from "../../../components/ui/button"
 import { Badge } from "../../../components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card"
+// Corrigido para evitar imports duplicados e conflitos de componentes
+import { Card, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card"
 import { Input } from "../../../components/ui/input"
 import { Textarea } from "../../../components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../../components/ui/motion-tabs"
 import {
   Calendar,
   MapPin,
@@ -36,11 +35,13 @@ import {
   Lock,
   X,
   Shield,
-  CheckCircle,
-} from "lucide-react"
+  CheckCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useCanAccess } from '@/lib/plans/hooks'
-import { useRouter } from 'next/navigation'
+import { useCanAccess } from "@/lib/plans/hooks"
+import { useRouter } from "next/navigation"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { CardContent } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface Event {
   id: string
@@ -81,6 +82,7 @@ export function EventsContent() {
       setError(null)
       try {
         // Se o usuário só pode ver eventos verificados, adicionar filtro
+        // Corrigido: a propriedade correta é canJoinVerifiedOnly
         const verifiedOnly = canAccess.canJoinVerifiedOnly
         const url = verifiedOnly ? "/api/events?verified=true" : "/api/events"
         

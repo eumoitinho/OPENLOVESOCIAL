@@ -113,8 +113,7 @@ function MotionHighlight<T extends string>({ ref, ...props }: MotionHighlightPro
     controlledItems,
     disabled = false,
     exitDelay = 0.2,
-    mode = "children",
-  } = props
+    mode = "children" } = props
 
   const localRef = React.useRef<HTMLDivElement>(null)
   React.useImperativeHandle(ref, () => localRef.current as HTMLDivElement)
@@ -139,16 +138,14 @@ function MotionHighlight<T extends string>({ ref, ...props }: MotionHighlightPro
         top: 0,
         left: 0,
         width: 0,
-        height: 0,
-      }
+        height: 0 }
 
       const containerRect = localRef.current.getBoundingClientRect()
       const newBounds: Bounds = {
         top: bounds.top - containerRect.top + (boundsOffset.top ?? 0),
         left: bounds.left - containerRect.left + (boundsOffset.left ?? 0),
         width: bounds.width + (boundsOffset.width ?? 0),
-        height: bounds.height + (boundsOffset.height ?? 0),
-      }
+        height: bounds.height + (boundsOffset.height ?? 0) }
 
       setBoundsState((prev) => {
         if (
@@ -210,22 +207,18 @@ function MotionHighlight<T extends string>({ ref, ...props }: MotionHighlightPro
                     left: boundsState.left,
                     width: boundsState.width,
                     height: boundsState.height,
-                    opacity: 1,
-                  }}
+                    opacity: 1 }}
                   initial={{
                     top: boundsState.top,
                     left: boundsState.left,
                     width: boundsState.width,
                     height: boundsState.height,
-                    opacity: 0,
-                  }}
+                    opacity: 0 }}
                   exit={{
                     opacity: 0,
                     transition: {
                       ...transition,
-                      delay: (transition?.delay ?? 0) + (exitDelay ?? 0),
-                    },
-                  }}
+                      delay: (transition?.delay ?? 0) + (exitDelay ?? 0) } }}
                   transition={transition}
                   className={cn("bg-muted absolute z-0", className, activeClassNameState)}
                 />
@@ -257,8 +250,7 @@ function MotionHighlight<T extends string>({ ref, ...props }: MotionHighlightPro
         clearBounds,
         activeClassName: activeClassNameState,
         setActiveClassName: setActiveClassNameState,
-        forceUpdateBounds: (props as ParentModeMotionHighlightProps)?.forceUpdateBounds,
-      }}
+        forceUpdateBounds: (props as ParentModeMotionHighlightProps)?.forceUpdateBounds }}
     >
       {enabled
         ? controlledItems
@@ -339,8 +331,7 @@ function MotionHighlightItem({
     disabled: contextDisabled,
     exitDelay: contextExitDelay,
     forceUpdateBounds: contextForceUpdateBounds,
-    setActiveClassName,
-  } = useMotionHighlight()
+    setActiveClassName } = useMotionHighlight()
 
   const element = children as React.ReactElement<ExtendedChildProps>
   const childValue = id ?? value ?? element.props?.["data-value"] ?? element.props?.id ?? itemId
@@ -405,8 +396,7 @@ function MotionHighlightItem({
     "aria-selected": isActive,
     "data-disabled": isDisabled,
     "data-value": childValue,
-    "data-highlight": true,
-  }
+    "data-highlight": true }
 
   const commonHandlers = hover
     ? {
@@ -417,14 +407,12 @@ function MotionHighlightItem({
         onMouseLeave: (e: React.MouseEvent<HTMLDivElement>) => {
           setActiveValue(null)
           element.props.onMouseLeave?.(e)
-        },
-      }
+        } }
     : {
         onClick: (e: React.MouseEvent<HTMLDivElement>) => {
           setActiveValue(childValue)
           element.props.onClick?.(e)
-        },
-      }
+        } }
 
   if (asChild) {
     if (mode === "children") {
@@ -436,11 +424,9 @@ function MotionHighlightItem({
           className: cn("relative", element.props.className),
           ...getNonOverridingDataAttributes(element, {
             ...dataAttributes,
-            "data-slot": "motion-highlight-item-container",
-          }),
+            "data-slot": "motion-highlight-item-container" }),
           ...commonHandlers,
-          ...props,
-        },
+          ...props },
         <>
           <AnimatePresence initial={false}>
             {isActive && !isDisabled && (
@@ -455,9 +441,7 @@ function MotionHighlightItem({
                   opacity: 0,
                   transition: {
                     ...itemTransition,
-                    delay: (itemTransition?.delay ?? 0) + (exitDelay ?? contextExitDelay ?? 0),
-                  },
-                }}
+                    delay: (itemTransition?.delay ?? 0) + (exitDelay ?? contextExitDelay ?? 0) } }}
                 {...dataAttributes}
               />
             )}
@@ -473,10 +457,8 @@ function MotionHighlightItem({
       ref: localRef,
       ...getNonOverridingDataAttributes(element, {
         ...dataAttributes,
-        "data-slot": "motion-highlight-item",
-      }),
-      ...commonHandlers,
-    })
+        "data-slot": "motion-highlight-item" }),
+      ...commonHandlers })
   }
 
   return enabled ? (
@@ -503,9 +485,7 @@ function MotionHighlightItem({
                 opacity: 0,
                 transition: {
                   ...itemTransition,
-                  delay: (itemTransition?.delay ?? 0) + (exitDelay ?? contextExitDelay ?? 0),
-                },
-              }}
+                  delay: (itemTransition?.delay ?? 0) + (exitDelay ?? contextExitDelay ?? 0) } }}
               {...dataAttributes}
             />
           )}
@@ -515,9 +495,7 @@ function MotionHighlightItem({
         className: cn("relative z-[1]", element.props.className),
         ...getNonOverridingDataAttributes(element, {
           ...dataAttributes,
-          "data-slot": "motion-highlight-item",
-        }),
-      })}
+          "data-slot": "motion-highlight-item" }) })}
     </div>
   ) : (
     children
@@ -529,5 +507,4 @@ export {
   MotionHighlightItem,
   useMotionHighlight,
   type MotionHighlightProps,
-  type MotionHighlightItemProps,
-}
+  type MotionHighlightItemProps }

@@ -34,9 +34,12 @@ import {
   Globe,
   Tag,
   Image as ImageIcon,
-  Lock,
-} from "lucide-react"
+  Lock } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { CardContent, CardDescription, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface Event {
   id: string
@@ -449,6 +452,3 @@ export const EventsDialog = function EventsDialog({ open, onOpenChange }: Events
     </>
   )
 }
-import { CardContent } from "@/components/ui/card"
-import { DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"

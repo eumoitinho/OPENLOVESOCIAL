@@ -1,11 +1,10 @@
 "use client"
 
-import { Crown } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { usePremiumFeatures, type PlanType } from '@/lib/hooks/usePremiumFeatures'
-import { useState } from 'react'
+import { Crown } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import { useState } from "react"
 import { Button } from "@heroui/react"
-import { getPlanName } from '@/lib/hooks/usePremiumFeatures'
+import { usePremiumFeatures, type PlanType, getPlanName } from "@/lib/hooks/usePremiumFeatures"
 
 interface PremiumLockBadgeProps {
   feature: keyof typeof FEATURE_REQUIREMENTS

@@ -123,8 +123,7 @@ import {
   ShieldPlus as ShieldPlusIcon,
   ShieldMinus as ShieldMinusIcon,
   ShieldQuestion as ShieldQuestionIcon,
-  Crown,
-} from "lucide-react"
+  Crown } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface ProfileViewProps {
@@ -232,10 +231,8 @@ export default function ProfileView({ username, onBack }: ProfileViewProps) {
       const response = await fetch("/api/follows", {
         method: isFollowing ? "DELETE" : "POST",
         headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ target_user_id: profile.id }),
-      })
+          "Content-Type": "application/json" },
+        body: JSON.stringify({ target_user_id: profile.id }) })
 
       if (response.ok) {
         setIsFollowing(!isFollowing)

@@ -19,11 +19,12 @@ import {
   MessageCircle,
   BadgeCheckIcon,
   Clock,
-  Music,
-} from "lucide-react"
+  Music } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { SecureImage } from "@/app/components/security/SecureImage"
 import { SecureVideo } from "@/app/components/security/SecureVideo"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
 
 export interface MediaItem {
   id: string
@@ -72,8 +73,7 @@ export function MediaViewer({
   onShare,
   isLiked = false,
   likes = 0,
-  comments = 0,
-}: MediaViewerProps) {
+  comments = 0 }: MediaViewerProps) {
   const [currentIndex, setCurrentIndex] = useState(() => {
     // Garantir que o índice inicial seja válido
     if (!media || media.length === 0) return 0
@@ -312,4 +312,3 @@ export function MediaViewer({
     </Dialog>
   )
 }
-import { DialogContent } from "@/components/ui/dialog"

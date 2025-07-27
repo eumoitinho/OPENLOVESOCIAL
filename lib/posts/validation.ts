@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from "zod"
 import { 
   PostVisibility, 
   MediaType, 
@@ -16,8 +16,7 @@ const MediaFileSchema = z.object({
   height: z.number().positive().optional(),
   duration: z.number().positive().optional(),
   thumbnailUrl: z.string().url().optional(),
-  altText: z.string().max(200, 'Texto alternativo deve ter no máximo 200 caracteres').optional(),
-})
+  altText: z.string().max(200, 'Texto alternativo deve ter no máximo 200 caracteres').optional() })
 
 const LocationSchema = z.object({
   latitude: z.number().min(-90).max(90, 'Latitude inválida'),
@@ -25,14 +24,12 @@ const LocationSchema = z.object({
   name: z.string().min(1, 'Nome da localização é obrigatório').max(100, 'Nome muito longo'),
   city: z.string().max(50).optional(),
   state: z.string().max(50).optional(),
-  country: z.string().max(50).optional(),
-})
+  country: z.string().max(50).optional() })
 
 const PollOptionSchema = z.object({
   text: z.string()
     .min(1, 'Opção não pode estar vazia')
-    .max(POST_CONSTANTS.MAX_POLL_OPTION_LENGTH, `Opção deve ter no máximo ${POST_CONSTANTS.MAX_POLL_OPTION_LENGTH} caracteres`),
-})
+    .max(POST_CONSTANTS.MAX_POLL_OPTION_LENGTH, `Opção deve ter no máximo ${POST_CONSTANTS.MAX_POLL_OPTION_LENGTH} caracteres`) })
 
 const PollSchema = z.object({
   question: z.string()
@@ -54,13 +51,11 @@ const EventDetailsSchema = z.object({
   endDate: z.date().optional(),
   location: LocationSchema.optional(),
   isOnline: z.boolean().default(false),
-  maxAttendees: z.number().positive().max(10000, 'Máximo de 10.000 participantes').optional(),
-}).refine(
+  maxAttendees: z.number().positive().max(10000, 'Máximo de 10.000 participantes').optional() }).refine(
   (data) => !data.endDate || data.endDate > data.startDate,
   {
     message: 'Data de término deve ser posterior à data de início',
-    path: ['endDate'],
-  }
+    path: ['endDate'] }
 )
 
 // ===== POST SCHEMAS =====
@@ -83,8 +78,7 @@ export const PostCreateSchema = z.object({
   poll: PollSchema.optional(),
   eventDetails: EventDetailsSchema.optional(),
   isPremiumContent: z.boolean().default(false),
-  price: z.number().positive('Preço deve ser positivo').optional(),
-}).refine(
+  price: z.number().positive('Preço deve ser positivo').optional() }).refine(
   (data) => {
     // Se é conteúdo premium, preço é obrigatório
     if (data.isPremiumContent && !data.price) {
@@ -94,8 +88,7 @@ export const PostCreateSchema = z.object({
   },
   {
     message: 'Preço é obrigatório para conteúdo premium',
-    path: ['price'],
-  }
+    path: ['price'] }
 ).refine(
   (data) => {
     // Validar tamanho total dos arquivos de mídia
@@ -107,8 +100,7 @@ export const PostCreateSchema = z.object({
   },
   {
     message: `Tamanho total dos arquivos não pode exceder ${POST_CONSTANTS.MAX_MEDIA_SIZE / (1024 * 1024)}MB`,
-    path: ['media'],
-  }
+    path: ['media'] }
 )
 
 export const PostUpdateSchema = PostCreateSchema.partial().omit(['type'])
@@ -119,24 +111,20 @@ export const CommentCreateSchema = z.object({
   content: z.string()
     .min(1, 'Comentário não pode estar vazio')
     .max(1000, 'Comentário deve ter no máximo 1000 caracteres'),
-  parentId: z.string().uuid('ID do comentário pai inválido').optional(),
-})
+  parentId: z.string().uuid('ID do comentário pai inválido').optional() })
 
 export const CommentUpdateSchema = z.object({
   content: z.string()
     .min(1, 'Comentário não pode estar vazio')
-    .max(1000, 'Comentário deve ter no máximo 1000 caracteres'),
-})
+    .max(1000, 'Comentário deve ter no máximo 1000 caracteres') })
 
 // ===== ENGAGEMENT SCHEMAS =====
 export const ReactionSchema = z.object({
   postId: z.string().uuid('ID do post inválido'),
-  reaction: z.nativeEnum(ReactionType),
-})
+  reaction: z.nativeEnum(ReactionType) })
 
 export const SavePostSchema = z.object({
-  postId: z.string().uuid('ID do post inválido'),
-})
+  postId: z.string().uuid('ID do post inválido') })
 
 // ===== QUERY SCHEMAS =====
 export const PostsQuerySchema = z.object({
@@ -153,18 +141,15 @@ export const PostsQuerySchema = z.object({
   location: z.object({
     latitude: z.number().min(-90).max(90),
     longitude: z.number().min(-180).max(180),
-    radius: z.number().positive().max(1000, 'Raio máximo de 1000km'),
-  }).optional(),
+    radius: z.number().positive().max(1000, 'Raio máximo de 1000km') }).optional(),
   dateFrom: z.date().optional(),
   dateTo: z.date().optional(),
   sortBy: z.enum(['created_at', 'engagement', 'trending']).default('created_at'),
-  sortOrder: z.enum(['asc', 'desc']).default('desc'),
-}).refine(
+  sortOrder: z.enum(['asc', 'desc']).default('desc') }).refine(
   (data) => !data.dateTo || !data.dateFrom || data.dateTo >= data.dateFrom,
   {
     message: 'Data final deve ser posterior à data inicial',
-    path: ['dateTo'],
-  }
+    path: ['dateTo'] }
 )
 
 export const CommentsQuerySchema = z.object({
@@ -176,14 +161,12 @@ export const CommentsQuerySchema = z.object({
     .default(POST_CONSTANTS.DEFAULT_COMMENTS_LIMIT),
   sortBy: z.enum(['created_at', 'likes']).default('created_at'),
   sortOrder: z.enum(['asc', 'desc']).default('asc'),
-  includeReplies: z.boolean().default(true),
-})
+  includeReplies: z.boolean().default(true) })
 
 // ===== FILE UPLOAD SCHEMAS =====
 export const FileUploadSchema = z.object({
   file: z.instanceof(File, 'Arquivo inválido'),
-  type: z.nativeEnum(MediaType),
-}).refine(
+  type: z.nativeEnum(MediaType) }).refine(
   (data) => {
     // Validar tipo de arquivo baseado na extensão
     const fileName = data.file.name.toLowerCase()
@@ -204,14 +187,12 @@ export const FileUploadSchema = z.object({
   },
   {
     message: 'Tipo de arquivo não suportado',
-    path: ['file'],
-  }
+    path: ['file'] }
 ).refine(
   (data) => data.file.size <= POST_CONSTANTS.MAX_MEDIA_SIZE,
   {
     message: `Arquivo deve ter no máximo ${POST_CONSTANTS.MAX_MEDIA_SIZE / (1024 * 1024)}MB`,
-    path: ['file'],
-  }
+    path: ['file'] }
 )
 
 // ===== FORM VALIDATION SCHEMAS =====
@@ -228,12 +209,10 @@ export const PostFormSchema = z.object({
       .min(2, 'Enquete deve ter pelo menos 2 opções')
       .max(POST_CONSTANTS.MAX_POLL_OPTIONS),
     allowMultipleVotes: z.boolean().default(false),
-    expiresIn: z.number().positive().optional(),
-  }).optional(),
+    expiresIn: z.number().positive().optional() }).optional(),
   eventDetails: EventDetailsSchema.optional(),
   isPremiumContent: z.boolean().default(false),
-  price: z.number().positive().optional(),
-})
+  price: z.number().positive().optional() })
 
 // ===== VALIDATION UTILITIES =====
 export function validatePost(data: unknown) {

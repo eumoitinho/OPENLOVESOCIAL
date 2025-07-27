@@ -1,14 +1,14 @@
 "use client"
 
-import { Crown, Star, Zap, Check } from 'lucide-react'
+import { Crown, Star, Zap, Check } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@heroui/react"
 import PremiumLockBadge from './PremiumLockBadge'
-import { ChatHeaderCallButtons } from '@/app/components/chat/CallButtons'
-import { PostMediaButtons } from '@/app/components/media/MediaUploadButtons'
-import { CommunityPageActions } from '@/app/components/communities/CommunityPremiumButtons'
-import { EventPageActions } from '@/app/components/events/EventPremiumButtons'
-import { usePremiumFeatures, getPlanName } from '@/lib/hooks/usePremiumFeatures'
+import { ChatHeaderCallButtons } from "@/app/components/chat/CallButtons"
+import { PostMediaButtons } from "@/app/components/media/MediaUploadButtons"
+import { CommunityPageActions } from "@/app/components/communities/CommunityPremiumButtons"
+import { EventPageActions } from "@/app/components/events/EventPremiumButtons"
+import { usePremiumFeatures, getPlanName } from "@/lib/hooks/usePremiumFeatures"
 
 export default function PremiumFeatureShowcase() {
   const { features, planType, isPremium } = usePremiumFeatures()

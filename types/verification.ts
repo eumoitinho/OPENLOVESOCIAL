@@ -1,4 +1,4 @@
-import { PlanType } from '@/lib/plans/config'
+import { PlanType } from "@/lib/plans/config"
 
 export type VerificationId = string
 export type UserId = string

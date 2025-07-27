@@ -6,8 +6,7 @@ import type { Database } from "@/app/lib/database.types"
 export async function GET() {
 const supabase = await createRouteHandlerClient()
   const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
     return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 })
@@ -50,8 +49,7 @@ const supabase = await createRouteHandlerClient()
 export async function PUT(request: Request) {
  const supabase = await createRouteHandlerClient()
   const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
     return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 })

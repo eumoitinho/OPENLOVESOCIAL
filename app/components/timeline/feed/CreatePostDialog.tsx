@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger,  } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -35,8 +35,7 @@ export const CreatePostDialog = React.memo(function CreatePostDialog({
   onOpenChange,
   newPost,
   onNewPostChange,
-  onCreatePost,
-}: CreatePostDialogProps) {
+  onCreatePost }: CreatePostDialogProps) {
   const handleFieldChange = React.useCallback((field: keyof NewPostState, value: any) => {
     onNewPostChange({ ...newPost, [field]: value })
   }, [newPost, onNewPostChange])
@@ -44,8 +43,7 @@ export const CreatePostDialog = React.memo(function CreatePostDialog({
   const handleEventDetailChange = React.useCallback((field: keyof NewPostState["eventDetails"], value: any) => {
     onNewPostChange({
       ...newPost,
-      eventDetails: { ...newPost.eventDetails, [field]: value },
-    })
+      eventDetails: { ...newPost.eventDetails, [field]: value } })
   }, [newPost, onNewPostChange])
 
   const handleContentChange = React.useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {

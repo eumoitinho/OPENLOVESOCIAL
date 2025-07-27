@@ -30,8 +30,7 @@ export default function ConfirmEmailPage() {
         if (type === "signup") {
           const { error } = await supabase.auth.verifyOtp({
             token_hash: token,
-            type: "signup",
-          })
+            type: "signup" })
 
           if (error) {
             console.error("Error confirming email:", error)

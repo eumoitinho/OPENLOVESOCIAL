@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { useAuth } from '@/app/components/auth/AuthProvider'
+import { useState, useEffect } from "react"
+import { useAuth } from "@/app/components/auth/AuthProvider"
 
 export interface MonthlyUsage {
   videos: {

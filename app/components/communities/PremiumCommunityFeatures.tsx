@@ -1,12 +1,12 @@
 "use client"
 
-import { useState } from 'react'
+import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Switch } from "@/components/ui/switch"
 import { 
   Users, 
   Lock, 
@@ -19,8 +19,8 @@ import {
   MessageSquare,
   Calendar
 } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { useCanAccess } from '@/lib/plans/hooks'
+import { cn } from "@/lib/utils"
+import { useCanAccess } from "@/lib/plans/hooks"
 import PremiumFeature from '@/app/components/premium/PremiumFeature'
 
 interface PremiumCommunityFeaturesProps {

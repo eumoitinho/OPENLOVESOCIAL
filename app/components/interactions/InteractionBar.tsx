@@ -1,8 +1,8 @@
 'use client'
 
-import { MessageCircle } from 'lucide-react'
+import { MessageCircle } from "lucide-react"
 import { Button } from "@heroui/react"
-import { cn } from '@/lib/utils'
+import { cn } from "@/lib/utils"
 import LikeButton from './LikeButton'
 import SaveButton from './SaveButton'
 import ShareButton from './ShareButton'

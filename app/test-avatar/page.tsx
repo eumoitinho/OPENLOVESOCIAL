@@ -1,6 +1,6 @@
 "use client"
 
-import { useAuth } from '@/app/components/auth/AuthProvider'
+import { useAuth } from "@/app/components/auth/AuthProvider"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 

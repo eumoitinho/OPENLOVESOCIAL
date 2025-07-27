@@ -2,7 +2,7 @@
 
 import React, { Component, ReactNode } from 'react'
 import { Button } from "@heroui/react"
-import { AlertTriangle, RefreshCw } from 'lucide-react'
+import { AlertTriangle, RefreshCw } from "lucide-react"
 
 interface Props {
   children: ReactNode
@@ -38,10 +38,7 @@ export class PostErrorBoundary extends Component<Props, State> {
       window.Sentry.captureException(error, {
         contexts: {
           react: {
-            componentStack: errorInfo.componentStack,
-          },
-        },
-      })
+            componentStack: errorInfo.componentStack } } })
     }
   }
 
@@ -107,8 +104,7 @@ export function PostErrorWrapper({ children, fallback }: PostErrorWrapperProps) 
         console.error('Post error:', {
           error: error.message,
           stack: error.stack,
-          componentStack: errorInfo.componentStack,
-        })
+          componentStack: errorInfo.componentStack })
       }}
     >
       {children}

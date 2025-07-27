@@ -38,9 +38,13 @@ import {
   Activity,
   Bookmark,
   MessageCircle,
-  Share2,
-} from "lucide-react"
+  Share2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { CardContent, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface UserProfile {
   id: string
@@ -584,7 +588,3 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
     </Dialog>
   )
 }
-import { AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { CardContent } from "@/components/ui/card"
-import { DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"

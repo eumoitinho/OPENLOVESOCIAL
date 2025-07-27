@@ -3,8 +3,7 @@ import type { Metadata } from "next"
 
 export const metadata: Metadata = {
   title: "Buscar - Openlove",
-  description: "Encontre pessoas, comunidades e eventos no Openlove",
-}
+  description: "Encontre pessoas, comunidades e eventos no Openlove" }
 
 interface SearchPageProps {
   searchParams: Promise<{

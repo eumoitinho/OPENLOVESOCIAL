@@ -11,8 +11,7 @@ export async function POST(request: NextRequest) {
     // Verificar autenticação
     const {
       data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
+      error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
@@ -26,8 +25,7 @@ export async function POST(request: NextRequest) {
 
     // Usar a função RPC para definir foto de perfil
     const { data, error } = await supabase.rpc("set_profile_picture", {
-      media_id: mediaId,
-    })
+      media_id: mediaId })
 
     if (error) {
       console.error("Erro ao definir foto de perfil:", error)

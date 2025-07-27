@@ -13,9 +13,10 @@ import {
   BadgeCheckIcon,
   Flame,
   Clock,
-  Loader2,
-} from "lucide-react"
+  Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 interface Comment {
   id: string
@@ -57,8 +58,7 @@ export function CommentsDialog({
   postAuthor,
   comments,
   onAddComment,
-  onLikeComment,
-}: CommentsDialogProps) {
+  onLikeComment }: CommentsDialogProps) {
   const [newComment, setNewComment] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -294,4 +294,3 @@ export function CommentsDialog({
     </Dialog>
   )
 }
-import { DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"

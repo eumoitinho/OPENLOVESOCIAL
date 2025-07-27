@@ -29,8 +29,7 @@ export default function DashboardClient({ user, profile }: DashboardClientProps)
     posts: 0,
     likes: 0,
     views: 0,
-    earnings: 0,
-  })
+    earnings: 0 })
   const [loading, setLoading] = useState(true)
   const supabase = createClientComponentClient<Database>()
 
@@ -69,8 +68,7 @@ export default function DashboardClient({ user, profile }: DashboardClientProps)
         posts: postsRes.count || 0,
         likes: likesRes.count || 0,
         views: viewsRes.count || 0,
-        earnings: earningsRes.data?.total_earnings || 0,
-      })
+        earnings: earningsRes.data?.total_earnings || 0 })
     } catch (error) {
       console.error("Erro ao buscar estatísticas:", error)
     } finally {

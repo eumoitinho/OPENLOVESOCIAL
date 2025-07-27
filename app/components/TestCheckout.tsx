@@ -12,13 +12,10 @@ const TestCheckout: React.FC = () => {
       const response = await fetch("/api/stripe", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-        },
+          "Content-Type": "application/json" },
         body: JSON.stringify({
           priceId: "price_test_123",
-          userId: "test_user_id",
-        }),
-      })
+          userId: "test_user_id" }) })
 
       if (!response.ok) {
         throw new Error("Erro ao processar pagamento")

@@ -1,10 +1,10 @@
 "use client"
 
 import React, { useState, useRef } from 'react'
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { ImageCropper } from './image-cropper'
-import { Camera, Upload, Edit3, X, RotateCcw, Image as ImageIcon } from 'lucide-react'
+import { ImageCropper } from "./image-cropper"
+import { Camera, Upload, Edit3, X, RotateCcw, Image as ImageIcon } from "lucide-react"
 
 interface EnhancedImageUploadProps {
   value?: string

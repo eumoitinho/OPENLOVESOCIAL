@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { createRouteHandlerClient} from "@/app/lib/supabase-server"
+import { createRouteHandlerClient } from "@/app/lib/supabase-server"
 import { promises as fs } from "fs"
 import path from "path"
 import { validateMediaFile, generateFileName, getMediaUrl } from "@/app/lib/media-utils"
@@ -77,8 +77,7 @@ export async function POST(request: NextRequest) {
       duration,
       alt_text: altText || null,
       is_profile_picture: isProfilePicture,
-      is_public: true,
-    }
+      is_public: true }
 
     const { data: media, error: insertError } = await supabase.from("media").insert(mediaData).select().single()
 
@@ -97,8 +96,7 @@ export async function POST(request: NextRequest) {
     // Se for foto de perfil, atualizar perfil do usuário
     if (isProfilePicture && media) {
       const { error: profileError } = await supabase.rpc("set_profile_picture", {
-        media_id: media.id,
-      })
+        media_id: media.id })
 
       if (profileError) {
         console.error("Erro ao definir foto de perfil:", profileError)
@@ -112,9 +110,7 @@ export async function POST(request: NextRequest) {
         url: media.url,
         filename: media.filename,
         fileType: media.file_type,
-        fileSize: media.file_size,
-      },
-    })
+        fileSize: media.file_size } })
   } catch (error) {
     console.error("Erro no upload:", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })

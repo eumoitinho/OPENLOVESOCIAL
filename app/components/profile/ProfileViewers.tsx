@@ -20,8 +20,7 @@ async function fetchProfileViewers(): Promise<Profile[]> {
 export function ProfileViewers() {
   const { data: viewers, isLoading, isError } = useQuery({
     queryKey: ["profileViewers"],
-    queryFn: fetchProfileViewers,
-  })
+    queryFn: fetchProfileViewers })
 
   if (isLoading) {
     return (

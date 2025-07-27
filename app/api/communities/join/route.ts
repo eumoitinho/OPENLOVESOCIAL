@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createServerComponentClient } from '@/app/lib/supabase-server'
-import { verifyAuth } from '@/app/lib/auth-helpers'
-import { planValidator } from '@/lib/plans/server'
+import { NextRequest, NextResponse } from "next/server"
+import { createServerComponentClient } from "@/app/lib/supabase-server"
+import { verifyAuth } from "@/app/lib/auth-helpers"
+import { planValidator } from "@/lib/plans/server"
 
 export async function POST(request: NextRequest) {
   try {

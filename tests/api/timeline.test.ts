@@ -4,26 +4,18 @@ import jest from "jest" // Declare the jest variable
 
 // Mock Supabase
 jest.mock("@supabase/auth-helpers-nextjs", () => ({
-  createRouteHandlerClient: jest.fn(),
-}))
+  createRouteHandlerClient: jest.fn() }))
 
 const mockSupabase = {
   auth: {
-    getUser: jest.fn(),
-  },
+    getUser: jest.fn() },
   from: jest.fn(() => ({
     select: jest.fn(() => ({
       eq: jest.fn(() => ({
-        single: jest.fn(),
-      })),
+        single: jest.fn() })),
       order: jest.fn(() => ({
         limit: jest.fn(() => ({
-          or: jest.fn(),
-        })),
-      })),
-    })),
-  })),
-}
+          or: jest.fn() })) })) })) })) }
 
 describe("Timeline API", () => {
   beforeEach(() => {
@@ -34,8 +26,7 @@ describe("Timeline API", () => {
   it("returns unauthorized for unauthenticated user", async () => {
     mockSupabase.auth.getUser.mockResolvedValue({
       data: { user: null },
-      error: new Error("Not authenticated"),
-    })
+      error: new Error("Not authenticated") })
 
     const request = new Request("http://localhost/api/timeline")
     const response = await GET(request)
@@ -55,14 +46,12 @@ describe("Timeline API", () => {
         created_at: "2024-01-01T00:00:00Z",
         users: { name: "John Doe", username: "johndoe", profile_type: "single" },
         likes: [{ count: 5 }],
-        comments: [],
-      },
+        comments: [] },
     ]
 
     mockSupabase.auth.getUser.mockResolvedValue({
       data: { user: mockUser },
-      error: null,
-    })
+      error: null })
 
     mockSupabase.from.mockImplementation((table: string) => {
       if (table === "users") {
@@ -71,11 +60,7 @@ describe("Timeline API", () => {
             eq: () => ({
               single: () =>
                 Promise.resolve({
-                  data: { subscription_plan: "free" },
-                }),
-            }),
-          }),
-        }
+                  data: { subscription_plan: "free" } }) }) }) }
       }
       if (table === "posts") {
         return {
@@ -85,12 +70,7 @@ describe("Timeline API", () => {
                 or: () =>
                   Promise.resolve({
                     data: mockPosts,
-                    error: null,
-                  }),
-              }),
-            }),
-          }),
-        }
+                    error: null }) }) }) }) }
       }
       if (table === "likes") {
         return {
@@ -99,11 +79,7 @@ describe("Timeline API", () => {
               in: () =>
                 Promise.resolve({
                   data: [],
-                  error: null,
-                }),
-            }),
-          }),
-        }
+                  error: null }) }) }) }
       }
     })
 

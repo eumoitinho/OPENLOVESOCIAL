@@ -29,8 +29,7 @@ import {
   Download,
   Upload,
   RefreshCw,
-  Camera,
-} from "lucide-react"
+  Camera } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
@@ -41,6 +40,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useAuth } from "@/app/components/auth/AuthProvider"
 import { useRouter } from "next/navigation"
 import UsernameUpdater from "@/app/components/profile/UsernameUpdater"
+import { CardContent, CardDescription, CardTitle } from "@/components/ui/card"
 
 export default function SettingsPage() {
   const { user } = useAuth()
@@ -57,15 +57,13 @@ export default function SettingsPage() {
     likes: true,
     comments: true,
     follows: true,
-    events: true,
-  })
+    events: true })
   const [privacy, setPrivacy] = useState({
     profileVisibility: "public",
     showOnlineStatus: true,
     allowMessages: "friends",
     showLastSeen: false,
-    allowProfileViews: true,
-  })
+    allowProfileViews: true })
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode)
@@ -81,8 +79,7 @@ export default function SettingsPage() {
       toast({
         title: "Erro",
         description: "Por favor, selecione uma imagem.",
-        variant: "destructive",
-      })
+        variant: "destructive" })
       return
     }
 
@@ -91,8 +88,7 @@ export default function SettingsPage() {
       toast({
         title: "Erro",
         description: "A imagem deve ter no máximo 10MB.",
-        variant: "destructive",
-      })
+        variant: "destructive" })
       return
     }
 
@@ -110,10 +106,8 @@ export default function SettingsPage() {
       const response = await fetch("/api/profile/avatar", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ avatar: base64 }),
-      })
+          "Content-Type": "application/json" },
+        body: JSON.stringify({ avatar: base64 }) })
 
       if (!response.ok) {
         throw new Error("Erro ao fazer upload da imagem")
@@ -125,13 +119,11 @@ export default function SettingsPage() {
       setAvatarUrl(data.avatar_url)
       
       toast.success("Sucesso!", {
-        description: "Foto de perfil atualizada.",
-      })
+        description: "Foto de perfil atualizada." })
     } catch (error) {
       console.error("Erro ao fazer upload:", error)
       toast.error("Erro", {
-        description: "Não foi possível atualizar a foto. Tente novamente.",
-      })
+        description: "Não foi possível atualizar a foto. Tente novamente." })
     } finally {
       setUploadingAvatar(false)
     }

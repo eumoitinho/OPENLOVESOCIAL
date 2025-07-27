@@ -16,8 +16,7 @@ export async function POST(request: NextRequest) {
     // Verificar usuário autenticado
     const {
       data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
+      error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
       return NextResponse.json({ error: "Usuário não autenticado" }, { status: 401 })
     }
@@ -60,8 +59,7 @@ export async function POST(request: NextRequest) {
         price_paid: price,
         enrolled_at: new Date().toISOString(),
         status: "active",
-        progress: 0,
-      },
+        progress: 0 },
     ])
 
     if (enrollmentError) {
@@ -72,29 +70,25 @@ export async function POST(request: NextRequest) {
     await supabase
       .from("users")
       .update({
-        wallet_balance: (profile.wallet_balance || 0) - price,
-      })
+        wallet_balance: (profile.wallet_balance || 0) - price })
       .eq("id", user.id)
 
     // Atualizar ganhos do mentor (80% para o mentor)
     const mentorEarnings = price * 0.8
     await supabase.rpc("update_creator_earnings", {
       creator_id: program.user_id,
-      amount: mentorEarnings,
-    })
+      amount: mentorEarnings })
 
     // Atualizar contador de matrículas
     await supabase
       .from("programs")
       .update({
-        enrollment_count: (program.enrollment_count || 0) + 1,
-      })
+        enrollment_count: (program.enrollment_count || 0) + 1 })
       .eq("id", programId)
 
     return NextResponse.json({
       success: true,
-      message: "Matrícula realizada com sucesso!",
-    })
+      message: "Matrícula realizada com sucesso!" })
   } catch (error) {
     console.error("Erro na matrícula:", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })

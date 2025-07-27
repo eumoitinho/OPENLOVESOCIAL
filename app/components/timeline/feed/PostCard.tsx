@@ -11,12 +11,13 @@ import {
   MapPin,
   Verified,
   UserPlus,
-  UserMinus,
-} from "lucide-react"
+  UserMinus } from "lucide-react"
 import { Button, Card, CardBody, CardFooter, CardHeader, Chip } from "@heroui/react"
 import { cn } from "@/lib/utils"
 import { SecureImage } from "@/app/components/security/SecureImage"
 import { useAuth } from "@/app/components/auth/AuthProvider"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { CardContent, CardDescription, CardTitle } from "@/components/ui/card"
 
 // Definindo os tipos para o post, que podem ser movidos para um arquivo de tipos futuramente
 // (e.g., types/database.ts ou types/timeline.ts)
@@ -233,4 +234,3 @@ export function PostCard({ post, index, onLike, onComment, onShare, onToggleFoll
     </motion.div>
   )
 }
-import { CardContent } from "@/components/ui/card"

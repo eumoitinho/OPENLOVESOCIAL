@@ -11,8 +11,7 @@ export async function GET(request: NextRequest) {
     // Verificar autenticação
     const {
       data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
+      error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
@@ -77,8 +76,7 @@ export async function POST(request: NextRequest) {
     // Verificar autenticação
     const {
       data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
+      error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
@@ -92,8 +90,7 @@ export async function POST(request: NextRequest) {
 
     // Usar a função RPC para criar conversa
     const { data: conversationId, error } = await supabase.rpc("create_conversation", {
-      other_user_id: otherUserId,
-    })
+      other_user_id: otherUserId })
 
     if (error) {
       console.error("Erro ao criar conversa:", error)

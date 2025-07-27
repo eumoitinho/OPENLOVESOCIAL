@@ -1,11 +1,11 @@
 "use client"
 
-import { useState } from 'react'
+import { useState } from "react"
 import { Card, CardBody, CardHeader, Button, Chip } from "@heroui/react"
-import { MessageCircle, Crown, Star, Lock, Users } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { useRouter } from 'next/navigation'
-import { useCanAccess } from '@/lib/plans/hooks'
+import { MessageCircle, Crown, Star, Lock, Users } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { useRouter } from "next/navigation"
+import { useCanAccess } from "@/lib/plans/hooks"
 
 interface ChatRestrictionProps {
   recipientPlan?: 'free' | 'gold' | 'diamond'

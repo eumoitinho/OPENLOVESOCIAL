@@ -1,13 +1,14 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Card, CardBody, Button, Badge, Input, Tab } from "@heroui/react"
-import { Search, Plus, Users, Crown, Lock, TrendingUp } from 'lucide-react'
-import { useAuth } from '@/app/components/auth/AuthProvider'
-import { usePaywall } from '@/lib/plans/paywall'
-import { useCanAccess } from '@/lib/plans/hooks'
+import { Card, CardBody, Button, Badge, Input } from "@heroui/react"
+import { Search, Plus, Users, Crown, Lock, TrendingUp } from "lucide-react"
+import { useAuth } from "@/app/components/auth/AuthProvider"
+import { usePaywall } from "@/lib/plans/paywall"
+import { useCanAccess } from "@/lib/plans/hooks"
 import PaywallModal from '@/components/plan-limits/PaywallModal'
 import PlanIndicator from '@/components/plan-limits/PlanIndicator'
+import { Tabs } from "@/components/ui/tabs"
 
 interface Community {
   id: string

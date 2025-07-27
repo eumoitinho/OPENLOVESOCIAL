@@ -2,12 +2,10 @@ import { createRouteHandlerClient } from "@/app/lib/supabase-server"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 
-
 export async function GET() {
   const supabase = await createRouteHandlerClient()
   const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
     return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 })
@@ -17,8 +15,7 @@ export async function GET() {
 
   if (!profile || !profile.is_premium) {
     return new NextResponse(JSON.stringify({ error: "Only premium users can view profile viewers" }), {
-      status: 403,
-    })
+      status: 403 })
   }
 
   const { data, error } = await supabase

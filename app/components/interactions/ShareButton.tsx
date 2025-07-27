@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import { Share2, MessageSquare, ExternalLink, Copy, CheckCircle } from 'lucide-react'
-import { Button, Dropdown, DropdownTrigger, DropdownItem, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure, Input, Textarea, Divider, User } from "@heroui/react"
-import { cn } from '@/lib/utils'
+import { useState } from "react"
+import { Share2, MessageSquare, ExternalLink, Copy, CheckCircle } from "lucide-react"
+import { Button, Modal, ModalContent, ModalHeader, ModalBody, Input, Textarea, Divider, User } from "@heroui/react"
+import { cn } from "@/lib/utils"
+import { DropdownMenu } from "@/components/ui/dropdown-menu"
 
 interface ShareButtonProps {
   postId: string
@@ -140,8 +141,7 @@ export default function ShareButton({
       const response = await fetch(`/api/posts/${postId}/share`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       })
 
@@ -285,4 +285,3 @@ export default function ShareButton({
     </>
   )
 }
-import { Avatar } from "@/components/ui/avatar"

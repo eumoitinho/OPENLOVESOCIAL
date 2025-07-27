@@ -1,8 +1,8 @@
 'use client'
 
 import { Badge } from "@heroui/react"
-import { useNotifications } from '@/app/hooks/useNotifications'
-import { cn } from '@/lib/utils'
+import { useNotifications } from "@/app/hooks/useNotifications"
+import { cn } from "@/lib/utils"
 
 // Componente do ícone de notificação
 const NotificationIcon = ({ size = 24, ...props }: { size?: number; [key: string]: any }) => {

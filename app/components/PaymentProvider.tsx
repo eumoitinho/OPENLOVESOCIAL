@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState } from "react"
 import { Card, CardBody, Button } from "@heroui/react"
 import CheckoutFormStripe from './CheckoutFormStripe'
 import CheckoutFormAbacatePay from './CheckoutFormAbacatePay'
-import { STRIPE_PRODUCTS } from '@/types/stripe'
-import { CreditCard, Zap } from 'lucide-react'
+import { STRIPE_PRODUCTS } from "@/types/stripe"
+import { CreditCard, Zap } from "lucide-react"
 
 interface PaymentProviderProps {
   planType: keyof typeof STRIPE_PRODUCTS

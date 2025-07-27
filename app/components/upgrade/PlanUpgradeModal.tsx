@@ -58,8 +58,7 @@ export default function PlanUpgradeModal({ isOpen, onClose, currentPlan }: PlanU
       const upgradeResponse = await fetch('/api/users/upgrade-plan', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: user.id,
           newPlan: targetPlan,

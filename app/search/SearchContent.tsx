@@ -61,8 +61,7 @@ const SearchContent: React.FC<SearchContentProps> = ({ initialQuery, initialType
           query: query.trim(),
           type: searchType,
           limit: "20",
-          offset: resetResults ? "0" : offset.toString(),
-        })
+          offset: resetResults ? "0" : offset.toString() })
 
         if (selectedInterests.length > 0) {
           params.append("interests", selectedInterests.join(","))
@@ -196,8 +195,7 @@ const SearchContent: React.FC<SearchContentProps> = ({ initialQuery, initialType
               className="inline-block mt-2 px-2 py-1 text-xs rounded-full"
               style={{
                 backgroundColor: `${community.interest_categories.color}20`,
-                color: community.interest_categories.color,
-              }}
+                color: community.interest_categories.color }}
             >
               {community.interest_categories.name}
             </span>
@@ -235,8 +233,7 @@ const SearchContent: React.FC<SearchContentProps> = ({ initialQuery, initialType
               month: "long",
               year: "numeric",
               hour: "2-digit",
-              minute: "2-digit",
-            })}
+              minute: "2-digit" })}
           </p>
           <p className="text-sm text-gray-700 mt-1 line-clamp-2">{event.description}</p>
           <div className="flex items-center justify-between mt-2">

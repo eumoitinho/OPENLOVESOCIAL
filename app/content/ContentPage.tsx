@@ -125,8 +125,7 @@ export default function ContentPage() {
       const response = await fetch("/api/content/purchase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contentId }),
-      })
+        body: JSON.stringify({ contentId }) })
 
       if (response.ok) {
         alert("Conteúdo adquirido com sucesso!")

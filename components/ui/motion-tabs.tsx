@@ -84,8 +84,7 @@ function Tabs<T extends string = string>({
       value={{
         activeValue: (value ?? activeValue)!,
         handleValueChange,
-        registerTrigger,
-      }}
+        registerTrigger }}
     >
       <div data-slot="tabs" className={cn("flex flex-col gap-2", className)} {...props}>
         {children}
@@ -107,8 +106,7 @@ function TabsList({
   transition = {
     type: "spring",
     stiffness: 200,
-    damping: 25,
-  },
+    damping: 25 },
   ...props
 }: TabsListProps) {
   const { activeValue } = useTabs()
@@ -184,8 +182,7 @@ function TabsContents({
     stiffness: 300,
     damping: 30,
     bounce: 0,
-    restDelta: 0.01,
-  },
+    restDelta: 0.01 },
   ...props
 }: TabsContentsProps) {
   const { activeValue } = useTabs()
@@ -250,5 +247,4 @@ export {
   type TabsListProps,
   type TabsTriggerProps,
   type TabsContentsProps,
-  type TabsContentProps,
-}
+  type TabsContentProps }

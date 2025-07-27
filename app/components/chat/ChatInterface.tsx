@@ -9,6 +9,7 @@ import { useConversations } from "@/app/hooks/useConversations"
 import { useAuth } from "@/app/components/auth/AuthProvider"
 import { ConversationList } from "./ConversationList"
 import { FileUpload } from "./FileUpload"
+import { Avatar } from "@/components/ui/avatar"
 
 interface ChatInterfaceProps {
   className?: string

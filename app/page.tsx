@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import Logo from "./components/Logo"
 import PlanAdCard from '@/app/components/ads/PlanAdCard'
-import { useCanAccess } from '@/lib/plans/hooks'
+import { useCanAccess } from "@/lib/plans/hooks"
 
 export default function OpenLoveLanding() {
   const [isDarkMode, setIsDarkMode] = useState(true)
@@ -221,22 +221,19 @@ export default function OpenLoveLanding() {
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] md:w-[600px] lg:w-[800px] h-[400px] md:h-[600px] lg:h-[800px] border border-gray-200 dark:border-white/05 transition-all duration-500 ease-out hw-accelerate"
             style={{
               borderRadius,
-              transform: `translate(-50%, -50%) rotate(${rotation})`,
-            }}
+              transform: `translate(-50%, -50%) rotate(${rotation})` }}
           />
           <div
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[450px] lg:w-[600px] h-[300px] md:h-[450px] lg:h-[600px] border border-gray-200 dark:border-white/10 transition-all duration-500 ease-out hw-accelerate"
             style={{
               borderRadius,
-              transform: `translate(-50%, -50%) rotate(${rotation === "0deg" ? "0deg" : `-${rotation}`})`,
-            }}
+              transform: `translate(-50%, -50%) rotate(${rotation === "0deg" ? "0deg" : `-${rotation}`})` }}
           />
           <div
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] md:w-[300px] lg:w-[400px] h-[200px] md:h-[300px] lg:h-[400px] border border-gray-300 dark:border-white/20 transition-all duration-500 ease-out hw-accelerate"
             style={{
               borderRadius,
-              transform: `translate(-50%, -50%) rotate(${rotation === "0deg" ? "0deg" : `${Number.parseFloat(rotation) * 0.5}deg`})`,
-            }}
+              transform: `translate(-50%, -50%) rotate(${rotation === "0deg" ? "0deg" : `${Number.parseFloat(rotation) * 0.5}deg`})` }}
           />
 
           <div className="max-w-6xl mx-auto text-center relative">

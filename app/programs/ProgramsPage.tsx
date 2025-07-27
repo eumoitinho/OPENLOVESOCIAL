@@ -141,8 +141,7 @@ export default function ProgramsPage() {
       const response = await fetch("/api/programs/enroll", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ programId }),
-      })
+        body: JSON.stringify({ programId }) })
 
       if (response.ok) {
         alert("Matrícula realizada com sucesso!")

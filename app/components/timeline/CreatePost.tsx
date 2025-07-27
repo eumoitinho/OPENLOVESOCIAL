@@ -22,10 +22,12 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 import Compressor from "compressorjs"
-import { usePaywall } from '@/lib/plans/paywall'
+import { usePaywall } from "@/lib/plans/paywall"
 import PaywallModal from '@/components/plan-limits/PaywallModal'
-import { useCanAccess } from '@/lib/plans/hooks'
+import { useCanAccess } from "@/lib/plans/hooks"
 import PremiumLockBadge from '@/app/components/premium/PremiumLockBadge'
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { CardContent } from "@/components/ui/card"
 
 interface PostOption {
   id: string
@@ -46,40 +48,32 @@ const buttonVariants = {
   initial: {
     gap: 0,
     paddingLeft: ".5rem",
-    paddingRight: ".5rem",
-  },
+    paddingRight: ".5rem" },
   animate: (isSelected: boolean) => ({
     gap: isSelected ? ".5rem" : 0,
     paddingLeft: isSelected ? "1rem" : ".5rem",
-    paddingRight: isSelected ? "1rem" : ".5rem",
-  }),
-}
+    paddingRight: isSelected ? "1rem" : ".5rem" }) }
 
 const spanVariants = {
   initial: { width: 0, opacity: 0 },
   animate: { width: "auto", opacity: 1 },
-  exit: { width: 0, opacity: 0 },
-}
+  exit: { width: 0, opacity: 0 } }
 
 const notificationVariants = {
   initial: { opacity: 0, y: 10 },
   animate: { opacity: 1, y: -10 },
-  exit: { opacity: 0, y: -20 },
-}
+  exit: { opacity: 0, y: -20 } }
 
 const lineVariants = {
   initial: { scaleX: 0, x: "-50%" },
   animate: {
     scaleX: 1,
     x: "0%",
-    transition: { duration: 0.2, ease: "easeOut" },
-  },
+    transition: { duration: 0.2, ease: "easeOut" } },
   exit: {
     scaleX: 0,
     x: "50%",
-    transition: { duration: 0.2, ease: "easeIn" },
-  },
-}
+    transition: { duration: 0.2, ease: "easeIn" } } }
 
 const transition = { type: "spring", bounce: 0, duration: 0.4 }
 
@@ -395,8 +389,7 @@ export default function CreatePost(props: CreatePostProps) {
 
       const response = await fetch("/api/posts", {
         method: "POST",
-        body: formData,
-      })
+        body: formData })
 
       if (!response.ok) {
         const errorData = await response.json()
@@ -507,8 +500,7 @@ export default function CreatePost(props: CreatePostProps) {
                                 isRecording
                                   ? {
                                       height: `${20 + Math.random() * 80}%`,
-                                      animationDelay: `${i * 0.05}s`,
-                                    }
+                                      animationDelay: `${i * 0.05}s` }
                                   : undefined
                               }
                             />
@@ -899,4 +891,3 @@ export default function CreatePost(props: CreatePostProps) {
     </div>
   )
 }
-import { CardContent } from "@/components/ui/card"

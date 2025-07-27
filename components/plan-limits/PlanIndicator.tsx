@@ -1,10 +1,10 @@
 'use client'
 
 import { Badge, Card, CardBody, Progress, Button } from "@heroui/react"
-import { Crown, Star, Zap, TrendingUp } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { usePlanLimits, useCanAccess, usePlanUsage } from '@/lib/plans/hooks'
-import { PLAN_NAMES, PLAN_PRICES } from '@/lib/plans/config'
+import { Crown, Star, Zap, TrendingUp } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { usePlanLimits, useCanAccess, usePlanUsage } from "@/lib/plans/hooks"
+import { PLAN_NAMES, PLAN_PRICES } from "@/lib/plans/config"
 
 interface PlanIndicatorProps {
   variant?: 'compact' | 'detailed'

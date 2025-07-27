@@ -21,9 +21,7 @@ export const signUp = async (
     email,
     password,
     options: {
-      data: userData,
-    },
-  })
+      data: userData } })
 
   if (error) throw error
   return data
@@ -33,8 +31,7 @@ export const signUp = async (
 export const signIn = async (email: string, password: string) => {
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
-    password,
-  })
+    password })
 
   if (error) throw error
   return data
@@ -50,8 +47,7 @@ export const signOut = async () => {
 export const getCurrentUser = async (): Promise<AuthUser | null> => {
   const {
     data: { user },
-    error,
-  } = await supabase.auth.getUser()
+    error } = await supabase.auth.getUser()
   if (error) throw error
   return user as AuthUser
 }
@@ -65,8 +61,7 @@ export const updateProfile = async (updates: {
   interests?: string[]
 }) => {
   const { data, error } = await supabase.auth.updateUser({
-    data: updates,
-  })
+    data: updates })
 
   if (error) throw error
   return data

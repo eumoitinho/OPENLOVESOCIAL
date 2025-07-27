@@ -10,12 +10,12 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "@/components/ui/use-toast"
 import { ArrowLeft } from "lucide-react"
-import { useCanAccess, usePlanUsage } from '@/lib/plans/hooks'
-import { usePaywall } from '@/lib/plans/paywall'
+import { useCanAccess, usePlanUsage } from "@/lib/plans/hooks"
+import { usePaywall } from "@/lib/plans/paywall"
 import PaywallModal from '@/components/plan-limits/PaywallModal'
 import PlanIndicator from '@/components/plan-limits/PlanIndicator'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Info } from 'lucide-react'
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { ArrowLeft, Info } from "lucide-react"
 
 export default function CreateEventPage() {
   const { profile } = useAuth()
@@ -25,8 +25,7 @@ export default function CreateEventPage() {
     title: "",
     description: "",
     event_date: "",
-    location: "",
-  })
+    location: "" })
   
   const canAccess = useCanAccess()
   const usage = usePlanUsage()
@@ -86,8 +85,7 @@ export default function CreateEventPage() {
       const response = await fetch("/api/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(eventData),
-      })
+        body: JSON.stringify(eventData) })
 
       if (response.ok) {
         toast({ title: "Evento criado com sucesso!" })
@@ -99,8 +97,7 @@ export default function CreateEventPage() {
       toast({
         title: "Erro",
         description: "Não foi possível criar o evento. Tente novamente.",
-        variant: "destructive",
-      })
+        variant: "destructive" })
     } finally {
       setLoading(false)
     }

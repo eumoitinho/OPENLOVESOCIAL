@@ -1,8 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createRouteHandlerClient, createSupabaseAdmin } from "@/app/lib/supabase-server"
 import { verifyAuth } from "@/app/lib/auth-helpers"
-import { createClient } from '@supabase/supabase-js'
-import { planValidator } from '@/lib/plans/server'
+import { createClient } from "@supabase/supabase-js"
+import { planValidator } from "@/lib/plans/server"
 import { verifyUserForAction } from "@/lib/verification-middleware"
 
 export async function POST(request: NextRequest) {
@@ -192,7 +192,6 @@ export async function POST(request: NextRequest) {
         console.log("Bucket 'media' já existe ou erro ao criar:", (bucketError as any).message)
       }
 
-
       // Processar imagens
       for (const img of images) {
         if (typeof img === "object" && "name" in img && "type" in img) {
@@ -341,8 +340,7 @@ export async function POST(request: NextRequest) {
       media_urls: mediaUrls,
       media_types: mediaTypes,
       visibility,
-      poll_options: pollOptions.length > 0 ? pollOptions : null,
-    }
+      poll_options: pollOptions.length > 0 ? pollOptions : null }
     
     console.log("Dados para inserção:", postData)
     
@@ -384,14 +382,12 @@ export async function POST(request: NextRequest) {
         username: profile?.username || "unknown",
         avatar: profile?.avatar_url,
         verified: profile?.is_verified || false,
-        type: "single",
-      },
+        type: "single" },
       likes: [],
       likesCount: 0,
       isLiked: false,
       comments: [],
-      commentsCount: 0,
-    }
+      commentsCount: 0 }
 
     return NextResponse.json({ data: formattedPost })
   } catch (error) {
@@ -438,8 +434,7 @@ export async function GET(request: NextRequest) {
       data: posts || [],
       hasMore: (posts || []).length === limit,
       page,
-      limit,
-    })
+      limit })
   } catch (error) {
     console.error("Posts fetch error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })

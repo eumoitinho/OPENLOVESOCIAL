@@ -1,15 +1,14 @@
 import { type NextRequest, NextResponse } from "next/server"
 import Stripe from "stripe"
-import { createServerComponentClient } from '@/app/lib/supabase-server'
-import { STRIPE_STATUS_MAP } from '@/types/stripe'
+import { createServerComponentClient } from "@/app/lib/supabase-server"
+import { STRIPE_STATUS_MAP } from "@/types/stripe"
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error("STRIPE_SECRET_KEY não configurada")
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2025-06-30.basil",
-})
+  apiVersion: "2025-06-30.basil" })
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!
 
@@ -99,8 +98,7 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription, supab
       status_assinatura: status,
       proximo_pagamento: nextPayment,
       is_premium: planType !== 'free',
-      payment_provider: 'stripe',
-    })
+      payment_provider: 'stripe' })
     .eq('id', userData.id)
 
   if (updateError) {
@@ -131,8 +129,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription, supa
     .update({
       plano: 'free',
       status_assinatura: 'cancelled',
-      is_premium: false,
-    })
+      is_premium: false })
     .eq('id', userData.id)
 
   if (updateError) {
@@ -179,8 +176,7 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice, supabase: any) {
     .update({
       status_assinatura: 'authorized',
       ultimo_pagamento: paymentDate,
-      proximo_pagamento: nextPayment,
-    })
+      proximo_pagamento: nextPayment })
     .eq('id', userData.id)
 
   if (updateError) {
@@ -209,8 +205,7 @@ async function handlePaymentFailed(invoice: Stripe.Invoice, supabase: any) {
   const { error: updateError } = await supabase
     .from('users')
     .update({
-      status_assinatura: 'suspended',
-    })
+      status_assinatura: 'suspended' })
     .eq('id', userData.id)
 
   if (updateError) {
@@ -243,8 +238,7 @@ function getPlanFromPriceId(priceId: string): string {
   const plans = {
     'price_gold_monthly': 'gold',
     'price_diamond_monthly': 'diamante',
-    'price_diamond_yearly': 'diamante_anual',
-  }
+    'price_diamond_yearly': 'diamante_anual' }
   
   return plans[priceId as keyof typeof plans] || 'free'
 }

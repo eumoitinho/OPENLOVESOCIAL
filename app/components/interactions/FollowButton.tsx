@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { UserPlus, UserMinus, UserCheck } from 'lucide-react'
+import { useState, useEffect } from "react"
+import { UserPlus, UserMinus, UserCheck } from "lucide-react"
 import { Button } from "@heroui/react"
-import { cn } from '@/lib/utils'
+import { cn } from "@/lib/utils"
 
 interface FollowButtonProps {
   userId: string
@@ -65,8 +65,7 @@ export default function FollowButton({
       const response = await fetch(`/api/users/${userId}/follow`, {
         method,
         headers: {
-          'Content-Type': 'application/json',
-        }
+          'Content-Type': 'application/json' }
       })
 
       if (!response.ok) {

@@ -57,8 +57,7 @@ const tabs = [
         Descubra <span className="text-foreground font-semibold">ideias frescas</span>, tópicos em alta e conexões
         incríveis curadas especialmente para você. Comece a explorar!
       </>
-    ),
-  },
+    ) },
   {
     name: "Favoritos",
     value: "favorites",
@@ -68,8 +67,7 @@ const tabs = [
         Todos os seus <span className="text-foreground font-semibold">favoritos</span> estão salvos aqui. Revisite
         posts, conexões e momentos que você ama, a qualquer momento.
       </>
-    ),
-  },
+    ) },
   {
     name: "Eventos",
     value: "events",
@@ -79,8 +77,7 @@ const tabs = [
         <span className="text-foreground font-semibold">Eventos próximos</span> em sua área. Participe e conheça pessoas
         com interesses similares aos seus!
       </>
-    ),
-  },
+    ) },
 ]
 
 export function HomeView({ posts, activeTab, onTabChange, onLike, onComment, onShare, onToggleFollow }: HomeViewProps) {

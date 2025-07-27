@@ -5,8 +5,8 @@ import { useState } from "react"
 import { Clock, Users, Calendar, AlertTriangle, TrendingUp, Eye } from "lucide-react"
 import type { User } from "@supabase/supabase-js"
 import type { Database } from "@/app/lib/database.types"
-import { Card, CardHeader, CardBody, Button, Badge, Tab, Chip } from "@heroui/react"
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/react"
+import { Card, CardHeader, CardBody, Button, Badge, Chip, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/react"
+import { Tabs } from "@/components/ui/tabs"
 
 type Profile = Database["public"]["Tables"]["users"]["Row"]
 
@@ -23,7 +23,6 @@ interface Report {
   description: string
   status: string
   created_at: string
-import { Tabs } from "@/components/ui/tabs"
   reporter: { username: string; full_name: string } | null
   reported_user: { username: string; full_name: string } | null
 }
@@ -42,8 +41,7 @@ const getReportTypeLabel = (type: string) => {
     content: "Conteúdo",
     spam: "Spam",
     harassment: "Assédio",
-    other: "Outro",
-  }
+    other: "Outro" }
   return labels[type] || type
 }
 
@@ -62,8 +60,7 @@ const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString("pt-BR", {
     day: "numeric",
     month: "short",
-    year: "numeric",
-  })
+    year: "numeric" })
 }
 
 export const AdminContent: React.FC<AdminContentProps> = ({ profile, stats, recentReports, recentUsers }) => {

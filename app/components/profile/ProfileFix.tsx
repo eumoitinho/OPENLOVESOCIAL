@@ -1,12 +1,12 @@
 "use client"
 
-import { useEffect, useState } from 'react'
-import { useAuth } from '@/app/components/auth/AuthProvider'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
+import { useEffect, useState } from "react"
+import { useAuth } from "@/app/components/auth/AuthProvider"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Loader2, AlertCircle, CheckCircle, User, RefreshCw } from 'lucide-react'
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Loader2, AlertCircle, CheckCircle, User, RefreshCw } from "lucide-react"
 
 interface ProfileFixProps {
   username?: string
@@ -92,12 +92,9 @@ export default function ProfileFix({ username }: ProfileFixProps) {
       const response = await fetch('/api/profile', {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
-        },
+          'Content-Type': 'application/json' },
         body: JSON.stringify({
-          username: user.email?.split('@')[0] || `user_${user.id.slice(0, 8)}`,
-        }),
-      })
+          username: user.email?.split('@')[0] || `user_${user.id.slice(0, 8)}` }) })
 
       if (!response.ok) {
         throw new Error('Erro ao atualizar perfil')

@@ -14,15 +14,13 @@ export function validateMediaFile(file: File): { isValid: boolean; error?: strin
   if (!allowedTypes.includes(file.type)) {
     return {
       isValid: false,
-      error: "Tipo de arquivo não suportado. Use JPEG, PNG, GIF, WebP, MP4, WebM ou MOV.",
-    }
+      error: "Tipo de arquivo não suportado. Use JPEG, PNG, GIF, WebP, MP4, WebM ou MOV." }
   }
 
   if (file.size > maxSize) {
     return {
       isValid: false,
-      error: "Arquivo muito grande. Tamanho máximo: 10MB.",
-    }
+      error: "Arquivo muito grande. Tamanho máximo: 10MB." }
   }
 
   return { isValid: true }
@@ -74,8 +72,7 @@ export function getImageDimensions(file: File): Promise<{ width: number; height:
       URL.revokeObjectURL(url)
       resolve({
         width: img.naturalWidth,
-        height: img.naturalHeight,
-      })
+        height: img.naturalHeight })
     }
 
     img.onerror = () => {

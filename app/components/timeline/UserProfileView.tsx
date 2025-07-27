@@ -30,23 +30,20 @@ export function UserProfileView({ user, onBack }: UserProfileViewProps) {
       image: "/placeholder.svg?height=300&width=400",
       likes: 24,
       comments: 8,
-      timestamp: "2h",
-    },
+      timestamp: "2h" },
     {
       id: "2",
       content: "Quem quer se juntar para um jantar romântico hoje? Conheço um lugar incrível!",
       likes: 15,
       comments: 12,
-      timestamp: "5h",
-    },
+      timestamp: "5h" },
     {
       id: "3",
       content: "Acabei de terminar meu treino. Nada melhor que cuidar da saúde!",
       image: "/placeholder.svg?height=300&width=400",
       likes: 31,
       comments: 6,
-      timestamp: "1d",
-    },
+      timestamp: "1d" },
   ]
 
   const userGallery = [

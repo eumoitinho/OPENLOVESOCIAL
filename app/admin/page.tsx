@@ -4,12 +4,9 @@ import { redirect } from "next/navigation"
 import type { Metadata } from "next"
 import { createServerComponentClient } from "@/app/lib/supabase-server"
 
-
-
 export const metadata: Metadata = {
   title: "Painel Admin - Openlove",
-  description: "Painel de administração do Openlove",
-}
+  description: "Painel de administração do Openlove" }
 
 export default async function AdminPage() {
   const user = await getCurrentUser()
@@ -55,8 +52,7 @@ export default async function AdminPage() {
         totalUsers: totalUsers || 0,
         totalCommunities: totalCommunities || 0,
         totalEvents: totalEvents || 0,
-        pendingReports: 0,
-      }}
+        pendingReports: 0 }}
       recentReports={[]}
       recentUsers={recentUsers || []}
     />

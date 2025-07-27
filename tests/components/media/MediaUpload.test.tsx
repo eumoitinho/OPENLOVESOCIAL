@@ -13,8 +13,7 @@ beforeEach(() => {
   jest.clearAllMocks()
   ;(validateMediaFile as jest.Mock).mockReturnValue({
     isValid: true,
-    fileType: "image",
-  })
+    fileType: "image" })
 })
 
 describe("MediaUpload Component", () => {
@@ -43,8 +42,7 @@ describe("MediaUpload Component", () => {
     const mockOnUploadError = jest.fn()
     ;(validateMediaFile as jest.Mock).mockReturnValue({
       isValid: false,
-      error: "Arquivo muito grande",
-    })
+      error: "Arquivo muito grande" })
 
     render(<MediaUpload onUploadError={mockOnUploadError} />)
 
@@ -65,9 +63,7 @@ describe("MediaUpload Component", () => {
       json: () =>
         Promise.resolve({
           success: true,
-          media: { id: "123", url: "test.jpg" },
-        }),
-    })
+          media: { id: "123", url: "test.jpg" } }) })
 
     render(<MediaUpload onUploadSuccess={mockOnUploadSuccess} />)
 
@@ -86,8 +82,7 @@ describe("MediaUpload Component", () => {
     await waitFor(() => {
       expect(mockOnUploadSuccess).toHaveBeenCalledWith({
         id: "123",
-        url: "test.jpg",
-      })
+        url: "test.jpg" })
     })
   })
 
@@ -97,9 +92,7 @@ describe("MediaUpload Component", () => {
       ok: false,
       json: () =>
         Promise.resolve({
-          error: "Upload failed",
-        }),
-    })
+          error: "Upload failed" }) })
 
     render(<MediaUpload onUploadError={mockOnUploadError} />)
 
@@ -128,8 +121,7 @@ describe("MediaUpload Component", () => {
             () =>
               resolve({
                 ok: true,
-                json: () => Promise.resolve({ success: true, media: {} }),
-              }),
+                json: () => Promise.resolve({ success: true, media: {} }) }),
             100,
           ),
         ),
