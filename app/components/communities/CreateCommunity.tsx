@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef } from 'react'
-import { Modal, ModalContent, ModalHeader, ModalBody, Button, Input, Textarea, Select, SelectItem, Chip } from '@heroui/react'
+import { Modal, ModalContent, ModalHeader, ModalBody, Button, Input, Textarea, SelectItem, Chip } from "@heroui/react"
 import { 
   Users,
   Upload,

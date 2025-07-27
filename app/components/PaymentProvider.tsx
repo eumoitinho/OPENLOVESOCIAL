@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Card, CardBody, Button } from '@heroui/react'
+import { Card, CardBody, Button } from "@heroui/react"
 import CheckoutFormStripe from './CheckoutFormStripe'
 import CheckoutFormAbacatePay from './CheckoutFormAbacatePay'
 import { STRIPE_PRODUCTS } from '@/types/stripe'

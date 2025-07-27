@@ -448,4 +448,7 @@ export const EventsDialog = function EventsDialog({ open, onOpenChange }: Events
       <CreateEventForm />
     </>
   )
-} 
+}
+import { CardContent } from "@/components/ui/card"
+import { DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"

@@ -1,6 +1,6 @@
 'use client'
 
-import { Badge } from '@heroui/react'
+import { Badge } from "@heroui/react"
 import { useNotifications } from '@/app/hooks/useNotifications'
 import { cn } from '@/lib/utils'
 

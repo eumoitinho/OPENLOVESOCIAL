@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Button, Card, CardBody } from '@heroui/react'
+import { Button, Card, CardBody } from "@heroui/react"
 import { STRIPE_PRODUCTS } from '@/types/stripe'
 import { QrCode } from 'lucide-react'
 

@@ -408,4 +408,5 @@ export function ShareDialog({
       </DialogContent>
     </Dialog>
   )
-} 
+}
+import { DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"

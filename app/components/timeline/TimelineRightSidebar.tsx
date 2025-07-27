@@ -398,4 +398,4 @@ export function TimelineRightSidebar({
     </aside>
   )
 }
-
+import { CardContent } from "@/components/ui/card"

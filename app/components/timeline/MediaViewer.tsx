@@ -311,4 +311,5 @@ export function MediaViewer({
       </DialogContent>
     </Dialog>
   )
-} 
+}
+import { DialogContent } from "@/components/ui/dialog"

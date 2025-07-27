@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card, CardBody, Button, Progress, Avatar, Chip, Divider, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Textarea } from '@heroui/react'
+import { Card, CardBody, Button, Progress, Chip, Divider, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, Textarea } from "@heroui/react"
 import { Shield, Camera, Clock, CheckCircle, XCircle, Upload, AlertTriangle, Info } from 'lucide-react'
 import { createClient } from '@/app/lib/supabase-browser'
 import { useRouter } from 'next/navigation'

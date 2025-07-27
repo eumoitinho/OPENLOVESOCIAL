@@ -3,7 +3,7 @@
 import React, { useState, useCallback } from 'react'
 import Cropper from 'react-easy-crop'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Slider } from '@/components/ui/slider'
 import { RotateCcw, RotateCw, ZoomIn, ZoomOut, Check, X } from 'lucide-react'
 

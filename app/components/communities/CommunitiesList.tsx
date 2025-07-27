@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { Card, CardBody, CardHeader, Button, Chip, Input, Avatar } from '@heroui/react'
+import { Card, CardBody, CardHeader, Button, Chip, Input } from "@heroui/react"
 import { 
   Users, 
   Search,

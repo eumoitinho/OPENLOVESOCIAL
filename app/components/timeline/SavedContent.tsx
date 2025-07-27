@@ -382,4 +382,6 @@ export function SavedContent({
       </div>
     </div>
   )
-} 
+}
+import { AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { CardContent } from "@/components/ui/card"

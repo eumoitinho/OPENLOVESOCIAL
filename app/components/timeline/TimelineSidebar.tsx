@@ -1,6 +1,7 @@
 "use client"
 
-import { Button, Card, CardBody, CardFooter, CardHeader, Avatar, Badge, Chip } from "@heroui/react"
+import { Button, Card, CardBody, CardFooter, CardHeader, Badge, Chip } from "@heroui/react"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import {
   Heart,
   Moon,
@@ -26,22 +27,12 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Logo from "../Logo"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,  } from "@/components/ui/tooltip"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,  } from "@/components/ui/dropdown-menu"
 import { useAuth } from "@/app/components/auth/AuthProvider"
 import { useNotifications } from "@/app/hooks/useNotifications"
 import { useMessageStats } from "@/app/hooks/useMessageStats"
+import { CardContent, CardDescription, CardTitle } from "@/components/ui/card"
 
 interface TimelineSidebarProps {
   isDarkMode: boolean

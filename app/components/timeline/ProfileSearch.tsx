@@ -244,4 +244,6 @@ export default function ProfileSearch({ onProfileClick }: ProfileSearchProps) {
       </div>
     </div>
   )
-} 
+}
+import { CardContent } from "@/components/ui/card"
+import { SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"

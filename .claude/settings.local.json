@@ -47,7 +47,8 @@
       "Bash(cp:*)",
       "Bash(for:*)",
       "Bash(do sed -i \"s|@/components/auth/AuthProvider|@/app/components/auth/AuthProvider|g\" \"$f\")",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(sed:*)"
     ],
     "deny": []
   }

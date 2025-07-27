@@ -294,3 +294,4 @@ export function CommentsDialog({
     </Dialog>
   )
 }
+import { DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"

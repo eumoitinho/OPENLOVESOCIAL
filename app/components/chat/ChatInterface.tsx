@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { useIsMounted } from "@/hooks/use-is-mounted"
 import { motion, AnimatePresence } from "framer-motion"
 import { Send, Paperclip, Smile, MoreVertical, Phone, Video, Search, X, MessageCircle } from "lucide-react"
-import { Button, Input, Avatar, Chip, ScrollShadow } from "@heroui/react"
+import { Button, Input, Chip, ScrollShadow } from "@heroui/react"
 import { useConversations } from "@/app/hooks/useConversations"
 import { useAuth } from "@/app/components/auth/AuthProvider"
 import { ConversationList } from "./ConversationList"
@@ -416,4 +416,4 @@ export function ChatInterface({ className, isOpen = false, onClose }: ChatInterf
       </div>
     </div>
   )
-} 
+}

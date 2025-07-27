@@ -4,7 +4,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { cn } from "@/lib/utils"
-import { Button, Card, CardBody, Textarea, Input, Avatar } from "@heroui/react"
+import { Button, Card, CardBody, Textarea, Input } from "@heroui/react"
 import { 
   Globe, 
   Users, 
@@ -899,3 +899,4 @@ export default function CreatePost(props: CreatePostProps) {
     </div>
   )
 }
+import { CardContent } from "@/components/ui/card"

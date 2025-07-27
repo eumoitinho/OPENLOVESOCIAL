@@ -1119,6 +1119,7 @@ export default function PostCard({
             // Atualizar apenas o conteúdo se fornecido
             if (updatedPost.content) {
               setPostContent(updatedPost.content);
+import { CardContent } from "@/components/ui/card"
             }
           }}
           currentUser={currentUser}

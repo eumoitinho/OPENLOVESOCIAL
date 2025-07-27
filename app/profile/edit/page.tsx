@@ -5,7 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/app/components/auth/AuthProvider"
-import { Button, Input, Textarea, Card, CardBody, CardHeader, Avatar, Select, SelectItem, Checkbox } from "@heroui/react"
+import { Button, Input, Textarea, Card, CardBody, CardHeader, SelectItem, Checkbox } from "@heroui/react"
 import { toast } from "sonner"
 import { ArrowLeft, Camera, MapPin, Calendar, Heart, Music, Book, Gamepad2, Plane, Coffee } from "lucide-react"
 
@@ -370,3 +370,5 @@ export default function EditProfilePage() {
     </div>
   )
 }
+import { CardContent } from "@/components/ui/card"
+import { SelectContent, SelectItem, SelectTrigger, SelectValue, Select } from "@/components/ui/select"

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Button, Card, CardBody, Chip, Tabs, Tab } from "@heroui/react"
+import { Button, Card, CardBody, Chip, Tab } from "@heroui/react"
 import { 
   Users, 
   Grid3X3, 
@@ -364,3 +364,4 @@ export function ExploreProfiles({
     </div>
   )
 }
+import { CardContent } from "@/components/ui/card"

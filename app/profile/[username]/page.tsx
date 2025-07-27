@@ -3,22 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Icon } from '@iconify/react'
-import {
-  Avatar,
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  Chip,
-  Divider,
-  Image,
-  Link,
-  Tabs,
-  Tab,
-  User,
-  Spinner,
-  Badge
-} from "@heroui/react"
+import { Button, Card, CardBody, CardHeader, Chip, Divider, Image, Link, Tab, User, Spinner, Badge } from "@heroui/react"
 import { useAuth } from '@/app/components/auth/AuthProvider'
 import { toast } from 'sonner'
 import SimpleProfileFix from '@/app/components/profile/SimpleProfileFix'
@@ -593,3 +578,4 @@ export default function UserProfile() {
     </div>
   )
 }
+import { Tabs } from "@/components/ui/tabs"

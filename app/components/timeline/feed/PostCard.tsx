@@ -13,7 +13,7 @@ import {
   UserPlus,
   UserMinus,
 } from "lucide-react"
-import { Avatar, Button, Card, CardBody, CardFooter, CardHeader, Chip } from "@heroui/react"
+import { Button, Card, CardBody, CardFooter, CardHeader, Chip } from "@heroui/react"
 import { cn } from "@/lib/utils"
 import { SecureImage } from "@/app/components/security/SecureImage"
 import { useAuth } from "@/app/components/auth/AuthProvider"
@@ -233,3 +233,4 @@ export function PostCard({ post, index, onLike, onComment, onShare, onToggleFoll
     </motion.div>
   )
 }
+import { CardContent } from "@/components/ui/card"

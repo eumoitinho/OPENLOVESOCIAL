@@ -3,7 +3,7 @@
 import React, { useEffect, useRef } from 'react'
 import { Phone, PhoneOff, Mic, MicOff, Video, VideoOff, Volume2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useWebRTC } from './WebRTCContext'
 
 const CallModal: React.FC = () => {

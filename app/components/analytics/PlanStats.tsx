@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { Card, CardBody, CardHeader, Chip, Progress } from '@heroui/react'
+import { Card, CardBody, CardHeader, Chip, Progress } from "@heroui/react"
 import { 
   Eye, 
   Heart, 

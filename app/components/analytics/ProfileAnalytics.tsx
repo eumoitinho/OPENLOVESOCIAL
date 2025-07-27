@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { TrendingUp, Eye, Heart, MessageCircle, Users, Target, Calendar, Lightbulb, RefreshCw } from "lucide-react"
-import { Card, CardBody, CardHeader, Button, Chip, Progress, Tabs, Tab } from "@heroui/react"
+import { Card, CardBody, CardHeader, Button, Chip, Progress, Tab } from "@heroui/react"
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts'
 import { useAuth } from "@/app/components/auth/AuthProvider"
 
@@ -473,4 +473,4 @@ export default function ProfileAnalytics({ className }: ProfileAnalyticsProps) {
       </Tabs>
     </div>
   )
-} 
+}

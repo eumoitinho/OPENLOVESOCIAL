@@ -1,8 +1,8 @@
 "use client"
 
 import { Crown, Star, Zap, Check } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@heroui/react'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@heroui/react"
 import PremiumLockBadge from './PremiumLockBadge'
 import { ChatHeaderCallButtons } from '@/app/components/chat/CallButtons'
 import { PostMediaButtons } from '@/app/components/media/MediaUploadButtons'

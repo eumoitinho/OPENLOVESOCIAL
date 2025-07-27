@@ -2,7 +2,11 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/app/components/auth/AuthProvider";
-import { Button, Chip, Avatar, Card, CardBody, CardFooter, CardHeader, Tabs, Tab, Textarea, Select, SelectItem } from "@heroui/react";
+import { Button, Chip, Card, CardBody, CardFooter, CardHeader, Textarea } from "@heroui/react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { CardContent } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { RobustAvatar } from "@/app/components/ui/robust-avatar";
 import {
   Heart,

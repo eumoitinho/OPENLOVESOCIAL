@@ -5,7 +5,7 @@ import { useState } from "react"
 import { Clock, Users, Calendar, AlertTriangle, TrendingUp, Eye } from "lucide-react"
 import type { User } from "@supabase/supabase-js"
 import type { Database } from "@/app/lib/database.types"
-import { Card, CardHeader, CardBody, Button, Badge, Tabs, Tab, Chip } from "@heroui/react"
+import { Card, CardHeader, CardBody, Button, Badge, Tab, Chip } from "@heroui/react"
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/react"
 
 type Profile = Database["public"]["Tables"]["users"]["Row"]
@@ -23,6 +23,7 @@ interface Report {
   description: string
   status: string
   created_at: string
+import { Tabs } from "@/components/ui/tabs"
   reporter: { username: string; full_name: string } | null
   reported_user: { username: string; full_name: string } | null
 }

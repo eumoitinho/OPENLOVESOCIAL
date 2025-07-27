@@ -243,4 +243,7 @@ export const CommunitiesDialog = function CommunitiesDialog({ open, onOpenChange
       </DialogContent>
     </Dialog>
   )
-} 
+}
+import { AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { CardContent } from "@/components/ui/card"
+import { DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"

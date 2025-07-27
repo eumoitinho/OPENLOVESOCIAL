@@ -2,23 +2,7 @@
 
 import { useState } from 'react'
 import { Share2, MessageSquare, ExternalLink, Copy, CheckCircle } from 'lucide-react'
-import { 
-  Button, 
-  Dropdown, 
-  DropdownTrigger, 
-  DropdownMenu, 
-  DropdownItem,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  useDisclosure,
-  Input,
-  Textarea,
-  Divider,
-  Avatar,
-  User
-} from '@heroui/react'
+import { Button, Dropdown, DropdownTrigger, DropdownItem, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure, Input, Textarea, Divider, User } from "@heroui/react"
 import { cn } from '@/lib/utils'
 
 interface ShareButtonProps {
@@ -301,3 +285,4 @@ export default function ShareButton({
     </>
   )
 }
+import { Avatar } from "@/components/ui/avatar"

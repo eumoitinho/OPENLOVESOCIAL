@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Textarea, Chip, Avatar } from "@heroui/react"
+import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Textarea, Chip } from "@heroui/react"
 import { 
   Image as ImageIcon, 
   Video, 
@@ -305,3 +305,4 @@ export function EditPostDialog({
     </Dialog>
   )
 }
+import { DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"

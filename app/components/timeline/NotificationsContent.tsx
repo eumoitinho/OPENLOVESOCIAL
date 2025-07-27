@@ -489,4 +489,5 @@ export function NotificationsContent() {
       </Tabs>
     </div>
   )
-} 
+}
+import { CardContent } from "@/components/ui/card"

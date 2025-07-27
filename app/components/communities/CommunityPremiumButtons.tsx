@@ -1,7 +1,7 @@
 "use client"
 
 import { Users, Plus, Settings, Crown, BarChart3 } from 'lucide-react'
-import { Button } from '@heroui/react'
+import { Button } from "@heroui/react"
 import PremiumLockBadge from '@/app/components/premium/PremiumLockBadge'
 import { usePremiumFeatures } from '@/lib/hooks/usePremiumFeatures'
 

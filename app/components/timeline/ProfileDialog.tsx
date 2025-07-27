@@ -583,4 +583,8 @@ export function ProfileDialog({ open, onOpenChange }: ProfileDialogProps) {
       </DialogContent>
     </Dialog>
   )
-} 
+}
+import { AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { CardContent } from "@/components/ui/card"
+import { DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"

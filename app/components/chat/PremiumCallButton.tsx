@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react'
-import { Button } from '@heroui/react'
+import { Button } from "@heroui/react"
 import { Phone, Video, Crown, Star, Lock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useCanAccess } from '@/lib/plans/hooks'

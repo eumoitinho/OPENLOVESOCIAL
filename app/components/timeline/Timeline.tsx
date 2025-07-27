@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Avatar, Card, CardHeader, CardBody, Button, Tabs, Tab } from "@heroui/react"
+import { Card, CardHeader, CardBody, Button, Tab } from "@heroui/react"
 import { Home } from "lucide-react"
 
 export default function Timeline() {
@@ -83,3 +83,4 @@ export default function Timeline() {
     </div>
   )
 }
+import { Tabs } from "@/components/ui/tabs"

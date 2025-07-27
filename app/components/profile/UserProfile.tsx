@@ -3,21 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Icon } from '@iconify/react'
-import {
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  Chip,
-  Divider,
-  Image,
-  Link,
-  Tabs,
-  Tab,
-  User,
-  Spinner,
-  Badge
-} from "@heroui/react"
+import { Button, Card, CardBody, CardHeader, Chip, Divider, Image, Link, Tab, User, Spinner, Badge } from "@heroui/react"
 import { AvatarBadge } from "@/app/components/ui/avatar-badge"
 import { RobustAvatar } from "@/app/components/ui/robust-avatar"
 import MediaGallery from '@/app/components/profile/MediaGallery'
@@ -648,4 +634,4 @@ export default function UserProfile({ username, isView = false }: UserProfilePro
       </div>
     </div>
   )
-} 
+}

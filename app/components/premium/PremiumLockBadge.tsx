@@ -4,7 +4,7 @@ import { Crown } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePremiumFeatures, type PlanType } from '@/lib/hooks/usePremiumFeatures'
 import { useState } from 'react'
-import { Button } from '@heroui/react'
+import { Button } from "@heroui/react"
 import { getPlanName } from '@/lib/hooks/usePremiumFeatures'
 
 interface PremiumLockBadgeProps {

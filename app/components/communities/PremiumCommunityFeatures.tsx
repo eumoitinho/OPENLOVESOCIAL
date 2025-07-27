@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -48,42 +48,42 @@ export default function PremiumCommunityFeatures({
       description: 'Crie comunidades exclusivas apenas para convidados',
       icon: Lock,
       requiredPlan: 'gold' as const,
-      available: canAccess.plan !== 'free'
+      available: canAccess.currentPlan !== 'free'
     },
     {
       title: 'Aprovação Manual',
       description: 'Controle quem pode entrar na sua comunidade',
       icon: Shield,
       requiredPlan: 'gold' as const,
-      available: canAccess.plan !== 'free'
+      available: canAccess.currentPlan !== 'free'
     },
     {
       title: 'Mais Membros',
       description: 'Até 500 membros por comunidade',
       icon: Users,
       requiredPlan: 'gold' as const,
-      available: canAccess.plan !== 'free'
+      available: canAccess.currentPlan !== 'free'
     },
     {
       title: 'Funções Personalizadas',
       description: 'Crie funções customizadas para membros',
       icon: Crown,
       requiredPlan: 'diamante' as const,
-      available: canAccess.plan === 'diamante'
+      available: canAccess.currentPlan === 'diamante'
     },
     {
       title: 'Eventos Exclusivos',
       description: 'Organize eventos apenas para membros',
       icon: Calendar,
       requiredPlan: 'diamante' as const,
-      available: canAccess.plan === 'diamante'
+      available: canAccess.currentPlan === 'diamante'
     },
     {
       title: 'Analytics Avançados',
       description: 'Estatísticas detalhadas da comunidade',
       icon: Zap,
       requiredPlan: 'diamante' as const,
-      available: canAccess.plan === 'diamante'
+      available: canAccess.currentPlan === 'diamante'
     }
   ]
 
@@ -93,7 +93,7 @@ export default function PremiumCommunityFeatures({
       requiresApproval,
       maxMembers,
       hasCustomRoles,
-      plan: canAccess.plan
+      plan: canAccess.currentPlan
     }
     
     onCreateCommunity?.(communityData)
@@ -165,7 +165,7 @@ export default function PremiumCommunityFeatures({
       </Card>
 
       {/* Community Settings */}
-      {(isOwner || onCreateCommunity) && canAccess.plan !== 'free' && (
+      {(isOwner || onCreateCommunity) && canAccess.currentPlan !== 'free' && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -187,7 +187,7 @@ export default function PremiumCommunityFeatures({
               <Switch
                 checked={isPrivate}
                 onCheckedChange={setIsPrivate}
-                disabled={canAccess.plan === 'free'}
+                disabled={canAccess.currentPlan === 'free'}
               />
             </div>
 
@@ -204,7 +204,7 @@ export default function PremiumCommunityFeatures({
               <Switch
                 checked={requiresApproval}
                 onCheckedChange={setRequiresApproval}
-                disabled={canAccess.plan === 'free'}
+                disabled={canAccess.currentPlan === 'free'}
               />
             </div>
 
@@ -219,18 +219,18 @@ export default function PremiumCommunityFeatures({
                   value={maxMembers}
                   onChange={(e) => setMaxMembers(Number(e.target.value))}
                   min={10}
-                  max={canAccess.plan === 'diamante' ? 1000 : 500}
+                  max={canAccess.currentPlan === 'diamante' ? 1000 : 500}
                   className="w-32"
-                  disabled={canAccess.plan === 'free'}
+                  disabled={canAccess.currentPlan === 'free'}
                 />
                 <span className="text-sm text-gray-600 dark:text-gray-400">
-                  máximo {canAccess.plan === 'diamante' ? '1000' : '500'} membros
+                  máximo {canAccess.currentPlan === 'diamante' ? '1000' : '500'} membros
                 </span>
               </div>
             </div>
 
             {/* Custom Roles */}
-            {canAccess.plan === 'diamante' && (
+            {canAccess.currentPlan === 'diamante' && (
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <h4 className="font-medium text-gray-900 dark:text-gray-100">
@@ -260,7 +260,7 @@ export default function PremiumCommunityFeatures({
       )}
 
       {/* Upgrade Prompt for Free Users */}
-      {canAccess.plan === 'free' && (
+      {canAccess.currentPlan === 'free' && (
         <Card className="border-2 border-dashed border-gray-300 dark:border-gray-600">
           <CardContent className="text-center py-8">
             <div className="space-y-4">

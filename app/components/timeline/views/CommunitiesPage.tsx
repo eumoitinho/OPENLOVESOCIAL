@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Card, CardBody, Button, Badge, Input, Tabs, Tab } from '@heroui/react'
+import { Card, CardBody, Button, Badge, Input, Tab } from "@heroui/react"
 import { Search, Plus, Users, Crown, Lock, TrendingUp } from 'lucide-react'
 import { useAuth } from '@/app/components/auth/AuthProvider'
 import { usePaywall } from '@/lib/plans/paywall'

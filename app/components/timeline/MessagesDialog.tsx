@@ -438,4 +438,7 @@ export const MessagesDialog = function MessagesDialog({ open, onOpenChange }: Me
       </DialogContent>
     </Dialog>
   )
-} 
+}
+import { AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { CardContent } from "@/components/ui/card"
+import { DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
