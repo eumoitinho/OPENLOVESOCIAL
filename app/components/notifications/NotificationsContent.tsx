@@ -6,6 +6,8 @@ import { useNotifications } from "@/app/hooks/useNotifications"
 import { Button, Chip, ScrollShadow } from "@heroui/react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Bell,
   Check,

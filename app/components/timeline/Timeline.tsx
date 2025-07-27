@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Card, CardHeader, CardBody, Button } from "@heroui/react"
 import { Home } from "lucide-react"
-import { Avatar } from "@/components/ui/avatar"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
 export default function Timeline() {
   const [posts, setPosts] = useState<any[]>([])
