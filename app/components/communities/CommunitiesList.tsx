@@ -153,7 +153,7 @@ export default function CommunitiesList({ view = 'all' }: CommunitiesListProps) 
   const getJoinButton = (community: Community) => {
     if (!user) {
       return (
-        <Button variant="outline" size="sm">
+        <Button variant="bordered" size="sm">
           Fazer Login
         </Button>
       )
@@ -161,7 +161,7 @@ export default function CommunitiesList({ view = 'all' }: CommunitiesListProps) 
 
     if (community.is_member) {
       return (
-        <Button variant="default" size="sm" className="bg-green-600 hover:bg-green-700">
+        <Button variant="solid" size="sm" className="bg-green-600 hover:bg-green-700">
           Membro
         </Button>
       )
@@ -169,7 +169,7 @@ export default function CommunitiesList({ view = 'all' }: CommunitiesListProps) 
 
     if (community.membership_status === 'pending') {
       return (
-        <Button variant="outline" size="sm" disabled>
+        <Button variant="bordered" size="sm" disabled>
           Pendente
         </Button>
       )
@@ -177,7 +177,7 @@ export default function CommunitiesList({ view = 'all' }: CommunitiesListProps) 
 
     return (
       <Button 
-        variant="outline" 
+        variant="bordered" 
         size="sm"
         onClick={() => handleJoinCommunity(community.id)}
         disabled={joinLoading === community.id}
