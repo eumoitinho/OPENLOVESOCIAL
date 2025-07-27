@@ -1,0 +1,75 @@
+{
+  "module": "app/components/events",
+  "description": "Componentes para criação e gerenciamento de eventos",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "date-fns",
+    "react-hook-form"
+  ],
+  "key_files": [
+    "app/components/events/CreateEvent.tsx",
+    "app/components/events/EventCard.tsx",
+    "app/components/events/EventDetails.tsx",
+    "app/components/events/EventFilters.tsx",
+    "app/components/events/EventParticipants.tsx",
+    "app/components/events/EventPremiumButtons.tsx",
+    "app/components/events/EventsList.tsx",
+    "app/components/events/README_COMPONENTS.md"
+  ],
+  "database_tables": [
+    "events",
+    "event_participants",
+    "event_comments",
+    "event_photos"
+  ],
+  "patterns": [
+    "event-management",
+    "location-based",
+    "calendar-integration"
+  ],
+  "component_features": {
+    "CreateEvent": "Formulário de criação de evento",
+    "EventCard": "Card de preview de evento",
+    "EventDetails": "Página detalhada do evento",
+    "EventFilters": "Filtros de busca de eventos",
+    "EventParticipants": "Lista de participantes",
+    "EventsList": "Lista de eventos com paginação"
+  },
+  "event_features": {
+    "creation": "Criar eventos públicos/privados",
+    "rsvp": "Sistema de confirmação de presença",
+    "location": "Eventos presenciais ou online",
+    "calendar": "Integração com calendário",
+    "reminders": "Lembretes automáticos",
+    "comments": "Comentários e discussão",
+    "photos": "Galeria de fotos do evento"
+  },
+  "event_types": {
+    "public": "Aberto a todos",
+    "private": "Apenas convidados",
+    "paid": "Eventos pagos",
+    "online": "Eventos virtuais",
+    "hybrid": "Presencial + online"
+  },
+  "location_features": {
+    "map_picker": "Seletor de local no mapa",
+    "address_autocomplete": "Autocompletar endereço",
+    "nearby_search": "Buscar eventos próximos",
+    "directions": "Direções para o local"
+  },
+  "premium_features": {
+    "unlimited_events": "Eventos ilimitados",
+    "featured_events": "Destaque no feed",
+    "advanced_analytics": "Analytics do evento",
+    "custom_branding": "Branding customizado",
+    "ticket_sales": "Venda de ingressos"
+  },
+  "common_issues": [
+    "Timezone handling",
+    "Geocoding accuracy",
+    "RSVP synchronization",
+    "Calendar conflicts"
+  ]
+}

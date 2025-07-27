@@ -1,0 +1,158 @@
+{
+  "module": "app/checkout",
+  "description": "Página de checkout para assinaturas e pagamentos",
+  "dependencies": [
+    "@stripe/stripe-js",
+    "@stripe/react-stripe-js",
+    "abacatepay-nodejs-sdk",
+    "mercadopago",
+    "@heroui/react",
+    "lucide-react"
+  ],
+  "key_files": [
+    "app/checkout/page.tsx",
+    "app/components/PaymentProvider.tsx",
+    "app/components/CheckoutFormStripe.tsx",
+    "app/components/CheckoutFormAbacatePay.tsx",
+    "app/api/stripe/checkout/route.ts",
+    "app/api/abacatepay/checkout/route.ts"
+  ],
+  "database_tables": [
+    "users",
+    "subscriptions",
+    "transactions",
+    "payment_methods",
+    "invoices"
+  ],
+  "database_schema": {
+    "subscriptions": {
+      "description": "Assinaturas de planos premium",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "plan_type": "VARCHAR(20) CHECK (plan_type IN ('gold', 'diamond', 'diamond_annual'))",
+        "status": "VARCHAR(20) DEFAULT 'active'",
+        "provider": "VARCHAR(20) CHECK (provider IN ('stripe', 'abacatepay', 'mercadopago'))",
+        "provider_subscription_id": "VARCHAR(255)",
+        "current_period_start": "TIMESTAMP WITH TIME ZONE",
+        "current_period_end": "TIMESTAMP WITH TIME ZONE",
+        "cancel_at_period_end": "BOOLEAN DEFAULT false",
+        "canceled_at": "TIMESTAMP WITH TIME ZONE",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "updated_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "transactions": {
+      "description": "Histórico de transações",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "provider": "VARCHAR(20)",
+        "provider_transaction_id": "VARCHAR(255)",
+        "type": "VARCHAR(20) CHECK (type IN ('payment', 'refund', 'chargeback'))",
+        "amount": "DECIMAL(10,2)",
+        "currency": "VARCHAR(3) DEFAULT 'BRL'",
+        "status": "VARCHAR(20)",
+        "description": "TEXT",
+        "metadata": "JSONB",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    }
+  },
+  "patterns": [
+    "payment-gateway-abstraction",
+    "webhook-handling",
+    "idempotency",
+    "retry-mechanism",
+    "fallback-providers"
+  ],
+  "related_modules": [
+    "plans",
+    "profile",
+    "api/stripe",
+    "api/abacatepay",
+    "api/payments"
+  ],
+  "key_features": {
+    "multi_provider": "Suporte para múltiplos gateways de pagamento",
+    "card_payments": "Pagamento com cartão via Stripe",
+    "pix_payments": "Pagamento PIX via AbacatePay",
+    "subscriptions": "Assinaturas recorrentes",
+    "one_time": "Pagamentos únicos",
+    "upgrade_flow": "Upgrade/downgrade de planos",
+    "payment_history": "Histórico de transações",
+    "invoices": "Geração de faturas",
+    "refunds": "Sistema de reembolso"
+  },
+  "payment_providers": {
+    "stripe": {
+      "supports": ["credit_card", "debit_card"],
+      "recurring": true,
+      "webhooks": true
+    },
+    "abacatepay": {
+      "supports": ["pix", "boleto"],
+      "recurring": false,
+      "webhooks": true
+    },
+    "mercadopago": {
+      "supports": ["pix", "credit_card", "boleto"],
+      "recurring": true,
+      "webhooks": true
+    }
+  },
+  "pricing": {
+    "gold": {
+      "monthly": 2500,
+      "currency": "BRL",
+      "description": "R$ 25,00/mês"
+    },
+    "diamond": {
+      "monthly": 4590,
+      "currency": "BRL",
+      "description": "R$ 45,90/mês"
+    },
+    "diamond_annual": {
+      "yearly": 45900,
+      "currency": "BRL",
+      "description": "R$ 459,00/ano"
+    }
+  },
+  "webhook_events": [
+    "payment.succeeded",
+    "payment.failed",
+    "subscription.created",
+    "subscription.updated",
+    "subscription.deleted",
+    "invoice.paid",
+    "invoice.failed"
+  ],
+  "common_issues": [
+    "Timeout em processamento de pagamento",
+    "Webhooks duplicados",
+    "Sincronização de status entre providers",
+    "Conversão de moeda",
+    "Falha em URLs de retorno localhost"
+  ],
+  "performance_considerations": [
+    "Cache de métodos de pagamento",
+    "Retry automático em falhas",
+    "Queue para webhooks",
+    "Timeout adequado para APIs externas"
+  ],
+  "security_notes": [
+    "PCI compliance para cartões",
+    "Validação de webhook signatures",
+    "Tokens seguros para sessões",
+    "Não armazenar dados de cartão",
+    "HTTPS obrigatório",
+    "Rate limiting em tentativas"
+  ],
+  "test_cards": {
+    "stripe": {
+      "success": "4242 4242 4242 4242",
+      "decline": "4000 0000 0000 0002",
+      "3d_secure": "4000 0000 0000 3220"
+    }
+  }
+}

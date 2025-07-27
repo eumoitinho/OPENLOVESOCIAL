@@ -1,0 +1,58 @@
+{
+  "module": "app/components/ads",
+  "description": "Componentes relacionados a anúncios e publicidade",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react"
+  ],
+  "key_files": [
+    "app/components/ads/AdCard.tsx",
+    "app/components/ads/AdDashboard.tsx",
+    "app/components/ads/Advertisement.tsx",
+    "app/components/ads/PlanAdCard.tsx",
+    "app/components/ads/TimelineAdCard.tsx"
+  ],
+  "database_tables": [
+    "ads",
+    "ad_impressions",
+    "ad_clicks"
+  ],
+  "patterns": [
+    "ad-rendering",
+    "impression-tracking",
+    "native-advertising"
+  ],
+  "component_types": {
+    "AdCard": "Card genérico de anúncio",
+    "TimelineAdCard": "Anúncio nativo na timeline",
+    "PlanAdCard": "Anúncio de upgrade de plano",
+    "Advertisement": "Container de anúncio",
+    "AdDashboard": "Dashboard para anunciantes"
+  },
+  "ad_features": {
+    "native_design": "Design nativo à plataforma",
+    "impression_tracking": "Rastreamento de impressões",
+    "click_tracking": "Rastreamento de cliques",
+    "targeting": "Segmentação de audiência",
+    "rotation": "Rotação de anúncios"
+  },
+  "ad_formats": {
+    "timeline": "Integrado ao feed",
+    "sidebar": "Banner lateral",
+    "interstitial": "Tela cheia",
+    "video": "Vídeo autoplay"
+  },
+  "privacy_considerations": [
+    "Respeitar preferências do usuário",
+    "Não mostrar para premium",
+    "Limite de frequência",
+    "Opt-out disponível"
+  ],
+  "common_issues": [
+    "Bloqueadores de anúncios",
+    "Performance do tracking",
+    "Relevância dos anúncios",
+    "Mobile responsiveness"
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "module": "app/components/search",
+  "description": "Componentes de busca e descoberta",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "fuse.js"
+  ],
+  "key_files": [
+    "app/components/search/AdvancedSearch.tsx"
+  ],
+  "patterns": [
+    "search-interface",
+    "autocomplete",
+    "faceted-search"
+  ],
+  "component_features": {
+    "AdvancedSearch": "Interface de busca avançada com filtros"
+  },
+  "search_capabilities": {
+    "global_search": "Busca em todo conteúdo",
+    "type_specific": "Busca por tipo",
+    "filters": "Filtros avançados",
+    "sorting": "Ordenação de resultados",
+    "suggestions": "Sugestões de busca"
+  },
+  "search_types": {
+    "users": "Buscar perfis",
+    "posts": "Buscar posts",
+    "communities": "Buscar comunidades",
+    "events": "Buscar eventos",
+    "hashtags": "Buscar hashtags"
+  },
+  "advanced_filters": {
+    "date_range": "Período de tempo",
+    "location": "Localização/distância",
+    "media_type": "Tipo de mídia",
+    "engagement": "Nível de engajamento",
+    "verified": "Apenas verificados"
+  },
+  "ui_features": {
+    "instant_search": "Busca instantânea",
+    "search_history": "Histórico de buscas",
+    "saved_searches": "Salvar buscas",
+    "voice_search": "Busca por voz",
+    "visual_search": "Busca por imagem"
+  },
+  "search_optimization": {
+    "debouncing": "Debounce de input",
+    "caching": "Cache de resultados",
+    "pagination": "Paginação eficiente",
+    "relevance": "Algoritmo de relevância"
+  },
+  "autocomplete_features": {
+    "user_suggestions": "Sugerir usuários",
+    "hashtag_suggestions": "Sugerir hashtags",
+    "recent_searches": "Buscas recentes",
+    "trending_searches": "Buscas populares"
+  },
+  "common_issues": [
+    "Search performance",
+    "Relevance accuracy",
+    "Multi-language support",
+    "Special characters"
+  ]
+}

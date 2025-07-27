@@ -1,0 +1,125 @@
+{
+  "module": "auth",
+  "description": "Páginas de autenticação incluindo login, registro, verificação de email e recuperação de senha",
+  "dependencies": [
+    "@heroui/react",
+    "lucide-react",
+    "react-hook-form",
+    "@hookform/resolvers/zod",
+    "zod",
+    "sonner"
+  ],
+  "key_files": [
+    "app/auth/signin/page.tsx",
+    "app/auth/signup/page.tsx",
+    "app/auth/confirm-email/page.tsx",
+    "app/auth/callback/route.ts"
+  ],
+  "database_tables": [
+    "users",
+    "auth.users",
+    "user_profiles",
+    "email_verifications"
+  ],
+  "database_schema": {
+    "users": {
+      "description": "Perfis de usuário após registro",
+      "columns": {
+        "id": "UUID PRIMARY KEY",
+        "auth_id": "UUID REFERENCES auth.users",
+        "username": "VARCHAR(50) UNIQUE NOT NULL",
+        "email": "VARCHAR(255) UNIQUE NOT NULL",
+        "first_name": "VARCHAR(50)",
+        "last_name": "VARCHAR(50)",
+        "birth_date": "DATE NOT NULL",
+        "profile_type": "VARCHAR(20) DEFAULT 'single'",
+        "location": "VARCHAR(255)",
+        "city": "VARCHAR(100)",
+        "uf": "VARCHAR(2)",
+        "interests": "TEXT[]",
+        "seeking": "TEXT[]",
+        "bio": "TEXT",
+        "avatar_url": "TEXT",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    }
+  },
+  "patterns": [
+    "multi-step-form",
+    "form-validation",
+    "oauth-flow",
+    "email-verification",
+    "responsive-design"
+  ],
+  "related_modules": [
+    "api/auth",
+    "profile",
+    "timeline",
+    "components/auth"
+  ],
+  "key_features": {
+    "signin": "Login com email/senha ou OAuth",
+    "signup": "Registro em múltiplas etapas",
+    "email_verification": "Verificação obrigatória de email",
+    "password_reset": "Recuperação de senha",
+    "oauth": "Login com Google/Facebook",
+    "location_detection": "Detecção automática de localização",
+    "plan_selection": "Escolha de plano durante registro",
+    "profile_setup": "Configuração inicial do perfil"
+  },
+  "ui_components": {
+    "forms": "Formulários com validação em tempo real",
+    "steppers": "Indicador de progresso multi-step",
+    "theme_toggle": "Alternância entre tema claro/escuro",
+    "animations": "Transições suaves com Framer Motion",
+    "responsive": "Layout adaptativo mobile/desktop"
+  },
+  "validation_rules": {
+    "username": "3-30 caracteres, único, alfanumérico",
+    "email": "Email válido e único",
+    "password": "Mínimo 6 caracteres",
+    "age": "Mínimo 18 anos",
+    "profile_picture": "Obrigatório no registro"
+  },
+  "user_flow": {
+    "signup": [
+      "Informações básicas (nome, email, senha)",
+      "Tipo de perfil e preferências",
+      "Upload de foto e bio",
+      "Localização",
+      "Seleção de plano"
+    ],
+    "signin": [
+      "Email e senha",
+      "Verificação 2FA (se ativado)",
+      "Redirect para timeline"
+    ]
+  },
+  "common_issues": [
+    "Redirect após login social",
+    "Validação de idade no frontend",
+    "Upload de imagem durante registro",
+    "Detecção de localização em iOS",
+    "Sincronização com Supabase Auth"
+  ],
+  "performance_considerations": [
+    "Lazy loading de componentes pesados",
+    "Otimização de imagens de fundo",
+    "Prefetch da próxima etapa",
+    "Debounce na verificação de username"
+  ],
+  "security_notes": [
+    "Validação dupla (client e server)",
+    "Proteção contra bots com rate limiting",
+    "Sanitização de inputs",
+    "HTTPS obrigatório",
+    "Tokens seguros em cookies"
+  ],
+  "accessibility": [
+    "Labels adequados em formulários",
+    "Navegação por teclado",
+    "Mensagens de erro claras",
+    "Contraste adequado",
+    "Screen reader friendly"
+  ]
+}

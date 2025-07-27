@@ -1,0 +1,100 @@
+{
+  "module": "api/interactions",
+  "description": "APIs para interações sociais como curtidas, comentários e compartilhamentos",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod"
+  ],
+  "key_files": [
+    "app/api/interactions/like/route.ts",
+    "app/api/interactions/share/route.ts",
+    "app/api/interactions/save/route.ts"
+  ],
+  "database_tables": [
+    "likes",
+    "shares",
+    "saved_posts",
+    "interaction_stats"
+  ],
+  "database_schema": {
+    "likes": {
+      "description": "Curtidas em posts e conteúdos",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "target_id": "UUID NOT NULL",
+        "target_type": "VARCHAR(20) CHECK (target_type IN ('post', 'comment', 'photo', 'video'))",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "UNIQUE": "(user_id, target_id, target_type)"
+      }
+    },
+    "shares": {
+      "description": "Compartilhamentos de conteúdo",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "post_id": "UUID REFERENCES posts(id)",
+        "share_type": "VARCHAR(20) CHECK (share_type IN ('timeline', 'story', 'direct'))",
+        "message": "TEXT",
+        "visibility": "VARCHAR(20) DEFAULT 'public'",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "saved_posts": {
+      "description": "Posts salvos pelos usuários",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "post_id": "UUID REFERENCES posts(id)",
+        "collection_id": "UUID REFERENCES saved_collections(id)",
+        "saved_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "UNIQUE": "(user_id, post_id)"
+      }
+    }
+  },
+  "patterns": [
+    "optimistic-ui",
+    "debounced-actions",
+    "batch-processing",
+    "real-time-counters"
+  ],
+  "key_features": {
+    "like_types": "Diferentes tipos de reações",
+    "share_options": "Compartilhar em timeline, stories ou direct",
+    "collections": "Organizar posts salvos em coleções",
+    "analytics": "Tracking de interações para creators",
+    "notifications": "Notificações de interações",
+    "anti_spam": "Rate limiting e detecção de spam"
+  },
+  "api_endpoints": {
+    "POST /api/interactions/like": "Curtir/descurtir conteúdo",
+    "POST /api/interactions/share": "Compartilhar post",
+    "POST /api/interactions/save": "Salvar/remover post",
+    "GET /api/interactions/stats": "Estatísticas de interações"
+  },
+  "reaction_types": {
+    "like": "❤️",
+    "love": "😍", 
+    "fire": "🔥",
+    "wow": "😮",
+    "sad": "😢",
+    "angry": "😡"
+  },
+  "rate_limits": {
+    "likes_per_minute": 30,
+    "shares_per_hour": 20,
+    "saves_per_day": 100
+  },
+  "analytics_tracking": [
+    "Engagement rate",
+    "Reach por compartilhamento",
+    "Taxa de salvamento",
+    "Tempo até primeira interação"
+  ],
+  "common_issues": [
+    "Race conditions em contadores",
+    "Spam de interações",
+    "Performance com alto volume",
+    "Sincronização real-time"
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "module": "app/components/timeline",
+  "description": "Componentes principais da timeline e feed",
+  "dependencies": [
+    "@heroui/react",
+    "lucide-react",
+    "framer-motion",
+    "react-intersection-observer",
+    "react-hook-form",
+    "@tanstack/react-query"
+  ],
+  "key_files": [
+    "Timeline.tsx",
+    "PostCard.tsx",
+    "CreatePost.tsx",
+    "CreatePostDialog.tsx",
+    "CommentsDialog.tsx",
+    "ShareDialog.tsx",
+    "MediaViewer.tsx",
+    "TimelineFeed.tsx",
+    "ForYouTimeline.tsx"
+  ],
+  "database_tables": [
+    "posts",
+    "post_likes",
+    "comments",
+    "saved_posts",
+    "post_views",
+    "follows",
+    "post_media"
+  ],
+  "database_schema": {
+    "posts": {
+      "columns": {
+        "id": "UUID PRIMARY KEY",
+        "user_id": "UUID REFERENCES users(id)",
+        "content": "TEXT",
+        "media_urls": "TEXT[]",
+        "media_types": "TEXT[]",
+        "location": "VARCHAR(255)",
+        "visibility": "VARCHAR(20)",
+        "stats": "JSONB",
+        "created_at": "TIMESTAMP WITH TIME ZONE"
+      }
+    },
+    "post_interactions": {
+      "post_likes": "Curtidas em posts",
+      "comments": "Comentários e respostas",
+      "saved_posts": "Posts salvos por usuários",
+      "post_views": "Visualizações de posts"
+    }
+  },
+  "patterns": [
+    "infinite-scroll",
+    "optimistic-updates",
+    "real-time-updates",
+    "lazy-loading",
+    "virtualized-list"
+  ],
+  "key_features": {
+    "post_creation": "Editor rico com suporte a mídia e enquetes",
+    "media_gallery": "Galeria de imagens/vídeos com zoom",
+    "interactions": "Like, comentar, compartilhar, salvar",
+    "real_time": "Atualizações em tempo real de likes/comentários",
+    "algorithms": "Feed personalizado com ML",
+    "filters": "Filtros por tipo, data, popularidade",
+    "mentions": "Sistema de @menções",
+    "hashtags": "Suporte a #hashtags clicáveis"
+  },
+  "subcomponents": {
+    "PostCard": {
+      "description": "Card individual de post",
+      "props": ["post", "onLike", "onComment", "onShare"],
+      "features": ["Media carousel", "Expandable content", "Action bar"]
+    },
+    "CreatePost": {
+      "description": "Formulário de criação de post",
+      "features": ["Rich text editor", "Media upload", "Location picker", "Polls"]
+    },
+    "CommentsDialog": {
+      "description": "Modal de comentários",
+      "features": ["Nested replies", "Real-time updates", "Reactions"]
+    }
+  },
+  "state_management": {
+    "posts": "React Query com cache infinito",
+    "optimistic": "Atualizações otimistas em interações",
+    "real_time": "Supabase Realtime subscriptions",
+    "filters": "URL state com Next.js router"
+  },
+  "performance_optimizations": [
+    "Virtualização para longas listas",
+    "Lazy loading de imagens/vídeos",
+    "Debounce em atualizações frequentes",
+    "Memoização de componentes pesados",
+    "Prefetch de próxima página"
+  ],
+  "api_integration": {
+    "GET /api/timeline": "Buscar posts do feed",
+    "POST /api/posts": "Criar novo post",
+    "POST /api/posts/[id]/like": "Curtir post",
+    "GET /api/posts/[id]/comments": "Buscar comentários",
+    "POST /api/posts/[id]/comments": "Adicionar comentário"
+  },
+  "ui_states": {
+    "loading": "Skeleton loaders",
+    "empty": "Estado vazio com sugestões",
+    "error": "Mensagem de erro com retry",
+    "offline": "Modo offline com cache",
+    "updating": "Indicadores de atualização"
+  },
+  "accessibility": [
+    "Navegação por teclado em posts",
+    "Anúncios de screen reader para updates",
+    "Alt text em todas imagens",
+    "Focus management em modais",
+    "Controles de vídeo acessíveis"
+  ],
+  "common_issues": [
+    "Performance com muitos posts",
+    "Sincronização de estado real-time",
+    "Upload de mídia grande",
+    "Gerenciamento de cache",
+    "Scroll position em navegação"
+  ]
+}

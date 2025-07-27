@@ -1,0 +1,157 @@
+{
+  "module": "app/ads",
+  "description": "Página de gerenciamento de anúncios e campanhas publicitárias",
+  "dependencies": [
+    "@heroui/react",
+    "lucide-react",
+    "react-hook-form",
+    "@hookform/resolvers/zod",
+    "zod"
+  ],
+  "key_files": [
+    "app/ads/page.tsx",
+    "app/components/ads/AdDashboard.tsx",
+    "app/components/ads/AdCard.tsx",
+    "app/components/ads/Advertisement.tsx",
+    "app/components/ads/PlanAdCard.tsx",
+    "app/components/ads/TimelineAdCard.tsx",
+    "app/api/ads/route.ts",
+    "app/api/ads/metrics/route.ts",
+    "app/api/ads/payment/route.ts"
+  ],
+  "database_tables": [
+    "ads",
+    "ad_campaigns",
+    "ad_impressions",
+    "ad_clicks",
+    "ad_conversions",
+    "ad_budgets",
+    "ad_targeting"
+  ],
+  "database_schema": {
+    "ads": {
+      "description": "Tabela principal de anúncios",
+      "columns": {
+        "id": "UUID PRIMARY KEY",
+        "campaign_id": "UUID REFERENCES ad_campaigns(id)",
+        "user_id": "UUID REFERENCES users(id)",
+        "title": "VARCHAR(255) NOT NULL",
+        "description": "TEXT",
+        "media_url": "TEXT",
+        "media_type": "VARCHAR(20) CHECK (image, video, carousel)",
+        "cta_text": "VARCHAR(50)",
+        "cta_url": "TEXT",
+        "target_audience": "JSONB",
+        "status": "VARCHAR(20) DEFAULT 'pending'",
+        "impressions": "INTEGER DEFAULT 0",
+        "clicks": "INTEGER DEFAULT 0",
+        "conversions": "INTEGER DEFAULT 0",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "updated_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "ad_campaigns": {
+      "description": "Campanhas publicitárias dos usuários",
+      "columns": {
+        "id": "UUID PRIMARY KEY",
+        "user_id": "UUID REFERENCES users(id)",
+        "name": "VARCHAR(255) NOT NULL",
+        "budget": "DECIMAL(10,2)",
+        "daily_budget": "DECIMAL(10,2)",
+        "spent": "DECIMAL(10,2) DEFAULT 0",
+        "start_date": "DATE",
+        "end_date": "DATE",
+        "status": "VARCHAR(20) DEFAULT 'draft'",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    }
+  },
+  "patterns": [
+    "dashboard-pattern",
+    "form-validation",
+    "payment-integration",
+    "analytics-tracking",
+    "targeted-advertising"
+  ],
+  "related_modules": [
+    "timeline",
+    "profile",
+    "analytics",
+    "payments",
+    "plans"
+  ],
+  "key_features": {
+    "campaign_creation": "Criação e gestão de campanhas publicitárias",
+    "targeting": "Segmentação por localização, idade, interesses",
+    "budget_control": "Controle de orçamento e limite de gastos",
+    "metrics": "Métricas detalhadas de impressões, cliques e conversões",
+    "ad_formats": "Suporte para diferentes formatos (imagem, vídeo, carrossel)",
+    "payment": "Integração com sistema de pagamento para cobranças",
+    "moderation": "Moderação e aprovação de anúncios",
+    "scheduling": "Agendamento de campanhas"
+  },
+  "common_issues": [
+    "Balanceamento entre anúncios e conteúdo orgânico",
+    "Prevenção de cliques fraudulentos",
+    "Otimização de carregamento de anúncios",
+    "Conformidade com políticas de privacidade",
+    "Gerenciamento de orçamento em tempo real"
+  ],
+  "performance_considerations": [
+    "Lazy loading de anúncios fora da viewport",
+    "Cache de anúncios frequentes",
+    "Batch de métricas para reduzir requisições",
+    "CDN para assets de anúncios",
+    "Otimização de consultas de segmentação"
+  ],
+  "security_notes": [
+    "Validação de conteúdo de anúncios",
+    "Prevenção de scripts maliciosos",
+    "Rate limiting para cliques",
+    "Verificação de pagamentos",
+    "Proteção contra bot traffic",
+    "Compliance com LGPD/GDPR"
+  ],
+  "api_endpoints": {
+    "POST /api/ads": "Criar nova campanha",
+    "GET /api/ads": "Listar campanhas do usuário",
+    "PUT /api/ads/[id]": "Atualizar campanha",
+    "DELETE /api/ads/[id]": "Deletar campanha",
+    "GET /api/ads/metrics": "Obter métricas de campanhas",
+    "POST /api/ads/payment": "Processar pagamento de campanha"
+  },
+  "data_models": {
+    "ad_campaign": {
+      "id": "UUID",
+      "user_id": "UUID (FK to users)",
+      "name": "String",
+      "description": "Text",
+      "budget": "Decimal",
+      "daily_budget": "Decimal",
+      "start_date": "Date",
+      "end_date": "Date",
+      "status": "Enum (draft, pending, active, paused, completed)",
+      "targeting": "JSON {age_range, locations, interests}",
+      "created_at": "Timestamp"
+    },
+    "ad": {
+      "id": "UUID",
+      "campaign_id": "UUID (FK to ad_campaigns)",
+      "type": "Enum (image, video, carousel)",
+      "title": "String",
+      "content": "Text",
+      "media_urls": "Array<string>",
+      "cta_text": "String",
+      "cta_url": "String",
+      "impressions": "Integer",
+      "clicks": "Integer",
+      "conversions": "Integer"
+    }
+  },
+  "rls_policies": [
+    "Usuários podem criar campanhas próprias",
+    "Usuários podem ver apenas suas campanhas",
+    "Anúncios ativos são públicos para exibição",
+    "Métricas são visíveis apenas para o dono"
+  ]
+}

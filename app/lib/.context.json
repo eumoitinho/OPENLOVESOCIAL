@@ -1,0 +1,87 @@
+{
+  "module": "app/lib",
+  "description": "Biblioteca principal com utilitários, configurações e integrações",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "@supabase/auth-helpers-nextjs",
+    "stripe",
+    "zod"
+  ],
+  "key_files": [
+    "app/lib/supabase.ts",
+    "app/lib/supabase-browser.ts",
+    "app/lib/supabase-server.ts",
+    "app/lib/auth.ts",
+    "app/lib/auth-client.ts",
+    "app/lib/auth-helpers.ts",
+    "app/lib/actions.ts",
+    "app/lib/constants.ts",
+    "app/lib/database.types.ts",
+    "app/lib/location.ts",
+    "app/lib/media-utils.ts",
+    "app/lib/media-optimization.ts",
+    "app/lib/index.ts"
+  ],
+  "patterns": [
+    "singleton-pattern",
+    "factory-pattern",
+    "utility-functions",
+    "type-safety"
+  ],
+  "lib_categories": {
+    "supabase": {
+      "files": ["supabase.ts", "supabase-browser.ts", "supabase-server.ts"],
+      "purpose": "Clientes Supabase para diferentes contextos"
+    },
+    "auth": {
+      "files": ["auth.ts", "auth-client.ts", "auth-helpers.ts"],
+      "purpose": "Autenticação e autorização"
+    },
+    "utils": {
+      "files": ["media-utils.ts", "media-optimization.ts", "location.ts"],
+      "purpose": "Funções utilitárias"
+    },
+    "types": {
+      "files": ["database.types.ts"],
+      "purpose": "Tipos TypeScript do banco"
+    },
+    "actions": {
+      "files": ["actions.ts"],
+      "purpose": "Server actions Next.js"
+    }
+  },
+  "supabase_clients": {
+    "browser": "Cliente para componentes client-side",
+    "server": "Cliente para componentes server-side",
+    "admin": "Cliente admin com service key"
+  },
+  "auth_features": {
+    "session_management": "Gerenciamento de sessões",
+    "token_refresh": "Refresh automático de tokens",
+    "role_checking": "Verificação de roles",
+    "permission_guards": "Guards de permissão"
+  },
+  "media_utilities": {
+    "image_optimization": "Otimização de imagens",
+    "video_processing": "Processamento de vídeos",
+    "file_validation": "Validação de arquivos",
+    "upload_helpers": "Helpers de upload"
+  },
+  "constants": {
+    "api_endpoints": "URLs de API",
+    "feature_flags": "Feature flags",
+    "limits": "Limites por plano",
+    "regex_patterns": "Padrões regex"
+  },
+  "type_generation": {
+    "source": "Supabase schema",
+    "command": "supabase gen types typescript",
+    "output": "database.types.ts"
+  },
+  "common_issues": [
+    "Client/server mismatch",
+    "Type synchronization",
+    "Environment variables",
+    "Singleton instances"
+  ]
+}

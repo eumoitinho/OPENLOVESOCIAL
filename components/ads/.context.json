@@ -1,0 +1,30 @@
+{
+  "module": "components/ads",
+  "description": "Componentes de anúncios compartilhados",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react"
+  ],
+  "key_files": [
+    "components/ads/PlanAdCard.tsx",
+    "components/ads/TimelineAdCard.tsx"
+  ],
+  "patterns": [
+    "native-advertising",
+    "component-reuse"
+  ],
+  "component_features": {
+    "PlanAdCard": "Card de anúncio para upgrade de plano",
+    "TimelineAdCard": "Anúncio nativo para timeline"
+  },
+  "ad_integration": {
+    "native_design": "Design que se integra ao feed",
+    "non_intrusive": "Não intrusivo ao usuário",
+    "contextual": "Baseado no contexto"
+  },
+  "common_issues": [
+    "Ad blocker detection",
+    "Performance impact",
+    "User experience balance"
+  ]
+}

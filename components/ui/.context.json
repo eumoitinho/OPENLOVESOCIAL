@@ -1,0 +1,83 @@
+{
+  "module": "components/ui",
+  "description": "Biblioteca de componentes UI baseada em shadcn/ui e Radix UI",
+  "dependencies": [
+    "@radix-ui/react-*",
+    "react",
+    "lucide-react",
+    "class-variance-authority",
+    "clsx",
+    "tailwind-merge"
+  ],
+  "key_files": [
+    "components/ui/button.tsx",
+    "components/ui/dialog.tsx",
+    "components/ui/input.tsx",
+    "components/ui/card.tsx",
+    "components/ui/form.tsx",
+    "components/ui/toast.tsx",
+    "components/ui/index.ts"
+  ],
+  "patterns": [
+    "headless-ui",
+    "compound-components",
+    "variant-system",
+    "accessibility-first"
+  ],
+  "component_categories": {
+    "primitives": {
+      "components": ["button", "input", "textarea", "checkbox", "radio-group"],
+      "purpose": "Elementos básicos de formulário"
+    },
+    "overlays": {
+      "components": ["dialog", "popover", "tooltip", "dropdown-menu", "sheet"],
+      "purpose": "Componentes sobrepostos"
+    },
+    "feedback": {
+      "components": ["toast", "alert", "progress", "skeleton"],
+      "purpose": "Feedback ao usuário"
+    },
+    "navigation": {
+      "components": ["tabs", "navigation-menu", "breadcrumb", "pagination"],
+      "purpose": "Navegação e organização"
+    },
+    "layout": {
+      "components": ["card", "separator", "aspect-ratio", "scroll-area"],
+      "purpose": "Layout e estrutura"
+    },
+    "motion": {
+      "components": ["motion-tabs", "motion-highlight"],
+      "purpose": "Componentes com animação"
+    }
+  },
+  "styling_system": {
+    "variants": "Sistema de variantes com CVA",
+    "themes": "Suporte a tema claro/escuro",
+    "customization": "Classes Tailwind customizáveis",
+    "css_variables": "Variáveis CSS para cores"
+  },
+  "accessibility_features": [
+    "ARIA labels completos",
+    "Navegação por teclado",
+    "Focus management",
+    "Screen reader support",
+    "WCAG 2.1 compliance"
+  ],
+  "utility_exports": {
+    "cn": "Utility para merge de classes",
+    "cva": "Class variance authority",
+    "hooks": "use-toast, use-mobile"
+  },
+  "best_practices": [
+    "Sempre usar forwardRef",
+    "Preservar props nativas",
+    "Documentar variantes",
+    "Testar acessibilidade"
+  ],
+  "common_issues": [
+    "Z-index conflicts",
+    "Portal mounting",
+    "Theme switching",
+    "SSR hydration"
+  ]
+}

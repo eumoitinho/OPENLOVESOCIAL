@@ -1,0 +1,61 @@
+{
+  "module": "app/components/friends",
+  "description": "Componentes para sistema de amizades",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react"
+  ],
+  "key_files": [
+    "app/components/friends/FriendSuggestions.tsx",
+    "app/components/friends/FriendshipButton.tsx"
+  ],
+  "database_tables": [
+    "friendships",
+    "friend_requests",
+    "friend_suggestions"
+  ],
+  "patterns": [
+    "friendship-management",
+    "suggestion-algorithm",
+    "request-flow"
+  ],
+  "component_features": {
+    "FriendSuggestions": "Lista de sugestões de amizade",
+    "FriendshipButton": "Botão de ação de amizade"
+  },
+  "friendship_states": {
+    "none": "Não são amigos",
+    "pending_sent": "Solicitação enviada",
+    "pending_received": "Solicitação recebida",
+    "friends": "São amigos",
+    "blocked": "Usuário bloqueado"
+  },
+  "suggestion_features": {
+    "mutual_friends": "Amigos em comum",
+    "shared_interests": "Interesses compartilhados",
+    "location_based": "Mesma região",
+    "interaction_history": "Interações passadas",
+    "ml_recommendations": "Recomendações por ML"
+  },
+  "button_actions": {
+    "send_request": "Enviar solicitação",
+    "accept_request": "Aceitar solicitação",
+    "reject_request": "Rejeitar solicitação",
+    "unfriend": "Desfazer amizade",
+    "block": "Bloquear usuário"
+  },
+  "friendship_benefits": [
+    "Ver posts privados",
+    "Aparecer como amigo próximo",
+    "Notificações de atividade",
+    "Chat prioritário",
+    "Stories exclusivos"
+  ],
+  "common_issues": [
+    "Estado de amizade inconsistente",
+    "Notificações duplicadas",
+    "Performance com muitas sugestões",
+    "Sincronização real-time"
+  ]
+}

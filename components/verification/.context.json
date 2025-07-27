@@ -1,0 +1,46 @@
+{
+  "module": "components/verification",
+  "description": "Componentes para sistema de verificação de conta",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react"
+  ],
+  "key_files": [
+    "components/verification/VerificationRequestModal.tsx"
+  ],
+  "patterns": [
+    "multi-step-modal",
+    "file-upload",
+    "verification-flow"
+  ],
+  "verification_features": {
+    "request_modal": "Modal de solicitação de verificação",
+    "document_upload": "Upload de documentos",
+    "selfie_verification": "Verificação por selfie",
+    "status_tracking": "Acompanhamento de status"
+  },
+  "verification_types": {
+    "identity": "Verificação de identidade",
+    "business": "Verificação empresarial",
+    "celebrity": "Verificação de figura pública"
+  },
+  "modal_steps": {
+    "type_selection": "Escolher tipo de verificação",
+    "document_upload": "Upload de documentos",
+    "selfie_capture": "Captura de selfie",
+    "review": "Revisar e enviar"
+  },
+  "security_measures": [
+    "Secure file upload",
+    "Document encryption",
+    "Limited retention",
+    "Access control"
+  ],
+  "common_issues": [
+    "Large file uploads",
+    "Camera permissions",
+    "Document quality",
+    "Processing time"
+  ]
+}

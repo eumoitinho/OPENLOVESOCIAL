@@ -1,0 +1,148 @@
+{
+  "module": "app/components/chat",
+  "description": "Componentes do sistema de chat e mensagens em tempo real",
+  "dependencies": [
+    "@heroui/react",
+    "lucide-react",
+    "@supabase/realtime-js",
+    "webrtc-adapter",
+    "react-intersection-observer",
+    "emoji-picker-react"
+  ],
+  "key_files": [
+    "ChatInterface.tsx",
+    "ConversationList.tsx",
+    "Chat.tsx",
+    "CallButtons.tsx",
+    "CallModal.tsx",
+    "FileUpload.tsx",
+    "MessageTypeValidator.tsx",
+    "WebRTCContext.tsx"
+  ],
+  "database_tables": [
+    "conversations",
+    "messages",
+    "message_reads",
+    "message_reactions",
+    "conversation_participants",
+    "typing_indicators",
+    "calls",
+    "call_participants"
+  ],
+  "database_schema": {
+    "messages": {
+      "columns": {
+        "id": "UUID PRIMARY KEY",
+        "conversation_id": "UUID REFERENCES conversations(id)",
+        "sender_id": "UUID REFERENCES users(id)",
+        "content": "TEXT",
+        "type": "VARCHAR(20) CHECK (text, image, video, audio, file)",
+        "media_url": "TEXT",
+        "is_edited": "BOOLEAN DEFAULT false",
+        "is_deleted": "BOOLEAN DEFAULT false",
+        "created_at": "TIMESTAMP WITH TIME ZONE"
+      }
+    },
+    "conversations": {
+      "columns": {
+        "id": "UUID PRIMARY KEY",
+        "type": "VARCHAR(20) DEFAULT 'direct'",
+        "name": "VARCHAR(255)",
+        "last_message_id": "UUID",
+        "last_message_at": "TIMESTAMP WITH TIME ZONE"
+      }
+    }
+  },
+  "patterns": [
+    "real-time-messaging",
+    "websocket-management",
+    "optimistic-updates",
+    "message-queue",
+    "webrtc-signaling"
+  ],
+  "key_features": {
+    "real_time_messages": "Mensagens instantâneas via Supabase Realtime",
+    "typing_indicators": "Indicadores de digitação em tempo real",
+    "read_receipts": "Confirmação de leitura com timestamp",
+    "media_sharing": "Compartilhamento de fotos, vídeos e arquivos",
+    "voice_calls": "Chamadas de voz via WebRTC",
+    "video_calls": "Chamadas de vídeo via WebRTC",
+    "reactions": "Reações com emojis",
+    "message_search": "Busca em histórico de mensagens",
+    "group_chats": "Conversas em grupo (premium)",
+    "encryption": "Mensagens criptografadas end-to-end"
+  },
+  "subcomponents": {
+    "ChatInterface": {
+      "description": "Interface principal de chat",
+      "features": ["Message list", "Input area", "Media preview", "Call buttons"]
+    },
+    "ConversationList": {
+      "description": "Lista de conversas ativas",
+      "features": ["Unread badges", "Last message preview", "Online status"]
+    },
+    "CallModal": {
+      "description": "Modal de chamada de voz/vídeo",
+      "features": ["WebRTC integration", "Screen sharing", "Call controls"]
+    }
+  },
+  "real_time_features": {
+    "channels": {
+      "messages": "conversation:[id] para novas mensagens",
+      "typing": "typing:[conversationId] para indicadores",
+      "presence": "presence:[userId] para status online",
+      "calls": "call:[conversationId] para sinalização"
+    },
+    "events": [
+      "new_message",
+      "message_edited",
+      "message_deleted",
+      "user_typing",
+      "user_online",
+      "call_initiated"
+    ]
+  },
+  "webrtc_integration": {
+    "signaling": "Via Supabase Realtime",
+    "ice_servers": "STUN/TURN configurados",
+    "media_constraints": "Áudio/vídeo adaptativo",
+    "screen_sharing": "Compartilhamento de tela",
+    "recording": "Gravação local (premium)"
+  },
+  "state_management": {
+    "messages": "React Query com cache por conversa",
+    "realtime": "WebSocket subscriptions gerenciadas",
+    "typing": "Estado local com debounce",
+    "calls": "Context API para estado de chamada"
+  },
+  "performance_optimizations": [
+    "Virtualização de mensagens antigas",
+    "Lazy loading de mídia",
+    "Compressão de imagens antes do upload",
+    "Cache de conversas recentes",
+    "Debounce em typing indicators",
+    "Batch de read receipts"
+  ],
+  "security_considerations": [
+    "Validação de participantes",
+    "Rate limiting por usuário",
+    "Verificação de tipo de arquivo",
+    "Tamanho máximo de upload",
+    "Sanitização de conteúdo",
+    "Proteção contra spam"
+  ],
+  "ui_features": {
+    "message_formatting": "Markdown básico suportado",
+    "emoji_picker": "Seletor de emojis integrado",
+    "file_preview": "Preview de arquivos antes do envio",
+    "voice_messages": "Gravação de áudio (premium)",
+    "message_translation": "Tradução automática (premium)"
+  },
+  "common_issues": [
+    "Sincronização de mensagens offline",
+    "Reconexão de WebSocket",
+    "Echo em chamadas de voz",
+    "Upload de arquivos grandes",
+    "Notificações em background"
+  ]
+}

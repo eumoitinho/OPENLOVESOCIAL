@@ -1,0 +1,68 @@
+{
+  "module": "app/profile/edit",
+  "description": "Página de edição de perfil com formulários e upload de mídia",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "react-hook-form",
+    "zod"
+  ],
+  "key_files": [
+    "app/profile/edit/page.tsx"
+  ],
+  "patterns": [
+    "form-validation",
+    "image-upload",
+    "auto-save"
+  ],
+  "key_features": {
+    "profile_form": "Formulário completo de perfil",
+    "avatar_upload": "Upload e crop de avatar",
+    "cover_upload": "Upload de foto de capa",
+    "preview_mode": "Preview antes de salvar",
+    "validation": "Validação em tempo real"
+  },
+  "form_sections": {
+    "basic": {
+      "fields": ["display_name", "username", "bio"],
+      "validation": "Username único, bio max 500 chars"
+    },
+    "personal": {
+      "fields": ["birth_date", "gender", "location"],
+      "privacy": "Opções de visibilidade"
+    },
+    "interests": {
+      "fields": ["interests", "hobbies", "looking_for"],
+      "ui": "Tags selecionáveis"
+    },
+    "social": {
+      "fields": ["website", "instagram", "twitter"],
+      "validation": "URLs válidas"
+    }
+  },
+  "media_handling": {
+    "avatar": {
+      "max_size": "5MB",
+      "formats": ["jpg", "png", "webp"],
+      "crop": "Crop circular obrigatório"
+    },
+    "cover": {
+      "max_size": "10MB",
+      "aspect_ratio": "16:9",
+      "filters": "Filtros opcionais"
+    }
+  },
+  "privacy_settings": {
+    "profile_visibility": ["public", "friends", "private"],
+    "show_activity": "Mostrar atividade recente",
+    "searchable": "Aparecer em buscas",
+    "show_location": "Mostrar localização"
+  },
+  "common_issues": [
+    "Upload de imagem travando",
+    "Validação de username em uso",
+    "Perda de dados não salvos",
+    "Crop de imagem mobile"
+  ]
+}

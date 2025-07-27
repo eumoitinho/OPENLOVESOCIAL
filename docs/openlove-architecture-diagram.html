@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenLove Architecture Diagrams</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#ff6b6b',
+                primaryTextColor: '#fff',
+                primaryBorderColor: '#ff5252',
+                lineColor: '#5c7cfa',
+                secondaryColor: '#4ecdc4',
+                tertiaryColor: '#ffe66d',
+                background: '#f8f9fa',
+                mainBkg: '#ff6b6b',
+                secondBkg: '#4ecdc4',
+                tertiaryBkg: '#ffe66d',
+                primaryBoxBkg: '#ff6b6b',
+                primaryBoxBorder: '#ff5252',
+                primaryBoxTextColor: '#fff',
+                fontSize: '16px'
+            }
+        });
+    </script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 20px;
+            background-color: #f8f9fa;
+        }
+        .diagram-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #212529;
+        }
+        .export-info {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>OpenLove - Architecture Diagrams</h1>
+    <div class="export-info">
+        <p><strong>Note:</strong> To export these diagrams, use browser print to PDF or screenshot tools. The diagrams are rendered using Mermaid.js.</p>
+    </div>
+
+    <div class="diagram-container">
+        <h2>1. System Architecture Overview</h2>
+        <div class="mermaid">
+graph TB
+    subgraph "Frontend Layer"
+        A[Next.js 15 App Router] --> B[React 19 Components]
+        B --> C[TypeScript 5]
+        B --> D[Tailwind CSS + Hero UI]
+        B --> E[Zustand State Management]
+        B --> F[React Hook Form]
+        A --> G[Server Components]
+        A --> H[Client Components]
+    end
+    
+    subgraph "API Layer"
+        I[API Routes] --> J[Authentication APIs]
+        I --> K[Business Logic APIs]
+        I --> L[Payment APIs]
+        I --> M[Media APIs]
+        I --> N[Real-time APIs]
+        I --> O[AI/ML APIs]
+    end
+    
+    subgraph "Backend Services"
+        P[Supabase] --> Q[PostgreSQL 15]
+        P --> R[Realtime WebSockets]
+        P --> S[Storage CDN]
+        P --> T[Auth JWT]
+        P --> U[Edge Functions]
+        Q --> V[Row Level Security]
+        Q --> W[Database Functions]
+        Q --> X[Triggers & Indexes]
+    end
+    
+    subgraph "External Services"
+        Y[Stripe] --> Z[Card Payments]
+        Y --> AA[Webhooks]
+        AB[AbacatePay] --> AC[PIX Payments]
+        AB --> AD[Billing API]
+        AE[IBGE API] --> AF[Location Data]
+        AG[WebRTC] --> AH[Video/Voice Calls]
+    end
+    
+    subgraph "Infrastructure"
+        AI[Vercel] --> AJ[Edge Network]
+        AI --> AK[Serverless Functions]
+        AI --> AL[Image Optimization]
+        AM[Cloudflare] --> AN[DDoS Protection]
+        AM --> AO[Global CDN]
+        AP[Redis] --> AQ[Session Cache]
+        AP --> AR[API Cache]
+    end
+    
+    A -.-> I
+    I -.-> P
+    I -.-> Y
+    I -.-> AB
+    I -.-> AE
+    N -.-> AG
+    H -.-> R
+    S -.-> AO
+    
+    style A fill:#ff6b6b,stroke:#ff5252,color:#fff
+    style P fill:#4ecdc4,stroke:#45b7b8,color:#fff
+    style Y fill:#5c7cfa,stroke:#4c6ef5,color:#fff
+    style AI fill:#ffe66d,stroke:#ffd43b,color:#333
+        </div>
+    </div>
+
+    <div class="diagram-container">
+        <h2>2. Data Model & Database Schema</h2>
+        <div class="mermaid">
+erDiagram
+    users ||--o{ posts : creates
+    users ||--o{ comments : writes
+    users ||--o{ likes : gives
+    users ||--o{ follows : follows
+    users ||--o{ friends : befriends
+    users ||--o{ messages : sends
+    users ||--o{ notifications : receives
+    users ||--o{ subscriptions : has
+    users ||--o{ events : creates
+    users ||--o{ communities : joins
+    users ||--o{ verification_requests : submits
+    
+    posts ||--o{ comments : has
+    posts ||--o{ likes : receives
+    posts ||--o{ post_shares : shared
+    posts ||--o{ saved_posts : saved_by
+    posts ||--o{ post_reports : reported
+    
+    conversations ||--o{ messages : contains
+    conversations ||--o{ conversation_participants : has
+    
+    events ||--o{ event_participants : has
+    communities ||--o{ community_members : has
+    communities ||--o{ posts : contains
+    
+    users {
+        uuid id PK
+        uuid auth_id FK
+        string username UK
+        string email UK
+        string name
+        text bio
+        string avatar_url
+        string location
+        decimal latitude
+        decimal longitude
+        boolean is_premium
+        string premium_type
+        timestamp premium_expires_at
+        string stripe_customer_id
+        jsonb privacy_settings
+        jsonb notification_settings
+        jsonb stats
+        timestamp created_at
+    }
+    
+    posts {
+        uuid id PK
+        uuid user_id FK
+        text content
+        array media_urls
+        array media_types
+        string visibility
+        boolean is_premium_content
+        decimal price
+        array hashtags
+        jsonb stats
+        timestamp created_at
+    }
+    
+    messages {
+        uuid id PK
+        uuid conversation_id FK
+        uuid sender_id FK
+        text content
+        string type
+        array media_urls
+        boolean is_read
+        timestamp created_at
+    }
+    
+    subscriptions {
+        uuid id PK
+        uuid user_id FK
+        string plan_type
+        string status
+        string provider
+        timestamp current_period_end
+        decimal price
+        timestamp created_at
+    }
+    
+    events {
+        uuid id PK
+        uuid creator_id FK
+        string title
+        text description
+        timestamp start_datetime
+        string location_name
+        decimal latitude
+        decimal longitude
+        boolean is_online
+        integer max_participants
+        jsonb stats
+        timestamp created_at
+    }
+    
+    communities {
+        uuid id PK
+        uuid creator_id FK
+        string name
+        text description
+        string community_type
+        boolean is_private
+        integer member_count
+        jsonb stats
+        timestamp created_at
+    }
+        </div>
+    </div>
+
+    <div class="diagram-container">
+        <h2>3. Authentication & User Flow</h2>
+        <div class="mermaid">
+sequenceDiagram
+    participant U as User
+    participant F as Frontend
+    participant A as API Routes
+    participant S as Supabase Auth
+    participant D as Database
+    participant P as Payment Gateway
+    
+    %% Registration Flow
+    rect rgb(255, 240, 240)
+        Note over U,P: Registration Flow
+        U->>F: Access /auth/signup
+        F->>U: Show signup form
+        U->>F: Fill form & select plan
+        F->>A: POST /api/auth/register
+        A->>S: Create auth user
+        S-->>A: Return auth token
+        A->>D: Create user profile
+        D-->>A: Profile created
+        
+        alt Premium Plan Selected
+            A->>P: Initialize checkout
+            P-->>A: Checkout session
+            A-->>F: Redirect to payment
+            F->>U: Show payment form
+            U->>P: Complete payment
+            P->>A: Webhook: payment.success
+            A->>D: Update user to premium
+        end
+        
+        A-->>F: Registration complete
+        F->>U: Redirect to timeline
+    end
+    
+    %% Login Flow
+    rect rgb(240, 255, 240)
+        Note over U,D: Login Flow
+        U->>F: Access /auth/signin
+        F->>U: Show login form
+        U->>F: Enter credentials
+        F->>S: signInWithPassword()
+        S-->>F: Return session
+        F->>A: GET /api/profile/me
+        A->>D: Fetch user data
+        D-->>A: User profile
+        A-->>F: Complete profile
+        F->>U: Show timeline
+    end
+    
+    %% Session Management
+    rect rgb(240, 240, 255)
+        Note over F,S: Session Management
+        F->>S: Check session
+        S-->>F: Valid/Invalid
+        
+        alt Session expired
+            F->>S: Refresh token
+            S-->>F: New session
+        else Invalid session
+            F->>U: Redirect to login
+        end
+    end
+        </div>
+    </div>
+
+    <div class="diagram-container">
+        <h2>4. Payment System Flow</h2>
+        <div class="mermaid">
+flowchart TB
+    subgraph "Payment Initiation"
+        A[User selects plan] --> B{Payment Method?}
+        B -->|Credit Card| C[Stripe Checkout]
+        B -->|PIX| D[AbacatePay]
+    end
+    
+    subgraph "Stripe Flow"
+        C --> E[Create checkout session]
+        E --> F[Redirect to Stripe]
+        F --> G[User completes payment]
+        G --> H[Stripe webhook]
+        H --> I[Verify webhook signature]
+    end
+    
+    subgraph "AbacatePay Flow"
+        D --> J[Create billing]
+        J --> K[Generate PIX QR Code]
+        K --> L[User pays PIX]
+        L --> M[AbacatePay webhook]
+        M --> N[Verify webhook]
+    end
+    
+    subgraph "Plan Activation"
+        I --> O[Update user subscription]
+        N --> O
+        O --> P[Set premium_type]
+        P --> Q[Set premium_expires_at]
+        Q --> R[Update features]
+        R --> S[Send confirmation email]
+        S --> T[Redirect to success page]
+    end
+    
+    subgraph "Plan Features"
+        U[Free Plan]
+        U --> U1[1 image per post]
+        U --> U2[Basic features]
+        U --> U3[Limited messages]
+        
+        V[Gold Plan - R$25]
+        V --> V1[5 images per post]
+        V --> V2[Video upload 25MB]
+        V --> V3[Audio recording]
+        V --> V4[Unlimited messages]
+        V --> V5[2 events/month]
+        
+        W[Diamond Plan - R$45.90]
+        W --> W1[10 images per post]
+        W --> W2[Video upload 50MB]
+        W --> W3[Video/Voice calls]
+        W --> W4[Analytics dashboard]
+        W --> W5[10 events/month]
+        W --> W6[Private communities]
+    end
+    
+    T --> X{User Plan Type}
+    X -->|Free| U
+    X -->|Gold| V
+    X -->|Diamond| W
+    
+    style A fill:#ff6b6b,stroke:#ff5252,color:#fff
+    style C fill:#5c7cfa,stroke:#4c6ef5,color:#fff
+    style D fill:#4ecdc4,stroke:#45b7b8,color:#fff
+    style O fill:#ffe66d,stroke:#ffd43b,color:#333
+    style V fill:#ffd700,stroke:#ffcc00,color:#333
+    style W fill:#b9f2ff,stroke:#87ceeb,color:#333
+        </div>
+    </div>
+
+    <div class="diagram-container">
+        <h2>5. Real-time Features Architecture</h2>
+        <div class="mermaid">
+graph TB
+    subgraph "Real-time Chat System"
+        A[User sends message] --> B[Frontend Chat Component]
+        B --> C[Supabase Realtime Channel]
+        C --> D[WebSocket Connection]
+        D --> E[PostgreSQL Insert]
+        E --> F[Broadcast to participants]
+        F --> G[Update UI in real-time]
+        
+        H[Typing indicator] --> C
+        I[Read receipts] --> C
+        J[Online presence] --> C
+    end
+    
+    subgraph "Real-time Notifications"
+        K[User action] --> L[Trigger notification]
+        L --> M[Insert to notifications table]
+        M --> N[Realtime broadcast]
+        N --> O[Update notification badge]
+        N --> P[Show toast notification]
+        N --> Q[Play sound if enabled]
+    end
+    
+    subgraph "Timeline Updates"
+        R[New post created] --> S[Insert to posts table]
+        S --> T[Realtime channel: timeline]
+        T --> U[Update following users' feeds]
+        T --> V[Update hashtag feeds]
+        T --> W[Update location-based feeds]
+    end
+    
+    subgraph "Live Features"
+        X[Live streaming] --> Y[WebRTC connection]
+        Y --> Z[Media server]
+        Z --> AA[Broadcast to viewers]
+        
+        AB[Voice/Video calls] --> Y
+        AC[Screen sharing] --> Y
+    end
+    
+    style A fill:#ff6b6b,stroke:#ff5252,color:#fff
+    style K fill:#4ecdc4,stroke:#45b7b8,color:#fff
+    style R fill:#5c7cfa,stroke:#4c6ef5,color:#fff
+    style X fill:#ffe66d,stroke:#ffd43b,color:#333
+        </div>
+    </div>
+
+    <div class="diagram-container">
+        <h2>6. Content & Media Flow</h2>
+        <div class="mermaid">
+flowchart TB
+    subgraph "Content Creation"
+        A[User creates post] --> B{Content Type}
+        B -->|Text| C[Validate length]
+        B -->|Image| D[Compress & optimize]
+        B -->|Video| E[Check file size]
+        B -->|Audio| F[Process audio]
+        B -->|Poll| G[Create poll options]
+        
+        D --> H[Upload to Supabase Storage]
+        E --> H
+        F --> H
+        
+        C --> I[Process hashtags]
+        I --> J[Extract mentions]
+        J --> K[Set visibility]
+        K --> L[Save to database]
+        H --> L
+        G --> L
+    end
+    
+    subgraph "Media Processing"
+        M[Original media] --> N[Generate thumbnails]
+        M --> O[Apply compression]
+        M --> P[Extract metadata]
+        N --> Q[CDN distribution]
+        O --> Q
+        P --> R[Store in database]
+    end
+    
+    subgraph "Content Distribution"
+        L --> S[Update user timeline]
+        L --> T[Update followers' feeds]
+        L --> U[Update hashtag feeds]
+        L --> V[Send notifications]
+        L --> W[Update statistics]
+        
+        S --> X[Apply AI ranking]
+        T --> X
+        U --> X
+        X --> Y[Personalized feed]
+    end
+    
+    subgraph "Premium Content"
+        Z[Premium post] --> AA{User has access?}
+        AA -->|Yes| AB[Show full content]
+        AA -->|No| AC[Show preview + paywall]
+        AC --> AD[Upgrade prompt]
+        AD --> AE[Payment flow]
+    end
+    
+    style A fill:#ff6b6b,stroke:#ff5252,color:#fff
+    style M fill:#4ecdc4,stroke:#45b7b8,color:#fff
+    style L fill:#5c7cfa,stroke:#4c6ef5,color:#fff
+    style Z fill:#ffe66d,stroke:#ffd43b,color:#333
+        </div>
+    </div>
+
+    <div class="diagram-container">
+        <h2>7. AI & Recommendation System</h2>
+        <div class="mermaid">
+graph TB
+    subgraph "Data Collection"
+        A[User interactions] --> B[Likes & comments]
+        A --> C[View time]
+        A --> D[Profile visits]
+        A --> E[Message patterns]
+        A --> F[Search queries]
+    end
+    
+    subgraph "Feature Extraction"
+        B --> G[Engagement metrics]
+        C --> G
+        D --> H[Interest signals]
+        E --> H
+        F --> I[Explicit preferences]
+        
+        J[User profile] --> K[Demographics]
+        J --> L[Location data]
+        J --> M[Stated interests]
+    end
+    
+    subgraph "Recommendation Algorithms"
+        G --> N[Collaborative filtering]
+        H --> N
+        I --> O[Content-based filtering]
+        K --> O
+        L --> P[Location-based matching]
+        M --> O
+        
+        N --> Q[Hybrid algorithm]
+        O --> Q
+        P --> Q
+    end
+    
+    subgraph "Scoring & Ranking"
+        Q --> R[Calculate compatibility scores]
+        R --> S[Apply business rules]
+        S --> T[Filter by preferences]
+        T --> U[Sort by relevance]
+        U --> V[Apply diversity]
+    end
+    
+    subgraph "Delivery"
+        V --> W[For You timeline]
+        V --> X[Profile suggestions]
+        V --> Y[Event recommendations]
+        V --> Z[Community suggestions]
+        V --> AA[Open Dates matches]
+    end
+    
+    subgraph "Feedback Loop"
+        W --> AB[Track engagement]
+        X --> AB
+        Y --> AB
+        Z --> AB
+        AA --> AB
+        AB --> AC[Update model weights]
+        AC --> N
+        AC --> O
+    end
+    
+    style A fill:#ff6b6b,stroke:#ff5252,color:#fff
+    style Q fill:#4ecdc4,stroke:#45b7b8,color:#fff
+    style V fill:#5c7cfa,stroke:#4c6ef5,color:#fff
+    style AB fill:#ffe66d,stroke:#ffd43b,color:#333
+        </div>
+    </div>
+
+    <div class="diagram-container">
+        <h2>8. Security & Privacy Architecture</h2>
+        <div class="mermaid">
+graph TB
+    subgraph "Authentication Layer"
+        A[User request] --> B[JWT validation]
+        B --> C{Valid token?}
+        C -->|No| D[Redirect to login]
+        C -->|Yes| E[Extract user context]
+        E --> F[Check permissions]
+    end
+    
+    subgraph "Database Security"
+        G[Row Level Security] --> H[User can only see own data]
+        G --> I[Friends can see shared content]
+        G --> J[Public content visible to all]
+        G --> K[Admins have elevated access]
+        
+        L[Column encryption] --> M[Sensitive data encrypted]
+        N[Audit logs] --> O[Track all changes]
+    end
+    
+    subgraph "API Security"
+        P[Rate limiting] --> Q[By IP address]
+        P --> R[By user ID]
+        P --> S[By endpoint]
+        
+        T[Input validation] --> U[Zod schemas]
+        T --> V[SQL injection prevention]
+        T --> W[XSS protection]
+    end
+    
+    subgraph "Content Security"
+        X[Media uploads] --> Y[Virus scanning]
+        X --> Z[File type validation]
+        X --> AA[Size limits by plan]
+        
+        AB[User content] --> AC[Profanity filter]
+        AB --> AD[Spam detection]
+        AB --> AE[NSFW detection]
+    end
+    
+    subgraph "Privacy Controls"
+        AF[Profile visibility] --> AG[Public/Friends/Private]
+        AH[Message settings] --> AI[Who can message]
+        AJ[Block lists] --> AK[User blocking]
+        AL[Data export] --> AM[GDPR compliance]
+    end
+    
+    style A fill:#ff6b6b,stroke:#ff5252,color:#fff
+    style G fill:#4ecdc4,stroke:#45b7b8,color:#fff
+    style P fill:#5c7cfa,stroke:#4c6ef5,color:#fff
+    style X fill:#ffe66d,stroke:#ffd43b,color:#333
+        </div>
+    </div>
+
+    <div class="diagram-container">
+        <h2>9. DevOps & Deployment Pipeline</h2>
+        <div class="mermaid">
+flowchart TB
+    subgraph "Development"
+        A[Local development] --> B[pnpm dev]
+        B --> C[Hot reload]
+        C --> D[TypeScript checking]
+        D --> E[ESLint validation]
+    end
+    
+    subgraph "Version Control"
+        F[Git commit] --> G[Pre-commit hooks]
+        G --> H[Format code]
+        G --> I[Run tests]
+        G --> J[Type check]
+        H --> K[Push to GitHub]
+        I --> K
+        J --> K
+    end
+    
+    subgraph "CI/CD Pipeline"
+        K --> L[GitHub Actions]
+        L --> M[Install dependencies]
+        M --> N[Run tests]
+        N --> O[Build application]
+        O --> P[Run E2E tests]
+        P --> Q{All tests pass?}
+        Q -->|No| R[Notify developers]
+        Q -->|Yes| S[Deploy to Vercel]
+    end
+    
+    subgraph "Deployment"
+        S --> T[Preview deployment]
+        T --> U[Automated testing]
+        U --> V{Approved?}
+        V -->|Yes| W[Production deployment]
+        V -->|No| X[Rollback]
+        
+        W --> Y[Edge network distribution]
+        Y --> Z[Cache invalidation]
+        Z --> AA[Health checks]
+    end
+    
+    subgraph "Monitoring"
+        AA --> AB[Performance metrics]
+        AA --> AC[Error tracking]
+        AA --> AD[User analytics]
+        AB --> AE[Alerts]
+        AC --> AE
+        AD --> AF[Reports]
+    end
+    
+    style A fill:#ff6b6b,stroke:#ff5252,color:#fff
+    style K fill:#4ecdc4,stroke:#45b7b8,color:#fff
+    style S fill:#5c7cfa,stroke:#4c6ef5,color:#fff
+    style AA fill:#ffe66d,stroke:#ffd43b,color:#333
+        </div>
+    </div>
+
+</body>
+</html>

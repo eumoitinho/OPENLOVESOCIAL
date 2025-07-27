@@ -1,0 +1,73 @@
+{
+  "module": "app/components/navigation",
+  "description": "Componentes de navegação e layout",
+  "dependencies": [
+    "react",
+    "@heroui/react",
+    "lucide-react",
+    "next/navigation"
+  ],
+  "key_files": [
+    "app/components/navigation/MobileNavigation.tsx"
+  ],
+  "patterns": [
+    "responsive-navigation",
+    "mobile-first",
+    "gesture-based"
+  ],
+  "component_features": {
+    "MobileNavigation": "Navegação bottom tab para mobile"
+  },
+  "navigation_structure": {
+    "home": "Timeline/Feed principal",
+    "explore": "Descobrir conteúdo",
+    "create": "Criar post/conteúdo",
+    "messages": "Chat e mensagens",
+    "profile": "Perfil do usuário"
+  },
+  "mobile_features": {
+    "bottom_tabs": "Tabs fixas no bottom",
+    "badge_counts": "Contadores de notificação",
+    "active_state": "Estado ativo visual",
+    "gesture_navigation": "Swipe entre telas",
+    "safe_area": "Respeitar safe areas"
+  },
+  "responsive_behavior": {
+    "mobile": "Bottom navigation",
+    "tablet": "Side navigation",
+    "desktop": "Top + side navigation"
+  },
+  "navigation_items": [
+    {
+      "icon": "Home",
+      "label": "Início",
+      "route": "/timeline"
+    },
+    {
+      "icon": "Search",
+      "label": "Explorar",
+      "route": "/explore"
+    },
+    {
+      "icon": "PlusCircle",
+      "label": "Criar",
+      "action": "openCreateModal"
+    },
+    {
+      "icon": "MessageCircle",
+      "label": "Mensagens",
+      "route": "/messages"
+    },
+    {
+      "icon": "User",
+      "label": "Perfil",
+      "route": "/profile"
+    }
+  ],
+  "common_issues": [
+    "Navigation state sync",
+    "Deep linking",
+    "Back button handling",
+    "Tab badge updates"
+  ]
+}

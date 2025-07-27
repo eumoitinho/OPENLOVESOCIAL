@@ -1,0 +1,128 @@
+{
+  "module": "api/search",
+  "description": "APIs de busca global com suporte a diferentes tipos de conteúdo",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod",
+    "fuse.js",
+    "@algolia/client-search"
+  ],
+  "key_files": [
+    "app/api/search/route.ts",
+    "app/api/search/users/route.ts",
+    "app/api/search/posts/route.ts",
+    "app/api/search/hashtags/route.ts"
+  ],
+  "database_tables": [
+    "search_history",
+    "trending_searches",
+    "search_suggestions"
+  ],
+  "database_schema": {
+    "search_history": {
+      "description": "Histórico de buscas dos usuários",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "query": "TEXT NOT NULL",
+        "type": "VARCHAR(20)",
+        "results_count": "INTEGER",
+        "clicked_result": "JSONB",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "trending_searches": {
+      "description": "Buscas em alta",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "term": "VARCHAR(100) UNIQUE",
+        "search_count": "INTEGER DEFAULT 0",
+        "type": "VARCHAR(20)",
+        "region": "VARCHAR(50)",
+        "updated_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    }
+  },
+  "patterns": [
+    "multi-index-search",
+    "autocomplete",
+    "search-relevance",
+    "trending-detection"
+  ],
+  "key_features": {
+    "global_search": "Busca unificada em todo conteúdo",
+    "type_filtering": "Filtrar por tipo (usuários, posts, etc)",
+    "autocomplete": "Sugestões em tempo real",
+    "search_history": "Histórico pessoal de buscas",
+    "trending": "Termos em alta",
+    "fuzzy_search": "Tolerância a erros de digitação",
+    "voice_search": "Busca por voz (premium)",
+    "visual_search": "Busca por imagem (premium)"
+  },
+  "api_endpoints": {
+    "GET /api/search": "Busca global",
+    "GET /api/search/users": "Buscar usuários",
+    "GET /api/search/posts": "Buscar posts",
+    "GET /api/search/hashtags": "Buscar hashtags",
+    "GET /api/search/suggestions": "Sugestões de busca",
+    "GET /api/search/trending": "Termos em alta",
+    "DELETE /api/search/history": "Limpar histórico"
+  },
+  "search_types": {
+    "users": {
+      "fields": ["username", "display_name", "bio"],
+      "boost": ["verified", "premium", "popularity"]
+    },
+    "posts": {
+      "fields": ["content", "hashtags", "location"],
+      "boost": ["recency", "engagement", "author_relevance"]
+    },
+    "communities": {
+      "fields": ["name", "description", "category"],
+      "boost": ["member_count", "activity", "verified"]
+    },
+    "events": {
+      "fields": ["title", "description", "location"],
+      "boost": ["upcoming", "proximity", "popularity"]
+    }
+  },
+  "search_filters": {
+    "date_range": "Período temporal",
+    "location": "Proximidade geográfica",
+    "media_type": "Com foto/vídeo",
+    "verified_only": "Apenas verificados",
+    "friends_only": "Apenas amigos"
+  },
+  "relevance_factors": [
+    "Query match score",
+    "User interaction history",
+    "Social connections",
+    "Content freshness",
+    "Engagement metrics",
+    "User preferences"
+  ],
+  "autocomplete_features": {
+    "debounce": "300ms",
+    "min_chars": 2,
+    "max_suggestions": 10,
+    "categories": ["users", "hashtags", "locations"]
+  },
+  "trending_algorithm": {
+    "time_windows": ["1h", "24h", "7d"],
+    "velocity_calculation": "Crescimento percentual",
+    "spam_detection": "Filtrar termos abusivos",
+    "regional_trends": "Tendências por região"
+  },
+  "performance_optimizations": [
+    "Search index com Algolia/Elasticsearch",
+    "Cache de queries populares",
+    "Paginação eficiente",
+    "Índices compostos no banco"
+  ],
+  "common_issues": [
+    "Latência em buscas complexas",
+    "Relevância dos resultados",
+    "Indexação de novo conteúdo",
+    "Multilíngue e acentos"
+  ]
+}

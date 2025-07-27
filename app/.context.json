@@ -1,0 +1,90 @@
+{
+  "module": "app",
+  "description": "Diretório raiz da aplicação Next.js com App Router, contendo todas as rotas, componentes e lógica da aplicação OpenLove",
+  "dependencies": [
+    "next",
+    "react",
+    "react-dom",
+    "@supabase/supabase-js",
+    "@heroui/react",
+    "tailwindcss",
+    "framer-motion",
+    "sonner",
+    "lucide-react"
+  ],
+  "key_files": [
+    "app/layout.tsx",
+    "app/page.tsx",
+    "app/globals.css",
+    "app/loading.tsx"
+  ],
+  "subdirectories": {
+    "ads": "Sistema de publicidade e monetização",
+    "api": "API Routes para backend e integrações",
+    "auth": "Páginas de autenticação (login, registro)",
+    "checkout": "Sistema de pagamento e assinaturas",
+    "communities": "Comunidades e grupos",
+    "components": "Componentes React reutilizáveis",
+    "content": "Gestão de conteúdo premium",
+    "dashboard": "Painel administrativo",
+    "events": "Sistema de eventos",
+    "explore": "Descoberta de perfis e conteúdo",
+    "friends": "Sistema de amizades",
+    "home": "Página inicial autenticada",
+    "hooks": "React hooks customizados",
+    "lib": "Bibliotecas e utilitários",
+    "messages": "Sistema de mensagens",
+    "notificacoes": "Centro de notificações",
+    "open-dates": "Sistema de encontros",
+    "posts": "Gestão de posts",
+    "pricing": "Página de planos e preços",
+    "profile": "Perfis de usuário",
+    "programs": "Programas de afiliados",
+    "search": "Sistema de busca",
+    "settings": "Configurações do usuário",
+    "timeline": "Feed principal",
+    "trending": "Conteúdo em alta",
+    "verification": "Verificação de contas"
+  },
+  "patterns": [
+    "app-router",
+    "server-components",
+    "client-components",
+    "optimistic-updates",
+    "streaming-ssr",
+    "incremental-static-regeneration"
+  ],
+  "key_features": {
+    "routing": "Next.js App Router com rotas aninhadas e paralelas",
+    "authentication": "Sistema completo de autenticação com Supabase",
+    "real_time": "Atualizações em tempo real para chat e notificações",
+    "media_handling": "Upload e otimização de imagens e vídeos",
+    "monetization": "Sistema de planos premium e conteúdo pago",
+    "social_features": "Posts, likes, comentários, seguir, amizades",
+    "search_discovery": "Busca avançada e descoberta de conteúdo",
+    "localization": "Suporte para localização geográfica"
+  },
+  "common_issues": [
+    "Hidratação do React em componentes client/server",
+    "Gerenciamento de estado entre páginas",
+    "Otimização de bundle size",
+    "Cache de dados estáticos vs dinâmicos",
+    "Sincronização de dados real-time"
+  ],
+  "performance_considerations": [
+    "Uso de Server Components por padrão",
+    "Lazy loading de componentes pesados",
+    "Image optimization com next/image",
+    "Code splitting automático por rota",
+    "Prefetching de rotas com Link",
+    "Streaming SSR para carregamento progressivo"
+  ],
+  "security_notes": [
+    "Todas as rotas API validam autenticação",
+    "CORS configurado para domínios permitidos",
+    "Rate limiting em rotas sensíveis",
+    "Sanitização de inputs do usuário",
+    "Proteção contra XSS e CSRF",
+    "Variáveis de ambiente para secrets"
+  ]
+}

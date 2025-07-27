@@ -1,0 +1,59 @@
+{
+  "module": "app/profiles",
+  "description": "Página de descoberta e busca de perfis de usuários",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react"
+  ],
+  "key_files": [
+    "app/profiles/page.tsx"
+  ],
+  "patterns": [
+    "user-discovery",
+    "search-filters",
+    "infinite-scroll"
+  ],
+  "key_features": {
+    "profile_search": "Busca de perfis por nome/username",
+    "filter_options": "Filtros avançados",
+    "suggestions": "Sugestões personalizadas",
+    "profile_grid": "Grid de cards de perfil",
+    "quick_actions": "Ações rápidas nos cards"
+  },
+  "search_filters": {
+    "location": "Filtrar por cidade/estado",
+    "age_range": "Faixa etária",
+    "interests": "Interesses em comum",
+    "online_now": "Apenas online",
+    "verified_only": "Apenas verificados",
+    "new_users": "Novos usuários"
+  },
+  "discovery_sections": {
+    "suggested": "Sugeridos para você",
+    "nearby": "Perto de você",
+    "trending": "Perfis em alta",
+    "new_members": "Novos membros",
+    "similar": "Perfis similares"
+  },
+  "profile_card_info": {
+    "avatar": "Foto do perfil",
+    "name": "Nome e username",
+    "bio_preview": "Preview da bio",
+    "stats": "Seguidores/posts",
+    "mutual": "Amigos em comum",
+    "actions": "Seguir/Ver perfil"
+  },
+  "premium_features": {
+    "advanced_filters": "Filtros avançados",
+    "see_who_viewed": "Ver quem viu seu perfil",
+    "unlimited_searches": "Buscas ilimitadas",
+    "profile_boost": "Destaque no resultado"
+  },
+  "common_issues": [
+    "Performance com muitos perfis",
+    "Relevância dos resultados",
+    "Privacidade na busca",
+    "Carga do scroll infinito"
+  ]
+}

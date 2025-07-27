@@ -1,0 +1,71 @@
+{
+  "module": "app/components/moderation",
+  "description": "Componentes para moderação de conteúdo e denúncias",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react"
+  ],
+  "key_files": [
+    "app/components/moderation/ModerationPanel.tsx",
+    "app/components/moderation/ReportSystem.tsx"
+  ],
+  "database_tables": [
+    "reports",
+    "moderation_actions",
+    "banned_users",
+    "content_flags"
+  ],
+  "patterns": [
+    "content-moderation",
+    "report-workflow",
+    "admin-tools"
+  ],
+  "component_features": {
+    "ModerationPanel": "Painel de moderação para admins",
+    "ReportSystem": "Sistema de denúncias para usuários"
+  },
+  "report_types": {
+    "spam": "Spam ou conteúdo irrelevante",
+    "harassment": "Assédio ou bullying",
+    "hate_speech": "Discurso de ódio",
+    "violence": "Violência ou ameaças",
+    "nudity": "Nudez ou conteúdo sexual",
+    "misinformation": "Informação falsa",
+    "copyright": "Violação de direitos autorais"
+  },
+  "moderation_actions": [
+    "Warn user",
+    "Remove content",
+    "Suspend account",
+    "Ban permanently",
+    "Shadow ban",
+    "Restrict features"
+  ],
+  "moderation_workflow": {
+    "report": "Usuário denuncia conteúdo",
+    "queue": "Entra na fila de moderação",
+    "review": "Moderador revisa",
+    "action": "Ação tomada",
+    "notify": "Notificar partes envolvidas"
+  },
+  "admin_features": {
+    "queue_management": "Gerenciar fila de denúncias",
+    "bulk_actions": "Ações em massa",
+    "user_history": "Histórico de violações",
+    "appeal_system": "Sistema de apelação",
+    "moderation_logs": "Logs de ações"
+  },
+  "ai_moderation": {
+    "content_scanning": "Scan automático de conteúdo",
+    "image_recognition": "Detecção de conteúdo inadequado",
+    "text_analysis": "Análise de texto ofensivo",
+    "pattern_detection": "Detecção de padrões abusivos"
+  },
+  "common_issues": [
+    "False positives",
+    "Contexto cultural",
+    "Volume de denúncias",
+    "Consistência nas decisões"
+  ]
+}

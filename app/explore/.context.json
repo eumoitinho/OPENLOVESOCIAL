@@ -1,0 +1,55 @@
+{
+  "module": "app/explore",
+  "description": "Página de exploração para descobrir novo conteúdo e perfis",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react"
+  ],
+  "key_files": [
+    "app/explore/page.tsx"
+  ],
+  "database_tables": [
+    "trending_content",
+    "explore_categories",
+    "user_interests"
+  ],
+  "patterns": [
+    "content-discovery",
+    "infinite-scroll",
+    "recommendation-engine"
+  ],
+  "key_features": {
+    "trending_content": "Conteúdo em alta",
+    "category_browse": "Explorar por categoria",
+    "recommended_users": "Usuários recomendados",
+    "trending_hashtags": "Hashtags populares",
+    "location_based": "Descoberta por localização"
+  },
+  "explore_sections": {
+    "for_you": "Personalizado por IA",
+    "trending": "Em alta agora",
+    "nearby": "Perto de você",
+    "categories": "Por interesse",
+    "new_users": "Novos na plataforma"
+  },
+  "algorithm_factors": [
+    "user_interests",
+    "engagement_patterns",
+    "social_graph",
+    "content_quality",
+    "freshness"
+  ],
+  "discovery_features": {
+    "smart_filters": "Filtros inteligentes",
+    "save_searches": "Salvar buscas",
+    "hide_content": "Ocultar não relevante",
+    "explore_history": "Histórico de exploração"
+  },
+  "common_issues": [
+    "Relevância do conteúdo",
+    "Filter bubble",
+    "Performance com scroll infinito",
+    "Diversidade de conteúdo"
+  ]
+}

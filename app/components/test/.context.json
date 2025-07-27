@@ -1,0 +1,50 @@
+{
+  "module": "app/components/test",
+  "description": "Componentes de teste e desenvolvimento",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react"
+  ],
+  "key_files": [
+    "app/components/test/LikeTestComponent.tsx"
+  ],
+  "patterns": [
+    "test-components",
+    "development-tools",
+    "feature-testing"
+  ],
+  "component_features": {
+    "LikeTestComponent": "Componente para testar sistema de likes"
+  },
+  "test_purposes": {
+    "feature_testing": "Testar features isoladamente",
+    "ui_testing": "Testar componentes UI",
+    "integration_testing": "Testar integrações",
+    "performance_testing": "Testar performance"
+  },
+  "development_only": {
+    "environment": "NODE_ENV === 'development'",
+    "visibility": "Apenas em desenvolvimento",
+    "access": "Rotas de teste específicas"
+  },
+  "test_features": [
+    "Isolated feature testing",
+    "Mock data generation",
+    "State inspection",
+    "Performance metrics",
+    "Error simulation"
+  ],
+  "test_scenarios": {
+    "like_system": "Testar likes/unlikes",
+    "real_time": "Testar updates real-time",
+    "error_handling": "Simular erros",
+    "edge_cases": "Casos extremos"
+  },
+  "common_uses": [
+    "Feature development",
+    "Bug reproduction",
+    "Performance testing",
+    "UI/UX experiments"
+  ]
+}

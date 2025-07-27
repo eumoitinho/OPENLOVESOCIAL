@@ -1,0 +1,98 @@
+{
+  "module": "app/hooks",
+  "description": "Custom React hooks para lógica reutilizável",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "swr",
+    "react-query"
+  ],
+  "key_files": [
+    "app/hooks/useAppState.ts",
+    "app/hooks/useConversations.ts",
+    "app/hooks/useForYouTimeline.ts",
+    "app/hooks/useIsClient.ts",
+    "app/hooks/useMessageStats.ts",
+    "app/hooks/useNotifications.ts",
+    "app/hooks/usePostToast.ts",
+    "app/hooks/useProfileExplore.ts",
+    "app/hooks/useRecommendationAlgorithm.ts",
+    "app/hooks/use-optimized-upload.ts"
+  ],
+  "patterns": [
+    "custom-hooks",
+    "data-fetching",
+    "state-management",
+    "real-time-subscriptions"
+  ],
+  "hook_categories": {
+    "data_fetching": {
+      "hooks": ["useConversations", "useForYouTimeline", "useProfileExplore"],
+      "purpose": "Buscar e gerenciar dados"
+    },
+    "state_management": {
+      "hooks": ["useAppState", "useMessageStats"],
+      "purpose": "Gerenciar estado global/local"
+    },
+    "utilities": {
+      "hooks": ["useIsClient", "usePostToast", "use-optimized-upload"],
+      "purpose": "Funções utilitárias"
+    },
+    "real_time": {
+      "hooks": ["useNotifications", "useConversations"],
+      "purpose": "Dados em tempo real"
+    },
+    "algorithms": {
+      "hooks": ["useRecommendationAlgorithm"],
+      "purpose": "Algoritmos e ML"
+    }
+  },
+  "hook_features": {
+    "useAppState": "Estado global da aplicação",
+    "useConversations": "Lista e gestão de conversas",
+    "useForYouTimeline": "Timeline personalizada For You",
+    "useIsClient": "Detectar se está no cliente",
+    "useMessageStats": "Estatísticas de mensagens",
+    "useNotifications": "Sistema de notificações real-time",
+    "usePostToast": "Toast notifications para posts",
+    "useProfileExplore": "Exploração de perfis",
+    "useRecommendationAlgorithm": "Algoritmo de recomendação",
+    "use-optimized-upload": "Upload otimizado de mídia"
+  },
+  "real_time_hooks": {
+    "subscriptions": "Gerenciar subscriptions Supabase",
+    "cleanup": "Cleanup automático",
+    "reconnection": "Reconexão automática",
+    "error_handling": "Tratamento de erros"
+  },
+  "data_fetching_patterns": {
+    "swr": "Stale-while-revalidate",
+    "pagination": "Paginação infinita",
+    "caching": "Cache inteligente",
+    "optimistic_updates": "Updates otimistas"
+  },
+  "performance_optimizations": [
+    "Memoization",
+    "Debouncing",
+    "Lazy loading",
+    "Request deduplication"
+  ],
+  "testing_considerations": [
+    "Mock de hooks",
+    "Isolamento de lógica",
+    "Testes de integração",
+    "Performance testing"
+  ],
+  "common_patterns": {
+    "loading_states": "Estados de carregamento",
+    "error_handling": "Tratamento de erros",
+    "cleanup": "Cleanup de efeitos",
+    "dependencies": "Gestão de dependências"
+  },
+  "common_issues": [
+    "Memory leaks",
+    "Infinite loops",
+    "Stale closures",
+    "Race conditions"
+  ]
+}

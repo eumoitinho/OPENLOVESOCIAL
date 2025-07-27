@@ -1,0 +1,62 @@
+{
+  "module": "app/components/security",
+  "description": "Componentes de segurança e proteção de conteúdo",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react"
+  ],
+  "key_files": [
+    "app/components/security/SecureImage.tsx",
+    "app/components/security/SecureVideo.tsx",
+    "app/components/security/WatermarkOverlay.tsx"
+  ],
+  "patterns": [
+    "content-protection",
+    "watermarking",
+    "secure-delivery"
+  ],
+  "component_features": {
+    "SecureImage": "Imagem com proteção contra download",
+    "SecureVideo": "Vídeo com proteção e watermark",
+    "WatermarkOverlay": "Overlay de marca d'água"
+  },
+  "security_measures": {
+    "right_click_disable": "Desabilitar clique direito",
+    "drag_prevention": "Prevenir arrastar",
+    "watermarking": "Marca d'água dinâmica",
+    "url_expiration": "URLs temporárias",
+    "screenshot_detection": "Detecção de screenshot"
+  },
+  "watermark_features": {
+    "dynamic_text": "Texto com username/data",
+    "positioning": "Posição aleatória",
+    "transparency": "Transparência ajustável",
+    "frequency": "Múltiplas marcas",
+    "invisible": "Marca d'água invisível"
+  },
+  "content_protection": {
+    "premium_content": "Conteúdo pago protegido",
+    "private_media": "Mídia privada",
+    "copyright": "Proteção de direitos",
+    "user_generated": "Conteúdo do usuário"
+  },
+  "delivery_security": {
+    "signed_urls": "URLs assinadas",
+    "token_validation": "Validação de token",
+    "ip_restriction": "Restrição por IP",
+    "referrer_check": "Verificação de referrer"
+  },
+  "drm_features": {
+    "encryption": "Criptografia de mídia",
+    "license_server": "Servidor de licenças",
+    "playback_control": "Controle de reprodução",
+    "device_limits": "Limite de dispositivos"
+  },
+  "common_issues": [
+    "Performance impact",
+    "Mobile compatibility",
+    "False positives",
+    "User experience balance"
+  ]
+}

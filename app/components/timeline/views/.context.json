@@ -1,0 +1,67 @@
+{
+  "module": "app/components/timeline/views",
+  "description": "Diferentes views e páginas acessíveis da timeline",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react"
+  ],
+  "key_files": [
+    "app/components/timeline/views/HomeView.tsx",
+    "app/components/timeline/views/ProfileView.tsx",
+    "app/components/timeline/views/ExploreView.tsx",
+    "app/components/timeline/views/ExplorePage.tsx",
+    "app/components/timeline/views/EventsView.tsx",
+    "app/components/timeline/views/EventsPage.tsx",
+    "app/components/timeline/views/MessagesPage.tsx",
+    "app/components/timeline/views/CommunitiesPage.tsx",
+    "app/components/timeline/views/SavedPage.tsx",
+    "app/components/timeline/views/SettingsPage.tsx",
+    "app/components/timeline/views/PlaceholderView.tsx"
+  ],
+  "patterns": [
+    "view-routing",
+    "page-composition",
+    "state-management"
+  ],
+  "view_types": {
+    "HomeView": "Feed principal personalizado",
+    "ProfileView": "Visualização de perfil",
+    "ExploreView": "Descoberta de conteúdo",
+    "EventsView": "Lista e mapa de eventos",
+    "MessagesPage": "Interface de mensagens",
+    "CommunitiesPage": "Gerenciamento de comunidades",
+    "SavedPage": "Conteúdo salvo",
+    "SettingsPage": "Configurações da conta"
+  },
+  "view_features": {
+    "lazy_loading": "Carregamento sob demanda",
+    "route_params": "Parâmetros de rota",
+    "state_preservation": "Preservar estado ao navegar",
+    "animations": "Transições entre views"
+  },
+  "navigation_flow": {
+    "tab_navigation": "Navegação por tabs",
+    "deep_linking": "Links diretos",
+    "back_navigation": "Navegação de volta",
+    "breadcrumbs": "Trilha de navegação"
+  },
+  "data_fetching": {
+    "on_mount": "Buscar dados ao montar",
+    "real_time": "Subscrições real-time",
+    "caching": "Cache de dados",
+    "prefetching": "Pré-busca de dados"
+  },
+  "common_patterns": [
+    "Loading states",
+    "Error boundaries",
+    "Empty states",
+    "Infinite scroll"
+  ],
+  "common_issues": [
+    "Route synchronization",
+    "Data consistency",
+    "Memory leaks",
+    "Performance optimization"
+  ]
+}

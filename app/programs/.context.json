@@ -1,0 +1,66 @@
+{
+  "module": "app/programs",
+  "description": "Página de programas de fidelidade e recompensas",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "framer-motion"
+  ],
+  "key_files": [
+    "app/programs/page.tsx",
+    "app/programs/ProgramsPage.tsx"
+  ],
+  "database_tables": [
+    "loyalty_points",
+    "rewards",
+    "user_rewards",
+    "achievements"
+  ],
+  "patterns": [
+    "gamification",
+    "reward-system",
+    "progress-tracking"
+  ],
+  "key_features": {
+    "points_balance": "Saldo de pontos atual",
+    "rewards_store": "Loja de recompensas",
+    "achievements": "Sistema de conquistas",
+    "leaderboard": "Ranking de usuários",
+    "tier_progress": "Progresso de nível",
+    "activity_history": "Histórico de atividades"
+  },
+  "program_sections": {
+    "dashboard": "Visão geral do programa",
+    "earn_points": "Como ganhar pontos",
+    "rewards": "Recompensas disponíveis",
+    "achievements": "Conquistas desbloqueadas",
+    "leaderboard": "Top usuários"
+  },
+  "point_system": {
+    "daily_login": 10,
+    "create_post": 20,
+    "receive_like": 2,
+    "complete_profile": 50,
+    "refer_friend": 100
+  },
+  "reward_types": {
+    "discounts": "Descontos em planos",
+    "features": "Features premium temporárias",
+    "badges": "Badges exclusivos",
+    "gifts": "Brindes físicos",
+    "experiences": "Experiências exclusivas"
+  },
+  "tier_system": {
+    "bronze": "0-999 pontos",
+    "silver": "1000-4999 pontos",
+    "gold": "5000-19999 pontos",
+    "platinum": "20000+ pontos"
+  },
+  "common_issues": [
+    "Sincronização de pontos",
+    "Expiração de recompensas",
+    "Cálculo de tier",
+    "Prevenção de abuso"
+  ]
+}

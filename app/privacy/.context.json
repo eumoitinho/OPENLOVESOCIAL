@@ -1,0 +1,52 @@
+{
+  "module": "app/privacy",
+  "description": "Página de política de privacidade e proteção de dados",
+  "dependencies": [
+    "react",
+    "@heroui/react"
+  ],
+  "key_files": [
+    "app/privacy/page.tsx"
+  ],
+  "patterns": [
+    "legal-document",
+    "markdown-content",
+    "table-of-contents"
+  ],
+  "key_sections": {
+    "data_collection": "Quais dados coletamos",
+    "data_usage": "Como usamos seus dados",
+    "data_sharing": "Compartilhamento de dados",
+    "user_rights": "Seus direitos (LGPD)",
+    "data_security": "Segurança dos dados",
+    "cookies": "Política de cookies",
+    "contact": "Contato do DPO"
+  },
+  "lgpd_compliance": {
+    "user_consent": "Consentimento explícito",
+    "data_portability": "Portabilidade de dados",
+    "right_to_deletion": "Direito ao esquecimento",
+    "data_correction": "Correção de dados",
+    "opt_out": "Opção de não participar"
+  },
+  "page_features": {
+    "search": "Busca no documento",
+    "print_friendly": "Versão para impressão",
+    "last_updated": "Data da última atualização",
+    "version_history": "Histórico de versões",
+    "language_selector": "Seletor de idioma"
+  },
+  "legal_requirements": [
+    "LGPD (Brasil)",
+    "GDPR (Europa)",
+    "CCPA (Califórnia)",
+    "Idade mínima",
+    "Dados sensíveis"
+  ],
+  "common_issues": [
+    "Manter atualizado com mudanças",
+    "Tradução para múltiplos idiomas",
+    "Clareza para usuários leigos",
+    "Conformidade internacional"
+  ]
+}

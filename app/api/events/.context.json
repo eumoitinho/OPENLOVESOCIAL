@@ -1,0 +1,121 @@
+{
+  "module": "api/events",
+  "description": "APIs para sistema de eventos, incluindo criação, busca por proximidade e participação",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod",
+    "date-fns",
+    "geolib"
+  ],
+  "key_files": [
+    "app/api/events/route.ts",
+    "app/api/events/nearby/route.ts"
+  ],
+  "database_tables": [
+    "events",
+    "event_participants",
+    "event_comments",
+    "event_photos",
+    "event_categories"
+  ],
+  "database_schema": {
+    "events": {
+      "description": "Eventos criados por usuários",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "creator_id": "UUID REFERENCES users(id)",
+        "title": "VARCHAR(200) NOT NULL",
+        "description": "TEXT",
+        "cover_image_url": "TEXT",
+        "start_date": "TIMESTAMP WITH TIME ZONE NOT NULL",
+        "end_date": "TIMESTAMP WITH TIME ZONE",
+        "location_name": "VARCHAR(255)",
+        "location_address": "TEXT",
+        "latitude": "DECIMAL(10, 8)",
+        "longitude": "DECIMAL(11, 8)",
+        "is_online": "BOOLEAN DEFAULT false",
+        "online_link": "TEXT",
+        "type": "VARCHAR(20) DEFAULT 'public' CHECK (type IN ('public', 'private', 'paid'))",
+        "category": "VARCHAR(50)",
+        "price": "DECIMAL(10,2)",
+        "max_participants": "INTEGER",
+        "min_age": "INTEGER",
+        "max_age": "INTEGER",
+        "tags": "TEXT[]",
+        "stats": "JSONB DEFAULT '{\"participants\": 0, \"interested\": 0, \"views\": 0}'",
+        "status": "VARCHAR(20) DEFAULT 'upcoming'",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "event_participants": {
+      "description": "Participantes dos eventos",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "event_id": "UUID REFERENCES events(id) ON DELETE CASCADE",
+        "user_id": "UUID REFERENCES users(id)",
+        "status": "VARCHAR(20) CHECK (status IN ('going', 'interested', 'not_going'))",
+        "check_in_at": "TIMESTAMP WITH TIME ZONE",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "UNIQUE": "(event_id, user_id)"
+      }
+    }
+  },
+  "patterns": [
+    "geospatial-search",
+    "calendar-integration",
+    "rsvp-system",
+    "reminder-notifications"
+  ],
+  "key_features": {
+    "event_types": "Públicos, privados e pagos",
+    "location_based": "Busca por proximidade geográfica",
+    "categories": "Categorização de eventos",
+    "rsvp": "Sistema de confirmação de presença",
+    "reminders": "Lembretes automáticos",
+    "check_in": "Check-in no local do evento",
+    "age_restrictions": "Restrições por idade",
+    "capacity_control": "Limite de participantes"
+  },
+  "api_endpoints": {
+    "POST /api/events": "Criar novo evento",
+    "GET /api/events": "Listar eventos com filtros",
+    "GET /api/events/nearby": "Eventos próximos por geolocalização",
+    "POST /api/events/[id]/join": "Participar do evento",
+    "POST /api/events/[id]/checkin": "Fazer check-in"
+  },
+  "event_limits": {
+    "free": {
+      "create_per_month": 1,
+      "participate": "unlimited"
+    },
+    "gold": {
+      "create_per_month": 3,
+      "participate": "unlimited",
+      "featured": false
+    },
+    "diamond": {
+      "create_per_month": 10,
+      "participate": "unlimited",
+      "featured": true
+    }
+  },
+  "geospatial_features": {
+    "nearby_radius": "50km default",
+    "location_search": "Por cidade/estado",
+    "map_view": "Visualização em mapa",
+    "directions": "Integração com maps"
+  },
+  "notification_triggers": [
+    "Novo evento na área",
+    "Lembrete 24h antes",
+    "Evento começando",
+    "Mudanças no evento",
+    "Novos participantes (amigos)"
+  ],
+  "common_issues": [
+    "Performance em queries geoespaciais",
+    "Sincronização de capacidade",
+    "Timezone handling",
+    "Notificações duplicadas"
+  ]
+}

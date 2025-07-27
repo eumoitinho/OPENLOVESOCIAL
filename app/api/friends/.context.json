@@ -1,0 +1,116 @@
+{
+  "module": "api/friends",
+  "description": "Sistema de amizades com solicitações, aprovações e sugestões",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod",
+    "ml-recommendations"
+  ],
+  "key_files": [
+    "app/api/friends/route.ts",
+    "app/api/friends/[userId]/route.ts",
+    "app/api/friends/request/route.ts",
+    "app/api/friends/requests/route.ts",
+    "app/api/friends/respond/route.ts",
+    "app/api/friends/suggestions/route.ts"
+  ],
+  "database_tables": [
+    "friendships",
+    "friend_requests",
+    "friend_suggestions",
+    "mutual_friends"
+  ],
+  "database_schema": {
+    "friendships": {
+      "description": "Relações de amizade confirmadas",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user1_id": "UUID REFERENCES users(id)",
+        "user2_id": "UUID REFERENCES users(id)",
+        "status": "VARCHAR(20) DEFAULT 'active'",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "UNIQUE": "(user1_id, user2_id)",
+        "CHECK": "user1_id < user2_id"
+      }
+    },
+    "friend_requests": {
+      "description": "Solicitações de amizade pendentes",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "from_user_id": "UUID REFERENCES users(id)",
+        "to_user_id": "UUID REFERENCES users(id)",
+        "message": "TEXT",
+        "status": "VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'rejected', 'cancelled'))",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "responded_at": "TIMESTAMP WITH TIME ZONE",
+        "UNIQUE": "(from_user_id, to_user_id)"
+      }
+    },
+    "friend_suggestions": {
+      "description": "Sugestões de amizade baseadas em ML",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "suggested_user_id": "UUID REFERENCES users(id)",
+        "score": "DECIMAL(3,2)",
+        "reasons": "JSONB",
+        "shown_at": "TIMESTAMP WITH TIME ZONE",
+        "action": "VARCHAR(20)",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    }
+  },
+  "patterns": [
+    "bidirectional-relationships",
+    "request-approval-flow",
+    "ml-recommendations",
+    "mutual-friends-calculation"
+  ],
+  "key_features": {
+    "friend_requests": "Sistema de solicitações com mensagem",
+    "mutual_friends": "Cálculo de amigos em comum",
+    "suggestions": "Sugestões baseadas em ML",
+    "privacy": "Apenas amigos veem conteúdo privado",
+    "notifications": "Notificações de novas solicitações",
+    "blocking": "Bloquear previne solicitações"
+  },
+  "api_endpoints": {
+    "GET /api/friends": "Listar amigos",
+    "POST /api/friends/request": "Enviar solicitação",
+    "GET /api/friends/requests": "Solicitações pendentes",
+    "POST /api/friends/respond": "Aceitar/rejeitar solicitação",
+    "DELETE /api/friends/[userId]": "Desfazer amizade",
+    "GET /api/friends/suggestions": "Sugestões de amizade"
+  },
+  "suggestion_algorithm": {
+    "factors": [
+      "Amigos em comum",
+      "Localização próxima",
+      "Interesses similares",
+      "Comunidades em comum",
+      "Padrões de interação"
+    ],
+    "scoring": "0.0 a 1.0",
+    "refresh": "Diariamente"
+  },
+  "limits": {
+    "max_friends": {
+      "free": 150,
+      "gold": 500,
+      "diamond": "unlimited"
+    },
+    "pending_requests": 50
+  },
+  "privacy_implications": [
+    "Amigos veem posts privados",
+    "Aparecem em 'amigos de amigos'",
+    "Podem ver localização (se permitido)",
+    "Recebem notificações de atividade"
+  ],
+  "common_issues": [
+    "Cálculo eficiente de amigos mútuos",
+    "Sugestões relevantes",
+    "Sincronização de contadores",
+    "Spam de solicitações"
+  ]
+}

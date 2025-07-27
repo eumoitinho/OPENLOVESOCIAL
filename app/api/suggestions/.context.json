@@ -1,0 +1,148 @@
+{
+  "module": "api/suggestions",
+  "description": "APIs para sugestões personalizadas usando ML e algoritmos de recomendação",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod",
+    "@tensorflow/tfjs",
+    "ml-recommendations"
+  ],
+  "key_files": [
+    "app/api/suggestions/users/route.ts",
+    "app/api/suggestions/content/route.ts",
+    "app/api/suggestions/communities/route.ts",
+    "app/api/suggestions/events/route.ts"
+  ],
+  "database_tables": [
+    "user_suggestions",
+    "suggestion_feedback",
+    "ml_user_embeddings",
+    "interaction_scores"
+  ],
+  "database_schema": {
+    "user_suggestions": {
+      "description": "Sugestões pré-computadas para usuários",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "suggestion_type": "VARCHAR(50)",
+        "suggested_id": "UUID",
+        "score": "DECIMAL(3,2)",
+        "reasons": "JSONB",
+        "shown_at": "TIMESTAMP WITH TIME ZONE",
+        "interacted": "BOOLEAN DEFAULT false",
+        "feedback": "VARCHAR(20)",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "ml_user_embeddings": {
+      "description": "Embeddings de usuários para ML",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id) UNIQUE",
+        "embedding": "VECTOR(256)",
+        "interests_vector": "VECTOR(128)",
+        "behavior_vector": "VECTOR(128)",
+        "updated_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    }
+  },
+  "patterns": [
+    "collaborative-filtering",
+    "content-based-filtering",
+    "hybrid-recommendations",
+    "real-time-personalization"
+  ],
+  "key_features": {
+    "personalized_feed": "Feed personalizado com ML",
+    "friend_suggestions": "Sugestões de amizade inteligentes",
+    "content_discovery": "Descoberta de conteúdo relevante",
+    "community_matching": "Comunidades compatíveis",
+    "event_recommendations": "Eventos baseados em interesses",
+    "similar_users": "Usuários com perfil similar",
+    "trending_personalized": "Trending personalizado"
+  },
+  "api_endpoints": {
+    "GET /api/suggestions/users": "Sugestões de usuários",
+    "GET /api/suggestions/content": "Conteúdo recomendado",
+    "GET /api/suggestions/communities": "Comunidades sugeridas",
+    "GET /api/suggestions/events": "Eventos recomendados",
+    "POST /api/suggestions/feedback": "Feedback sobre sugestões"
+  },
+  "ml_algorithms": {
+    "collaborative": {
+      "type": "Matrix Factorization",
+      "features": ["user_interactions", "implicit_feedback"],
+      "update_frequency": "daily"
+    },
+    "content_based": {
+      "type": "Neural Network",
+      "features": ["user_profile", "content_features", "engagement_history"],
+      "embedding_size": 256
+    },
+    "hybrid": {
+      "weight_collaborative": 0.6,
+      "weight_content": 0.4,
+      "contextual_bandits": true
+    }
+  },
+  "suggestion_factors": {
+    "users": [
+      "Interesses em comum",
+      "Localização",
+      "Amigos mútuos",
+      "Padrões de interação",
+      "Atividade similar"
+    ],
+    "content": [
+      "Histórico de visualização",
+      "Engajamento anterior",
+      "Trending no círculo social",
+      "Tópicos de interesse",
+      "Formato preferido"
+    ],
+    "communities": [
+      "Amigos membros",
+      "Tópicos relevantes",
+      "Nível de atividade",
+      "Tamanho ideal",
+      "Moderação quality"
+    ]
+  },
+  "personalization_features": {
+    "time_aware": "Considera horário e dia da semana",
+    "context_aware": "Adapta ao contexto atual",
+    "diversity_injection": "Evita filter bubble",
+    "exploration_rate": "15% conteúdo novo",
+    "negative_feedback": "Aprende com rejeições"
+  },
+  "feedback_signals": {
+    "explicit": ["like", "save", "follow", "join"],
+    "implicit": ["view_time", "scroll_depth", "profile_visits"],
+    "negative": ["hide", "report", "unfollow", "quick_skip"]
+  },
+  "cold_start_strategy": [
+    "Onboarding questionnaire",
+    "Popular content bootstrap",
+    "Similar user profiles",
+    "Rapid learning phase"
+  ],
+  "performance_optimizations": [
+    "Batch computation offline",
+    "Redis cache para sugestões",
+    "Approximate nearest neighbors",
+    "Edge computing para real-time"
+  ],
+  "privacy_considerations": [
+    "Dados anonimizados para ML",
+    "Opt-out de personalização",
+    "Transparência no algoritmo",
+    "Não usar dados sensíveis"
+  ],
+  "common_issues": [
+    "Cold start problem",
+    "Escalabilidade do ML",
+    "Feedback loop negativo",
+    "Diversidade vs relevância"
+  ]
+}

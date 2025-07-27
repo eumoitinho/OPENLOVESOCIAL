@@ -1,0 +1,64 @@
+{
+  "module": "app/components/analytics",
+  "description": "Componentes de visualização de dados e analytics",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "recharts",
+    "date-fns"
+  ],
+  "key_files": [
+    "app/components/analytics/AnalyticsDashboard.tsx",
+    "app/components/analytics/PlanStats.tsx",
+    "app/components/analytics/ProfileAnalytics.tsx"
+  ],
+  "database_tables": [
+    "analytics_events",
+    "user_stats",
+    "engagement_metrics"
+  ],
+  "patterns": [
+    "data-visualization",
+    "real-time-metrics",
+    "responsive-charts"
+  ],
+  "component_features": {
+    "AnalyticsDashboard": "Dashboard completo de métricas",
+    "PlanStats": "Estatísticas por plano de assinatura",
+    "ProfileAnalytics": "Analytics de perfil pessoal"
+  },
+  "chart_types": {
+    "line_charts": "Tendências temporais",
+    "bar_charts": "Comparações",
+    "pie_charts": "Distribuições",
+    "area_charts": "Volumes acumulados",
+    "heatmaps": "Mapas de calor"
+  },
+  "metrics_tracked": {
+    "engagement": "Likes, comments, shares",
+    "reach": "Views, impressions",
+    "growth": "Followers, friends",
+    "content": "Posts, stories",
+    "revenue": "Earnings, subscriptions"
+  },
+  "premium_analytics": {
+    "detailed_demographics": "Demografia detalhada",
+    "export_data": "Exportar dados",
+    "custom_date_ranges": "Períodos customizados",
+    "comparison_tools": "Ferramentas de comparação",
+    "predictions": "Previsões baseadas em ML"
+  },
+  "performance_optimizations": [
+    "Data aggregation",
+    "Lazy loading charts",
+    "Caching de queries",
+    "Responsive design"
+  ],
+  "common_issues": [
+    "Performance com muitos dados",
+    "Responsividade de gráficos",
+    "Real-time updates",
+    "Data accuracy"
+  ]
+}

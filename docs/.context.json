@@ -1,0 +1,74 @@
+{
+  "module": "docs",
+  "description": "Documentação completa do projeto OpenLove",
+  "subdirectories": [
+    "ai-instructions",
+    "context",
+    "database",
+    "dbdoc",
+    "guides"
+  ],
+  "key_files": [
+    "docs/README.md",
+    "docs/OPENLOVE_OVERVIEW.md",
+    "docs/DATABASE_SCHEMA.md",
+    "docs/AUTHENTICATION_SETUP.md",
+    "docs/AI_CONTEXT_ENGINEERING.md",
+    "docs/architecture.md",
+    "docs/conventions.md"
+  ],
+  "documentation_categories": {
+    "setup": {
+      "files": ["SETUP_ENVIRONMENT.md", "AUTHENTICATION_SETUP.md", "STRIPE_SETUP.md"],
+      "purpose": "Guias de configuração inicial"
+    },
+    "architecture": {
+      "files": ["architecture.md", "DATABASE_SCHEMA.md", "DATABASE_RELATIONSHIPS.md"],
+      "purpose": "Arquitetura e estrutura do sistema"
+    },
+    "features": {
+      "files": ["NOTIFICATION_SYSTEM.md", "LIKE_SYSTEM.md", "MEDIA_OPTIMIZATION.md"],
+      "purpose": "Documentação de funcionalidades"
+    },
+    "integrations": {
+      "files": ["STRIPE_INTEGRATION.md", "MERCADOPAGO_INTEGRATION.md", "ABACATEPAY_INTEGRATION.md"],
+      "purpose": "Integrações com serviços externos"
+    },
+    "guides": {
+      "files": ["QUICK_FIX_GUIDE.md", "DATABASE_DEVELOPER_GUIDE.md"],
+      "purpose": "Guias práticos para desenvolvimento"
+    },
+    "context": {
+      "files": ["AI_CONTEXT_ENGINEERING.md", "conventions.md"],
+      "purpose": "Context engineering e convenções"
+    }
+  },
+  "documentation_standards": {
+    "format": "Markdown com exemplos de código",
+    "structure": "Título, descrição, implementação, troubleshooting",
+    "code_examples": "Exemplos funcionais e testados",
+    "diagrams": "Diagramas quando necessário"
+  },
+  "ai_instructions": {
+    "purpose": "Templates para instruções de IA",
+    "templates": "Templates para novas features",
+    "context": "Contexto para assistentes de IA"
+  },
+  "database_docs": {
+    "schema": "Esquema completo do banco",
+    "relationships": "Relações entre tabelas",
+    "functions": "Funções e stored procedures",
+    "rls": "Políticas de Row Level Security"
+  },
+  "common_patterns": [
+    "Step-by-step guides",
+    "Code examples",
+    "Troubleshooting sections",
+    "Best practices"
+  ],
+  "maintenance": {
+    "update_frequency": "Atualizar com cada mudança maior",
+    "review_process": "Review antes de merge",
+    "version_tracking": "Versionamento de docs"
+  }
+}

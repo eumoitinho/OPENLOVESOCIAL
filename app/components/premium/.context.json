@@ -1,0 +1,83 @@
+{
+  "module": "app/components/premium",
+  "description": "Componentes para features e upsell premium",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "framer-motion"
+  ],
+  "key_files": [
+    "app/components/premium/PremiumAction.tsx",
+    "app/components/premium/PremiumBadge.tsx",
+    "app/components/premium/PremiumFeature.tsx",
+    "app/components/premium/PremiumFeatureShowcase.tsx",
+    "app/components/premium/PremiumLockBadge.tsx",
+    "app/components/premium/UsageIndicator.tsx",
+    "app/components/premium/UsageExample.tsx"
+  ],
+  "database_tables": [
+    "user_subscriptions",
+    "feature_usage",
+    "usage_limits"
+  ],
+  "patterns": [
+    "feature-gating",
+    "upsell-prompts",
+    "usage-tracking"
+  ],
+  "component_features": {
+    "PremiumAction": "Ação que requer premium",
+    "PremiumBadge": "Badge de status premium",
+    "PremiumFeature": "Feature com gate premium",
+    "PremiumFeatureShowcase": "Showcase de benefícios",
+    "PremiumLockBadge": "Badge de bloqueio visual",
+    "UsageIndicator": "Indicador de uso/limite",
+    "UsageExample": "Exemplo de uso premium"
+  },
+  "subscription_tiers": {
+    "free": {
+      "badge": "none",
+      "limits": "Recursos limitados"
+    },
+    "gold": {
+      "badge": "gold",
+      "benefits": "Recursos avançados"
+    },
+    "diamond": {
+      "badge": "diamond",
+      "benefits": "Tudo ilimitado"
+    }
+  },
+  "feature_gating": {
+    "soft_gate": "Mostra preview com upsell",
+    "hard_gate": "Bloqueia completamente",
+    "usage_limit": "Limite de uso mensal",
+    "trial": "Trial temporário"
+  },
+  "upsell_strategies": {
+    "contextual": "No momento de uso",
+    "benefit_focused": "Foco nos benefícios",
+    "social_proof": "Outros usuários premium",
+    "urgency": "Oferta limitada",
+    "comparison": "Comparar planos"
+  },
+  "usage_tracking": {
+    "feature_usage": "Uso por feature",
+    "limits_reached": "Limites atingidos",
+    "upgrade_prompts": "Prompts mostrados",
+    "conversion_rate": "Taxa de conversão"
+  },
+  "visual_indicators": {
+    "lock_icon": "Ícone de cadeado",
+    "blur_effect": "Efeito blur no conteúdo",
+    "badge_glow": "Brilho no badge premium",
+    "progress_bars": "Barras de uso"
+  },
+  "common_issues": [
+    "Feature flag sync",
+    "Usage limit calculation",
+    "Subscription status cache",
+    "Upsell frequency"
+  ]
+}

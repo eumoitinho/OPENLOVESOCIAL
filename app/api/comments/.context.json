@@ -1,0 +1,68 @@
+{
+  "module": "api/comments",
+  "description": "API para gerenciamento de comentários em posts, incluindo likes em comentários",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod"
+  ],
+  "key_files": [
+    "app/api/comments/[id]/like/route.ts"
+  ],
+  "database_tables": [
+    "comments",
+    "comment_likes"
+  ],
+  "database_schema": {
+    "comments": {
+      "description": "Comentários em posts",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "post_id": "UUID REFERENCES posts(id) ON DELETE CASCADE",
+        "user_id": "UUID REFERENCES users(id)",
+        "content": "TEXT NOT NULL",
+        "parent_id": "UUID REFERENCES comments(id)",
+        "stats": "JSONB DEFAULT '{\"likes\": 0, \"replies\": 0}'",
+        "is_edited": "BOOLEAN DEFAULT false",
+        "edited_at": "TIMESTAMP WITH TIME ZONE",
+        "is_deleted": "BOOLEAN DEFAULT false",
+        "deleted_at": "TIMESTAMP WITH TIME ZONE",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "updated_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "comment_likes": {
+      "description": "Likes em comentários",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "comment_id": "UUID REFERENCES comments(id) ON DELETE CASCADE",
+        "user_id": "UUID REFERENCES users(id)",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "UNIQUE": "(comment_id, user_id)"
+      }
+    }
+  },
+  "patterns": [
+    "nested-comments",
+    "soft-delete",
+    "optimistic-updates"
+  ],
+  "key_features": {
+    "nested_replies": "Respostas aninhadas em comentários",
+    "likes": "Sistema de curtidas em comentários",
+    "edit_history": "Rastreamento de edições",
+    "soft_delete": "Deleção suave mantém thread"
+  },
+  "api_endpoints": {
+    "POST /api/comments/[id]/like": "Curtir/descurtir comentário"
+  },
+  "validation_rules": {
+    "content": "1-1000 caracteres",
+    "max_depth": "3 níveis de respostas",
+    "edit_window": "5 minutos para editar"
+  },
+  "rls_policies": [
+    "Usuários podem criar comentários",
+    "Apenas autor pode editar/deletar",
+    "Comentários deletados mostram [deletado]"
+  ]
+}

@@ -1,0 +1,186 @@
+{
+  "module": "api/posts",
+  "description": "APIs principais para criação e gerenciamento de posts, incluindo subdiretórios para interações",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod",
+    "sharp",
+    "ffmpeg",
+    "@upstash/redis"
+  ],
+  "key_files": [
+    "app/api/posts/route.ts",
+    "app/api/posts/[id]/route.ts",
+    "app/api/posts/[id]/comments/route.ts",
+    "app/api/posts/[id]/like/route.ts",
+    "app/api/posts/[id]/share/route.ts",
+    "app/api/posts/save/route.ts",
+    "app/api/posts/poll/route.ts",
+    "app/api/posts/audio/route.ts"
+  ],
+  "database_tables": [
+    "posts",
+    "post_likes",
+    "comments",
+    "comment_likes",
+    "saved_posts",
+    "post_views",
+    "polls",
+    "poll_votes",
+    "hashtags",
+    "post_hashtags",
+    "mentions",
+    "post_media"
+  ],
+  "database_schema": {
+    "posts": {
+      "description": "Posts dos usuários com conteúdo e mídia",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id) NOT NULL",
+        "content": "TEXT",
+        "media_urls": "TEXT[]",
+        "media_types": "TEXT[]",
+        "location": "VARCHAR(255)",
+        "latitude": "DECIMAL(10, 8)",
+        "longitude": "DECIMAL(11, 8)",
+        "visibility": "VARCHAR(20) DEFAULT 'public' CHECK (visibility IN ('public', 'friends', 'private'))",
+        "is_premium_content": "BOOLEAN DEFAULT false",
+        "price": "DECIMAL(10, 2)",
+        "type": "VARCHAR(20) DEFAULT 'post' CHECK (type IN ('post', 'story', 'reel'))",
+        "stats": "JSONB DEFAULT '{\"likes\": 0, \"comments\": 0, \"shares\": 0, \"views\": 0}'",
+        "is_deleted": "BOOLEAN DEFAULT false",
+        "deleted_at": "TIMESTAMP WITH TIME ZONE",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "updated_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "post_likes": {
+      "description": "Likes/curtidas em posts",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "post_id": "UUID REFERENCES posts(id) ON DELETE CASCADE",
+        "user_id": "UUID REFERENCES users(id)",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "UNIQUE": "(post_id, user_id)"
+      }
+    },
+    "comments": {
+      "description": "Comentários em posts",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "post_id": "UUID REFERENCES posts(id) ON DELETE CASCADE",
+        "user_id": "UUID REFERENCES users(id)",
+        "content": "TEXT NOT NULL",
+        "parent_id": "UUID REFERENCES comments(id)",
+        "stats": "JSONB DEFAULT '{\"likes\": 0, \"replies\": 0}'",
+        "is_deleted": "BOOLEAN DEFAULT false",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "updated_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "polls": {
+      "description": "Enquetes criadas em posts",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "post_id": "UUID REFERENCES posts(id) ON DELETE CASCADE",
+        "question": "TEXT NOT NULL",
+        "options": "JSONB NOT NULL",
+        "allow_multiple": "BOOLEAN DEFAULT false",
+        "ends_at": "TIMESTAMP WITH TIME ZONE",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "poll_votes": {
+      "description": "Votos em enquetes",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "poll_id": "UUID REFERENCES polls(id) ON DELETE CASCADE",
+        "user_id": "UUID REFERENCES users(id)",
+        "option_index": "INTEGER NOT NULL",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "UNIQUE": "(poll_id, user_id, option_index)"
+      }
+    }
+  },
+  "patterns": [
+    "optimistic-updates",
+    "infinite-scroll",
+    "media-optimization",
+    "content-moderation",
+    "engagement-tracking"
+  ],
+  "related_modules": [
+    "timeline",
+    "media",
+    "notifications",
+    "search",
+    "trending"
+  ],
+  "key_features": {
+    "rich_content": "Posts com texto, mídia, localização e enquetes",
+    "media_support": "Upload de múltiplas imagens, vídeos e áudio",
+    "interactions": "Sistema completo de likes, comentários e compartilhamentos",
+    "polls": "Criação de enquetes interativas (premium)",
+    "audio_recording": "Gravação de áudio direto no app (premium)",
+    "hashtags": "Sistema de hashtags para descoberta",
+    "mentions": "Mencionar outros usuários com @",
+    "save_posts": "Salvar posts favoritos",
+    "premium_content": "Conteúdo pago/exclusivo",
+    "stories": "Posts temporários de 24h"
+  },
+  "api_endpoints": {
+    "POST /api/posts": "Criar novo post",
+    "GET /api/posts": "Listar posts (com filtros)",
+    "GET /api/posts/[id]": "Obter post específico",
+    "PUT /api/posts/[id]": "Atualizar post",
+    "DELETE /api/posts/[id]": "Deletar post",
+    "POST /api/posts/[id]/like": "Curtir/descurtir post",
+    "GET /api/posts/[id]/comments": "Listar comentários",
+    "POST /api/posts/[id]/comments": "Adicionar comentário",
+    "POST /api/posts/[id]/share": "Compartilhar post",
+    "POST /api/posts/save": "Salvar/remover dos favoritos",
+    "POST /api/posts/poll": "Criar enquete",
+    "POST /api/posts/poll/[id]/vote": "Votar em enquete"
+  },
+  "media_handling": {
+    "images": "Otimização com Sharp, múltiplos tamanhos",
+    "videos": "Compressão com FFmpeg, thumbnail automático",
+    "audio": "Conversão para MP3, waveform visual",
+    "max_sizes": {
+      "image": "10MB",
+      "video": "100MB (premium: 500MB)",
+      "audio": "50MB"
+    }
+  },
+  "common_issues": [
+    "Upload de arquivos grandes",
+    "Sincronização de contadores",
+    "Moderação de conteúdo inapropriado",
+    "Otimização de timeline para muitos posts",
+    "Detecção de spam e bots"
+  ],
+  "performance_considerations": [
+    "Cache de posts populares com Redis",
+    "Lazy loading de imagens/vídeos",
+    "Paginação cursor-based",
+    "Denormalização de contadores",
+    "CDN para arquivos de mídia",
+    "Queue para processamento de mídia"
+  ],
+  "security_notes": [
+    "Validação de tipo de arquivo",
+    "Verificação de tamanho máximo",
+    "Sanitização de HTML/Markdown",
+    "Rate limiting por usuário",
+    "Verificação de permissões em conteúdo premium",
+    "Proteção contra XSS em comentários"
+  ],
+  "rls_policies": [
+    "Posts públicos visíveis para todos",
+    "Posts privados apenas para amigos/seguidores",
+    "Apenas autor pode editar/deletar",
+    "Conteúdo premium requer pagamento",
+    "Moderadores podem ocultar conteúdo"
+  ]
+}

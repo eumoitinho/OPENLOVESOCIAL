@@ -1,0 +1,118 @@
+{
+  "module": "app/components",
+  "description": "Biblioteca de componentes reutilizáveis da aplicação",
+  "dependencies": [
+    "@heroui/react",
+    "@radix-ui/react-*",
+    "lucide-react",
+    "framer-motion",
+    "react-hook-form",
+    "zod",
+    "class-variance-authority",
+    "tailwindcss"
+  ],
+  "subdirectories": {
+    "ads": "Componentes de publicidade e anúncios",
+    "analytics": "Dashboards e visualizações de dados",
+    "auth": "Componentes de autenticação e AuthProvider",
+    "chat": "Interface de chat e mensagens",
+    "communities": "Componentes de comunidades",
+    "events": "Cards e listagens de eventos",
+    "explore": "Descoberta de perfis e conteúdo",
+    "friends": "Sistema de amizades",
+    "interactions": "Botões de like, share, follow",
+    "location": "Seletores de localização",
+    "media": "Upload e galeria de mídia",
+    "moderation": "Ferramentas de moderação",
+    "navigation": "Navegação e menus",
+    "notifications": "Sistema de notificações",
+    "premium": "Componentes de recursos premium",
+    "profile": "Componentes de perfil",
+    "search": "Busca avançada",
+    "security": "Componentes de segurança",
+    "settings": "Configurações de usuário",
+    "timeline": "Feed e posts",
+    "ui": "Componentes UI base",
+    "upgrade": "Fluxos de upgrade"
+  },
+  "patterns": [
+    "compound-components",
+    "render-props",
+    "custom-hooks",
+    "controlled-components",
+    "accessibility-first",
+    "responsive-design"
+  ],
+  "design_system": {
+    "colors": "Tailwind com temas claro/escuro",
+    "typography": "Sistema de tipos consistente",
+    "spacing": "8px grid system",
+    "shadows": "Elevação material design",
+    "animations": "Framer Motion",
+    "icons": "Lucide React"
+  },
+  "key_components": {
+    "AuthProvider": "Context de autenticação global",
+    "Timeline": "Feed principal com posts",
+    "PostCard": "Card de post reutilizável",
+    "ChatInterface": "Interface completa de chat",
+    "ProfileCard": "Card de perfil de usuário",
+    "MediaUpload": "Upload otimizado de mídia",
+    "NotificationCenter": "Central de notificações",
+    "PaymentProvider": "Integração de pagamentos"
+  },
+  "component_structure": {
+    "naming": "PascalCase para componentes",
+    "files": "Um componente por arquivo",
+    "exports": "Named exports preferencialmente",
+    "props": "Interfaces TypeScript explícitas",
+    "styling": "Tailwind classes com cn()"
+  },
+  "common_patterns": {
+    "loading_states": "Skeletons e spinners",
+    "error_boundaries": "Tratamento de erros graceful",
+    "empty_states": "Estados vazios informativos",
+    "optimistic_ui": "Atualizações otimistas",
+    "infinite_scroll": "Scroll infinito com intersection observer"
+  },
+  "accessibility": {
+    "aria_labels": "Labels adequados em todos elementos",
+    "keyboard_nav": "Navegação completa por teclado",
+    "focus_management": "Focus traps em modais",
+    "screen_readers": "Compatível com leitores de tela",
+    "color_contrast": "WCAG AA compliance"
+  },
+  "performance": {
+    "lazy_loading": "Dynamic imports para componentes pesados",
+    "memoization": "React.memo em componentes puros",
+    "virtualization": "Lista virtual para grandes datasets",
+    "image_optimization": "next/image com lazy loading",
+    "code_splitting": "Separação automática por rota"
+  },
+  "testing_approach": {
+    "unit_tests": "Jest + React Testing Library",
+    "integration": "Cypress para fluxos críticos",
+    "visual_regression": "Storybook + Chromatic",
+    "accessibility": "axe-core automated tests"
+  },
+  "state_management": {
+    "local": "useState e useReducer",
+    "global": "Context API + Zustand",
+    "server": "React Query / SWR",
+    "forms": "React Hook Form + Zod"
+  },
+  "common_issues": [
+    "Hidratação em SSR/CSR",
+    "Memory leaks em subscriptions",
+    "Performance em listas grandes",
+    "Sincronização de estado",
+    "Tipos TypeScript complexos"
+  ],
+  "best_practices": [
+    "Componentes pequenos e focados",
+    "Props drilling evitado com Context",
+    "Memoização quando necessário",
+    "Error boundaries em componentes críticos",
+    "Loading states sempre presentes"
+  ]
+}

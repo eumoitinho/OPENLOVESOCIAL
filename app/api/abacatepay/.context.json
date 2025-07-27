@@ -1,0 +1,81 @@
+{
+  "module": "api/abacatepay",
+  "description": "Integração com gateway de pagamento AbacatePay para processar pagamentos via PIX e boleto",
+  "dependencies": [
+    "abacatepay-nodejs-sdk",
+    "zod",
+    "@supabase/supabase-js"
+  ],
+  "key_files": [
+    "app/api/abacatepay/checkout/route.ts",
+    "app/api/abacatepay/webhook/route.ts"
+  ],
+  "database_tables": [
+    "transactions",
+    "subscriptions",
+    "payment_methods",
+    "webhook_logs"
+  ],
+  "database_schema": {
+    "transactions": {
+      "description": "Transações processadas via AbacatePay",
+      "columns": {
+        "id": "UUID PRIMARY KEY",
+        "user_id": "UUID REFERENCES users(id)",
+        "provider": "VARCHAR(20) DEFAULT 'abacatepay'",
+        "provider_transaction_id": "VARCHAR(255)",
+        "type": "VARCHAR(20) CHECK (type IN ('payment', 'refund'))",
+        "method": "VARCHAR(20) CHECK (method IN ('pix', 'boleto'))",
+        "amount": "DECIMAL(10,2)",
+        "currency": "VARCHAR(3) DEFAULT 'BRL'",
+        "status": "VARCHAR(20)",
+        "pix_qr_code": "TEXT",
+        "pix_qr_code_base64": "TEXT",
+        "pix_copy_paste": "TEXT",
+        "boleto_url": "TEXT",
+        "metadata": "JSONB",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    }
+  },
+  "patterns": [
+    "webhook-validation",
+    "idempotency-keys",
+    "retry-mechanism",
+    "error-handling"
+  ],
+  "key_features": {
+    "pix_payment": "Pagamento instantâneo via PIX com QR Code",
+    "boleto": "Geração de boletos bancários",
+    "webhook_handling": "Processamento de webhooks de status",
+    "refunds": "Sistema de reembolso",
+    "payment_status": "Tracking de status em tempo real"
+  },
+  "api_endpoints": {
+    "POST /api/abacatepay/checkout": "Criar nova cobrança",
+    "POST /api/abacatepay/webhook": "Receber atualizações de pagamento"
+  },
+  "webhook_events": [
+    "billing.paid",
+    "billing.expired",
+    "billing.cancelled",
+    "billing.refunded"
+  ],
+  "configuration": {
+    "api_key": "ABACATEPAY_API_KEY",
+    "webhook_secret": "ABACATEPAY_WEBHOOK_SECRET",
+    "environment": "sandbox/production"
+  },
+  "common_issues": [
+    "URLs públicas necessárias para webhooks",
+    "Timeout em geração de QR Code",
+    "Validação de CPF/CNPJ",
+    "Limite de valor por transação"
+  ],
+  "security_notes": [
+    "Validação de assinatura em webhooks",
+    "Rate limiting por CPF",
+    "Logs de todas transações",
+    "Não expor chaves de API"
+  ]
+}

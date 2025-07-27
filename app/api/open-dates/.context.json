@@ -1,0 +1,128 @@
+{
+  "module": "api/open-dates",
+  "description": "Sistema de encontros e matchmaking com disponibilidade de agenda",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod",
+    "date-fns",
+    "ml-matching-algorithm"
+  ],
+  "key_files": [
+    "app/api/open-dates/route.ts",
+    "app/api/open-dates/availability/route.ts",
+    "app/api/open-dates/matches/route.ts",
+    "app/api/open-dates/preferences/route.ts"
+  ],
+  "database_tables": [
+    "date_availability",
+    "date_preferences",
+    "date_matches",
+    "date_proposals",
+    "date_feedback"
+  ],
+  "database_schema": {
+    "date_availability": {
+      "description": "Disponibilidade para encontros",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "date": "DATE NOT NULL",
+        "time_slots": "JSONB NOT NULL",
+        "location_preference": "VARCHAR(100)",
+        "max_distance_km": "INTEGER DEFAULT 10",
+        "activity_types": "TEXT[]",
+        "is_available": "BOOLEAN DEFAULT true",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "date_preferences": {
+      "description": "Preferências de encontros do usuário",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id) UNIQUE",
+        "looking_for": "VARCHAR(50) CHECK (looking_for IN ('friendship', 'casual', 'serious', 'any'))",
+        "gender_preference": "VARCHAR(50)",
+        "age_range_min": "INTEGER",
+        "age_range_max": "INTEGER",
+        "interests": "TEXT[]",
+        "deal_breakers": "TEXT[]",
+        "preferred_activities": "JSONB",
+        "personality_traits": "JSONB",
+        "updated_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "date_matches": {
+      "description": "Matches entre usuários com disponibilidade compatível",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user1_id": "UUID REFERENCES users(id)",
+        "user2_id": "UUID REFERENCES users(id)",
+        "match_score": "DECIMAL(3,2)",
+        "compatible_dates": "JSONB",
+        "status": "VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'rejected', 'expired'))",
+        "expires_at": "TIMESTAMP WITH TIME ZONE",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "UNIQUE": "(user1_id, user2_id)"
+      }
+    }
+  },
+  "patterns": [
+    "availability-matching",
+    "ml-compatibility-scoring",
+    "real-time-notifications",
+    "privacy-first-dating"
+  ],
+  "key_features": {
+    "smart_matching": "IA para compatibilidade baseada em interesses e personalidade",
+    "calendar_sync": "Sincronização com calendário pessoal",
+    "safe_dates": "Sugestões de locais públicos e seguros",
+    "ice_breakers": "Sugestões de tópicos de conversa",
+    "video_dates": "Opção de encontros virtuais primeiro",
+    "group_dates": "Encontros em grupo para menos pressão",
+    "activity_based": "Matches baseados em atividades em comum"
+  },
+  "api_endpoints": {
+    "POST /api/open-dates/availability": "Definir disponibilidade",
+    "GET /api/open-dates/matches": "Ver matches compatíveis",
+    "POST /api/open-dates/propose": "Propor encontro",
+    "POST /api/open-dates/preferences": "Atualizar preferências"
+  },
+  "matching_algorithm": {
+    "factors": [
+      "Disponibilidade de agenda compatível",
+      "Proximidade geográfica",
+      "Interesses em comum",
+      "Compatibilidade de personalidade",
+      "Preferências de atividades",
+      "Histórico de feedback"
+    ],
+    "scoring": "0.0 a 1.0 com peso configurável",
+    "ml_model": "Collaborative filtering + content-based"
+  },
+  "safety_features": [
+    "Verificação de identidade obrigatória",
+    "Locais públicos recomendados",
+    "Compartilhar localização com amigo de confiança",
+    "Botão de pânico no app",
+    "Background check opcional",
+    "Video call antes do encontro presencial"
+  ],
+  "date_suggestions": {
+    "categories": ["café", "restaurante", "cultural", "esportivo", "ar_livre", "entretenimento"],
+    "personalization": "Baseado em interesses mútuos",
+    "weather_aware": "Considera previsão do tempo",
+    "budget_friendly": "Opções por faixa de preço"
+  },
+  "premium_features": {
+    "unlimited_matches": "Matches ilimitados por dia",
+    "advanced_filters": "Filtros avançados de preferência",
+    "see_who_liked": "Ver quem demonstrou interesse",
+    "boost_profile": "Maior visibilidade no algoritmo"
+  },
+  "common_issues": [
+    "Balanceamento de gênero nos matches",
+    "Prevenção de ghosting",
+    "Compatibilidade de agenda real",
+    "Privacidade vs descoberta"
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "module": "app/planoativado/diamante",
+  "description": "Página de confirmação de ativação do plano Diamond",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "framer-motion",
+    "confetti",
+    "lottie-react"
+  ],
+  "key_files": [
+    "app/planoativado/diamante/page.tsx"
+  ],
+  "patterns": [
+    "vip-experience",
+    "premium-onboarding",
+    "exclusive-access"
+  ],
+  "key_features": {
+    "vip_welcome": "Experiência VIP de boas-vindas",
+    "diamond_animation": "Animação premium do badge",
+    "exclusive_access": "Acesso a recursos exclusivos",
+    "personal_concierge": "Apresentação do suporte VIP",
+    "early_access": "Preview de novos recursos"
+  },
+  "diamond_benefits": {
+    "everything_unlimited": "Tudo ilimitado",
+    "no_limits": "Sem limites em nada",
+    "vip_support": "Suporte VIP 24/7",
+    "early_features": "Acesso antecipado",
+    "exclusive_events": "Eventos exclusivos",
+    "ai_advanced": "IA avançada",
+    "custom_features": "Features customizadas"
+  },
+  "vip_experience": {
+    "welcome_video": "Vídeo personalizado do CEO",
+    "vip_badge": "Badge diamante animado",
+    "exclusive_theme": "Tema exclusivo Diamond",
+    "priority_everything": "Prioridade em tudo"
+  },
+  "page_sections": {
+    "vip_hero": "Bem-vindo ao clube Diamond",
+    "exclusive_benefits": "Benefícios exclusivos",
+    "vip_community": "Comunidade Diamond",
+    "concierge": "Seu suporte dedicado",
+    "whats_next": "Novidades exclusivas"
+  },
+  "engagement_features": {
+    "share_status": "Compartilhar status Diamond",
+    "refer_vip": "Programa de indicação VIP",
+    "exclusive_content": "Conteúdo só para Diamond",
+    "beta_access": "Acesso a features beta"
+  },
+  "common_issues": [
+    "Ativação de todos os benefícios",
+    "Sincronização do status VIP",
+    "Performance das animações premium",
+    "Acesso ao suporte dedicado"
+  ]
+}

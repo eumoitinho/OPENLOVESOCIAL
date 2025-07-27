@@ -1,0 +1,76 @@
+{
+  "module": "app/timeline",
+  "description": "Timeline principal - o coração da aplicação social",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "framer-motion",
+    "react-intersection-observer"
+  ],
+  "key_files": [
+    "app/timeline/page.tsx",
+    "app/timeline/TimelineClient.tsx"
+  ],
+  "database_tables": [
+    "posts",
+    "timeline_events",
+    "feed_preferences"
+  ],
+  "patterns": [
+    "infinite-scroll",
+    "real-time-updates",
+    "optimistic-ui",
+    "feed-algorithm"
+  ],
+  "key_features": {
+    "personalized_feed": "Feed personalizado por ML",
+    "create_post": "Criar posts inline",
+    "real_time": "Atualizações em tempo real",
+    "stories": "Stories no topo",
+    "multiple_views": "For You / Following",
+    "interactions": "Like, comment, share",
+    "media_viewer": "Visualizador de mídia"
+  },
+  "timeline_sections": {
+    "stories_bar": "Barra de stories no topo",
+    "create_post": "Box de criação rápida",
+    "feed_tabs": "Abas For You/Following",
+    "post_cards": "Cards de posts",
+    "sidebar": "Sugestões e trending",
+    "right_sidebar": "Eventos e anúncios"
+  },
+  "feed_algorithms": {
+    "for_you": "ML-based personalization",
+    "following": "Chronological from follows",
+    "trending": "Viral and popular content",
+    "recent": "Most recent first"
+  },
+  "post_features": {
+    "rich_text": "Formatação rica",
+    "media_gallery": "Múltiplas imagens/vídeos",
+    "polls": "Enquetes interativas",
+    "location": "Tag de localização",
+    "mentions": "Mencionar usuários",
+    "hashtags": "Hashtags clicáveis"
+  },
+  "real_time_features": {
+    "new_posts": "Indicador de novos posts",
+    "live_comments": "Comentários ao vivo",
+    "typing_indicators": "Quem está digitando",
+    "online_status": "Status online de amigos"
+  },
+  "performance_optimizations": [
+    "Virtual scrolling",
+    "Image lazy loading",
+    "Post caching",
+    "Debounced interactions",
+    "Skeleton loading"
+  ],
+  "common_issues": [
+    "Feed não atualiza",
+    "Posts duplicados",
+    "Performance com muitos posts",
+    "Sincronização entre abas"
+  ]
+}

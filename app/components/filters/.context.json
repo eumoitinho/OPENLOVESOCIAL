@@ -1,0 +1,59 @@
+{
+  "module": "app/components/filters",
+  "description": "Componentes de filtros reutilizáveis",
+  "dependencies": [
+    "react",
+    "@heroui/react",
+    "react-hook-form"
+  ],
+  "key_files": [
+    "app/components/filters/DistanceFilter.tsx",
+    "app/components/filters/FilterSelector.tsx"
+  ],
+  "patterns": [
+    "controlled-components",
+    "filter-composition",
+    "state-management"
+  ],
+  "component_features": {
+    "DistanceFilter": "Filtro de distância/proximidade",
+    "FilterSelector": "Seletor genérico de filtros"
+  },
+  "filter_types": {
+    "range": "Filtros de intervalo (idade, distância)",
+    "select": "Seleção única/múltipla",
+    "toggle": "Filtros booleanos",
+    "search": "Filtros de texto",
+    "date": "Filtros de data/período"
+  },
+  "distance_filter_features": {
+    "radius_selection": "Seleção de raio em km",
+    "current_location": "Usar localização atual",
+    "custom_location": "Escolher localização",
+    "unit_conversion": "km/milhas"
+  },
+  "filter_persistence": {
+    "local_storage": "Salvar preferências localmente",
+    "url_params": "Filtros na URL",
+    "user_preferences": "Salvar no perfil",
+    "reset_option": "Limpar todos os filtros"
+  },
+  "ui_patterns": {
+    "dropdown": "Filtros em dropdown",
+    "sidebar": "Barra lateral de filtros",
+    "modal": "Modal de filtros avançados",
+    "chips": "Chips de filtros ativos"
+  },
+  "performance_considerations": [
+    "Debounce de mudanças",
+    "Lazy application",
+    "Optimistic UI",
+    "Cache de resultados"
+  ],
+  "common_issues": [
+    "State synchronization",
+    "Filter combination logic",
+    "Performance com muitos filtros",
+    "Mobile responsiveness"
+  ]
+}

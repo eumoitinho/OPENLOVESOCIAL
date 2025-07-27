@@ -1,0 +1,52 @@
+{
+  "module": "api/posts/[id]/like",
+  "description": "API para sistema de curtidas/likes em posts",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod"
+  ],
+  "key_files": [
+    "app/api/posts/[id]/like/route.ts"
+  ],
+  "database_tables": [
+    "post_likes",
+    "like_notifications"
+  ],
+  "database_schema": {
+    "post_likes": {
+      "description": "Registro de curtidas em posts",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "post_id": "UUID REFERENCES posts(id) ON DELETE CASCADE",
+        "user_id": "UUID REFERENCES users(id)",
+        "reaction_type": "VARCHAR(20) DEFAULT 'like'",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "UNIQUE": "(post_id, user_id)"
+      }
+    }
+  },
+  "patterns": [
+    "optimistic-ui",
+    "debounced-requests",
+    "real-time-counter-sync"
+  ],
+  "key_features": {
+    "instant_feedback": "UI otimista para resposta instantânea",
+    "reaction_types": "Diferentes tipos de reações (futuro)",
+    "counter_sync": "Sincronização de contadores em tempo real",
+    "notifications": "Notificação ao autor do post"
+  },
+  "api_endpoints": {
+    "POST /api/posts/[id]/like": "Toggle like/unlike"
+  },
+  "performance": {
+    "debounce": "300ms para evitar spam",
+    "batch_updates": "Atualização em lote de contadores",
+    "cache": "Cache de status de like"
+  },
+  "common_issues": [
+    "Race conditions em múltiplos cliques",
+    "Sincronização de contadores",
+    "Performance com posts virais"
+  ]
+}

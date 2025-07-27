@@ -1,0 +1,67 @@
+{
+  "module": "supabase",
+  "description": "Configuração e migrações do Supabase",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "postgresql"
+  ],
+  "subdirectories": [
+    "migrations"
+  ],
+  "key_files": [
+    "supabase/client.ts",
+    "supabase/server.ts",
+    "supabase/middleware.ts"
+  ],
+  "patterns": [
+    "database-migrations",
+    "client-configuration",
+    "middleware-setup"
+  ],
+  "supabase_clients": {
+    "client": "Cliente para uso no browser",
+    "server": "Cliente para uso no servidor",
+    "admin": "Cliente admin com service role key"
+  },
+  "migrations": {
+    "location": "supabase/migrations/",
+    "naming": "timestamp_description.sql",
+    "order": "Executadas em ordem cronológica",
+    "rollback": "Não suportado nativamente"
+  },
+  "database_features": {
+    "tables": "70+ tabelas principais",
+    "rls": "Row Level Security em todas tabelas",
+    "functions": "Funções para lógica complexa",
+    "triggers": "Triggers para automação",
+    "views": "Views para queries complexas"
+  },
+  "key_migrations": {
+    "initial": "Schema inicial do banco",
+    "rls_policies": "Políticas de segurança",
+    "functions": "Funções do banco",
+    "fixes": "Correções e ajustes"
+  },
+  "configuration": {
+    "env_vars": {
+      "NEXT_PUBLIC_SUPABASE_URL": "URL do projeto",
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY": "Chave anônima",
+      "SUPABASE_SERVICE_ROLE_KEY": "Chave de serviço"
+    },
+    "auth": "Configuração de autenticação",
+    "storage": "Buckets para arquivos",
+    "realtime": "Subscriptions em tempo real"
+  },
+  "security": {
+    "rls": "Todas tabelas com RLS",
+    "policies": "Políticas por role",
+    "auth": "Integração com Auth",
+    "encryption": "Dados sensíveis criptografados"
+  },
+  "common_issues": [
+    "RLS policy conflicts",
+    "Migration order dependencies",
+    "Type generation sync",
+    "Connection pool limits"
+  ]
+}

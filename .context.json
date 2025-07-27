@@ -1,0 +1,78 @@
+{
+  "module": "root",
+  "description": "OpenLove - Rede social com memórias afetivas e IA",
+  "tech_stack": {
+    "frontend": "Next.js 15, React 19, TypeScript",
+    "styling": "Tailwind CSS, Hero UI, shadcn/ui",
+    "backend": "Supabase (PostgreSQL, Auth, Storage, Realtime)",
+    "payments": "Stripe, MercadoPago, AbacatePay",
+    "deployment": "Vercel/Docker",
+    "testing": "Jest, React Testing Library"
+  },
+  "key_files": [
+    "package.json",
+    "next.config.mjs",
+    "tailwind.config.ts",
+    "tsconfig.json",
+    "middleware.ts",
+    "CLAUDE.md",
+    "README.md"
+  ],
+  "project_structure": {
+    "app": "Next.js App Router com páginas e API",
+    "components": "Componentes compartilhados (shadcn/ui)",
+    "lib": "Utilitários e configurações",
+    "types": "Definições TypeScript globais",
+    "public": "Assets estáticos",
+    "supabase": "Migrações e configuração DB",
+    "docs": "Documentação completa",
+    "scripts": "Scripts de manutenção"
+  },
+  "core_features": {
+    "social": "Timeline, posts, likes, comentários",
+    "messaging": "Chat em tempo real com WebRTC",
+    "communities": "Comunidades e grupos",
+    "events": "Eventos com geolocalização",
+    "premium": "Sistema freemium (Free, Gold, Diamond)",
+    "ai": "Recomendações e análise de memórias"
+  },
+  "payment_system": {
+    "plans": ["Free", "Gold ($29.90)", "Diamond ($59.90)"],
+    "providers": ["Stripe (internacional)", "MercadoPago (BR)", "AbacatePay (PIX)"],
+    "features": "Limites por plano, upsell contextual"
+  },
+  "development": {
+    "commands": {
+      "dev": "pnpm dev",
+      "build": "pnpm build",
+      "test": "pnpm test",
+      "lint": "pnpm lint"
+    },
+    "environment": ".env.local com chaves Supabase/Stripe",
+    "database": "Supabase com 70+ tabelas e RLS"
+  },
+  "architecture_patterns": [
+    "Server Components by default",
+    "Client Components quando necessário",
+    "API Routes para webhooks",
+    "Edge Functions para performance"
+  ],
+  "security": {
+    "auth": "Supabase Auth com OAuth",
+    "rls": "Row Level Security em todas tabelas",
+    "encryption": "Dados sensíveis criptografados",
+    "compliance": "LGPD/GDPR ready"
+  },
+  "deployment": {
+    "hosting": "Vercel (recomendado) ou Docker",
+    "database": "Supabase hosted",
+    "storage": "Supabase Storage com CDN",
+    "monitoring": "Vercel Analytics"
+  },
+  "context_engineering": {
+    "approach": "Arquivos .context.json por módulo",
+    "documentation": "Docs estruturados em /docs",
+    "conventions": "Padrões em conventions.md",
+    "ai_friendly": "Otimizado para assistentes de IA"
+  }
+}

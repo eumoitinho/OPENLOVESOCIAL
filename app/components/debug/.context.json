@@ -1,0 +1,53 @@
+{
+  "module": "app/components/debug",
+  "description": "Componentes de debug e desenvolvimento",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react"
+  ],
+  "key_files": [
+    "app/components/debug/AuthDebug.tsx",
+    "app/components/debug/ProfileDebug.tsx"
+  ],
+  "patterns": [
+    "development-tools",
+    "state-inspection",
+    "error-boundary"
+  ],
+  "debug_features": {
+    "AuthDebug": "Debug de estado de autenticação",
+    "ProfileDebug": "Debug de dados do perfil"
+  },
+  "debug_info": {
+    "auth_state": "Estado atual de auth",
+    "user_data": "Dados do usuário",
+    "session_info": "Informações da sessão",
+    "permissions": "Permissões e roles",
+    "api_calls": "Chamadas de API"
+  },
+  "development_only": {
+    "condition": "process.env.NODE_ENV === 'development'",
+    "visibility": "Apenas em desenvolvimento",
+    "production": "Removido em produção"
+  },
+  "debug_tools": [
+    "State inspector",
+    "API call logger",
+    "Performance monitor",
+    "Error tracker",
+    "Session viewer"
+  ],
+  "security_notes": [
+    "Nunca expor em produção",
+    "Não incluir dados sensíveis",
+    "Usar apenas para desenvolvimento",
+    "Remover antes do deploy"
+  ],
+  "common_uses": [
+    "Troubleshooting auth issues",
+    "Verificar dados do usuário",
+    "Debug de permissões",
+    "Monitorar API calls"
+  ]
+}

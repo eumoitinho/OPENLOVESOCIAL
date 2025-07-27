@@ -1,0 +1,158 @@
+{
+  "module": "api/programs",
+  "description": "APIs para programas de fidelidade, recompensas e gamificação",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod"
+  ],
+  "key_files": [
+    "app/api/programs/route.ts",
+    "app/api/programs/points/route.ts",
+    "app/api/programs/rewards/route.ts",
+    "app/api/programs/achievements/route.ts"
+  ],
+  "database_tables": [
+    "loyalty_points",
+    "rewards",
+    "user_rewards",
+    "achievements",
+    "user_achievements",
+    "program_tiers"
+  ],
+  "database_schema": {
+    "loyalty_points": {
+      "description": "Pontos de fidelidade dos usuários",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "points": "INTEGER DEFAULT 0",
+        "lifetime_points": "INTEGER DEFAULT 0",
+        "tier": "VARCHAR(20) DEFAULT 'bronze'",
+        "tier_progress": "INTEGER DEFAULT 0",
+        "next_tier_at": "INTEGER",
+        "updated_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "rewards": {
+      "description": "Recompensas disponíveis",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "name": "VARCHAR(100) NOT NULL",
+        "description": "TEXT",
+        "type": "VARCHAR(50)",
+        "value": "JSONB",
+        "points_cost": "INTEGER NOT NULL",
+        "stock": "INTEGER",
+        "expires_at": "TIMESTAMP WITH TIME ZONE",
+        "tier_required": "VARCHAR(20)",
+        "is_active": "BOOLEAN DEFAULT true",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "achievements": {
+      "description": "Conquistas disponíveis",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "name": "VARCHAR(100) NOT NULL",
+        "description": "TEXT",
+        "icon_url": "TEXT",
+        "category": "VARCHAR(50)",
+        "points_reward": "INTEGER DEFAULT 0",
+        "criteria": "JSONB NOT NULL",
+        "rarity": "VARCHAR(20) DEFAULT 'common'",
+        "is_secret": "BOOLEAN DEFAULT false"
+      }
+    },
+    "user_achievements": {
+      "description": "Conquistas desbloqueadas",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "achievement_id": "UUID REFERENCES achievements(id)",
+        "progress": "INTEGER DEFAULT 0",
+        "completed_at": "TIMESTAMP WITH TIME ZONE",
+        "UNIQUE": "(user_id, achievement_id)"
+      }
+    }
+  },
+  "patterns": [
+    "point-accumulation",
+    "tier-progression",
+    "achievement-tracking",
+    "reward-redemption"
+  ],
+  "key_features": {
+    "point_system": "Ganhar pontos por atividades",
+    "tier_benefits": "Benefícios progressivos por nível",
+    "achievements": "Conquistas e badges",
+    "reward_store": "Loja de recompensas",
+    "leaderboards": "Rankings e competições",
+    "streaks": "Sequências de atividade",
+    "challenges": "Desafios temporários"
+  },
+  "api_endpoints": {
+    "GET /api/programs": "Status do programa do usuário",
+    "POST /api/programs/points": "Adicionar/remover pontos",
+    "GET /api/programs/rewards": "Listar recompensas disponíveis",
+    "POST /api/programs/rewards/redeem": "Resgatar recompensa",
+    "GET /api/programs/achievements": "Listar conquistas",
+    "GET /api/programs/leaderboard": "Ver ranking"
+  },
+  "point_earning_activities": {
+    "daily_login": 10,
+    "first_post_daily": 20,
+    "receive_like": 2,
+    "give_like": 1,
+    "comment": 5,
+    "share": 10,
+    "invite_friend": 100,
+    "complete_profile": 50,
+    "verify_email": 30
+  },
+  "program_tiers": {
+    "bronze": {
+      "min_points": 0,
+      "benefits": ["Badge bronze", "5% desconto"]
+    },
+    "silver": {
+      "min_points": 1000,
+      "benefits": ["Badge prata", "10% desconto", "Suporte prioritário"]
+    },
+    "gold": {
+      "min_points": 5000,
+      "benefits": ["Badge ouro", "15% desconto", "Acesso antecipado"]
+    },
+    "platinum": {
+      "min_points": 20000,
+      "benefits": ["Badge platina", "20% desconto", "Eventos exclusivos"]
+    }
+  },
+  "reward_types": {
+    "discounts": "Descontos em assinaturas",
+    "features": "Recursos premium temporários",
+    "cosmetics": "Temas e customizações",
+    "physical": "Produtos físicos",
+    "experiences": "Eventos e experiências"
+  },
+  "achievement_categories": [
+    "social",
+    "content",
+    "explorer",
+    "helper",
+    "veteran",
+    "special_events"
+  ],
+  "gamification_mechanics": [
+    "Progress bars",
+    "Surprise rewards",
+    "Limited time events",
+    "Collaborative goals",
+    "Seasonal themes"
+  ],
+  "common_issues": [
+    "Balanceamento de economia de pontos",
+    "Prevenção de farming/abuso",
+    "Sincronização de progresso",
+    "Expiração de recompensas"
+  ]
+}

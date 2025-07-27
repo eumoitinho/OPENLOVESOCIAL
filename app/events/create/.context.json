@@ -1,0 +1,52 @@
+{
+  "module": "app/events/create",
+  "description": "Página de criação de novos eventos",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "react-hook-form",
+    "date-fns",
+    "@googlemaps/google-maps-services-js"
+  ],
+  "key_files": [
+    "app/events/create/page.tsx"
+  ],
+  "patterns": [
+    "multi-step-form",
+    "location-picker",
+    "date-time-selection"
+  ],
+  "key_features": {
+    "event_form": "Formulário completo de evento",
+    "location_picker": "Seletor de localização com mapa",
+    "date_picker": "Seleção de data e hora",
+    "image_upload": "Upload de imagem de capa",
+    "preview": "Preview antes de publicar"
+  },
+  "form_sections": {
+    "basic_info": "Título, descrição, categoria",
+    "datetime": "Data, hora início/fim",
+    "location": "Local ou online",
+    "settings": "Privacidade, limite participantes",
+    "media": "Imagem de capa"
+  },
+  "validation": {
+    "title": "Mínimo 5 caracteres",
+    "description": "Mínimo 20 caracteres",
+    "date": "Deve ser futura",
+    "location": "Obrigatório se presencial",
+    "capacity": "Mínimo 2 participantes"
+  },
+  "premium_options": {
+    "featured_event": "Destaque no feed (diamond)",
+    "unlimited_participants": "Sem limite (gold+)",
+    "multiple_dates": "Eventos recorrentes (diamond)"
+  },
+  "common_issues": [
+    "Validação de endereço",
+    "Upload de imagem grande",
+    "Conflito de horários",
+    "Limites por plano"
+  ]
+}

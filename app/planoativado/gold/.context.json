@@ -1,0 +1,52 @@
+{
+  "module": "app/planoativado/gold",
+  "description": "Página de confirmação de ativação do plano Gold",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "framer-motion",
+    "confetti"
+  ],
+  "key_files": [
+    "app/planoativado/gold/page.tsx"
+  ],
+  "patterns": [
+    "success-celebration",
+    "feature-showcase",
+    "user-onboarding"
+  ],
+  "key_features": {
+    "gold_welcome": "Mensagem de boas-vindas Gold",
+    "benefits_showcase": "Showcase de benefícios Gold",
+    "badge_animation": "Animação do badge dourado",
+    "quick_start": "Guia de início rápido",
+    "exclusive_content": "Acesso a conteúdo exclusivo"
+  },
+  "gold_benefits": {
+    "posts_unlimited": "Posts ilimitados",
+    "no_ads": "Sem anúncios",
+    "video_calls": "10h de chamadas/mês",
+    "communities": "Criar 2 comunidades",
+    "analytics": "Analytics avançado",
+    "priority_support": "Suporte prioritário"
+  },
+  "page_sections": {
+    "hero": "Parabéns pela assinatura",
+    "benefits": "Seus novos benefícios",
+    "tutorials": "Como aproveitar ao máximo",
+    "community": "Comunidade Gold exclusiva"
+  },
+  "cta_elements": {
+    "explore_features": "Explorar novos recursos",
+    "customize_profile": "Personalizar perfil Gold",
+    "invite_friends": "Convidar amigos",
+    "join_community": "Entrar na comunidade Gold"
+  },
+  "common_issues": [
+    "Badge não aparecendo imediatamente",
+    "Benefícios não ativados",
+    "Confetti performance mobile",
+    "Analytics de ativação"
+  ]
+}

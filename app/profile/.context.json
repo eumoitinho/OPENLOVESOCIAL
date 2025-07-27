@@ -1,0 +1,161 @@
+{
+  "module": "app/profile",
+  "description": "Páginas de perfil de usuário com visualização e edição",
+  "dependencies": [
+    "@heroui/react",
+    "lucide-react",
+    "react-hook-form",
+    "@hookform/resolvers/zod",
+    "zod",
+    "react-image-crop"
+  ],
+  "key_files": [
+    "app/profile/page.tsx",
+    "app/profile/[username]/page.tsx",
+    "app/profile/edit/page.tsx",
+    "app/profile/ProfileContent.tsx",
+    "app/components/profile/UserProfile.tsx",
+    "app/components/profile/ProfileEditor.tsx",
+    "app/components/profile/ProfileStats.tsx"
+  ],
+  "database_tables": [
+    "users",
+    "user_profiles",
+    "profile_views",
+    "profile_visitors",
+    "follows",
+    "friendships",
+    "blocked_users"
+  ],
+  "database_schema": {
+    "users": {
+      "description": "Dados principais do perfil",
+      "columns": {
+        "id": "UUID PRIMARY KEY",
+        "username": "VARCHAR(50) UNIQUE NOT NULL",
+        "name": "VARCHAR(100)",
+        "bio": "TEXT",
+        "avatar_url": "TEXT",
+        "cover_url": "TEXT",
+        "location": "VARCHAR(255)",
+        "city": "VARCHAR(100)",
+        "uf": "VARCHAR(2)",
+        "birth_date": "DATE",
+        "gender": "VARCHAR(20)",
+        "profile_type": "VARCHAR(20)",
+        "interests": "TEXT[]",
+        "seeking": "TEXT[]",
+        "is_verified": "BOOLEAN DEFAULT false",
+        "is_premium": "BOOLEAN DEFAULT false",
+        "privacy_settings": "JSONB",
+        "stats": "JSONB",
+        "created_at": "TIMESTAMP WITH TIME ZONE"
+      }
+    },
+    "profile_views": {
+      "description": "Visualizações de perfil",
+      "columns": {
+        "id": "UUID PRIMARY KEY",
+        "profile_id": "UUID REFERENCES users(id)",
+        "viewer_id": "UUID REFERENCES users(id)",
+        "viewed_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "duration": "INTEGER",
+        "source": "VARCHAR(50)"
+      }
+    },
+    "follows": {
+      "description": "Relações de seguir",
+      "columns": {
+        "id": "UUID PRIMARY KEY",
+        "follower_id": "UUID REFERENCES users(id)",
+        "following_id": "UUID REFERENCES users(id)",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "UNIQUE": "(follower_id, following_id)"
+      }
+    }
+  },
+  "patterns": [
+    "profile-composition",
+    "privacy-layers",
+    "stat-aggregation",
+    "image-optimization",
+    "seo-friendly-urls"
+  ],
+  "key_features": {
+    "profile_display": "Visualização completa com posts, fotos, sobre",
+    "profile_editing": "Edição com preview em tempo real",
+    "avatar_crop": "Crop e otimização de foto de perfil",
+    "cover_photo": "Foto de capa customizável",
+    "verification": "Sistema de verificação de perfil",
+    "profile_stats": "Estatísticas de engajamento",
+    "visitor_tracking": "Quem visitou seu perfil (premium)",
+    "privacy_controls": "Controles granulares de privacidade",
+    "profile_sharing": "Links compartilháveis de perfil",
+    "qr_code": "QR code para perfil"
+  },
+  "profile_sections": {
+    "header": "Avatar, capa, nome, bio, stats",
+    "about": "Informações pessoais, interesses",
+    "posts": "Timeline de posts do usuário",
+    "photos": "Galeria de fotos",
+    "friends": "Lista de amigos/seguidores",
+    "communities": "Comunidades que participa"
+  },
+  "privacy_settings": {
+    "profile_visibility": ["public", "friends", "private"],
+    "show_age": "Mostrar idade calculada",
+    "show_location": "Mostrar cidade/estado",
+    "allow_messages": ["everyone", "friends", "nobody"],
+    "show_online_status": "Status online visível",
+    "show_last_active": "Última vez visto"
+  },
+  "verification_system": {
+    "requirements": [
+      "Documento de identidade",
+      "Selfie com documento",
+      "Perfil completo",
+      "Email verificado"
+    ],
+    "benefits": [
+      "Badge verificado",
+      "Prioridade na busca",
+      "Mais confiança",
+      "Recursos exclusivos"
+    ]
+  },
+  "api_endpoints": {
+    "GET /api/profile/[username]": "Buscar perfil por username",
+    "PUT /api/profile": "Atualizar próprio perfil",
+    "POST /api/profile/avatar": "Upload de avatar",
+    "GET /api/profile/me": "Perfil do usuário logado",
+    "POST /api/profile/view": "Registrar visualização",
+    "GET /api/profile/viewers": "Ver quem visitou (premium)"
+  },
+  "seo_optimization": {
+    "meta_tags": "Open Graph e Twitter Cards",
+    "structured_data": "Schema.org Person",
+    "canonical_urls": "URLs canônicas por username",
+    "sitemap": "Perfis públicos no sitemap"
+  },
+  "performance_considerations": [
+    "Cache de perfis populares",
+    "Lazy loading de seções",
+    "Otimização de imagens com Sharp",
+    "CDN para avatars",
+    "Agregação de stats em background"
+  ],
+  "common_issues": [
+    "Username único na edição",
+    "Upload de imagens grandes",
+    "Sincronização de stats",
+    "Cache de perfis desatualizado",
+    "Privacidade vs descoberta"
+  ],
+  "rls_policies": [
+    "Perfis públicos visíveis para todos",
+    "Perfis privados apenas para amigos",
+    "Apenas dono pode editar perfil",
+    "Bloqueados não veem perfil",
+    "Premium features com verificação"
+  ]
+}

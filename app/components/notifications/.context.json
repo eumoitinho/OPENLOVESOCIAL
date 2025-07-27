@@ -1,0 +1,86 @@
+{
+  "module": "app/components/notifications",
+  "description": "Sistema de notificações e alertas",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "react-hot-toast",
+    "web-push"
+  ],
+  "key_files": [
+    "app/components/notifications/NotificationCenter.tsx",
+    "app/components/notifications/NotificationSystem.tsx",
+    "app/components/notifications/NotificationsList.tsx",
+    "app/components/notifications/NotificationsContent.tsx",
+    "app/components/notifications/NotificationBadge.tsx",
+    "app/components/notifications/MessageBadge.tsx",
+    "app/components/notifications/PostToast.tsx"
+  ],
+  "database_tables": [
+    "notifications",
+    "notification_settings",
+    "push_subscriptions"
+  ],
+  "patterns": [
+    "real-time-notifications",
+    "push-notifications",
+    "notification-grouping"
+  ],
+  "component_features": {
+    "NotificationCenter": "Centro de notificações completo",
+    "NotificationSystem": "Sistema global de notificações",
+    "NotificationsList": "Lista de notificações",
+    "NotificationBadge": "Badge com contador",
+    "MessageBadge": "Badge específico para mensagens",
+    "PostToast": "Toast para ações de post"
+  },
+  "notification_types": [
+    "like",
+    "comment",
+    "follow",
+    "friend_request",
+    "mention",
+    "share",
+    "event_reminder",
+    "system_alert"
+  ],
+  "delivery_channels": {
+    "in_app": "Notificações dentro do app",
+    "push": "Push notifications browser/mobile",
+    "email": "Email notifications",
+    "sms": "SMS para críticas"
+  },
+  "real_time_features": {
+    "websocket": "Updates via websocket",
+    "presence": "Status online/offline",
+    "unread_count": "Contador não lidas",
+    "live_updates": "Atualização ao vivo"
+  },
+  "notification_management": {
+    "mark_read": "Marcar como lida",
+    "mark_all_read": "Marcar todas",
+    "delete": "Deletar notificação",
+    "mute": "Silenciar tipo/usuário",
+    "settings": "Preferências por tipo"
+  },
+  "push_notification_features": {
+    "permission": "Solicitar permissão",
+    "subscription": "Gerenciar inscrições",
+    "topics": "Tópicos de interesse",
+    "quiet_hours": "Horário silencioso"
+  },
+  "ui_patterns": {
+    "dropdown": "Dropdown no header",
+    "modal": "Modal fullscreen mobile",
+    "badges": "Badges com contadores",
+    "toasts": "Toast notifications",
+    "sounds": "Sons opcionais"
+  },
+  "common_issues": [
+    "Notificações duplicadas",
+    "Push permission denied",
+    "Real-time sync",
+    "Performance com muitas notifs"
+  ]
+}

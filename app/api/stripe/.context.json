@@ -1,0 +1,128 @@
+{
+  "module": "api/stripe",
+  "description": "Integração com Stripe para pagamentos internacionais e assinaturas",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "stripe",
+    "zod"
+  ],
+  "key_files": [
+    "app/api/stripe/webhook/route.ts",
+    "app/api/stripe/checkout/route.ts",
+    "app/api/stripe/portal/route.ts",
+    "app/api/stripe/prices/route.ts"
+  ],
+  "database_tables": [
+    "stripe_customers",
+    "stripe_subscriptions",
+    "stripe_payments",
+    "stripe_invoices"
+  ],
+  "database_schema": {
+    "stripe_customers": {
+      "description": "Clientes do Stripe vinculados a usuários",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id) UNIQUE",
+        "stripe_customer_id": "VARCHAR(255) UNIQUE NOT NULL",
+        "email": "VARCHAR(255)",
+        "currency": "VARCHAR(3) DEFAULT 'USD'",
+        "default_payment_method": "VARCHAR(255)",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "stripe_subscriptions": {
+      "description": "Assinaturas gerenciadas pelo Stripe",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "stripe_subscription_id": "VARCHAR(255) UNIQUE NOT NULL",
+        "stripe_customer_id": "VARCHAR(255)",
+        "status": "VARCHAR(50)",
+        "price_id": "VARCHAR(255)",
+        "quantity": "INTEGER DEFAULT 1",
+        "cancel_at_period_end": "BOOLEAN DEFAULT false",
+        "current_period_start": "TIMESTAMP WITH TIME ZONE",
+        "current_period_end": "TIMESTAMP WITH TIME ZONE",
+        "trial_end": "TIMESTAMP WITH TIME ZONE",
+        "metadata": "JSONB",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    }
+  },
+  "patterns": [
+    "webhook-processing",
+    "subscription-lifecycle",
+    "payment-reconciliation",
+    "customer-portal"
+  ],
+  "key_features": {
+    "subscription_management": "Assinaturas recorrentes",
+    "payment_methods": "Cartões, Apple Pay, Google Pay",
+    "customer_portal": "Portal self-service",
+    "invoice_generation": "Faturas automáticas",
+    "tax_calculation": "Cálculo de impostos global",
+    "usage_billing": "Cobrança por uso",
+    "trials": "Períodos de teste gratuito"
+  },
+  "api_endpoints": {
+    "POST /api/stripe/checkout": "Criar sessão de checkout",
+    "POST /api/stripe/webhook": "Processar eventos do Stripe",
+    "POST /api/stripe/portal": "Acessar portal do cliente",
+    "GET /api/stripe/prices": "Listar preços disponíveis"
+  },
+  "webhook_events": [
+    "checkout.session.completed",
+    "customer.subscription.created",
+    "customer.subscription.updated",
+    "customer.subscription.deleted",
+    "invoice.paid",
+    "invoice.payment_failed",
+    "payment_intent.succeeded",
+    "payment_method.attached"
+  ],
+  "subscription_flow": {
+    "1_select_plan": "Usuário escolhe plano",
+    "2_checkout": "Redirect para Stripe Checkout",
+    "3_payment": "Pagamento processado",
+    "4_webhook": "Webhook confirma pagamento",
+    "5_activate": "Ativar recursos premium",
+    "6_sync": "Sincronizar status"
+  },
+  "pricing_strategy": {
+    "tiers": {
+      "gold_monthly": "price_1234",
+      "gold_yearly": "price_5678",
+      "diamond_monthly": "price_9012",
+      "diamond_yearly": "price_3456"
+    },
+    "currencies": ["USD", "EUR", "GBP", "BRL"],
+    "tax_inclusive": false
+  },
+  "customer_portal_features": [
+    "Atualizar método de pagamento",
+    "Baixar faturas",
+    "Cancelar assinatura",
+    "Mudar plano",
+    "Ver histórico de pagamentos"
+  ],
+  "security_configuration": {
+    "webhook_secret": "Validação de assinatura",
+    "restricted_keys": "Chaves com escopo limitado",
+    "pci_compliance": "Sem tocar dados de cartão",
+    "3d_secure": "Autenticação forte"
+  },
+  "error_handling": [
+    "Retry logic para webhooks",
+    "Fallback para falhas de pagamento",
+    "Grace period para cartões expirados",
+    "Notificações de problemas"
+  ],
+  "common_issues": [
+    "Sincronização de estados",
+    "Webhooks duplicados",
+    "Mudanças de preço",
+    "Disputas e chargebacks",
+    "Conformidade regional"
+  ]
+}

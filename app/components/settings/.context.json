@@ -1,0 +1,79 @@
+{
+  "module": "app/components/settings",
+  "description": "Componentes de configurações e preferências",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "react-hook-form"
+  ],
+  "key_files": [
+    "app/components/settings/UserSettings.tsx",
+    "app/components/settings/PlanManagement.tsx"
+  ],
+  "database_tables": [
+    "user_settings",
+    "notification_settings",
+    "privacy_settings",
+    "user_subscriptions"
+  ],
+  "patterns": [
+    "settings-management",
+    "form-validation",
+    "preference-sync"
+  ],
+  "component_features": {
+    "UserSettings": "Configurações gerais do usuário",
+    "PlanManagement": "Gerenciamento de assinatura"
+  },
+  "settings_categories": {
+    "account": {
+      "email": "Email e verificação",
+      "password": "Senha e segurança",
+      "two_factor": "Autenticação 2FA",
+      "devices": "Dispositivos conectados"
+    },
+    "privacy": {
+      "profile_visibility": "Visibilidade do perfil",
+      "content_privacy": "Privacidade de conteúdo",
+      "blocking": "Usuários bloqueados",
+      "data_sharing": "Compartilhamento de dados"
+    },
+    "notifications": {
+      "push": "Push notifications",
+      "email": "Email notifications",
+      "in_app": "In-app notifications",
+      "frequency": "Frequência e horários"
+    },
+    "appearance": {
+      "theme": "Tema claro/escuro",
+      "language": "Idioma da interface",
+      "accessibility": "Acessibilidade"
+    }
+  },
+  "plan_management_features": {
+    "current_plan": "Plano atual e benefícios",
+    "upgrade_options": "Opções de upgrade",
+    "billing_history": "Histórico de pagamentos",
+    "payment_methods": "Métodos de pagamento",
+    "cancel_subscription": "Cancelar assinatura"
+  },
+  "form_features": {
+    "auto_save": "Salvamento automático",
+    "validation": "Validação em tempo real",
+    "confirmation": "Confirmação para mudanças críticas",
+    "reset": "Reset para padrões"
+  },
+  "security_settings": {
+    "password_change": "Alterar senha",
+    "two_factor_setup": "Configurar 2FA",
+    "session_management": "Gerenciar sessões",
+    "login_history": "Histórico de login"
+  },
+  "common_issues": [
+    "Settings sync delay",
+    "Payment method update",
+    "2FA recovery",
+    "Email verification"
+  ]
+}

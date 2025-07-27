@@ -1,0 +1,154 @@
+{
+  "module": "api/users",
+  "description": "APIs para gerenciamento de usuários, autenticação e administração",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod",
+    "bcryptjs",
+    "jsonwebtoken"
+  ],
+  "key_files": [
+    "app/api/users/route.ts",
+    "app/api/users/[id]/route.ts",
+    "app/api/users/check-username/route.ts",
+    "app/api/users/verify/route.ts"
+  ],
+  "database_tables": [
+    "users",
+    "user_roles",
+    "user_sessions",
+    "user_devices"
+  ],
+  "database_schema": {
+    "users": {
+      "description": "Tabela principal de usuários",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "email": "VARCHAR(255) UNIQUE NOT NULL",
+        "username": "VARCHAR(50) UNIQUE NOT NULL",
+        "password_hash": "VARCHAR(255)",
+        "display_name": "VARCHAR(100)",
+        "bio": "TEXT",
+        "avatar_url": "TEXT",
+        "email_verified": "BOOLEAN DEFAULT false",
+        "phone": "VARCHAR(20)",
+        "phone_verified": "BOOLEAN DEFAULT false",
+        "two_factor_enabled": "BOOLEAN DEFAULT false",
+        "two_factor_secret": "VARCHAR(255)",
+        "status": "VARCHAR(20) DEFAULT 'active'",
+        "role": "VARCHAR(20) DEFAULT 'user'",
+        "metadata": "JSONB DEFAULT '{}'",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "updated_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "deleted_at": "TIMESTAMP WITH TIME ZONE"
+      }
+    },
+    "user_sessions": {
+      "description": "Sessões ativas dos usuários",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "token": "VARCHAR(255) UNIQUE",
+        "device_id": "UUID REFERENCES user_devices(id)",
+        "ip_address": "INET",
+        "user_agent": "TEXT",
+        "last_activity": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "expires_at": "TIMESTAMP WITH TIME ZONE",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    }
+  },
+  "patterns": [
+    "secure-authentication",
+    "role-based-access",
+    "session-management",
+    "audit-logging"
+  ],
+  "key_features": {
+    "registration": "Cadastro com email/telefone",
+    "authentication": "Login seguro com 2FA",
+    "password_reset": "Recuperação de senha",
+    "email_verification": "Verificação de email",
+    "profile_management": "Gestão completa de perfil",
+    "account_deletion": "Exclusão completa LGPD",
+    "admin_tools": "Ferramentas administrativas"
+  },
+  "api_endpoints": {
+    "POST /api/users": "Criar novo usuário",
+    "GET /api/users/[id]": "Obter dados do usuário",
+    "PUT /api/users/[id]": "Atualizar usuário",
+    "DELETE /api/users/[id]": "Deletar usuário",
+    "POST /api/users/check-username": "Verificar disponibilidade",
+    "POST /api/users/verify": "Verificar email/telefone",
+    "POST /api/users/reset-password": "Resetar senha"
+  },
+  "authentication_flow": {
+    "registration": {
+      "steps": ["validate_data", "check_uniqueness", "hash_password", "create_user", "send_verification"],
+      "validations": ["email_format", "password_strength", "username_rules", "age_minimum"]
+    },
+    "login": {
+      "steps": ["validate_credentials", "check_2fa", "create_session", "log_activity"],
+      "security": ["rate_limiting", "captcha_on_failures", "ip_monitoring"]
+    }
+  },
+  "user_roles": {
+    "user": "Usuário padrão",
+    "premium": "Usuário premium",
+    "moderator": "Moderador de conteúdo",
+    "admin": "Administrador do sistema",
+    "super_admin": "Super administrador"
+  },
+  "security_features": [
+    "Password hashing com bcrypt",
+    "Two-factor authentication",
+    "Session invalidation",
+    "IP allowlisting",
+    "Suspicious activity detection",
+    "Account lockout policy"
+  ],
+  "validation_rules": {
+    "username": {
+      "min_length": 3,
+      "max_length": 30,
+      "pattern": "^[a-zA-Z0-9_]+$",
+      "reserved_words": ["admin", "api", "app", "www"]
+    },
+    "password": {
+      "min_length": 8,
+      "require_uppercase": true,
+      "require_number": true,
+      "require_special": true
+    }
+  },
+  "account_management": {
+    "verification": {
+      "email": "Link com token expiração 24h",
+      "phone": "SMS com código 6 dígitos"
+    },
+    "recovery": {
+      "methods": ["email", "phone", "security_questions"],
+      "token_expiry": "1 hour"
+    },
+    "deletion": {
+      "grace_period": "30 days",
+      "data_export": "GDPR compliant",
+      "cascading_delete": true
+    }
+  },
+  "admin_features": [
+    "User search and filtering",
+    "Account suspension/ban",
+    "Force password reset",
+    "View user activity",
+    "Impersonate user (audit logged)",
+    "Bulk operations"
+  ],
+  "common_issues": [
+    "Duplicate username race condition",
+    "Email delivery failures",
+    "Session fixation attacks",
+    "Account enumeration",
+    "Password reset abuse"
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "module": "app/pricing",
+  "description": "Página de planos e preços com comparação de features",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "framer-motion"
+  ],
+  "key_files": [
+    "app/pricing/page.tsx",
+    "app/pricing/PricingContent.tsx"
+  ],
+  "patterns": [
+    "pricing-table",
+    "feature-comparison",
+    "conversion-optimization"
+  ],
+  "key_features": {
+    "plan_cards": "Cards de planos com preços",
+    "feature_comparison": "Tabela comparativa de features",
+    "faq_section": "Perguntas frequentes",
+    "testimonials": "Depoimentos de usuários premium",
+    "special_offers": "Ofertas especiais e descontos"
+  },
+  "pricing_plans": {
+    "free": {
+      "price": 0,
+      "features_limit": "Recursos básicos com limites"
+    },
+    "gold": {
+      "monthly": 29.90,
+      "yearly": 299.00,
+      "features": "Recursos avançados"
+    },
+    "diamond": {
+      "monthly": 59.90,
+      "yearly": 599.00,
+      "features": "Tudo ilimitado + VIP"
+    }
+  },
+  "page_sections": {
+    "hero": "Escolha seu plano",
+    "plans": "Cards de planos",
+    "comparison": "Comparação detalhada",
+    "testimonials": "O que dizem nossos usuários",
+    "faq": "Dúvidas frequentes",
+    "guarantee": "Garantia de satisfação"
+  },
+  "conversion_elements": {
+    "urgency": "Oferta por tempo limitado",
+    "social_proof": "X usuários já são premium",
+    "money_back": "Garantia de 30 dias",
+    "secure_payment": "Pagamento 100% seguro"
+  },
+  "payment_methods": [
+    "credit_card",
+    "pix",
+    "boleto",
+    "paypal"
+  ],
+  "common_issues": [
+    "Cálculo de desconto anual",
+    "Mudança de moeda",
+    "Sincronização com Stripe",
+    "A/B testing de preços"
+  ]
+}

@@ -1,0 +1,149 @@
+{
+  "module": "api/payments",
+  "description": "Sistema unificado de pagamentos integrando Stripe, MercadoPago e AbacatePay",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "stripe",
+    "mercadopago",
+    "zod"
+  ],
+  "key_files": [
+    "app/api/payments/create/route.ts",
+    "app/api/payments/status/route.ts",
+    "app/api/payments/refund/route.ts",
+    "app/api/payments/history/route.ts"
+  ],
+  "database_tables": [
+    "payments",
+    "payment_methods",
+    "refunds",
+    "payment_logs"
+  ],
+  "database_schema": {
+    "payments": {
+      "description": "Registro unificado de todos os pagamentos",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "amount": "DECIMAL(10,2) NOT NULL",
+        "currency": "VARCHAR(3) DEFAULT 'BRL'",
+        "status": "VARCHAR(50) NOT NULL",
+        "provider": "VARCHAR(20) CHECK (provider IN ('stripe', 'mercadopago', 'abacatepay'))",
+        "provider_payment_id": "VARCHAR(255)",
+        "payment_method": "VARCHAR(50)",
+        "description": "TEXT",
+        "metadata": "JSONB",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "completed_at": "TIMESTAMP WITH TIME ZONE",
+        "failed_at": "TIMESTAMP WITH TIME ZONE"
+      }
+    },
+    "payment_methods": {
+      "description": "Métodos de pagamento salvos dos usuários",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "provider": "VARCHAR(20)",
+        "type": "VARCHAR(50)",
+        "last_four": "VARCHAR(4)",
+        "brand": "VARCHAR(50)",
+        "exp_month": "INTEGER",
+        "exp_year": "INTEGER",
+        "is_default": "BOOLEAN DEFAULT false",
+        "provider_method_id": "VARCHAR(255)",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "refunds": {
+      "description": "Reembolsos e estornos",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "payment_id": "UUID REFERENCES payments(id)",
+        "amount": "DECIMAL(10,2)",
+        "reason": "VARCHAR(255)",
+        "status": "VARCHAR(50)",
+        "provider_refund_id": "VARCHAR(255)",
+        "processed_at": "TIMESTAMP WITH TIME ZONE",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    }
+  },
+  "patterns": [
+    "payment-abstraction",
+    "provider-fallback",
+    "idempotency-keys",
+    "reconciliation"
+  ],
+  "key_features": {
+    "multi_provider": "Suporte para múltiplos processadores",
+    "unified_api": "API unificada independente do provider",
+    "smart_routing": "Roteamento inteligente baseado em método",
+    "fallback": "Fallback automático entre providers",
+    "split_payments": "Divisão de pagamentos para marketplace",
+    "recurring": "Pagamentos recorrentes e assinaturas",
+    "instant_payments": "PIX e transferências instantâneas"
+  },
+  "api_endpoints": {
+    "POST /api/payments/create": "Criar novo pagamento",
+    "GET /api/payments/status/[id]": "Verificar status",
+    "POST /api/payments/refund": "Processar reembolso",
+    "GET /api/payments/history": "Histórico de pagamentos"
+  },
+  "payment_routing": {
+    "credit_card": {
+      "primary": "stripe",
+      "fallback": "mercadopago"
+    },
+    "pix": {
+      "primary": "abacatepay",
+      "fallback": "mercadopago"
+    },
+    "boleto": {
+      "primary": "mercadopago",
+      "fallback": null
+    }
+  },
+  "provider_features": {
+    "stripe": {
+      "methods": ["card", "sepa", "ideal"],
+      "regions": ["US", "EU"],
+      "fees": "2.9% + $0.30"
+    },
+    "mercadopago": {
+      "methods": ["card", "pix", "boleto", "account_money"],
+      "regions": ["BR", "AR", "MX"],
+      "fees": "3.79% cartão, 0.99% PIX"
+    },
+    "abacatepay": {
+      "methods": ["pix"],
+      "regions": ["BR"],
+      "fees": "0.8% por transação"
+    }
+  },
+  "compliance": {
+    "pci_dss": "Nível 1 via tokenização",
+    "lgpd": "Conformidade com dados pessoais",
+    "anti_fraud": "Sistemas anti-fraude integrados",
+    "kyc": "Know Your Customer para grandes valores"
+  },
+  "limits": {
+    "min_amount": 1.00,
+    "max_amount": {
+      "unverified": 1000.00,
+      "verified": 10000.00,
+      "business": 100000.00
+    },
+    "daily_limit": {
+      "free": 500.00,
+      "gold": 5000.00,
+      "diamond": 50000.00
+    }
+  },
+  "common_issues": [
+    "Sincronização de status entre providers",
+    "Handling de webhooks duplicados",
+    "Conversão de moedas",
+    "Timeouts em processamento",
+    "Reconciliação financeira"
+  ]
+}

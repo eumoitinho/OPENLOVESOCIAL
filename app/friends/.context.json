@@ -1,0 +1,67 @@
+{
+  "module": "app/friends",
+  "description": "Página de gerenciamento de amizades e conexões sociais",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react"
+  ],
+  "key_files": [
+    "app/friends/page.tsx",
+    "app/friends/FriendsContent.tsx",
+    "app/friends/loading.tsx"
+  ],
+  "database_tables": [
+    "friendships",
+    "friend_requests",
+    "friend_suggestions"
+  ],
+  "database_schema": {
+    "friendships": {
+      "description": "Relações de amizade confirmadas",
+      "columns": {
+        "id": "UUID PRIMARY KEY",
+        "user1_id": "UUID REFERENCES users(id)",
+        "user2_id": "UUID REFERENCES users(id)",
+        "status": "VARCHAR(20) DEFAULT 'active'",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    }
+  },
+  "patterns": [
+    "bidirectional-relationships",
+    "request-approval-flow",
+    "mutual-friends"
+  ],
+  "key_features": {
+    "friends_list": "Lista de amigos atuais",
+    "pending_requests": "Solicitações pendentes",
+    "friend_suggestions": "Sugestões baseadas em ML",
+    "mutual_friends": "Amigos em comum",
+    "friend_search": "Buscar amigos"
+  },
+  "page_sections": {
+    "all_friends": "Todos os amigos",
+    "online_now": "Online agora",
+    "requests": "Solicitações de amizade",
+    "suggestions": "Pessoas que você pode conhecer",
+    "birthdays": "Aniversários"
+  },
+  "friendship_limits": {
+    "free": "150 amigos",
+    "gold": "500 amigos",
+    "diamond": "Ilimitado"
+  },
+  "social_features": {
+    "friend_activity": "Ver atividade de amigos",
+    "close_friends": "Lista de amigos próximos",
+    "friend_stories": "Stories exclusivos",
+    "friend_only_content": "Conteúdo só para amigos"
+  },
+  "common_issues": [
+    "Cálculo de amigos mútuos",
+    "Performance com muitos amigos",
+    "Privacidade de lista de amigos",
+    "Spam de solicitações"
+  ]
+}

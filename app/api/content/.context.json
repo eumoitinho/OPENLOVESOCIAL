@@ -1,0 +1,98 @@
+{
+  "module": "api/content",
+  "description": "APIs para gerenciamento de conteúdo premium e monetização",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod",
+    "stripe"
+  ],
+  "key_files": [
+    "app/api/content/purchase/route.ts"
+  ],
+  "database_tables": [
+    "premium_content",
+    "content_purchases",
+    "content_access",
+    "creator_earnings"
+  ],
+  "database_schema": {
+    "premium_content": {
+      "description": "Conteúdo pago/exclusivo",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "post_id": "UUID REFERENCES posts(id)",
+        "creator_id": "UUID REFERENCES users(id)",
+        "type": "VARCHAR(20) CHECK (type IN ('photo', 'video', 'album', 'stream'))",
+        "price": "DECIMAL(10,2) NOT NULL",
+        "currency": "VARCHAR(3) DEFAULT 'BRL'",
+        "preview_url": "TEXT",
+        "content_urls": "TEXT[]",
+        "description": "TEXT",
+        "is_active": "BOOLEAN DEFAULT true",
+        "stats": "JSONB DEFAULT '{\"views\": 0, \"purchases\": 0, \"revenue\": 0}'",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "content_purchases": {
+      "description": "Histórico de compras de conteúdo",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "content_id": "UUID REFERENCES premium_content(id)",
+        "buyer_id": "UUID REFERENCES users(id)",
+        "seller_id": "UUID REFERENCES users(id)",
+        "amount": "DECIMAL(10,2)",
+        "platform_fee": "DECIMAL(10,2)",
+        "creator_earning": "DECIMAL(10,2)",
+        "payment_method": "VARCHAR(50)",
+        "transaction_id": "VARCHAR(255)",
+        "purchased_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "UNIQUE": "(content_id, buyer_id)"
+      }
+    }
+  },
+  "patterns": [
+    "content-monetization",
+    "access-control",
+    "revenue-sharing",
+    "watermarking"
+  ],
+  "key_features": {
+    "premium_posts": "Posts com conteúdo pago",
+    "pay_per_view": "Pagamento por visualização",
+    "subscriptions": "Assinaturas de criadores",
+    "revenue_split": "Divisão de receita criador/plataforma",
+    "analytics": "Analytics de vendas para criadores",
+    "watermarking": "Marca d'água em conteúdo premium"
+  },
+  "api_endpoints": {
+    "POST /api/content/purchase": "Comprar acesso a conteúdo"
+  },
+  "pricing_models": {
+    "single_purchase": "Compra única de conteúdo",
+    "creator_subscription": "Assinatura mensal do criador",
+    "bundle": "Pacotes de conteúdo"
+  },
+  "revenue_split": {
+    "creator": "80%",
+    "platform": "20%",
+    "payment_processing": "2.9% + R$0.30"
+  },
+  "content_protection": [
+    "URLs temporárias assinadas",
+    "Marca d'água dinâmica",
+    "Download desabilitado",
+    "Screenshot detection"
+  ],
+  "creator_requirements": {
+    "verified_account": true,
+    "minimum_followers": 100,
+    "account_age": "30 dias",
+    "good_standing": true
+  },
+  "common_issues": [
+    "Proteção contra pirataria",
+    "Processamento de pagamentos",
+    "Cálculo de comissões",
+    "Disputas de conteúdo"
+  ]
+}

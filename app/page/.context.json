@@ -1,0 +1,46 @@
+{
+  "module": "app/page",
+  "description": "Página principal/landing page da aplicação",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react"
+  ],
+  "key_files": [
+    "app/page.tsx"
+  ],
+  "patterns": [
+    "conditional-routing",
+    "auth-based-redirect",
+    "landing-page"
+  ],
+  "key_features": {
+    "auth_check": "Verificação de autenticação",
+    "conditional_render": "Renderização condicional baseada em auth",
+    "landing_content": "Conteúdo para não autenticados",
+    "timeline_redirect": "Redirect para timeline se autenticado"
+  },
+  "page_flow": {
+    "unauthenticated": "Mostra landing page",
+    "authenticated": "Redireciona para timeline",
+    "first_time": "Pode mostrar onboarding"
+  },
+  "landing_elements": {
+    "hero": "Hero section com CTA",
+    "features": "Lista de funcionalidades",
+    "social_proof": "Estatísticas e depoimentos",
+    "cta_buttons": "Botões de cadastro/login"
+  },
+  "seo_optimization": {
+    "meta_tags": "Tags meta otimizadas",
+    "structured_data": "Dados estruturados",
+    "og_tags": "Open Graph tags",
+    "sitemap": "Inclusão no sitemap"
+  },
+  "common_issues": [
+    "Flicker de conteúdo durante auth check",
+    "SEO vs conteúdo dinâmico",
+    "Performance do primeiro load",
+    "Redirect loops"
+  ]
+}

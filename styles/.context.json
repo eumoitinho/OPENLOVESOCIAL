@@ -1,0 +1,63 @@
+{
+  "module": "styles",
+  "description": "Estilos globais e configuração CSS",
+  "dependencies": [
+    "tailwindcss",
+    "postcss"
+  ],
+  "key_files": [
+    "styles/globals.css"
+  ],
+  "patterns": [
+    "utility-first",
+    "css-variables",
+    "dark-mode"
+  ],
+  "global_styles": {
+    "tailwind_directives": "@tailwind base/components/utilities",
+    "css_variables": "Variáveis de cor e espaçamento",
+    "base_styles": "Reset e estilos base",
+    "utilities": "Classes utilitárias customizadas"
+  },
+  "theme_system": {
+    "colors": {
+      "primary": "Rosa/Magenta (#FF1B6D)",
+      "background": "Dark (#0A0A0A)",
+      "foreground": "Light text",
+      "muted": "Cores suaves",
+      "accent": "Cores de destaque"
+    },
+    "dark_mode": {
+      "class_based": "classe 'dark' no html",
+      "css_variables": "Variáveis mudam com tema",
+      "system_preference": "Respeita preferência do sistema"
+    }
+  },
+  "custom_utilities": {
+    "animations": "Animações customizadas",
+    "gradients": "Gradientes de marca",
+    "shadows": "Sombras customizadas",
+    "filters": "Filtros e efeitos"
+  },
+  "responsive_design": {
+    "breakpoints": "sm, md, lg, xl, 2xl",
+    "mobile_first": "Abordagem mobile-first",
+    "container": "Container responsivo"
+  },
+  "performance": {
+    "purge": "PurgeCSS remove não usado",
+    "minification": "CSS minificado em produção",
+    "critical_css": "CSS crítico inline"
+  },
+  "integration": {
+    "tailwind_config": "Configurado em tailwind.config.ts",
+    "postcss": "PostCSS para processamento",
+    "next_js": "Importado em app/layout.tsx"
+  },
+  "common_issues": [
+    "Specificity conflicts",
+    "Dark mode flickering",
+    "CSS variable scoping",
+    "Build size optimization"
+  ]
+}

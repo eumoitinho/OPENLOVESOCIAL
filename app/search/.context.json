@@ -1,0 +1,66 @@
+{
+  "module": "app/search",
+  "description": "Página de busca global com resultados unificados",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "fuse.js"
+  ],
+  "key_files": [
+    "app/search/page.tsx",
+    "app/search/SearchContent.tsx",
+    "app/search/loading.tsx"
+  ],
+  "database_tables": [
+    "search_history",
+    "trending_searches"
+  ],
+  "patterns": [
+    "unified-search",
+    "search-as-you-type",
+    "faceted-search"
+  ],
+  "key_features": {
+    "global_search": "Busca em todo conteúdo",
+    "type_tabs": "Abas por tipo de resultado",
+    "instant_results": "Resultados instantâneos",
+    "search_history": "Histórico de buscas",
+    "trending_searches": "Buscas em alta",
+    "filters": "Filtros avançados"
+  },
+  "search_types": {
+    "all": "Todos os resultados",
+    "users": "Perfis de usuários",
+    "posts": "Posts e conteúdo",
+    "communities": "Comunidades",
+    "events": "Eventos",
+    "hashtags": "Hashtags"
+  },
+  "search_features": {
+    "autocomplete": "Sugestões enquanto digita",
+    "fuzzy_search": "Busca aproximada",
+    "voice_search": "Busca por voz",
+    "image_search": "Busca por imagem (premium)",
+    "save_searches": "Salvar buscas"
+  },
+  "filters_available": {
+    "date_range": "Período de tempo",
+    "location": "Localização",
+    "verified_only": "Apenas verificados",
+    "media_type": "Tipo de mídia",
+    "language": "Idioma"
+  },
+  "result_display": {
+    "preview_cards": "Cards com preview",
+    "highlight_matches": "Destacar termos",
+    "result_count": "Contador de resultados",
+    "pagination": "Paginação infinita"
+  },
+  "common_issues": [
+    "Performance com muitos resultados",
+    "Relevância dos resultados",
+    "Indexação de novo conteúdo",
+    "Busca em múltiplos idiomas"
+  ]
+}

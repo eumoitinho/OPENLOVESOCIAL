@@ -1,0 +1,137 @@
+{
+  "module": "api/trending",
+  "description": "APIs para conteúdo em alta, trending topics e descoberta viral",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod",
+    "@upstash/redis"
+  ],
+  "key_files": [
+    "app/api/trending/route.ts",
+    "app/api/trending/hashtags/route.ts",
+    "app/api/trending/posts/route.ts",
+    "app/api/trending/users/route.ts"
+  ],
+  "database_tables": [
+    "trending_topics",
+    "trending_hashtags",
+    "viral_content",
+    "trend_history"
+  ],
+  "database_schema": {
+    "trending_topics": {
+      "description": "Tópicos em alta no momento",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "topic": "VARCHAR(100) UNIQUE",
+        "type": "VARCHAR(50)",
+        "score": "DECIMAL(10,2)",
+        "velocity": "DECIMAL(5,2)",
+        "peak_time": "TIMESTAMP WITH TIME ZONE",
+        "region": "VARCHAR(50)",
+        "category": "VARCHAR(50)",
+        "related_hashtags": "TEXT[]",
+        "updated_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "viral_content": {
+      "description": "Conteúdo com crescimento viral",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "content_type": "VARCHAR(20)",
+        "content_id": "UUID",
+        "virality_score": "DECIMAL(10,2)",
+        "growth_rate": "DECIMAL(5,2)",
+        "shares_count": "INTEGER",
+        "engagement_rate": "DECIMAL(5,2)",
+        "first_detected": "TIMESTAMP WITH TIME ZONE",
+        "peak_reached": "TIMESTAMP WITH TIME ZONE"
+      }
+    }
+  },
+  "patterns": [
+    "trend-detection",
+    "viral-prediction",
+    "real-time-aggregation",
+    "geographic-trends"
+  ],
+  "key_features": {
+    "real_time_trends": "Tendências em tempo real",
+    "geographic_trends": "Trending por região",
+    "category_trends": "Trending por categoria",
+    "viral_detection": "Detecção precoce de conteúdo viral",
+    "trend_prediction": "Previsão de tendências",
+    "influencer_tracking": "Tracking de influenciadores",
+    "sentiment_analysis": "Análise de sentimento"
+  },
+  "api_endpoints": {
+    "GET /api/trending": "Trending geral",
+    "GET /api/trending/hashtags": "Hashtags em alta",
+    "GET /api/trending/posts": "Posts virais",
+    "GET /api/trending/users": "Criadores em destaque",
+    "GET /api/trending/[region]": "Trending por região"
+  },
+  "trending_algorithms": {
+    "velocity_based": {
+      "description": "Baseado em velocidade de crescimento",
+      "time_windows": ["1h", "6h", "24h"],
+      "min_threshold": 100
+    },
+    "engagement_based": {
+      "description": "Baseado em taxa de engajamento",
+      "factors": ["likes_rate", "comments_rate", "shares_rate"],
+      "normalization": "por seguidores"
+    },
+    "ml_prediction": {
+      "description": "Previsão com machine learning",
+      "features": ["content_quality", "author_influence", "timing", "topic_relevance"]
+    }
+  },
+  "trend_categories": [
+    "entertainment",
+    "news",
+    "sports",
+    "technology",
+    "lifestyle",
+    "politics",
+    "gaming",
+    "music"
+  ],
+  "viral_indicators": {
+    "share_velocity": "Taxa de compartilhamento/hora",
+    "engagement_spike": "Pico súbito de engajamento",
+    "cross_platform": "Menções em outras plataformas",
+    "influencer_amplification": "Compartilhado por influenciadores",
+    "comment_sentiment": "Sentimento positivo alto"
+  },
+  "trending_display": {
+    "main_feed": "Widget de trending no feed",
+    "explore_tab": "Aba dedicada de exploração",
+    "push_notifications": "Alertas de trending relevante",
+    "personalized": "Trending personalizado por interesses"
+  },
+  "content_curation": {
+    "quality_filters": "Filtros de qualidade mínima",
+    "spam_detection": "Remoção de spam/bots",
+    "nsfw_filtering": "Filtro de conteúdo sensível",
+    "diversity_boost": "Promover diversidade de vozes"
+  },
+  "performance_strategies": [
+    "Redis para contadores em tempo real",
+    "Agregação assíncrona",
+    "Sampling para grandes volumes",
+    "Cache agressivo de trending"
+  ],
+  "monitoring_metrics": [
+    "Precisão de detecção viral",
+    "Tempo até detecção",
+    "Diversidade de conteúdo",
+    "Satisfação do usuário"
+  ],
+  "common_issues": [
+    "Gaming do sistema",
+    "Bolhas de filtro",
+    "Conteúdo problemático viral",
+    "Latência em picos de tráfego"
+  ]
+}

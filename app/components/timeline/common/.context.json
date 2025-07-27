@@ -1,0 +1,36 @@
+{
+  "module": "app/components/timeline/common",
+  "description": "Componentes comuns compartilhados na timeline",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react"
+  ],
+  "key_files": [
+    "app/components/timeline/common/ChatDialog.tsx"
+  ],
+  "patterns": [
+    "shared-components",
+    "dialog-management"
+  ],
+  "component_features": {
+    "ChatDialog": "Dialog compartilhado para chat"
+  },
+  "shared_functionality": {
+    "dialogs": "Dialogs reutilizáveis",
+    "utilities": "Funções utilitárias",
+    "constants": "Constantes compartilhadas",
+    "types": "Tipos TypeScript comuns"
+  },
+  "common_patterns": [
+    "Modal management",
+    "State sharing",
+    "Event handling",
+    "Error boundaries"
+  ],
+  "common_issues": [
+    "Component coupling",
+    "State management",
+    "Performance optimization"
+  ]
+}

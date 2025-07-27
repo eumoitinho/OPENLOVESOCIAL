@@ -1,0 +1,75 @@
+{
+  "module": "app/messages",
+  "description": "Sistema de mensagens e chat em tempo real",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "date-fns"
+  ],
+  "key_files": [
+    "app/messages/page.tsx"
+  ],
+  "database_tables": [
+    "conversations",
+    "messages",
+    "message_reactions",
+    "conversation_participants"
+  ],
+  "database_schema": {
+    "messages": {
+      "description": "Mensagens trocadas entre usuários",
+      "columns": {
+        "id": "UUID PRIMARY KEY",
+        "conversation_id": "UUID REFERENCES conversations(id)",
+        "sender_id": "UUID REFERENCES users(id)",
+        "content": "TEXT",
+        "type": "VARCHAR(20) DEFAULT 'text'",
+        "media_urls": "TEXT[]",
+        "is_read": "BOOLEAN DEFAULT false",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    }
+  },
+  "patterns": [
+    "real-time-messaging",
+    "message-encryption",
+    "typing-indicators",
+    "read-receipts"
+  ],
+  "key_features": {
+    "chat_list": "Lista de conversas",
+    "real_time_chat": "Chat em tempo real",
+    "media_sharing": "Compartilhar fotos/vídeos",
+    "voice_messages": "Mensagens de voz",
+    "video_calls": "Chamadas de vídeo (premium)",
+    "message_reactions": "Reações em mensagens",
+    "typing_indicator": "Indicador de digitação"
+  },
+  "message_types": [
+    "text",
+    "image",
+    "video",
+    "audio",
+    "file",
+    "location"
+  ],
+  "premium_features": {
+    "unlimited_media": "Mídia ilimitada",
+    "video_calls": "Chamadas de vídeo",
+    "message_translation": "Tradução automática",
+    "priority_delivery": "Entrega prioritária"
+  },
+  "privacy_features": {
+    "end_to_end": "Criptografia ponta a ponta",
+    "disappearing": "Mensagens que desaparecem",
+    "block_users": "Bloquear usuários",
+    "report_spam": "Denunciar spam"
+  },
+  "common_issues": [
+    "Sincronização real-time",
+    "Entrega de mensagens offline",
+    "Performance com muitas msgs",
+    "Notificações push"
+  ]
+}

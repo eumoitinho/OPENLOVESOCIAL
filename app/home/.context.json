@@ -1,0 +1,43 @@
+{
+  "module": "app/home",
+  "description": "Página inicial alternativa da aplicação",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react"
+  ],
+  "key_files": [
+    "app/home/page.tsx"
+  ],
+  "patterns": [
+    "landing-page",
+    "user-onboarding",
+    "feature-showcase"
+  ],
+  "key_features": {
+    "hero_section": "Seção hero com CTA",
+    "feature_highlights": "Destaques de funcionalidades",
+    "user_testimonials": "Depoimentos de usuários",
+    "quick_signup": "Cadastro rápido",
+    "app_preview": "Preview da aplicação"
+  },
+  "page_sections": {
+    "hero": "Banner principal com chamada",
+    "features": "Grid de funcionalidades",
+    "how_it_works": "Como funciona",
+    "pricing_preview": "Preview de planos",
+    "footer": "Links e informações"
+  },
+  "marketing_elements": {
+    "value_proposition": "Rede social com memórias afetivas",
+    "social_proof": "Número de usuários ativos",
+    "trust_badges": "Segurança e privacidade",
+    "call_to_action": "Comece gratuitamente"
+  },
+  "common_issues": [
+    "Otimização para conversão",
+    "Loading de imagens hero",
+    "Responsividade mobile",
+    "A/B testing"
+  ]
+}

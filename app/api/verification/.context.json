@@ -1,0 +1,149 @@
+{
+  "module": "api/verification",
+  "description": "APIs para verificação de identidade, badges e certificação de contas",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod",
+    "twilio",
+    "identity-verification-sdk"
+  ],
+  "key_files": [
+    "app/api/verification/identity/route.ts",
+    "app/api/verification/phone/route.ts",
+    "app/api/verification/business/route.ts",
+    "app/api/verification/status/route.ts"
+  ],
+  "database_tables": [
+    "verification_requests",
+    "verification_documents",
+    "verified_badges",
+    "verification_history"
+  ],
+  "database_schema": {
+    "verification_requests": {
+      "description": "Solicitações de verificação",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "type": "VARCHAR(50) CHECK (type IN ('identity', 'phone', 'email', 'business', 'celebrity'))",
+        "status": "VARCHAR(20) DEFAULT 'pending'",
+        "documents": "JSONB",
+        "verification_data": "JSONB",
+        "reviewer_id": "UUID REFERENCES users(id)",
+        "reviewer_notes": "TEXT",
+        "rejected_reason": "VARCHAR(255)",
+        "expires_at": "TIMESTAMP WITH TIME ZONE",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "reviewed_at": "TIMESTAMP WITH TIME ZONE"
+      }
+    },
+    "verified_badges": {
+      "description": "Badges de verificação ativos",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "badge_type": "VARCHAR(50)",
+        "verification_level": "VARCHAR(20)",
+        "issued_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "expires_at": "TIMESTAMP WITH TIME ZONE",
+        "is_active": "BOOLEAN DEFAULT true"
+      }
+    }
+  },
+  "patterns": [
+    "identity-verification",
+    "document-validation",
+    "fraud-detection",
+    "badge-management"
+  ],
+  "key_features": {
+    "identity_verification": "Verificação de documentos de identidade",
+    "phone_verification": "Verificação via SMS/WhatsApp",
+    "email_verification": "Confirmação de email",
+    "business_verification": "Verificação de empresas",
+    "celebrity_verification": "Verificação de figuras públicas",
+    "badge_system": "Sistema de badges e selos",
+    "periodic_reverification": "Reverificação periódica"
+  },
+  "api_endpoints": {
+    "POST /api/verification/identity": "Iniciar verificação de identidade",
+    "POST /api/verification/phone": "Verificar telefone",
+    "POST /api/verification/business": "Verificar empresa",
+    "GET /api/verification/status": "Status da verificação",
+    "POST /api/verification/documents": "Upload de documentos"
+  },
+  "verification_types": {
+    "basic": {
+      "requirements": ["email_verified", "phone_verified"],
+      "badge": "blue_check_basic"
+    },
+    "identity": {
+      "requirements": ["government_id", "selfie_verification", "address_proof"],
+      "badge": "blue_check"
+    },
+    "business": {
+      "requirements": ["business_registration", "tax_id", "bank_statement"],
+      "badge": "business_check"
+    },
+    "celebrity": {
+      "requirements": ["press_coverage", "social_proof", "management_contact"],
+      "badge": "gold_check"
+    }
+  },
+  "document_types": {
+    "government_id": ["passport", "drivers_license", "national_id"],
+    "address_proof": ["utility_bill", "bank_statement", "rental_agreement"],
+    "business_docs": ["incorporation", "tax_certificate", "business_license"],
+    "social_proof": ["news_articles", "verified_social_media", "wikipedia"]
+  },
+  "verification_workflow": {
+    "1_request": "Usuário solicita verificação",
+    "2_document_upload": "Upload de documentos necessários",
+    "3_automated_checks": "Validação automática inicial",
+    "4_manual_review": "Revisão manual por equipe",
+    "5_decision": "Aprovação/rejeição",
+    "6_badge_issuance": "Emissão do badge",
+    "7_monitoring": "Monitoramento contínuo"
+  },
+  "automated_checks": [
+    "Document authenticity (AI)",
+    "Face matching",
+    "Text extraction (OCR)",
+    "Fraud detection patterns",
+    "Cross-reference databases"
+  ],
+  "security_measures": [
+    "Criptografia de documentos",
+    "Acesso restrito a reviewers",
+    "Audit trail completo",
+    "Data retention policy",
+    "LGPD/GDPR compliance"
+  ],
+  "badge_benefits": {
+    "increased_trust": "Maior confiança de outros usuários",
+    "priority_support": "Suporte prioritário",
+    "special_features": "Recursos exclusivos",
+    "api_access": "Acesso a APIs especiais",
+    "visibility_boost": "Maior visibilidade"
+  },
+  "reverification_policy": {
+    "identity": "Anual",
+    "business": "Semestral",
+    "phone": "A cada mudança",
+    "triggers": ["suspicious_activity", "report_threshold", "data_change"]
+  },
+  "rejection_reasons": [
+    "invalid_documents",
+    "document_mismatch",
+    "fraudulent_submission",
+    "insufficient_proof",
+    "policy_violation"
+  ],
+  "common_issues": [
+    "Qualidade de documentos baixa",
+    "Fraude de identidade",
+    "Verificação de menores",
+    "Documentos internacionais",
+    "Privacidade vs verificação"
+  ]
+}

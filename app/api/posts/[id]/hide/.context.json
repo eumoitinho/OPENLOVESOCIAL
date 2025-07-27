@@ -1,0 +1,61 @@
+{
+  "module": "api/posts/[id]/hide",
+  "description": "API para ocultar posts do feed do usuário",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod"
+  ],
+  "key_files": [
+    "app/api/posts/[id]/hide/route.ts"
+  ],
+  "database_tables": [
+    "hidden_posts",
+    "hide_preferences"
+  ],
+  "database_schema": {
+    "hidden_posts": {
+      "description": "Posts ocultados por usuários",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "post_id": "UUID REFERENCES posts(id)",
+        "reason": "VARCHAR(50)",
+        "hide_similar": "BOOLEAN DEFAULT false",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "UNIQUE": "(user_id, post_id)"
+      }
+    }
+  },
+  "patterns": [
+    "soft-filtering",
+    "preference-learning",
+    "feed-customization"
+  ],
+  "key_features": {
+    "instant_hide": "Remover imediatamente do feed",
+    "hide_reasons": "Categorizar motivo para ML",
+    "hide_similar": "Ocultar posts similares",
+    "undo_option": "Desfazer ocultação"
+  },
+  "api_endpoints": {
+    "POST /api/posts/[id]/hide": "Ocultar post",
+    "DELETE /api/posts/[id]/hide": "Mostrar post novamente"
+  },
+  "hide_reasons": [
+    "not_interested",
+    "inappropriate",
+    "spam",
+    "seen_too_often",
+    "from_this_user"
+  ],
+  "algorithm_impact": [
+    "Reduz posts similares no feed",
+    "Ajusta recomendações",
+    "Não afeta outros usuários"
+  ],
+  "common_issues": [
+    "Sincronização entre dispositivos",
+    "Performance com muitos posts ocultos",
+    "Conflito com bloqueios"
+  ]
+}

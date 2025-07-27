@@ -1,0 +1,38 @@
+{
+  "module": "components/error-boundaries",
+  "description": "Error boundaries para captura e tratamento de erros",
+  "dependencies": [
+    "react"
+  ],
+  "key_files": [
+    "components/error-boundaries/PostErrorBoundary.tsx"
+  ],
+  "patterns": [
+    "error-boundary",
+    "graceful-degradation",
+    "error-recovery"
+  ],
+  "error_boundary_features": {
+    "PostErrorBoundary": "Captura erros em posts",
+    "error_logging": "Log de erros para debug",
+    "fallback_ui": "UI de fallback amigável",
+    "recovery": "Opção de tentar novamente"
+  },
+  "error_handling": {
+    "catch": "Captura erros JavaScript",
+    "log": "Registra no console/serviço",
+    "display": "Mostra mensagem amigável",
+    "recover": "Permite recuperação"
+  },
+  "best_practices": [
+    "Wrap componentes críticos",
+    "Log detalhado para debug",
+    "UI de fallback clara",
+    "Não esconder erros importantes"
+  ],
+  "common_issues": [
+    "Error boundary not catching async errors",
+    "Event handler errors",
+    "Development vs production behavior"
+  ]
+}

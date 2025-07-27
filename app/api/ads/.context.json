@@ -1,0 +1,95 @@
+{
+  "module": "api/ads",
+  "description": "APIs para sistema de publicidade, incluindo criação de campanhas, métricas e processamento de pagamentos",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod",
+    "stripe",
+    "@upstash/redis"
+  ],
+  "key_files": [
+    "app/api/ads/route.ts",
+    "app/api/ads/metrics/route.ts",
+    "app/api/ads/payment/route.ts"
+  ],
+  "database_tables": [
+    "ads",
+    "ad_campaigns",
+    "ad_impressions",
+    "ad_clicks",
+    "ad_conversions",
+    "ad_budgets"
+  ],
+  "database_schema": {
+    "ad_campaigns": {
+      "description": "Campanhas publicitárias",
+      "columns": {
+        "id": "UUID PRIMARY KEY",
+        "user_id": "UUID REFERENCES users(id)",
+        "name": "VARCHAR(255) NOT NULL",
+        "description": "TEXT",
+        "budget": "DECIMAL(10,2)",
+        "daily_budget": "DECIMAL(10,2)",
+        "spent": "DECIMAL(10,2) DEFAULT 0",
+        "start_date": "DATE",
+        "end_date": "DATE",
+        "status": "VARCHAR(20) DEFAULT 'draft'",
+        "targeting": "JSONB",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "ad_impressions": {
+      "description": "Registro de impressões de anúncios",
+      "columns": {
+        "id": "UUID PRIMARY KEY",
+        "ad_id": "UUID REFERENCES ads(id)",
+        "user_id": "UUID REFERENCES users(id)",
+        "timestamp": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "context": "VARCHAR(50)",
+        "ip_address": "INET",
+        "user_agent": "TEXT"
+      }
+    }
+  },
+  "patterns": [
+    "batch-processing",
+    "rate-limiting",
+    "fraud-detection",
+    "budget-control"
+  ],
+  "key_features": {
+    "campaign_management": "CRUD de campanhas publicitárias",
+    "targeting": "Segmentação por demografia e interesses",
+    "metrics": "Tracking de impressões, cliques e conversões",
+    "budget_control": "Controle de orçamento em tempo real",
+    "reporting": "Relatórios detalhados de performance"
+  },
+  "api_endpoints": {
+    "POST /api/ads": "Criar nova campanha",
+    "GET /api/ads": "Listar campanhas do usuário",
+    "PUT /api/ads/[id]": "Atualizar campanha",
+    "DELETE /api/ads/[id]": "Deletar/pausar campanha",
+    "GET /api/ads/metrics": "Obter métricas",
+    "POST /api/ads/payment": "Processar pagamento"
+  },
+  "metrics": {
+    "impressions": "Visualizações do anúncio",
+    "clicks": "Cliques no anúncio",
+    "ctr": "Click-through rate",
+    "conversions": "Ações completadas",
+    "cpc": "Custo por clique",
+    "cpm": "Custo por mil impressões"
+  },
+  "fraud_prevention": [
+    "Detecção de cliques repetidos",
+    "Análise de padrões suspeitos",
+    "Rate limiting por IP",
+    "Verificação de user agent"
+  ],
+  "common_issues": [
+    "Balanceamento de impressões",
+    "Cálculo de orçamento em tempo real",
+    "Prevenção de fraude",
+    "Otimização de queries de segmentação"
+  ]
+}

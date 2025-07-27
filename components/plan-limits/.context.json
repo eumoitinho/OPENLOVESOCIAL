@@ -1,0 +1,48 @@
+{
+  "module": "components/plan-limits",
+  "description": "Componentes para exibir e gerenciar limites de plano",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react"
+  ],
+  "key_files": [
+    "components/plan-limits/PaywallModal.tsx",
+    "components/plan-limits/PlanBadge.tsx",
+    "components/plan-limits/PlanIndicator.tsx"
+  ],
+  "patterns": [
+    "paywall-pattern",
+    "limit-enforcement",
+    "upsell-prompts"
+  ],
+  "component_features": {
+    "PaywallModal": "Modal de paywall para features premium",
+    "PlanBadge": "Badge visual do plano atual",
+    "PlanIndicator": "Indicador de uso/limite"
+  },
+  "limit_types": {
+    "usage_limits": "Limites de uso mensal",
+    "feature_gates": "Features bloqueadas",
+    "quantity_limits": "Limites de quantidade",
+    "time_limits": "Limites de tempo"
+  },
+  "paywall_features": {
+    "comparison": "Comparação de planos",
+    "benefits": "Lista de benefícios",
+    "pricing": "Preços e descontos",
+    "cta": "Call-to-action para upgrade"
+  },
+  "plan_indicators": {
+    "progress_bars": "Barras de progresso de uso",
+    "counters": "Contadores X/Y",
+    "warnings": "Avisos de limite próximo",
+    "badges": "Badges visuais do plano"
+  },
+  "common_issues": [
+    "Limit calculation accuracy",
+    "Real-time sync",
+    "Cache invalidation",
+    "Grace period handling"
+  ]
+}

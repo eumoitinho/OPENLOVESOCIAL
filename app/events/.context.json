@@ -1,0 +1,76 @@
+{
+  "module": "app/events",
+  "description": "Páginas de eventos para descoberta, criação e gerenciamento",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "date-fns"
+  ],
+  "key_files": [
+    "app/events/page.tsx",
+    "app/events/EventsContent.tsx",
+    "app/events/create/page.tsx"
+  ],
+  "subdirectories": [
+    "app/events/create"
+  ],
+  "database_tables": [
+    "events",
+    "event_participants",
+    "event_comments"
+  ],
+  "database_schema": {
+    "events": {
+      "description": "Eventos criados pelos usuários",
+      "columns": {
+        "id": "UUID PRIMARY KEY",
+        "creator_id": "UUID REFERENCES users(id)",
+        "title": "VARCHAR(200)",
+        "description": "TEXT",
+        "start_date": "TIMESTAMP WITH TIME ZONE",
+        "location_name": "VARCHAR(255)",
+        "latitude": "DECIMAL(10,8)",
+        "longitude": "DECIMAL(11,8)",
+        "type": "VARCHAR(20) DEFAULT 'public'",
+        "max_participants": "INTEGER",
+        "participant_count": "INTEGER DEFAULT 0"
+      }
+    }
+  },
+  "patterns": [
+    "event-discovery",
+    "location-based-search",
+    "rsvp-system"
+  ],
+  "key_features": {
+    "browse_events": "Descobrir eventos próximos",
+    "create_event": "Criar novo evento",
+    "event_calendar": "Calendário de eventos",
+    "rsvp_management": "Gerenciar participação",
+    "event_chat": "Chat do evento"
+  },
+  "page_sections": {
+    "nearby": "Eventos próximos",
+    "upcoming": "Próximos eventos",
+    "my_events": "Meus eventos",
+    "past_events": "Eventos passados"
+  },
+  "event_types": [
+    "public",
+    "private",
+    "paid",
+    "online"
+  ],
+  "access_control": {
+    "free": "Criar 1 evento/mês",
+    "gold": "Criar 3 eventos/mês",
+    "diamond": "Criar 10 eventos/mês"
+  },
+  "common_issues": [
+    "Geocoding de endereços",
+    "Sincronização de participantes",
+    "Notificações de evento",
+    "Timezone handling"
+  ]
+}

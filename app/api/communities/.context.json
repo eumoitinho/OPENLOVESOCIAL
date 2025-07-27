@@ -1,0 +1,107 @@
+{
+  "module": "api/communities",
+  "description": "APIs para gerenciamento de comunidades, incluindo criação, participação e administração",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod",
+    "slugify"
+  ],
+  "key_files": [
+    "app/api/communities/route.ts",
+    "app/api/communities/join/route.ts",
+    "app/api/communities/my/route.ts"
+  ],
+  "database_tables": [
+    "communities",
+    "community_members",
+    "community_posts",
+    "community_rules",
+    "community_moderators",
+    "community_invites"
+  ],
+  "database_schema": {
+    "communities": {
+      "description": "Comunidades/grupos de usuários",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "name": "VARCHAR(100) NOT NULL",
+        "slug": "VARCHAR(100) UNIQUE NOT NULL",
+        "description": "TEXT",
+        "avatar_url": "TEXT",
+        "cover_url": "TEXT",
+        "type": "VARCHAR(20) DEFAULT 'public' CHECK (type IN ('public', 'private', 'secret'))",
+        "category": "VARCHAR(50)",
+        "rules": "JSONB DEFAULT '[]'",
+        "settings": "JSONB DEFAULT '{}'",
+        "stats": "JSONB DEFAULT '{\"members\": 0, \"posts\": 0}'",
+        "created_by": "UUID REFERENCES users(id)",
+        "is_verified": "BOOLEAN DEFAULT false",
+        "is_premium": "BOOLEAN DEFAULT false",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "community_members": {
+      "description": "Membros das comunidades",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "community_id": "UUID REFERENCES communities(id) ON DELETE CASCADE",
+        "user_id": "UUID REFERENCES users(id)",
+        "role": "VARCHAR(20) DEFAULT 'member' CHECK (role IN ('member', 'moderator', 'admin', 'owner'))",
+        "status": "VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'banned', 'muted'))",
+        "joined_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "muted_until": "TIMESTAMP WITH TIME ZONE",
+        "UNIQUE": "(community_id, user_id)"
+      }
+    }
+  },
+  "patterns": [
+    "role-based-access",
+    "invitation-system",
+    "moderation-queue",
+    "activity-feed"
+  ],
+  "key_features": {
+    "community_types": "Públicas, privadas e secretas",
+    "roles": "Sistema de roles (owner, admin, mod, member)",
+    "moderation": "Ferramentas de moderação",
+    "rules": "Regras customizáveis por comunidade",
+    "invites": "Sistema de convites para privadas",
+    "verification": "Verificação de comunidades oficiais",
+    "premium": "Recursos exclusivos para premium"
+  },
+  "api_endpoints": {
+    "POST /api/communities": "Criar nova comunidade",
+    "GET /api/communities": "Listar comunidades públicas",
+    "GET /api/communities/my": "Minhas comunidades",
+    "POST /api/communities/join": "Entrar em comunidade",
+    "PUT /api/communities/[id]": "Atualizar comunidade",
+    "DELETE /api/communities/[id]/leave": "Sair da comunidade"
+  },
+  "community_limits": {
+    "free": {
+      "join": 3,
+      "create": 0
+    },
+    "gold": {
+      "join": 10,
+      "create": 2
+    },
+    "diamond": {
+      "join": "unlimited",
+      "create": 5
+    }
+  },
+  "moderation_features": [
+    "Aprovar novos membros",
+    "Banir/silenciar membros",
+    "Remover posts",
+    "Fixar posts importantes",
+    "Logs de moderação"
+  ],
+  "common_issues": [
+    "Gerenciamento de permissões complexas",
+    "Escalabilidade de feeds",
+    "Moderação de conteúdo",
+    "Limites por plano"
+  ]
+}

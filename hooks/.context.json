@@ -1,0 +1,68 @@
+{
+  "module": "hooks",
+  "description": "Custom React hooks compartilhados (fora da pasta app)",
+  "dependencies": [
+    "react",
+    "@supabase/supabase-js"
+  ],
+  "subdirectories": [
+    "posts"
+  ],
+  "key_files": [
+    "hooks/use-toast.ts",
+    "hooks/use-mobile.tsx",
+    "hooks/use-is-mounted.tsx",
+    "hooks/use-on-screen.tsx",
+    "hooks/use-throttle.tsx",
+    "hooks/posts/usePostActions.ts"
+  ],
+  "patterns": [
+    "custom-hooks",
+    "reusable-logic",
+    "performance-hooks"
+  ],
+  "hook_categories": {
+    "ui_state": {
+      "hooks": ["use-toast", "use-mobile"],
+      "purpose": "Estado e detecção de UI"
+    },
+    "lifecycle": {
+      "hooks": ["use-is-mounted"],
+      "purpose": "Lifecycle e montagem"
+    },
+    "performance": {
+      "hooks": ["use-throttle", "use-on-screen"],
+      "purpose": "Otimização de performance"
+    },
+    "features": {
+      "hooks": ["usePostActions"],
+      "purpose": "Lógica de features específicas"
+    }
+  },
+  "shared_hooks": {
+    "use-toast": "Sistema de toast notifications",
+    "use-mobile": "Detecção de dispositivo móvel",
+    "use-is-mounted": "Verificar se componente está montado",
+    "use-on-screen": "Intersection observer hook",
+    "use-throttle": "Throttle de valores/funções",
+    "usePostActions": "Ações de post (like, share, etc)"
+  },
+  "hook_patterns": {
+    "cleanup": "Cleanup automático de effects",
+    "memoization": "Memoização de valores",
+    "error_handling": "Tratamento de erros",
+    "loading_states": "Estados de carregamento"
+  },
+  "best_practices": [
+    "Prefixar com 'use'",
+    "Seguir rules of hooks",
+    "Documentar parâmetros",
+    "Incluir cleanup"
+  ],
+  "common_issues": [
+    "Stale closures",
+    "Missing dependencies",
+    "Memory leaks",
+    "SSR compatibility"
+  ]
+}

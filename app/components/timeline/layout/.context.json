@@ -1,0 +1,51 @@
+{
+  "module": "app/components/timeline/layout",
+  "description": "Componentes de layout da timeline",
+  "dependencies": [
+    "react",
+    "@heroui/react",
+    "lucide-react"
+  ],
+  "key_files": [
+    "app/components/timeline/layout/MobileNav.tsx",
+    "app/components/timeline/layout/RightSidebar.tsx"
+  ],
+  "patterns": [
+    "responsive-layout",
+    "sidebar-management",
+    "navigation-structure"
+  ],
+  "component_features": {
+    "MobileNav": "Navegação mobile da timeline",
+    "RightSidebar": "Sidebar direita com widgets"
+  },
+  "layout_structure": {
+    "mobile": {
+      "top_nav": "Navegação no topo",
+      "bottom_tabs": "Tabs inferiores",
+      "full_width": "Feed largura total"
+    },
+    "desktop": {
+      "three_column": "Layout 3 colunas",
+      "left_sidebar": "Navegação e sugestões",
+      "right_sidebar": "Trending e anúncios"
+    }
+  },
+  "sidebar_widgets": [
+    "Trending topics",
+    "Who to follow",
+    "Sponsored content",
+    "Events nearby",
+    "Community suggestions"
+  ],
+  "responsive_breakpoints": {
+    "mobile": "< 768px",
+    "tablet": "768px - 1024px",
+    "desktop": "> 1024px"
+  },
+  "common_issues": [
+    "Layout shift",
+    "Sidebar overflow",
+    "Mobile navigation state"
+  ]
+}

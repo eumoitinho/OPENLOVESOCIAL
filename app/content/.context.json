@@ -1,0 +1,62 @@
+{
+  "module": "app/content",
+  "description": "Página de conteúdo premium e monetização para criadores",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react"
+  ],
+  "key_files": [
+    "app/content/page.tsx",
+    "app/content/ContentPage.tsx"
+  ],
+  "database_tables": [
+    "premium_content",
+    "content_purchases",
+    "creator_earnings"
+  ],
+  "database_schema": {
+    "premium_content": {
+      "description": "Conteúdo exclusivo pago",
+      "columns": {
+        "id": "UUID PRIMARY KEY",
+        "creator_id": "UUID REFERENCES users(id)",
+        "post_id": "UUID REFERENCES posts(id)",
+        "price": "DECIMAL(10,2)",
+        "type": "VARCHAR(20)",
+        "preview_url": "TEXT",
+        "content_urls": "TEXT[]",
+        "purchase_count": "INTEGER DEFAULT 0"
+      }
+    }
+  },
+  "patterns": [
+    "content-monetization",
+    "creator-dashboard",
+    "payment-processing"
+  ],
+  "key_features": {
+    "creator_dashboard": "Painel para criadores",
+    "upload_premium": "Upload de conteúdo pago",
+    "earnings_tracker": "Acompanhar ganhos",
+    "content_analytics": "Análise de performance",
+    "payout_management": "Gerenciar saques"
+  },
+  "creator_tools": {
+    "pricing": "Definir preços flexíveis",
+    "bundles": "Criar pacotes de conteúdo",
+    "subscriptions": "Assinaturas mensais",
+    "promotions": "Criar promoções"
+  },
+  "monetization": {
+    "revenue_split": "80% criador, 20% plataforma",
+    "min_payout": "R$ 50,00",
+    "payment_methods": ["PIX", "Bank Transfer"]
+  },
+  "common_issues": [
+    "Verificação de criador",
+    "Processamento de pagamentos",
+    "Proteção de conteúdo",
+    "Cálculo de comissões"
+  ]
+}

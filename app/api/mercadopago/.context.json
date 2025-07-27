@@ -1,0 +1,117 @@
+{
+  "module": "api/mercadopago",
+  "description": "Integração com MercadoPago para pagamentos e assinaturas",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "mercadopago",
+    "zod"
+  ],
+  "key_files": [
+    "app/api/mercadopago/create-preference/route.ts",
+    "app/api/mercadopago/webhook/route.ts",
+    "app/api/mercadopago/subscription/route.ts"
+  ],
+  "database_tables": [
+    "mercadopago_payments",
+    "mercadopago_subscriptions",
+    "payment_preferences"
+  ],
+  "database_schema": {
+    "mercadopago_payments": {
+      "description": "Pagamentos processados via MercadoPago",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "payment_id": "VARCHAR(255) UNIQUE",
+        "preference_id": "VARCHAR(255)",
+        "status": "VARCHAR(50)",
+        "status_detail": "VARCHAR(100)",
+        "payment_type": "VARCHAR(50)",
+        "payment_method": "VARCHAR(50)",
+        "amount": "DECIMAL(10,2)",
+        "currency": "VARCHAR(3) DEFAULT 'BRL'",
+        "payer_email": "VARCHAR(255)",
+        "payer_document": "VARCHAR(20)",
+        "metadata": "JSONB",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "processed_at": "TIMESTAMP WITH TIME ZONE"
+      }
+    },
+    "mercadopago_subscriptions": {
+      "description": "Assinaturas recorrentes via MercadoPago",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "subscription_id": "VARCHAR(255) UNIQUE",
+        "plan_id": "VARCHAR(100)",
+        "status": "VARCHAR(50)",
+        "start_date": "TIMESTAMP WITH TIME ZONE",
+        "end_date": "TIMESTAMP WITH TIME ZONE",
+        "next_payment_date": "TIMESTAMP WITH TIME ZONE",
+        "amount": "DECIMAL(10,2)",
+        "currency": "VARCHAR(3) DEFAULT 'BRL'",
+        "auto_recurring": "JSONB",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    }
+  },
+  "patterns": [
+    "webhook-validation",
+    "idempotency",
+    "payment-reconciliation",
+    "subscription-lifecycle"
+  ],
+  "key_features": {
+    "payment_methods": "Cartão, PIX, boleto, saldo MP",
+    "split_payments": "Divisão de pagamentos para marketplace",
+    "subscriptions": "Assinaturas recorrentes",
+    "refunds": "Estornos e devoluções",
+    "installments": "Parcelamento sem juros",
+    "marketplace": "Pagamentos para múltiplos vendedores",
+    "point_integration": "Integração com Point (maquininhas)"
+  },
+  "api_endpoints": {
+    "POST /api/mercadopago/create-preference": "Criar preferência de pagamento",
+    "POST /api/mercadopago/webhook": "Processar notificações IPN/Webhook",
+    "POST /api/mercadopago/subscription": "Criar/gerenciar assinatura",
+    "GET /api/mercadopago/payment/[id]": "Consultar status de pagamento"
+  },
+  "webhook_events": [
+    "payment.created",
+    "payment.updated", 
+    "payment.approved",
+    "payment.rejected",
+    "payment.refunded",
+    "subscription.created",
+    "subscription.updated",
+    "subscription.cancelled"
+  ],
+  "security_configuration": {
+    "webhook_secret": "Validação de assinatura HMAC",
+    "api_credentials": {
+      "access_token": "Production/Sandbox",
+      "public_key": "Frontend SDK"
+    },
+    "pci_compliance": "Tokenização de cartões",
+    "fraud_prevention": "Análise antifraude automática"
+  },
+  "payment_flow": {
+    "1_create_preference": "Criar preferência com items e payer",
+    "2_redirect_checkout": "Redirecionar para checkout MP",
+    "3_process_webhook": "Receber notificação de pagamento",
+    "4_verify_payment": "Verificar status via API",
+    "5_deliver_product": "Liberar acesso/produto"
+  },
+  "marketplace_config": {
+    "application_fee": "Comissão da plataforma",
+    "collectors": "Múltiplos recebedores",
+    "release_days": "Dias para liberação do saldo"
+  },
+  "common_issues": [
+    "Timeout em webhooks",
+    "Duplicação de notificações",
+    "Sincronização de status",
+    "Handling de reembolsos parciais",
+    "Expiração de preferências"
+  ]
+}

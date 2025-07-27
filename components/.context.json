@@ -1,0 +1,64 @@
+{
+  "module": "components",
+  "description": "Biblioteca de componentes compartilhados do projeto (fora da pasta app)",
+  "dependencies": [
+    "@radix-ui/react-*",
+    "react",
+    "lucide-react",
+    "framer-motion",
+    "class-variance-authority"
+  ],
+  "subdirectories": [
+    "ads",
+    "auth",
+    "error-boundaries",
+    "payments", 
+    "plan-limits",
+    "premium",
+    "ui",
+    "verification"
+  ],
+  "key_files": [
+    "components/theme-provider.tsx",
+    "components.json"
+  ],
+  "patterns": [
+    "shadcn-ui",
+    "radix-ui",
+    "compound-components",
+    "accessibility-first"
+  ],
+  "component_library": {
+    "base": "shadcn/ui + Radix UI",
+    "styling": "Tailwind CSS + CVA",
+    "animations": "Framer Motion",
+    "icons": "Lucide React"
+  },
+  "ui_components": {
+    "primitives": "Botões, inputs, cards, etc",
+    "overlays": "Modals, tooltips, popovers",
+    "navigation": "Menus, tabs, breadcrumbs",
+    "feedback": "Toasts, alerts, progress",
+    "layout": "Sidebar, grids, containers"
+  },
+  "business_components": {
+    "ads": "Componentes de anúncios",
+    "auth": "AuthProvider compartilhado",
+    "payments": "Métodos de pagamento",
+    "plan_limits": "Indicadores de limite",
+    "premium": "Ações premium",
+    "verification": "Modal de verificação"
+  },
+  "shadcn_config": {
+    "config_file": "components.json",
+    "style": "default",
+    "tailwind": true,
+    "css_variables": true
+  },
+  "common_issues": [
+    "Import paths confusion",
+    "Duplicate components",
+    "Theme consistency",
+    "Component versions"
+  ]
+}

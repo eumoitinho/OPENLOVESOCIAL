@@ -1,0 +1,68 @@
+{
+  "module": "scripts",
+  "description": "Scripts utilitários para desenvolvimento e manutenção",
+  "dependencies": [
+    "node.js",
+    "powershell"
+  ],
+  "key_files": [
+    "scripts/fix-imports.js",
+    "scripts/setup-dev-urls.js",
+    "scripts/create-stripe-products.ps1",
+    "scripts/test-plan-validation.js"
+  ],
+  "script_categories": {
+    "fixes": {
+      "scripts": ["fix-imports.js", "fix-all-imports.js", "clean-duplicate-imports.js"],
+      "purpose": "Correção de problemas no código"
+    },
+    "setup": {
+      "scripts": ["setup-dev-urls.js", "create-stripe-products.ps1"],
+      "purpose": "Configuração de ambiente"
+    },
+    "testing": {
+      "scripts": ["test-api.ps1", "test-plan-validation.js", "debug-profile.ps1"],
+      "purpose": "Scripts de teste e debug"
+    },
+    "maintenance": {
+      "scripts": ["fix-nextjs-cache.ps1", "run-fixes.ps1"],
+      "purpose": "Manutenção do projeto"
+    }
+  },
+  "import_fix_scripts": {
+    "purpose": "Corrigir imports duplicados e paths",
+    "targets": "Arquivos .tsx e .ts",
+    "actions": ["Remove duplicatas", "Corrige paths", "Organiza imports"]
+  },
+  "setup_scripts": {
+    "dev_urls": "Configura URLs para desenvolvimento local",
+    "stripe_products": "Cria produtos no Stripe",
+    "environment": "Configura variáveis de ambiente"
+  },
+  "test_scripts": {
+    "api_tests": "Testa endpoints da API",
+    "plan_validation": "Valida sistema de planos",
+    "profile_debug": "Debug de perfil de usuário"
+  },
+  "powershell_scripts": {
+    "platform": "Windows PowerShell",
+    "permissions": "Requer execução de scripts habilitada",
+    "encoding": "UTF-8 com BOM"
+  },
+  "node_scripts": {
+    "runtime": "Node.js 18+",
+    "modules": "CommonJS ou ESM",
+    "dependencies": "Acesso aos node_modules"
+  },
+  "usage": {
+    "node": "node scripts/script-name.js",
+    "powershell": "powershell -File scripts/script-name.ps1",
+    "npm": "npm run script-name (se configurado)"
+  },
+  "common_issues": [
+    "Permission errors",
+    "Path resolution",
+    "Environment variables",
+    "Cross-platform compatibility"
+  ]
+}

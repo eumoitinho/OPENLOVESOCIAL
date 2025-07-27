@@ -1,0 +1,67 @@
+{
+  "module": "app/components/communities",
+  "description": "Componentes para gerenciamento e interação com comunidades",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "react-hook-form"
+  ],
+  "key_files": [
+    "app/components/communities/CommunitiesList.tsx",
+    "app/components/communities/CreateCommunity.tsx",
+    "app/components/communities/CommunityPremiumButtons.tsx",
+    "app/components/communities/PremiumCommunityFeatures.tsx"
+  ],
+  "database_tables": [
+    "communities",
+    "community_members",
+    "community_posts",
+    "community_rules"
+  ],
+  "patterns": [
+    "community-management",
+    "member-roles",
+    "content-moderation"
+  ],
+  "component_features": {
+    "CommunitiesList": "Lista de comunidades com filtros",
+    "CreateCommunity": "Formulário de criação de comunidade",
+    "CommunityPremiumButtons": "CTAs para features premium",
+    "PremiumCommunityFeatures": "Showcase de recursos premium"
+  },
+  "community_features": {
+    "discovery": "Descoberta por categoria/interesse",
+    "join_leave": "Sistema de entrada/saída",
+    "roles": "Roles (owner, admin, mod, member)",
+    "rules": "Regras customizáveis",
+    "moderation": "Ferramentas de moderação",
+    "events": "Eventos da comunidade",
+    "announcements": "Anúncios importantes"
+  },
+  "community_types": {
+    "public": "Aberta para todos",
+    "private": "Requer aprovação",
+    "secret": "Apenas por convite"
+  },
+  "moderation_tools": [
+    "Approve/reject members",
+    "Ban/mute users",
+    "Remove posts",
+    "Pin announcements",
+    "Edit community info"
+  ],
+  "premium_benefits": {
+    "create_communities": "Criar comunidades (Gold+)",
+    "unlimited_members": "Membros ilimitados",
+    "advanced_moderation": "Moderação avançada",
+    "analytics": "Analytics da comunidade",
+    "custom_badges": "Badges customizados"
+  },
+  "common_issues": [
+    "Permissões complexas",
+    "Sincronização de membros",
+    "Moderação em escala",
+    "Performance com muitos posts"
+  ]
+}

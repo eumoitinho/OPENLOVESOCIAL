@@ -1,0 +1,52 @@
+{
+  "module": "app/profile/[username]",
+  "description": "Página dinâmica de visualização de perfil por username",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react"
+  ],
+  "key_files": [
+    "app/profile/[username]/page.tsx"
+  ],
+  "patterns": [
+    "dynamic-route",
+    "profile-fetching",
+    "permission-checking"
+  ],
+  "key_features": {
+    "dynamic_loading": "Carregamento por username",
+    "profile_view": "Visualização completa do perfil",
+    "interaction_buttons": "Seguir, mensagem, etc",
+    "content_feed": "Posts do usuário",
+    "mutual_connections": "Conexões em comum"
+  },
+  "route_params": {
+    "username": "Username único do usuário"
+  },
+  "data_fetching": {
+    "user_data": "Dados básicos do perfil",
+    "user_stats": "Estatísticas públicas",
+    "recent_posts": "Posts recentes públicos",
+    "mutual_friends": "Amigos em comum"
+  },
+  "privacy_checks": [
+    "Perfil público/privado",
+    "Usuário bloqueado",
+    "Conteúdo restrito",
+    "Amizade necessária"
+  ],
+  "interaction_options": {
+    "follow": "Seguir/deixar de seguir",
+    "friend_request": "Enviar pedido de amizade",
+    "message": "Enviar mensagem",
+    "block": "Bloquear usuário",
+    "report": "Denunciar perfil"
+  },
+  "common_issues": [
+    "Username não encontrado",
+    "Perfil privado sem permissão",
+    "Cache de dados do perfil",
+    "SEO para perfis públicos"
+  ]
+}

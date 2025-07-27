@@ -1,0 +1,41 @@
+{
+  "module": "components/auth",
+  "description": "Componente AuthProvider compartilhado globalmente",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "@supabase/auth-helpers-nextjs",
+    "react"
+  ],
+  "key_files": [
+    "components/auth/AuthProvider.tsx"
+  ],
+  "patterns": [
+    "context-provider",
+    "auth-state-management"
+  ],
+  "auth_provider_features": {
+    "global_context": "Contexto de auth global",
+    "session_management": "Gerenciamento de sessão",
+    "user_state": "Estado do usuário atual",
+    "auth_methods": "Métodos de auth centralizados"
+  },
+  "context_value": {
+    "user": "Usuário atual",
+    "session": "Sessão ativa",
+    "loading": "Estado de carregamento",
+    "signIn": "Método de login",
+    "signOut": "Método de logout",
+    "signUp": "Método de cadastro"
+  },
+  "integration": {
+    "supabase": "Cliente Supabase auth",
+    "next_auth": "Helpers Next.js",
+    "ssr": "Suporte SSR/SSG"
+  },
+  "common_issues": [
+    "Context not found errors",
+    "Session persistence",
+    "SSR hydration",
+    "Token refresh"
+  ]
+}

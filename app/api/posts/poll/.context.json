@@ -1,0 +1,81 @@
+{
+  "module": "api/posts/poll",
+  "description": "API para criação e votação em enquetes",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod"
+  ],
+  "key_files": [
+    "app/api/posts/poll/route.ts"
+  ],
+  "database_tables": [
+    "polls",
+    "poll_votes",
+    "poll_analytics"
+  ],
+  "database_schema": {
+    "polls": {
+      "description": "Enquetes criadas em posts",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "post_id": "UUID REFERENCES posts(id) ON DELETE CASCADE",
+        "question": "TEXT NOT NULL",
+        "options": "JSONB NOT NULL",
+        "allow_multiple": "BOOLEAN DEFAULT false",
+        "show_results": "VARCHAR(20) DEFAULT 'always'",
+        "ends_at": "TIMESTAMP WITH TIME ZONE",
+        "total_votes": "INTEGER DEFAULT 0",
+        "is_anonymous": "BOOLEAN DEFAULT false",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "poll_votes": {
+      "description": "Votos dos usuários",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "poll_id": "UUID REFERENCES polls(id) ON DELETE CASCADE",
+        "user_id": "UUID REFERENCES users(id)",
+        "option_indexes": "INTEGER[]",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "UNIQUE": "(poll_id, user_id)"
+      }
+    }
+  },
+  "patterns": [
+    "real-time-results",
+    "vote-validation",
+    "result-visualization"
+  ],
+  "key_features": {
+    "multiple_choice": "Permitir múltiplas respostas",
+    "time_limited": "Enquetes com prazo",
+    "anonymous_voting": "Votos anônimos opcionais",
+    "real_time_updates": "Resultados em tempo real",
+    "result_visibility": "Controle de quando mostrar resultados",
+    "vote_change": "Permitir mudança de voto",
+    "demographics": "Analytics demográfico (premium)"
+  },
+  "api_endpoints": {
+    "POST /api/posts/poll": "Criar enquete",
+    "POST /api/posts/poll/[id]/vote": "Votar",
+    "GET /api/posts/poll/[id]/results": "Ver resultados"
+  },
+  "poll_settings": {
+    "min_options": 2,
+    "max_options": 10,
+    "max_duration_days": 7,
+    "show_results_options": ["always", "after_vote", "when_ended"]
+  },
+  "premium_analytics": [
+    "Demografia dos votantes",
+    "Padrões de votação temporal",
+    "Comparação com enquetes similares",
+    "Exportar resultados"
+  ],
+  "common_issues": [
+    "Sincronização de resultados real-time",
+    "Prevenção de votos duplicados",
+    "Performance com muitos votos",
+    "Timezone para término"
+  ]
+}

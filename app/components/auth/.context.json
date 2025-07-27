@@ -1,0 +1,68 @@
+{
+  "module": "app/components/auth",
+  "description": "Componentes de autenticação e autorização",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "react-hook-form",
+    "zod"
+  ],
+  "key_files": [
+    "app/components/auth/AuthProvider.tsx",
+    "app/components/auth/SignIn.tsx",
+    "app/components/auth/SignUp.tsx",
+    "app/components/auth/SignOut.tsx",
+    "app/components/auth/PlanSelection.tsx",
+    "app/components/auth/index.ts"
+  ],
+  "database_tables": [
+    "users",
+    "user_sessions",
+    "auth_providers"
+  ],
+  "patterns": [
+    "context-provider",
+    "protected-routes",
+    "session-management",
+    "oauth-integration"
+  ],
+  "auth_features": {
+    "AuthProvider": "Context provider global de auth",
+    "SignIn": "Componente de login",
+    "SignUp": "Componente de cadastro",
+    "SignOut": "Componente de logout",
+    "PlanSelection": "Seleção de plano no cadastro"
+  },
+  "authentication_methods": {
+    "email_password": "Email e senha tradicional",
+    "magic_link": "Link mágico por email",
+    "social_auth": "Google, Facebook, Apple",
+    "phone_auth": "SMS verification"
+  },
+  "security_features": [
+    "Password strength validation",
+    "Rate limiting",
+    "Session management",
+    "CSRF protection",
+    "Secure cookie handling"
+  ],
+  "auth_flow": {
+    "registration": "SignUp → Email verification → Plan selection",
+    "login": "SignIn → 2FA (optional) → Dashboard",
+    "password_reset": "Request → Email → Reset form",
+    "social_auth": "OAuth → Profile completion → Dashboard"
+  },
+  "plan_integration": {
+    "free_signup": "Cadastro gratuito padrão",
+    "trial_offer": "Trial de planos premium",
+    "plan_selection": "Escolha durante cadastro",
+    "upgrade_prompts": "Prompts de upgrade"
+  },
+  "common_issues": [
+    "Email não verificado",
+    "Sessão expirada",
+    "OAuth callback errors",
+    "Password reset flow"
+  ]
+}

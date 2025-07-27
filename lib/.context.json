@@ -1,0 +1,82 @@
+{
+  "module": "lib",
+  "description": "Biblioteca de utilitários e configurações compartilhadas (fora da pasta app)",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "stripe",
+    "ioredis",
+    "zod"
+  ],
+  "subdirectories": [
+    "abacatepay",
+    "constants",
+    "hooks",
+    "plans",
+    "posts",
+    "stores",
+    "webrtc"
+  ],
+  "key_files": [
+    "lib/supabase-browser.ts",
+    "lib/utils.ts",
+    "lib/redis.ts",
+    "lib/notifications.ts",
+    "lib/server-notifications.ts",
+    "lib/verification-middleware.ts"
+  ],
+  "patterns": [
+    "utility-functions",
+    "configuration",
+    "middleware",
+    "singleton-instances"
+  ],
+  "lib_categories": {
+    "clients": {
+      "files": ["supabase-browser.ts", "redis.ts"],
+      "purpose": "Clientes de serviços externos"
+    },
+    "payments": {
+      "dirs": ["abacatepay", "plans"],
+      "purpose": "Integrações de pagamento"
+    },
+    "features": {
+      "dirs": ["posts", "notifications"],
+      "purpose": "Lógica de features"
+    },
+    "utilities": {
+      "files": ["utils.ts"],
+      "purpose": "Funções utilitárias gerais"
+    },
+    "state": {
+      "dirs": ["stores", "hooks"],
+      "purpose": "Gerenciamento de estado"
+    }
+  },
+  "payment_integrations": {
+    "abacatepay": "Cliente e integração PIX",
+    "stripe": "Integração via stripe-integration.ts",
+    "plans": "Configuração e validação de planos"
+  },
+  "notification_system": {
+    "client": "notifications.ts para client-side",
+    "server": "server-notifications.ts para server-side",
+    "real_time": "Integração com Supabase Realtime"
+  },
+  "middleware_functions": {
+    "verification": "Middleware de verificação de conta",
+    "auth": "Middleware de autenticação",
+    "rate_limiting": "Rate limiting com Redis"
+  },
+  "utility_features": {
+    "cn": "Class name utility",
+    "formatters": "Formatadores de data/moeda",
+    "validators": "Validadores comuns",
+    "helpers": "Helpers diversos"
+  },
+  "common_issues": [
+    "Import path confusion with app/lib",
+    "Environment variable access",
+    "Singleton initialization",
+    "Type exports"
+  ]
+}

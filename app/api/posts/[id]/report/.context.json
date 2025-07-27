@@ -1,0 +1,78 @@
+{
+  "module": "api/posts/[id]/report",
+  "description": "API para denúncia de posts problemáticos",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod"
+  ],
+  "key_files": [
+    "app/api/posts/[id]/report/route.ts"
+  ],
+  "database_tables": [
+    "post_reports",
+    "report_actions",
+    "moderation_queue"
+  ],
+  "database_schema": {
+    "post_reports": {
+      "description": "Denúncias de posts",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "post_id": "UUID REFERENCES posts(id)",
+        "reporter_id": "UUID REFERENCES users(id)",
+        "reason": "VARCHAR(50) NOT NULL",
+        "sub_reason": "VARCHAR(100)",
+        "description": "TEXT",
+        "evidence_urls": "TEXT[]",
+        "status": "VARCHAR(20) DEFAULT 'pending'",
+        "priority": "VARCHAR(10) DEFAULT 'normal'",
+        "reviewed_by": "UUID REFERENCES users(id)",
+        "reviewed_at": "TIMESTAMP WITH TIME ZONE",
+        "action_taken": "VARCHAR(50)",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    }
+  },
+  "patterns": [
+    "moderation-queue",
+    "escalation-workflow",
+    "automated-detection"
+  ],
+  "key_features": {
+    "report_categories": "Categorias específicas de violação",
+    "evidence_upload": "Anexar capturas de tela",
+    "priority_system": "Priorização automática",
+    "feedback_loop": "Notificar resultado ao denunciante",
+    "false_report_detection": "Detectar abuso do sistema"
+  },
+  "api_endpoints": {
+    "POST /api/posts/[id]/report": "Criar denúncia"
+  },
+  "report_reasons": {
+    "harassment": ["bullying", "threats", "hate_speech"],
+    "inappropriate": ["nudity", "violence", "graphic_content"],
+    "spam": ["misleading", "scam", "fake_news"],
+    "intellectual_property": ["copyright", "trademark"],
+    "self_harm": ["suicide", "eating_disorder", "self_injury"],
+    "illegal": ["drugs", "weapons", "criminal_activity"]
+  },
+  "moderation_workflow": {
+    "auto_hide": "Ocultar automaticamente se múltiplas denúncias",
+    "priority_queue": "Conteúdo sensível tem prioridade",
+    "human_review": "Revisão manual obrigatória",
+    "appeals": "Sistema de apelação"
+  },
+  "actions": [
+    "warning",
+    "content_removal",
+    "shadow_ban",
+    "account_suspension",
+    "no_action"
+  ],
+  "common_issues": [
+    "Falsas denúncias em massa",
+    "Tempo de resposta",
+    "Consistência nas decisões",
+    "Brigading coordenado"
+  ]
+}

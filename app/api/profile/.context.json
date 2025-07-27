@@ -1,0 +1,119 @@
+{
+  "module": "api/profile",
+  "description": "APIs para gerenciamento de perfil do usuário atual",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod",
+    "sharp"
+  ],
+  "key_files": [
+    "app/api/profile/route.ts",
+    "app/api/profile/update/route.ts",
+    "app/api/profile/avatar/route.ts",
+    "app/api/profile/settings/route.ts"
+  ],
+  "database_tables": [
+    "users",
+    "user_settings",
+    "profile_views",
+    "profile_customization"
+  ],
+  "database_schema": {
+    "users": {
+      "description": "Dados principais do perfil de usuário",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "email": "VARCHAR(255) UNIQUE NOT NULL",
+        "username": "VARCHAR(50) UNIQUE NOT NULL",
+        "display_name": "VARCHAR(100)",
+        "bio": "TEXT",
+        "avatar_url": "TEXT",
+        "cover_url": "TEXT",
+        "location": "VARCHAR(100)",
+        "website": "VARCHAR(255)",
+        "birth_date": "DATE",
+        "gender": "VARCHAR(20)",
+        "relationship_status": "VARCHAR(50)",
+        "interests": "TEXT[]",
+        "is_verified": "BOOLEAN DEFAULT false",
+        "is_premium": "BOOLEAN DEFAULT false",
+        "subscription_tier": "VARCHAR(20) DEFAULT 'free'",
+        "stats": "JSONB DEFAULT '{}'",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "last_active_at": "TIMESTAMP WITH TIME ZONE"
+      }
+    },
+    "user_settings": {
+      "description": "Configurações de privacidade e preferências",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id) UNIQUE",
+        "privacy": "JSONB DEFAULT '{}'",
+        "notifications": "JSONB DEFAULT '{}'",
+        "appearance": "JSONB DEFAULT '{}'",
+        "language": "VARCHAR(10) DEFAULT 'pt-BR'",
+        "timezone": "VARCHAR(50) DEFAULT 'America/Sao_Paulo'",
+        "updated_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    }
+  },
+  "patterns": [
+    "profile-completeness",
+    "privacy-by-default",
+    "progressive-disclosure",
+    "verification-system"
+  ],
+  "key_features": {
+    "profile_sections": "Informações básicas, sobre, interesses",
+    "customization": "Temas, cores, layouts personalizados",
+    "verification": "Verificação de identidade e badges",
+    "privacy_controls": "Controle granular de visibilidade",
+    "activity_status": "Status online/offline",
+    "profile_views": "Ver quem visitou o perfil (premium)",
+    "custom_url": "URL personalizada (premium)"
+  },
+  "api_endpoints": {
+    "GET /api/profile": "Obter perfil atual",
+    "PUT /api/profile": "Atualizar perfil",
+    "POST /api/profile/avatar": "Upload de avatar",
+    "POST /api/profile/cover": "Upload de capa",
+    "PUT /api/profile/settings": "Atualizar configurações",
+    "GET /api/profile/completeness": "Calcular completude"
+  },
+  "profile_fields": {
+    "basic": ["display_name", "username", "bio", "location"],
+    "personal": ["birth_date", "gender", "relationship_status"],
+    "professional": ["occupation", "education", "skills"],
+    "social": ["interests", "languages", "looking_for"],
+    "contact": ["website", "social_links", "business_email"]
+  },
+  "privacy_settings": {
+    "profile_visibility": ["public", "friends", "private"],
+    "show_activity_status": "boolean",
+    "show_last_seen": "boolean",
+    "allow_messages_from": ["everyone", "friends", "nobody"],
+    "searchable": "boolean",
+    "show_in_suggestions": "boolean"
+  },
+  "verification_types": {
+    "email": "Email verificado",
+    "phone": "Telefone verificado",
+    "identity": "Documento verificado",
+    "celebrity": "Figura pública",
+    "business": "Empresa verificada"
+  },
+  "profile_badges": [
+    "early_adopter",
+    "content_creator",
+    "community_leader",
+    "helper",
+    "verified",
+    "premium_member"
+  ],
+  "common_issues": [
+    "Upload de imagens grandes",
+    "Validação de username único",
+    "Sincronização de mudanças",
+    "Cache de perfil desatualizado"
+  ]
+}

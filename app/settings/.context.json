@@ -1,0 +1,75 @@
+{
+  "module": "app/settings",
+  "description": "Página de configurações da conta e preferências",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "react-hook-form"
+  ],
+  "key_files": [
+    "app/settings/page.tsx"
+  ],
+  "database_tables": [
+    "user_settings",
+    "notification_settings",
+    "privacy_settings"
+  ],
+  "patterns": [
+    "settings-management",
+    "preference-persistence",
+    "tab-navigation"
+  ],
+  "key_features": {
+    "account_settings": "Configurações da conta",
+    "privacy_controls": "Controles de privacidade",
+    "notification_prefs": "Preferências de notificação",
+    "security_options": "Opções de segurança",
+    "plan_management": "Gerenciar assinatura",
+    "data_export": "Exportar dados"
+  },
+  "settings_sections": {
+    "account": {
+      "email": "Alterar email",
+      "password": "Alterar senha",
+      "two_factor": "Autenticação 2FA",
+      "sessions": "Sessões ativas"
+    },
+    "privacy": {
+      "profile_visibility": "Visibilidade do perfil",
+      "activity_status": "Status de atividade",
+      "blocked_users": "Usuários bloqueados",
+      "data_sharing": "Compartilhamento de dados"
+    },
+    "notifications": {
+      "push": "Notificações push",
+      "email": "Notificações por email",
+      "sms": "Notificações SMS",
+      "quiet_hours": "Horário de silêncio"
+    },
+    "appearance": {
+      "theme": "Tema claro/escuro",
+      "language": "Idioma",
+      "timezone": "Fuso horário",
+      "accessibility": "Acessibilidade"
+    }
+  },
+  "security_features": {
+    "password_requirements": "Requisitos de senha forte",
+    "login_alerts": "Alertas de login",
+    "trusted_devices": "Dispositivos confiáveis",
+    "privacy_checkup": "Checkup de privacidade"
+  },
+  "danger_zone": {
+    "deactivate": "Desativar conta temporariamente",
+    "delete": "Deletar conta permanentemente",
+    "export_data": "Baixar todos os dados",
+    "clear_data": "Limpar dados específicos"
+  },
+  "common_issues": [
+    "Sincronização de preferências",
+    "Validação de mudanças críticas",
+    "2FA recovery",
+    "Migração de configurações"
+  ]
+}

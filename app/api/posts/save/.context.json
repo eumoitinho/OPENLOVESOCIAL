@@ -1,0 +1,86 @@
+{
+  "module": "api/posts/save",
+  "description": "API para salvar posts em coleções pessoais",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod"
+  ],
+  "key_files": [
+    "app/api/posts/save/route.ts"
+  ],
+  "database_tables": [
+    "saved_posts",
+    "saved_collections"
+  ],
+  "database_schema": {
+    "saved_posts": {
+      "description": "Posts salvos pelos usuários",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "post_id": "UUID REFERENCES posts(id)",
+        "collection_id": "UUID REFERENCES saved_collections(id)",
+        "notes": "TEXT",
+        "saved_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "UNIQUE": "(user_id, post_id)"
+      }
+    },
+    "saved_collections": {
+      "description": "Coleções para organizar posts salvos",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "name": "VARCHAR(100) NOT NULL",
+        "description": "TEXT",
+        "cover_image_url": "TEXT",
+        "is_private": "BOOLEAN DEFAULT true",
+        "post_count": "INTEGER DEFAULT 0",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    }
+  },
+  "patterns": [
+    "collection-management",
+    "bookmark-organization",
+    "offline-access"
+  ],
+  "key_features": {
+    "quick_save": "Salvar com um clique",
+    "collections": "Organizar em coleções temáticas",
+    "private_by_default": "Coleções privadas por padrão",
+    "notes": "Adicionar notas pessoais",
+    "search": "Buscar nos posts salvos",
+    "export": "Exportar coleções (premium)",
+    "share_collections": "Compartilhar coleções públicas"
+  },
+  "api_endpoints": {
+    "POST /api/posts/save": "Salvar/remover post",
+    "GET /api/posts/saved": "Listar posts salvos",
+    "POST /api/posts/collections": "Criar coleção",
+    "PUT /api/posts/save/[id]/move": "Mover entre coleções"
+  },
+  "collection_features": {
+    "auto_collections": ["Todos", "Receitas", "Viagens", "Inspiração"],
+    "custom_collections": "Ilimitadas para premium",
+    "collaboration": "Coleções colaborativas (premium)",
+    "ai_organization": "Sugestões de organização por IA"
+  },
+  "limits": {
+    "saved_posts": {
+      "free": 100,
+      "gold": 1000,
+      "diamond": "unlimited"
+    },
+    "collections": {
+      "free": 3,
+      "gold": 20,
+      "diamond": "unlimited"
+    }
+  },
+  "common_issues": [
+    "Sincronização entre dispositivos",
+    "Posts deletados nas coleções",
+    "Limite de armazenamento",
+    "Performance com muitos salvos"
+  ]
+}

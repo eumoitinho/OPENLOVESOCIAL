@@ -1,0 +1,79 @@
+{
+  "module": "api/posts/[id]/comments",
+  "description": "API para gerenciamento de comentários em posts",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod"
+  ],
+  "key_files": [
+    "app/api/posts/[id]/comments/route.ts"
+  ],
+  "database_tables": [
+    "comments",
+    "comment_likes",
+    "comment_mentions",
+    "comment_reports"
+  ],
+  "database_schema": {
+    "comments": {
+      "description": "Comentários em posts",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "post_id": "UUID REFERENCES posts(id) ON DELETE CASCADE",
+        "user_id": "UUID REFERENCES users(id)",
+        "content": "TEXT NOT NULL",
+        "parent_id": "UUID REFERENCES comments(id)",
+        "media_url": "TEXT",
+        "stats": "JSONB DEFAULT '{\"likes\": 0, \"replies\": 0}'",
+        "is_pinned": "BOOLEAN DEFAULT false",
+        "is_deleted": "BOOLEAN DEFAULT false",
+        "edited_at": "TIMESTAMP WITH TIME ZONE",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "comment_likes": {
+      "description": "Curtidas em comentários",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "comment_id": "UUID REFERENCES comments(id) ON DELETE CASCADE",
+        "user_id": "UUID REFERENCES users(id)",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "UNIQUE": "(comment_id, user_id)"
+      }
+    }
+  },
+  "patterns": [
+    "nested-comments",
+    "real-time-updates",
+    "mention-notifications"
+  ],
+  "key_features": {
+    "nested_replies": "Respostas aninhadas até 3 níveis",
+    "reactions": "Reações rápidas com emojis",
+    "mentions": "Mencionar usuários com @",
+    "media_comments": "Comentários com imagens/GIFs",
+    "pin_comments": "Fixar comentários importantes",
+    "edit_history": "Histórico de edições"
+  },
+  "api_endpoints": {
+    "GET /api/posts/[id]/comments": "Listar comentários do post",
+    "POST /api/posts/[id]/comments": "Adicionar comentário",
+    "PUT /api/posts/[id]/comments/[commentId]": "Editar comentário",
+    "DELETE /api/posts/[id]/comments/[commentId]": "Deletar comentário"
+  },
+  "limits": {
+    "max_length": 500,
+    "max_replies_depth": 3,
+    "rate_limit": "10 comentários por minuto"
+  },
+  "moderation": [
+    "Filtro de spam automático",
+    "Detecção de palavras ofensivas",
+    "Shadowban para usuários problemáticos"
+  ],
+  "common_issues": [
+    "Threading de comentários complexo",
+    "Notificações em massa",
+    "Performance com muitos comentários"
+  ]
+}

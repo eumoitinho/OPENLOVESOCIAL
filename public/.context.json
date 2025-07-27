@@ -1,0 +1,53 @@
+{
+  "module": "public",
+  "description": "Arquivos públicos estáticos servidos diretamente",
+  "key_files": [
+    "public/manifest.json",
+    "public/OPENLOVE_COLOR_PORTRAIT.svg",
+    "public/placeholder-user.jpg"
+  ],
+  "asset_categories": {
+    "logos": {
+      "files": ["OPENLOVE_COLOR_LANDSCAPE.svg", "OPENLOVE_COLOR_PORTRAIT.svg", "OPENLOVE_NEGATIVE_*.svg"],
+      "purpose": "Logos da marca em diferentes formatos"
+    },
+    "placeholders": {
+      "files": ["placeholder.jpg", "placeholder-user.jpg", "placeholder-logo.svg"],
+      "purpose": "Imagens placeholder padrão"
+    },
+    "pwa": {
+      "files": ["manifest.json"],
+      "purpose": "Configuração PWA"
+    }
+  },
+  "logo_variants": {
+    "color_landscape": "Logo colorido horizontal",
+    "color_portrait": "Logo colorido vertical",
+    "negative_landscape": "Logo negativo horizontal",
+    "negative_portrait": "Logo negativo vertical"
+  },
+  "manifest_config": {
+    "name": "OpenLove",
+    "short_name": "OpenLove",
+    "theme_color": "#FF1B6D",
+    "background_color": "#0A0A0A",
+    "display": "standalone"
+  },
+  "optimization": {
+    "svg": "Logos em SVG para escalabilidade",
+    "png": "PNGs otimizados para compatibilidade",
+    "compression": "Imagens comprimidas"
+  },
+  "usage_notes": [
+    "Acessível via /filename",
+    "Servido diretamente pelo Next.js",
+    "Cached pelo navegador",
+    "Não processado pelo webpack"
+  ],
+  "common_issues": [
+    "Cache invalidation",
+    "CORS for external access",
+    "File size optimization",
+    "Missing favicon variants"
+  ]
+}

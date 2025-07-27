@@ -1,0 +1,64 @@
+{
+  "module": "api/follows",
+  "description": "API para sistema de seguidores e seguindo",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod"
+  ],
+  "key_files": [
+    "app/api/follows/route.ts"
+  ],
+  "database_tables": [
+    "follows",
+    "follow_requests"
+  ],
+  "database_schema": {
+    "follows": {
+      "description": "Relações de seguir entre usuários",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "follower_id": "UUID REFERENCES users(id)",
+        "following_id": "UUID REFERENCES users(id)",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "UNIQUE": "(follower_id, following_id)",
+        "CHECK": "follower_id != following_id"
+      }
+    },
+    "follow_requests": {
+      "description": "Solicitações de seguir (perfis privados)",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "requester_id": "UUID REFERENCES users(id)",
+        "requested_id": "UUID REFERENCES users(id)",
+        "status": "VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'rejected'))",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "responded_at": "TIMESTAMP WITH TIME ZONE"
+      }
+    }
+  },
+  "patterns": [
+    "follower-following",
+    "privacy-controls",
+    "mutual-connections"
+  ],
+  "key_features": {
+    "follow_unfollow": "Seguir/deixar de seguir usuários",
+    "privacy": "Perfis privados requerem aprovação",
+    "mutual_check": "Verificação de seguimento mútuo",
+    "suggestions": "Sugestões baseadas em conexões"
+  },
+  "api_endpoints": {
+    "POST /api/follows": "Seguir/deixar de seguir",
+    "GET /api/follows/followers": "Listar seguidores",
+    "GET /api/follows/following": "Listar seguindo"
+  },
+  "stats_update": {
+    "followers_count": "Incrementar/decrementar em users.stats",
+    "following_count": "Atualizar contador de seguindo"
+  },
+  "rls_policies": [
+    "Usuários podem ver próprias relações",
+    "Seguir apenas perfis não bloqueados",
+    "Perfis privados precisam aprovação"
+  ]
+}

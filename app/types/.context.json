@@ -1,0 +1,76 @@
+{
+  "module": "app/types",
+  "description": "Definições de tipos TypeScript da aplicação",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "typescript"
+  ],
+  "key_files": [
+    "Arquivos .d.ts e interfaces"
+  ],
+  "patterns": [
+    "type-definitions",
+    "interfaces",
+    "enums",
+    "utility-types"
+  ],
+  "type_categories": {
+    "database": {
+      "description": "Tipos gerados do banco de dados",
+      "source": "Supabase schema"
+    },
+    "api": {
+      "description": "Tipos de request/response da API",
+      "examples": ["ApiResponse", "ApiError", "PaginatedResponse"]
+    },
+    "components": {
+      "description": "Props de componentes",
+      "examples": ["PostCardProps", "UserProfileProps"]
+    },
+    "domain": {
+      "description": "Tipos de domínio do negócio",
+      "examples": ["User", "Post", "Message", "Community"]
+    }
+  },
+  "common_types": {
+    "User": "Tipo completo de usuário",
+    "Post": "Tipo de post com relações",
+    "Message": "Tipo de mensagem",
+    "Notification": "Tipo de notificação",
+    "SubscriptionPlan": "Planos de assinatura"
+  },
+  "utility_types": {
+    "Nullable": "T | null",
+    "Optional": "T | undefined",
+    "AsyncReturnType": "Tipo de retorno de função async",
+    "DeepPartial": "Partial recursivo"
+  },
+  "enum_definitions": {
+    "UserRole": "Roles de usuário",
+    "PostType": "Tipos de post",
+    "NotificationType": "Tipos de notificação",
+    "SubscriptionTier": "Níveis de assinatura"
+  },
+  "type_guards": {
+    "isUser": "Verificar se é User",
+    "isPost": "Verificar se é Post",
+    "isPremiumUser": "Verificar se é premium"
+  },
+  "generic_types": {
+    "ApiResponse<T>": "Resposta genérica da API",
+    "PaginatedList<T>": "Lista paginada genérica",
+    "FormState<T>": "Estado de formulário genérico"
+  },
+  "best_practices": [
+    "Evitar any",
+    "Usar tipos estritos",
+    "Documentar tipos complexos",
+    "Reutilizar tipos base"
+  ],
+  "common_issues": [
+    "Type inference problems",
+    "Circular dependencies",
+    "Type compatibility",
+    "Generic constraints"
+  ]
+}

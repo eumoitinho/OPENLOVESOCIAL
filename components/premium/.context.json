@@ -1,0 +1,46 @@
+{
+  "module": "components/premium",
+  "description": "Componente para ações que requerem plano premium",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react"
+  ],
+  "key_files": [
+    "components/premium/PremiumAction.tsx"
+  ],
+  "patterns": [
+    "feature-gating",
+    "conditional-rendering",
+    "upsell-integration"
+  ],
+  "premium_action_features": {
+    "gate_check": "Verifica se usuário tem acesso",
+    "fallback": "Componente de fallback para free",
+    "upsell": "Prompt de upgrade integrado",
+    "wrapper": "Wrapper para qualquer ação premium"
+  },
+  "usage_example": {
+    "wrap_feature": "Envolver feature premium",
+    "custom_message": "Mensagem customizada",
+    "required_plan": "Plano mínimo necessário",
+    "onClick": "Ação ao clicar se não premium"
+  },
+  "plan_levels": {
+    "free": "Usuário gratuito",
+    "gold": "Assinante Gold",
+    "diamond": "Assinante Diamond"
+  },
+  "common_patterns": [
+    "Blur content for free users",
+    "Show lock icon",
+    "Display upgrade prompt",
+    "Track upsell impressions"
+  ],
+  "common_issues": [
+    "Plan status caching",
+    "SSR compatibility",
+    "Loading states",
+    "Graceful degradation"
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "module": "api/location",
+  "description": "APIs para funcionalidades baseadas em localização e geolocalização",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod",
+    "geolib",
+    "@googlemaps/google-maps-services-js"
+  ],
+  "key_files": [
+    "app/api/location/search/route.ts",
+    "app/api/location/nearby/route.ts",
+    "app/api/location/update/route.ts"
+  ],
+  "database_tables": [
+    "user_locations",
+    "location_history",
+    "places",
+    "check_ins"
+  ],
+  "database_schema": {
+    "user_locations": {
+      "description": "Localização atual dos usuários",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id) UNIQUE",
+        "latitude": "DECIMAL(10, 8) NOT NULL",
+        "longitude": "DECIMAL(11, 8) NOT NULL",
+        "accuracy": "FLOAT",
+        "city": "VARCHAR(100)",
+        "state": "VARCHAR(100)",
+        "country": "VARCHAR(100)",
+        "place_id": "VARCHAR(255)",
+        "is_visible": "BOOLEAN DEFAULT true",
+        "updated_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "location_history": {
+      "description": "Histórico de localizações do usuário",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "latitude": "DECIMAL(10, 8)",
+        "longitude": "DECIMAL(11, 8)",
+        "place_name": "VARCHAR(255)",
+        "activity_type": "VARCHAR(50)",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "check_ins": {
+      "description": "Check-ins em lugares",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "place_id": "UUID REFERENCES places(id)",
+        "latitude": "DECIMAL(10, 8)",
+        "longitude": "DECIMAL(11, 8)",
+        "message": "TEXT",
+        "photo_urls": "TEXT[]",
+        "visibility": "VARCHAR(20) DEFAULT 'friends'",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    }
+  },
+  "patterns": [
+    "geospatial-indexing",
+    "privacy-first-location",
+    "location-caching",
+    "reverse-geocoding"
+  ],
+  "key_features": {
+    "real_time_location": "Compartilhar localização em tempo real",
+    "nearby_users": "Descobrir usuários próximos",
+    "places_discovery": "Descobrir lugares populares",
+    "check_ins": "Check-in em estabelecimentos",
+    "location_privacy": "Controles granulares de privacidade",
+    "travel_mode": "Modo viagem com histórico",
+    "safety_features": "Compartilhar localização com contatos de emergência"
+  },
+  "api_endpoints": {
+    "POST /api/location/update": "Atualizar localização atual",
+    "GET /api/location/nearby": "Buscar usuários/lugares próximos",
+    "POST /api/location/search": "Buscar lugares por nome",
+    "POST /api/location/checkin": "Fazer check-in em lugar"
+  },
+  "privacy_settings": {
+    "visibility_options": ["off", "friends", "friends_of_friends", "public"],
+    "ghost_mode": "Ocultar localização temporariamente",
+    "location_fuzzing": "Aproximar localização para privacidade",
+    "trusted_contacts": "Compartilhar localização exata com contatos de confiança"
+  },
+  "geospatial_features": {
+    "indexes": "GIST indexes para queries eficientes",
+    "radius_search": "Busca por raio configurável",
+    "clustering": "Agrupamento de pontos no mapa",
+    "heatmaps": "Mapas de calor de atividade"
+  },
+  "limits": {
+    "location_updates_per_hour": 60,
+    "nearby_search_radius_km": {
+      "free": 5,
+      "gold": 20,
+      "diamond": 100
+    }
+  },
+  "security_notes": [
+    "Nunca expor localização exata sem permissão",
+    "Rate limiting para prevenir tracking",
+    "Logs de acesso à localização",
+    "Opção de deletar histórico"
+  ],
+  "common_issues": [
+    "Precisão de GPS em ambientes internos",
+    "Consumo de bateria",
+    "Privacy concerns",
+    "Sincronização entre dispositivos"
+  ]
+}

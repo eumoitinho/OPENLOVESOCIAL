@@ -1,0 +1,59 @@
+{
+  "module": "app/communities",
+  "description": "Página principal de comunidades para descoberta e gerenciamento",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react"
+  ],
+  "key_files": [
+    "app/communities/page.tsx"
+  ],
+  "database_tables": [
+    "communities",
+    "community_members",
+    "community_posts"
+  ],
+  "database_schema": {
+    "communities": {
+      "description": "Comunidades criadas pelos usuários",
+      "columns": {
+        "id": "UUID PRIMARY KEY",
+        "name": "VARCHAR(100)",
+        "slug": "VARCHAR(100) UNIQUE",
+        "description": "TEXT",
+        "type": "VARCHAR(20) DEFAULT 'public'",
+        "member_count": "INTEGER DEFAULT 0",
+        "created_by": "UUID REFERENCES users(id)"
+      }
+    }
+  },
+  "patterns": [
+    "community-discovery",
+    "member-management",
+    "content-moderation"
+  ],
+  "key_features": {
+    "browse_communities": "Descobrir comunidades por categoria",
+    "my_communities": "Minhas comunidades",
+    "create_community": "Criar nova comunidade (premium)",
+    "join_leave": "Entrar/sair de comunidades",
+    "community_feed": "Feed de posts da comunidade"
+  },
+  "page_sections": {
+    "featured": "Comunidades em destaque",
+    "categories": "Explorar por categoria",
+    "my_communities": "Comunidades que participo",
+    "suggestions": "Sugestões personalizadas"
+  },
+  "access_control": {
+    "free": "Pode participar de 3 comunidades",
+    "gold": "Pode participar de 10 e criar 2",
+    "diamond": "Ilimitado e criar 5"
+  },
+  "common_issues": [
+    "Limite de comunidades por plano",
+    "Moderação de conteúdo",
+    "Descoberta relevante"
+  ]
+}

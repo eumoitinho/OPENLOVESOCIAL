@@ -1,0 +1,136 @@
+{
+  "module": "api/timeline",
+  "description": "APIs para o feed principal e timeline personalizada dos usuários",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod",
+    "@upstash/redis"
+  ],
+  "key_files": [
+    "app/api/timeline/route.ts",
+    "app/api/timeline/following/route.ts",
+    "app/api/timeline/explore/route.ts",
+    "app/api/timeline/algorithm/route.ts"
+  ],
+  "database_tables": [
+    "timeline_events",
+    "feed_preferences",
+    "timeline_cache"
+  ],
+  "database_schema": {
+    "timeline_events": {
+      "description": "Eventos para construção da timeline",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "event_type": "VARCHAR(50)",
+        "entity_type": "VARCHAR(50)",
+        "entity_id": "UUID",
+        "actor_id": "UUID REFERENCES users(id)",
+        "relevance_score": "DECIMAL(3,2)",
+        "shown": "BOOLEAN DEFAULT false",
+        "interacted": "BOOLEAN DEFAULT false",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "feed_preferences": {
+      "description": "Preferências de feed do usuário",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id) UNIQUE",
+        "algorithm": "VARCHAR(50) DEFAULT 'balanced'",
+        "show_suggested": "BOOLEAN DEFAULT true",
+        "content_filters": "JSONB DEFAULT '{}'",
+        "muted_words": "TEXT[]",
+        "boost_categories": "TEXT[]",
+        "updated_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    }
+  },
+  "patterns": [
+    "timeline-generation",
+    "feed-ranking",
+    "real-time-updates",
+    "infinite-scroll"
+  ],
+  "key_features": {
+    "personalized_feed": "Feed personalizado por ML",
+    "multiple_algorithms": "Diferentes algoritmos de feed",
+    "real_time": "Atualizações em tempo real",
+    "content_mixing": "Mix de conteúdo próprio e sugerido",
+    "story_integration": "Stories no topo do feed",
+    "sponsored_posts": "Posts patrocinados nativos",
+    "save_position": "Salvar posição de leitura"
+  },
+  "api_endpoints": {
+    "GET /api/timeline": "Feed principal personalizado",
+    "GET /api/timeline/following": "Apenas de quem segue",
+    "GET /api/timeline/explore": "Descobrir novo conteúdo",
+    "PUT /api/timeline/preferences": "Atualizar preferências",
+    "POST /api/timeline/refresh": "Forçar atualização"
+  },
+  "feed_algorithms": {
+    "balanced": {
+      "description": "Mix equilibrado de conteúdo",
+      "weights": {
+        "following": 0.6,
+        "suggested": 0.3,
+        "sponsored": 0.1
+      }
+    },
+    "chronological": {
+      "description": "Ordem cronológica pura",
+      "real_time": true
+    },
+    "engagement": {
+      "description": "Baseado em engajamento",
+      "boost_factors": ["likes", "comments", "shares"]
+    },
+    "discovery": {
+      "description": "Foco em novo conteúdo",
+      "exploration_rate": 0.7
+    }
+  },
+  "ranking_factors": [
+    "Relationship strength",
+    "Content engagement probability",
+    "Time decay",
+    "Content diversity",
+    "User online patterns",
+    "Previous interactions"
+  ],
+  "content_sources": {
+    "following": "Posts de quem segue",
+    "friends": "Atividade de amigos",
+    "communities": "Posts de comunidades",
+    "suggested": "Conteúdo recomendado",
+    "sponsored": "Conteúdo patrocinado",
+    "trending": "Em alta na plataforma"
+  },
+  "performance_optimizations": [
+    "Redis cache para feeds quentes",
+    "Pré-computação durante off-peak",
+    "Lazy loading de mídia",
+    "Cursor pagination",
+    "Edge caching com CDN"
+  ],
+  "timeline_features": {
+    "catch_up": "Resumo do que perdeu",
+    "highlight_important": "Destacar posts importantes",
+    "group_similar": "Agrupar atividades similares",
+    "hide_seen": "Ocultar conteúdo já visto",
+    "boost_close_friends": "Priorizar amigos próximos"
+  },
+  "anti_patterns": [
+    "Evitar echo chambers",
+    "Limitar posts do mesmo autor",
+    "Detectar e reduzir spam",
+    "Balancear tipos de conteúdo"
+  ],
+  "common_issues": [
+    "Latência na geração do feed",
+    "Conteúdo repetitivo",
+    "Missing posts importantes",
+    "Sincronização entre devices"
+  ]
+}

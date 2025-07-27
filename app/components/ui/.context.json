@@ -1,0 +1,82 @@
+{
+  "module": "app/components/ui",
+  "description": "Componentes UI customizados e extensões do Hero UI",
+  "dependencies": [
+    "react",
+    "@heroui/react",
+    "lucide-react",
+    "framer-motion",
+    "react-cropper"
+  ],
+  "key_files": [
+    "app/components/ui/avatar-badge.tsx",
+    "app/components/ui/avatar-group.tsx",
+    "app/components/ui/robust-avatar.tsx",
+    "app/components/ui/enhanced-image-upload.tsx",
+    "app/components/ui/image-cropper.tsx",
+    "app/components/ui/notification-icons.tsx",
+    "app/components/ui/card-08.tsx"
+  ],
+  "patterns": [
+    "component-extension",
+    "design-system",
+    "accessibility"
+  ],
+  "component_categories": {
+    "avatars": {
+      "components": ["avatar-badge", "avatar-group", "robust-avatar"],
+      "features": "Avatars com badges, grupos, fallbacks"
+    },
+    "media": {
+      "components": ["enhanced-image-upload", "image-cropper"],
+      "features": "Upload avançado, crop de imagens"
+    },
+    "feedback": {
+      "components": ["notification-icons"],
+      "features": "Ícones e indicadores de notificação"
+    },
+    "layout": {
+      "components": ["card-08"],
+      "features": "Cards e containers customizados"
+    }
+  },
+  "avatar_features": {
+    "badges": "Status badges (online, premium)",
+    "groups": "Grupos de avatars empilhados",
+    "fallbacks": "Fallback para iniciais",
+    "loading": "Estados de carregamento",
+    "sizes": "Múltiplos tamanhos"
+  },
+  "upload_features": {
+    "drag_drop": "Arrastar e soltar",
+    "preview": "Preview instantâneo",
+    "cropping": "Crop de imagem",
+    "validation": "Validação de tipo/tamanho",
+    "progress": "Indicador de progresso"
+  },
+  "design_tokens": {
+    "colors": "Paleta de cores consistente",
+    "spacing": "Sistema de espaçamento",
+    "typography": "Escalas tipográficas",
+    "shadows": "Sombras padronizadas",
+    "animations": "Animações consistentes"
+  },
+  "accessibility": {
+    "aria_labels": "Labels descritivos",
+    "keyboard_nav": "Navegação por teclado",
+    "focus_indicators": "Indicadores de foco",
+    "screen_readers": "Suporte a leitores"
+  },
+  "customization": {
+    "theme_aware": "Respeita tema claro/escuro",
+    "css_variables": "Variáveis CSS customizáveis",
+    "tailwind_classes": "Classes Tailwind",
+    "variants": "Múltiplas variantes"
+  },
+  "common_issues": [
+    "Theme consistency",
+    "Cross-browser compatibility",
+    "Performance with animations",
+    "Mobile touch targets"
+  ]
+}

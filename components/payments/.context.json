@@ -1,0 +1,44 @@
+{
+  "module": "components/payments",
+  "description": "Componentes de métodos de pagamento",
+  "dependencies": [
+    "react",
+    "@heroui/react"
+  ],
+  "key_files": [
+    "components/payments/PaymentMethodSelector.tsx",
+    "components/payments/PixPayment.tsx"
+  ],
+  "patterns": [
+    "payment-integration",
+    "form-handling",
+    "validation"
+  ],
+  "payment_components": {
+    "PaymentMethodSelector": "Seletor de método de pagamento",
+    "PixPayment": "Componente específico para PIX"
+  },
+  "payment_methods": {
+    "credit_card": "Cartão de crédito via Stripe",
+    "pix": "PIX via AbacatePay/MercadoPago",
+    "boleto": "Boleto via MercadoPago"
+  },
+  "pix_features": {
+    "qr_code": "Geração de QR Code",
+    "copy_paste": "Código copia e cola",
+    "instant_confirmation": "Confirmação instantânea",
+    "webhook": "Notificação via webhook"
+  },
+  "security": {
+    "tokenization": "Tokenização de dados",
+    "pci_compliance": "Conformidade PCI",
+    "ssl": "Comunicação SSL",
+    "validation": "Validação client-side"
+  },
+  "common_issues": [
+    "Payment provider switching",
+    "Webhook configuration",
+    "Currency handling",
+    "Error messages"
+  ]
+}

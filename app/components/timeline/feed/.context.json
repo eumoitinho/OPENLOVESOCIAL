@@ -1,0 +1,40 @@
+{
+  "module": "app/components/timeline/feed",
+  "description": "Componentes específicos do feed da timeline",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "framer-motion"
+  ],
+  "key_files": [
+    "app/components/timeline/feed/PostCard.tsx",
+    "app/components/timeline/feed/CreatePostDialog.tsx"
+  ],
+  "patterns": [
+    "feed-composition",
+    "post-rendering",
+    "infinite-scroll"
+  ],
+  "component_features": {
+    "PostCard": "Card de post no feed",
+    "CreatePostDialog": "Dialog de criação de post"
+  },
+  "post_card_elements": {
+    "header": "Avatar, nome, tempo",
+    "content": "Texto e mídia",
+    "interactions": "Like, comment, share",
+    "footer": "Estatísticas e ações"
+  },
+  "feed_optimization": {
+    "virtualization": "Renderização virtual",
+    "lazy_loading": "Carregamento sob demanda",
+    "caching": "Cache de posts",
+    "prefetching": "Pré-carregamento"
+  },
+  "common_issues": [
+    "Performance com muitos posts",
+    "Media loading",
+    "Interaction state sync"
+  ]
+}

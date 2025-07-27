@@ -1,0 +1,70 @@
+{
+  "module": "app/components/location",
+  "description": "Componentes para funcionalidades baseadas em localização",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "@googlemaps/google-maps-services-js"
+  ],
+  "key_files": [
+    "app/components/location/LocationPicker.tsx",
+    "app/components/location/LocationSearch.tsx"
+  ],
+  "database_tables": [
+    "user_locations",
+    "places",
+    "location_history"
+  ],
+  "patterns": [
+    "geolocation-api",
+    "map-integration",
+    "location-privacy"
+  ],
+  "component_features": {
+    "LocationPicker": "Seletor de localização com mapa",
+    "LocationSearch": "Busca de endereços e lugares"
+  },
+  "location_features": {
+    "current_location": "Obter localização atual",
+    "map_picker": "Escolher no mapa",
+    "address_search": "Buscar por endereço",
+    "place_search": "Buscar estabelecimentos",
+    "coordinates": "Input manual de coordenadas"
+  },
+  "map_integration": {
+    "provider": "Google Maps",
+    "features": [
+      "Interactive map",
+      "Marker placement",
+      "Geocoding",
+      "Reverse geocoding",
+      "Place details"
+    ]
+  },
+  "privacy_features": {
+    "permission_request": "Solicitar permissão",
+    "location_fuzzing": "Aproximar localização",
+    "privacy_zones": "Zonas de privacidade",
+    "opt_out": "Opção de não compartilhar"
+  },
+  "search_features": {
+    "autocomplete": "Autocompletar endereços",
+    "nearby_places": "Lugares próximos",
+    "categories": "Buscar por categoria",
+    "saved_locations": "Locais salvos"
+  },
+  "location_data": {
+    "latitude": "Coordenada latitude",
+    "longitude": "Coordenada longitude",
+    "address": "Endereço formatado",
+    "place_id": "ID do Google Places",
+    "accuracy": "Precisão em metros"
+  },
+  "common_issues": [
+    "Permissão negada",
+    "GPS desabilitado",
+    "Precisão baixa",
+    "API rate limits"
+  ]
+}

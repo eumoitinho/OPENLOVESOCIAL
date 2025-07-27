@@ -1,0 +1,72 @@
+{
+  "module": "app/notificacoes",
+  "description": "Página de central de notificações",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react"
+  ],
+  "key_files": [
+    "app/notificacoes/page.tsx"
+  ],
+  "database_tables": [
+    "notifications",
+    "notification_settings"
+  ],
+  "database_schema": {
+    "notifications": {
+      "description": "Notificações dos usuários",
+      "columns": {
+        "id": "UUID PRIMARY KEY",
+        "user_id": "UUID REFERENCES users(id)",
+        "type": "VARCHAR(50)",
+        "title": "VARCHAR(255)",
+        "message": "TEXT",
+        "actor_id": "UUID REFERENCES users(id)",
+        "entity_type": "VARCHAR(50)",
+        "entity_id": "UUID",
+        "is_read": "BOOLEAN DEFAULT false",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    }
+  },
+  "patterns": [
+    "notification-center",
+    "real-time-updates",
+    "batch-notifications"
+  ],
+  "notification_types": [
+    "like",
+    "comment",
+    "follow",
+    "friend_request",
+    "mention",
+    "event_reminder",
+    "system"
+  ],
+  "key_features": {
+    "notification_list": "Lista de todas notificações",
+    "filter_by_type": "Filtrar por tipo",
+    "mark_as_read": "Marcar como lida",
+    "clear_all": "Limpar todas",
+    "notification_settings": "Configurações de notificação"
+  },
+  "page_sections": {
+    "unread": "Não lidas",
+    "today": "Hoje",
+    "earlier": "Anteriores",
+    "settings": "Preferências"
+  },
+  "real_time_features": {
+    "push_notifications": "Notificações push",
+    "sound_alerts": "Alertas sonoros",
+    "desktop_notifications": "Notificações desktop",
+    "badge_count": "Contador no ícone"
+  },
+  "common_issues": [
+    "Volume alto de notificações",
+    "Agrupamento inteligente",
+    "Performance com muitas notifs",
+    "Sincronização entre devices"
+  ]
+}

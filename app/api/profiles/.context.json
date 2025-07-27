@@ -1,0 +1,104 @@
+{
+  "module": "api/profiles",
+  "description": "APIs para visualização e busca de perfis de outros usuários",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod"
+  ],
+  "key_files": [
+    "app/api/profiles/[username]/route.ts",
+    "app/api/profiles/search/route.ts",
+    "app/api/profiles/suggestions/route.ts"
+  ],
+  "database_tables": [
+    "users",
+    "profile_views",
+    "user_blocks",
+    "user_reports"
+  ],
+  "database_schema": {
+    "profile_views": {
+      "description": "Registro de visualizações de perfil",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "viewer_id": "UUID REFERENCES users(id)",
+        "viewed_id": "UUID REFERENCES users(id)",
+        "source": "VARCHAR(50)",
+        "viewed_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "UNIQUE": "(viewer_id, viewed_id, DATE(viewed_at))"
+      }
+    },
+    "user_blocks": {
+      "description": "Usuários bloqueados",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "blocker_id": "UUID REFERENCES users(id)",
+        "blocked_id": "UUID REFERENCES users(id)",
+        "reason": "VARCHAR(100)",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "UNIQUE": "(blocker_id, blocked_id)"
+      }
+    }
+  },
+  "patterns": [
+    "privacy-aware-viewing",
+    "suggestion-algorithm",
+    "blocking-system",
+    "search-optimization"
+  ],
+  "key_features": {
+    "profile_search": "Busca por nome, username, interesses",
+    "suggestions": "Sugestões baseadas em ML",
+    "mutual_connections": "Amigos em comum",
+    "view_tracking": "Rastrear visualizações (respeitando privacidade)",
+    "block_system": "Bloquear usuários problemáticos",
+    "report_profiles": "Denunciar perfis falsos/abusivos",
+    "compatibility_score": "Score de compatibilidade (premium)"
+  },
+  "api_endpoints": {
+    "GET /api/profiles/[username]": "Ver perfil por username",
+    "GET /api/profiles/search": "Buscar perfis",
+    "GET /api/profiles/suggestions": "Sugestões de perfis",
+    "POST /api/profiles/[id]/block": "Bloquear usuário",
+    "POST /api/profiles/[id]/report": "Denunciar perfil"
+  },
+  "search_features": {
+    "filters": {
+      "age_range": "Faixa etária",
+      "location": "Cidade/Estado",
+      "interests": "Interesses em comum",
+      "relationship_status": "Status de relacionamento",
+      "last_active": "Atividade recente"
+    },
+    "sorting": ["relevance", "distance", "popularity", "newest"],
+    "pagination": "Cursor-based para performance"
+  },
+  "suggestion_algorithm": {
+    "factors": [
+      "Interesses em comum",
+      "Localização próxima",
+      "Amigos em comum",
+      "Padrões de interação similares",
+      "Comunidades em comum"
+    ],
+    "ml_features": "Collaborative filtering + content-based"
+  },
+  "privacy_considerations": [
+    "Respeitar configurações de privacidade",
+    "Não mostrar perfis bloqueados",
+    "Modo anônimo para visualização",
+    "Limitar informações para não-amigos"
+  ],
+  "blocking_effects": [
+    "Não aparecer em buscas",
+    "Não poder enviar mensagens",
+    "Não ver posts um do outro",
+    "Não receber notificações"
+  ],
+  "common_issues": [
+    "Performance com muitos perfis",
+    "Precisão das sugestões",
+    "Privacidade vs descoberta",
+    "Perfis duplicados/falsos"
+  ]
+}

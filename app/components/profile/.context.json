@@ -1,0 +1,83 @@
+{
+  "module": "app/components/profile",
+  "description": "Componentes para perfil de usuário e gerenciamento",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "react-hook-form",
+    "recharts"
+  ],
+  "key_files": [
+    "app/components/profile/UserProfile.tsx",
+    "app/components/profile/ProfileEditor.tsx",
+    "app/components/profile/ProfileStats.tsx",
+    "app/components/profile/MediaGallery.tsx",
+    "app/components/profile/ProfileViewers.tsx",
+    "app/components/profile/ProfileRecommendations.tsx",
+    "app/components/profile/PrivateContentGuard.tsx",
+    "app/components/profile/UsernameUpdater.tsx",
+    "app/components/profile/ProfileFix.tsx",
+    "app/components/profile/SimpleProfileFix.tsx"
+  ],
+  "database_tables": [
+    "users",
+    "user_stats",
+    "profile_views",
+    "profile_customization"
+  ],
+  "patterns": [
+    "profile-management",
+    "privacy-controls",
+    "stats-visualization"
+  ],
+  "component_features": {
+    "UserProfile": "Visualização completa do perfil",
+    "ProfileEditor": "Editor de perfil completo",
+    "ProfileStats": "Estatísticas e analytics",
+    "MediaGallery": "Galeria de mídia do perfil",
+    "ProfileViewers": "Quem viu o perfil (premium)",
+    "ProfileRecommendations": "Recomendações de perfil",
+    "PrivateContentGuard": "Proteção de conteúdo privado",
+    "UsernameUpdater": "Atualizar username"
+  },
+  "profile_sections": {
+    "header": "Foto, capa, nome, bio",
+    "stats": "Seguidores, posts, amigos",
+    "about": "Informações detalhadas",
+    "interests": "Interesses e hobbies",
+    "timeline": "Posts do usuário",
+    "media": "Fotos e vídeos",
+    "achievements": "Conquistas e badges"
+  },
+  "privacy_features": {
+    "visibility": "Público, amigos, privado",
+    "content_protection": "Proteção de conteúdo",
+    "viewer_tracking": "Rastrear visualizações",
+    "block_list": "Lista de bloqueados"
+  },
+  "stats_tracking": {
+    "profile_views": "Visualizações do perfil",
+    "post_engagement": "Engajamento em posts",
+    "follower_growth": "Crescimento de seguidores",
+    "content_performance": "Performance de conteúdo"
+  },
+  "profile_customization": {
+    "themes": "Temas de perfil",
+    "layout": "Layout customizado",
+    "featured_content": "Conteúdo em destaque",
+    "custom_sections": "Seções personalizadas"
+  },
+  "editor_features": {
+    "real_time_preview": "Preview em tempo real",
+    "drag_drop": "Arrastar seções",
+    "media_management": "Gerenciar mídia",
+    "validation": "Validação de campos"
+  },
+  "common_issues": [
+    "Upload de imagens grandes",
+    "Cache de perfil",
+    "Username availability check",
+    "Privacy setting conflicts"
+  ]
+}

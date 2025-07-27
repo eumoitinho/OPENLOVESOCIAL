@@ -1,0 +1,89 @@
+{
+  "module": "app/components/media",
+  "description": "Componentes para upload e visualização de mídia",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "react-dropzone",
+    "sharp"
+  ],
+  "key_files": [
+    "app/components/media/MediaUpload.tsx",
+    "app/components/media/MediaGallery.tsx",
+    "app/components/media/MediaUploadButtons.tsx",
+    "app/components/media/OptimizedMediaUpload.tsx"
+  ],
+  "database_tables": [
+    "uploads",
+    "media_metadata",
+    "media_processing_queue"
+  ],
+  "patterns": [
+    "progressive-upload",
+    "image-optimization",
+    "lazy-loading"
+  ],
+  "component_features": {
+    "MediaUpload": "Upload de mídia com preview",
+    "MediaGallery": "Galeria de imagens/vídeos",
+    "MediaUploadButtons": "Botões de upload especializados",
+    "OptimizedMediaUpload": "Upload otimizado com compressão"
+  },
+  "upload_features": {
+    "drag_drop": "Arrastar e soltar arquivos",
+    "multi_select": "Seleção múltipla",
+    "preview": "Preview antes do upload",
+    "progress": "Barra de progresso",
+    "validation": "Validação de tipo/tamanho",
+    "optimization": "Otimização automática"
+  },
+  "media_types": {
+    "images": {
+      "formats": ["jpg", "png", "webp", "gif"],
+      "max_size": "10MB",
+      "optimization": "Redimensionar e comprimir"
+    },
+    "videos": {
+      "formats": ["mp4", "webm", "mov"],
+      "max_size": "100MB",
+      "processing": "Thumbnail generation"
+    },
+    "audio": {
+      "formats": ["mp3", "wav", "m4a"],
+      "max_size": "50MB",
+      "visualization": "Waveform"
+    }
+  },
+  "optimization_features": [
+    "Client-side compression",
+    "Auto-rotate EXIF",
+    "Format conversion",
+    "Multiple resolutions",
+    "Lazy loading",
+    "Progressive images"
+  ],
+  "gallery_features": {
+    "grid_layout": "Layout responsivo",
+    "lightbox": "Visualização fullscreen",
+    "zoom": "Zoom e pan",
+    "slideshow": "Modo apresentação",
+    "download": "Download original"
+  },
+  "upload_limits": {
+    "free": {
+      "file_size": "10MB",
+      "total_storage": "5GB"
+    },
+    "premium": {
+      "file_size": "500MB",
+      "total_storage": "500GB"
+    }
+  },
+  "common_issues": [
+    "Upload de arquivos grandes",
+    "Orientação de imagem",
+    "Compatibilidade de formatos",
+    "Performance com muitas imagens"
+  ]
+}

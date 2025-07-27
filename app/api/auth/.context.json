@@ -1,0 +1,123 @@
+{
+  "module": "api/auth",
+  "description": "API de autenticação e registro de usuários, incluindo verificação de email e gestão de sessões",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod",
+    "jsonwebtoken",
+    "bcryptjs",
+    "nodemailer"
+  ],
+  "key_files": [
+    "app/api/auth/register/route.ts",
+    "app/api/auth/verify-email/route.ts",
+    "app/api/auth/test/route.ts",
+    "app/api/auth/test-registration/route.ts"
+  ],
+  "database_tables": [
+    "users",
+    "auth.users",
+    "user_profiles",
+    "email_verifications",
+    "password_resets"
+  ],
+  "database_schema": {
+    "users": {
+      "description": "Tabela principal de usuários da aplicação",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "auth_id": "UUID UNIQUE REFERENCES auth.users(id)",
+        "username": "VARCHAR(50) UNIQUE NOT NULL",
+        "email": "VARCHAR(255) UNIQUE NOT NULL",
+        "name": "VARCHAR(100)",
+        "first_name": "VARCHAR(50)",
+        "last_name": "VARCHAR(50)",
+        "bio": "TEXT",
+        "avatar_url": "TEXT",
+        "birth_date": "DATE",
+        "gender": "VARCHAR(20)",
+        "profile_type": "VARCHAR(20) DEFAULT 'single'",
+        "location": "VARCHAR(255)",
+        "city": "VARCHAR(100)",
+        "uf": "VARCHAR(2)",
+        "latitude": "DECIMAL(10, 8)",
+        "longitude": "DECIMAL(11, 8)",
+        "is_verified": "BOOLEAN DEFAULT false",
+        "is_active": "BOOLEAN DEFAULT true",
+        "is_premium": "BOOLEAN DEFAULT false",
+        "premium_type": "VARCHAR(20)",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "updated_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "email_verifications": {
+      "description": "Tokens de verificação de email",
+      "columns": {
+        "id": "UUID PRIMARY KEY",
+        "user_id": "UUID REFERENCES users(id)",
+        "token": "VARCHAR(255) UNIQUE",
+        "expires_at": "TIMESTAMP WITH TIME ZONE",
+        "verified_at": "TIMESTAMP WITH TIME ZONE",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    }
+  },
+  "patterns": [
+    "jwt-authentication",
+    "email-verification",
+    "password-hashing",
+    "session-management",
+    "oauth-integration"
+  ],
+  "related_modules": [
+    "profile",
+    "users",
+    "notifications"
+  ],
+  "key_features": {
+    "registration": "Registro completo com validação de dados",
+    "email_verification": "Verificação de email obrigatória",
+    "password_security": "Hash bcrypt com salt",
+    "session_management": "Tokens JWT e refresh tokens",
+    "oauth": "Login social (Google, Facebook)",
+    "2fa": "Autenticação de dois fatores (opcional)",
+    "password_reset": "Recuperação de senha por email"
+  },
+  "api_endpoints": {
+    "POST /api/auth/register": "Criar nova conta",
+    "POST /api/auth/verify-email": "Verificar email com token",
+    "POST /api/auth/login": "Login com email/senha",
+    "POST /api/auth/logout": "Logout e invalidar sessão",
+    "POST /api/auth/refresh": "Renovar access token",
+    "POST /api/auth/forgot-password": "Solicitar reset de senha",
+    "POST /api/auth/reset-password": "Resetar senha com token"
+  },
+  "validation_rules": {
+    "username": "3-30 caracteres, alfanumérico e underscore",
+    "email": "Email válido e único",
+    "password": "Mínimo 6 caracteres, 1 maiúscula, 1 número",
+    "age": "Mínimo 18 anos"
+  },
+  "common_issues": [
+    "Emails de verificação indo para spam",
+    "Expiração de tokens de sessão",
+    "Conflitos de username/email duplicados",
+    "Rate limiting em tentativas de login",
+    "Sincronização auth.users e public.users"
+  ],
+  "security_notes": [
+    "Passwords sempre hasheados com bcrypt",
+    "Tokens JWT com expiração curta",
+    "Rate limiting por IP",
+    "Proteção contra brute force",
+    "Sanitização de inputs",
+    "CSRF protection",
+    "Secure cookies para tokens"
+  ],
+  "rls_policies": [
+    "Usuários podem ler próprio perfil",
+    "Apenas sistema pode criar usuários",
+    "Verificação de email required para ações",
+    "Proteção de dados sensíveis"
+  ]
+}

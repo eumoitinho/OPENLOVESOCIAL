@@ -1,0 +1,63 @@
+{
+  "module": "app/quem-seguir",
+  "description": "Página de sugestões de pessoas para seguir",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react"
+  ],
+  "key_files": [
+    "app/quem-seguir/page.tsx"
+  ],
+  "database_tables": [
+    "user_suggestions",
+    "follows",
+    "interaction_scores"
+  ],
+  "patterns": [
+    "recommendation-algorithm",
+    "social-graph-analysis",
+    "batch-follow"
+  ],
+  "key_features": {
+    "smart_suggestions": "Sugestões baseadas em ML",
+    "category_filters": "Filtrar por categoria",
+    "mutual_connections": "Baseado em conexões mútuas",
+    "interests_matching": "Match por interesses",
+    "batch_follow": "Seguir múltiplos de uma vez"
+  },
+  "suggestion_sources": {
+    "contacts": "Importar contatos",
+    "social_graph": "Amigos de amigos",
+    "interests": "Interesses similares",
+    "location": "Mesma região",
+    "interactions": "Interações passadas"
+  },
+  "user_card_elements": {
+    "profile_info": "Foto, nome, bio",
+    "mutual_info": "X amigos em comum",
+    "interests": "Interesses compartilhados",
+    "recent_activity": "Atividade recente",
+    "follow_button": "Botão de seguir"
+  },
+  "algorithm_factors": [
+    "Amigos em comum",
+    "Interesses similares",
+    "Localização próxima",
+    "Padrões de atividade",
+    "Engajamento mútuo"
+  ],
+  "page_sections": {
+    "trending_creators": "Criadores em alta",
+    "similar_to_you": "Perfis similares",
+    "friends_of_friends": "Amigos de amigos",
+    "new_to_platform": "Novos usuários",
+    "by_interest": "Por interesse"
+  },
+  "common_issues": [
+    "Sugestões repetitivas",
+    "Cold start problem",
+    "Diversidade de sugestões",
+    "Performance do algoritmo"
+  ]
+}

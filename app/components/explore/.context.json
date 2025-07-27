@@ -1,0 +1,63 @@
+{
+  "module": "app/components/explore",
+  "description": "Componentes para exploração e descoberta de conteúdo",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react"
+  ],
+  "key_files": [
+    "app/components/explore/ExploreFilters.tsx",
+    "app/components/explore/ExploreProfiles.tsx",
+    "app/components/explore/ProfileCard.tsx"
+  ],
+  "database_tables": [
+    "user_interests",
+    "trending_content",
+    "explore_categories"
+  ],
+  "patterns": [
+    "content-discovery",
+    "recommendation-display",
+    "filter-system"
+  ],
+  "component_features": {
+    "ExploreFilters": "Sistema de filtros para exploração",
+    "ExploreProfiles": "Grid de perfis para descoberta",
+    "ProfileCard": "Card de perfil com ações rápidas"
+  },
+  "explore_features": {
+    "smart_filters": "Filtros inteligentes",
+    "category_browse": "Navegar por categoria",
+    "trending_content": "Conteúdo em alta",
+    "personalized": "Recomendações personalizadas",
+    "location_based": "Descoberta por localização"
+  },
+  "filter_options": {
+    "interests": "Filtrar por interesses",
+    "location": "Proximidade geográfica",
+    "age_range": "Faixa etária",
+    "activity": "Nível de atividade",
+    "verified": "Apenas verificados"
+  },
+  "discovery_algorithms": [
+    "Interest matching",
+    "Collaborative filtering",
+    "Content-based filtering",
+    "Social graph analysis",
+    "Trending detection"
+  ],
+  "profile_card_elements": {
+    "avatar": "Foto com status online",
+    "info": "Nome, bio, localização",
+    "stats": "Seguidores, posts",
+    "interests": "Tags de interesse",
+    "actions": "Seguir, mensagem, ver perfil"
+  },
+  "common_issues": [
+    "Relevância das recomendações",
+    "Performance com muitos perfis",
+    "Filter state management",
+    "Infinite scroll performance"
+  ]
+}

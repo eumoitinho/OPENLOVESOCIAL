@@ -1,0 +1,47 @@
+{
+  "module": "app/dashboard",
+  "description": "Dashboard principal com visão geral da conta e atividades",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "recharts"
+  ],
+  "key_files": [
+    "app/dashboard/page.tsx",
+    "app/dashboard/DashboardClient.tsx"
+  ],
+  "database_tables": [
+    "user_stats",
+    "activity_logs",
+    "analytics_data"
+  ],
+  "patterns": [
+    "data-visualization",
+    "real-time-updates",
+    "responsive-layout"
+  ],
+  "key_features": {
+    "activity_overview": "Resumo de atividades recentes",
+    "stats_cards": "Cards com estatísticas principais",
+    "engagement_charts": "Gráficos de engajamento",
+    "quick_actions": "Ações rápidas",
+    "notifications_summary": "Resumo de notificações"
+  },
+  "dashboard_sections": {
+    "profile_stats": "Visualizações, seguidores, likes",
+    "content_performance": "Performance de posts",
+    "growth_metrics": "Métricas de crescimento",
+    "recent_activity": "Atividades recentes"
+  },
+  "premium_features": {
+    "advanced_analytics": "Analytics avançado (premium)",
+    "export_data": "Exportar dados (premium)",
+    "custom_reports": "Relatórios customizados"
+  },
+  "common_issues": [
+    "Performance com muitos dados",
+    "Sincronização real-time",
+    "Responsividade mobile"
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "module": "api",
+  "description": "API Routes do Next.js que fornecem o backend para todas as funcionalidades da aplicação, incluindo autenticação, posts, chat, pagamentos e mais",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "stripe",
+    "abacatepay-nodejs-sdk",
+    "mercadopago",
+    "zod",
+    "jsonwebtoken",
+    "@upstash/redis"
+  ],
+  "subdirectories": {
+    "abacatepay": "Integração com gateway de pagamento AbacatePay (PIX)",
+    "ads": "APIs para sistema de publicidade",
+    "auth": "Endpoints de autenticação e registro",
+    "chat": "APIs de mensagens e conversas em tempo real",
+    "communities": "Gestão de comunidades e grupos",
+    "content": "APIs para conteúdo premium",
+    "events": "Sistema de eventos e encontros",
+    "friends": "Gestão de amizades e conexões",
+    "notifications": "Sistema de notificações",
+    "open-dates": "APIs do sistema de encontros",
+    "payments": "Processamento de pagamentos",
+    "posts": "CRUD de posts e timeline",
+    "profile": "Gestão de perfis de usuário",
+    "profiles": "APIs de descoberta de perfis",
+    "search": "Sistema de busca",
+    "stripe": "Integração com Stripe",
+    "timeline": "APIs do feed principal",
+    "trending": "Conteúdo em alta",
+    "users": "Gestão de usuários",
+    "verification": "Sistema de verificação de contas"
+  },
+  "patterns": [
+    "rest-api",
+    "middleware-validation",
+    "error-handling",
+    "rate-limiting",
+    "webhook-handling",
+    "async-processing"
+  ],
+  "key_features": {
+    "authentication": "JWT tokens e sessões Supabase",
+    "validation": "Validação com Zod schemas",
+    "rate_limiting": "Proteção contra abuso com Upstash",
+    "webhooks": "Handlers para Stripe, AbacatePay, etc",
+    "real_time": "Integração com Supabase Realtime",
+    "file_upload": "Upload para Supabase Storage",
+    "error_handling": "Tratamento consistente de erros",
+    "cors": "Configuração de CORS para segurança"
+  },
+  "common_issues": [
+    "Timeout em operações longas",
+    "Gerenciamento de limites de API",
+    "Sincronização de webhooks",
+    "Validação de dados complexos",
+    "Tratamento de uploads grandes"
+  ],
+  "performance_considerations": [
+    "Caching com Redis/Upstash",
+    "Paginação em listagens",
+    "Otimização de queries SQL",
+    "Compressão de respostas",
+    "Connection pooling",
+    "Batch operations"
+  ],
+  "security_notes": [
+    "Autenticação em todas as rotas privadas",
+    "Validação de inputs com Zod",
+    "Rate limiting por IP/usuário",
+    "Sanitização de dados",
+    "CORS configurado",
+    "Secrets em variáveis de ambiente",
+    "Verificação de webhooks signatures"
+  ],
+  "middleware_stack": [
+    "Authentication check",
+    "Rate limiting",
+    "Request validation",
+    "Error handling",
+    "Response formatting",
+    "Logging"
+  ],
+  "response_format": {
+    "success": {
+      "success": true,
+      "data": "any",
+      "message": "string (optional)"
+    },
+    "error": {
+      "success": false,
+      "error": "string",
+      "code": "string (optional)",
+      "details": "any (optional)"
+    }
+  }
+}

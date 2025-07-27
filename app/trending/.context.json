@@ -1,0 +1,69 @@
+{
+  "module": "app/trending",
+  "description": "Página de conteúdo em alta e trending topics",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "recharts"
+  ],
+  "key_files": [
+    "app/trending/page.tsx"
+  ],
+  "database_tables": [
+    "trending_topics",
+    "trending_hashtags",
+    "viral_content"
+  ],
+  "patterns": [
+    "trend-analysis",
+    "real-time-aggregation",
+    "viral-detection"
+  ],
+  "key_features": {
+    "trending_topics": "Tópicos em alta",
+    "viral_posts": "Posts virais",
+    "trending_hashtags": "Hashtags populares",
+    "trending_users": "Criadores em destaque",
+    "trend_charts": "Gráficos de tendência",
+    "category_trends": "Tendências por categoria"
+  },
+  "trending_sections": {
+    "now_trending": "Em alta agora",
+    "today": "Trending hoje",
+    "this_week": "Desta semana",
+    "by_category": "Por categoria",
+    "by_location": "Por região"
+  },
+  "trend_metrics": {
+    "velocity": "Velocidade de crescimento",
+    "engagement": "Taxa de engajamento",
+    "reach": "Alcance total",
+    "sentiment": "Sentimento geral"
+  },
+  "content_types": {
+    "posts": "Posts virais",
+    "videos": "Vídeos em alta",
+    "hashtags": "Hashtags trending",
+    "challenges": "Desafios populares",
+    "events": "Eventos em destaque"
+  },
+  "visualization": {
+    "trend_graphs": "Gráficos de linha",
+    "heat_maps": "Mapas de calor",
+    "word_clouds": "Nuvem de palavras",
+    "geo_maps": "Mapas geográficos"
+  },
+  "filters": {
+    "time_range": "Período de tempo",
+    "category": "Categoria de conteúdo",
+    "location": "Região geográfica",
+    "content_type": "Tipo de conteúdo"
+  },
+  "common_issues": [
+    "Cálculo de trending em real-time",
+    "Filtragem de conteúdo inadequado",
+    "Performance com muitos dados",
+    "Diversidade de conteúdo"
+  ]
+}

@@ -1,0 +1,168 @@
+{
+  "module": "api/upload",
+  "description": "APIs para upload de arquivos, processamento de mídia e gerenciamento de storage",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod",
+    "sharp",
+    "ffmpeg",
+    "file-type",
+    "multer"
+  ],
+  "key_files": [
+    "app/api/upload/image/route.ts",
+    "app/api/upload/video/route.ts",
+    "app/api/upload/audio/route.ts",
+    "app/api/upload/avatar/route.ts"
+  ],
+  "database_tables": [
+    "uploads",
+    "media_processing_queue",
+    "storage_usage"
+  ],
+  "database_schema": {
+    "uploads": {
+      "description": "Registro de todos os uploads",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "file_name": "VARCHAR(255)",
+        "file_type": "VARCHAR(50)",
+        "mime_type": "VARCHAR(100)",
+        "size_bytes": "BIGINT",
+        "storage_path": "TEXT",
+        "public_url": "TEXT",
+        "thumbnail_url": "TEXT",
+        "metadata": "JSONB",
+        "processing_status": "VARCHAR(20) DEFAULT 'pending'",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "storage_usage": {
+      "description": "Uso de armazenamento por usuário",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id) UNIQUE",
+        "total_bytes": "BIGINT DEFAULT 0",
+        "image_bytes": "BIGINT DEFAULT 0",
+        "video_bytes": "BIGINT DEFAULT 0",
+        "audio_bytes": "BIGINT DEFAULT 0",
+        "file_count": "INTEGER DEFAULT 0",
+        "updated_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    }
+  },
+  "patterns": [
+    "chunked-upload",
+    "progressive-enhancement",
+    "async-processing",
+    "cdn-integration"
+  ],
+  "key_features": {
+    "multi_format": "Suporte para imagem, vídeo, áudio",
+    "auto_optimization": "Otimização automática de mídia",
+    "thumbnail_generation": "Geração de thumbnails",
+    "virus_scanning": "Scan de vírus/malware",
+    "duplicate_detection": "Detecção de duplicatas",
+    "batch_upload": "Upload múltiplo",
+    "resumable_upload": "Upload resumível para arquivos grandes"
+  },
+  "api_endpoints": {
+    "POST /api/upload/image": "Upload de imagem",
+    "POST /api/upload/video": "Upload de vídeo",
+    "POST /api/upload/audio": "Upload de áudio",
+    "POST /api/upload/avatar": "Upload de avatar",
+    "GET /api/upload/status/[id]": "Status do processamento",
+    "DELETE /api/upload/[id]": "Deletar upload"
+  },
+  "image_processing": {
+    "formats_accepted": ["jpg", "jpeg", "png", "webp", "gif", "avif"],
+    "max_size": "10MB",
+    "resolutions": {
+      "thumbnail": "150x150",
+      "small": "320x320",
+      "medium": "640x640",
+      "large": "1280x1280",
+      "original": "max 4096x4096"
+    },
+    "optimizations": [
+      "Compressão automática",
+      "Conversão para WebP",
+      "Strip metadata EXIF",
+      "Progressive loading"
+    ]
+  },
+  "video_processing": {
+    "formats_accepted": ["mp4", "mov", "avi", "webm"],
+    "max_size": {
+      "free": "100MB",
+      "gold": "500MB",
+      "diamond": "2GB"
+    },
+    "max_duration": {
+      "free": 60,
+      "gold": 300,
+      "diamond": 600
+    },
+    "processing": [
+      "Transcoding para MP4/H.264",
+      "Múltiplas resoluções (360p, 720p, 1080p)",
+      "Thumbnail extraction",
+      "Watermark opcional"
+    ]
+  },
+  "audio_processing": {
+    "formats_accepted": ["mp3", "wav", "m4a", "ogg"],
+    "max_size": "50MB",
+    "max_duration": 600,
+    "processing": [
+      "Normalização de volume",
+      "Conversão para MP3",
+      "Waveform generation",
+      "Metadata extraction"
+    ]
+  },
+  "security_measures": [
+    "Validação de tipo de arquivo",
+    "Scan antivírus com ClamAV",
+    "Sanitização de nomes de arquivo",
+    "Rate limiting por usuário",
+    "Verificação de conteúdo NSFW"
+  ],
+  "storage_limits": {
+    "free": {
+      "total": "5GB",
+      "per_file": "10MB"
+    },
+    "gold": {
+      "total": "50GB",
+      "per_file": "500MB"
+    },
+    "diamond": {
+      "total": "500GB",
+      "per_file": "2GB"
+    }
+  },
+  "cdn_configuration": {
+    "provider": "Cloudflare",
+    "cache_control": "public, max-age=31536000",
+    "image_optimization": true,
+    "hotlink_protection": true
+  },
+  "upload_workflow": {
+    "1_validate": "Validar arquivo e permissões",
+    "2_scan": "Scan de segurança",
+    "3_upload": "Upload para storage temporário",
+    "4_process": "Processamento assíncrono",
+    "5_optimize": "Otimização e variantes",
+    "6_distribute": "Distribuir para CDN",
+    "7_cleanup": "Limpar arquivos temporários"
+  },
+  "common_issues": [
+    "Timeout em uploads grandes",
+    "Processamento de vídeo lento",
+    "Estouro de limite de storage",
+    "Tipos de arquivo não suportados",
+    "Corrupção durante upload"
+  ]
+}

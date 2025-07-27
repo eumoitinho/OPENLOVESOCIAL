@@ -1,0 +1,73 @@
+{
+  "module": "app/verification",
+  "description": "Página de verificação de conta e identidade",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "react-webcam"
+  ],
+  "key_files": [
+    "app/verification/page.tsx"
+  ],
+  "database_tables": [
+    "verification_requests",
+    "verification_documents",
+    "verified_badges"
+  ],
+  "patterns": [
+    "multi-step-verification",
+    "document-upload",
+    "identity-validation"
+  ],
+  "key_features": {
+    "verification_types": "Diferentes tipos de verificação",
+    "document_upload": "Upload de documentos",
+    "selfie_verification": "Verificação por selfie",
+    "status_tracking": "Acompanhar status",
+    "badge_preview": "Preview do badge"
+  },
+  "verification_levels": {
+    "basic": {
+      "requirements": ["email", "phone"],
+      "badge": "Basic verified"
+    },
+    "identity": {
+      "requirements": ["government_id", "selfie"],
+      "badge": "Blue checkmark"
+    },
+    "business": {
+      "requirements": ["business_docs", "tax_id"],
+      "badge": "Business verified"
+    },
+    "celebrity": {
+      "requirements": ["press_proof", "management"],
+      "badge": "Gold checkmark"
+    }
+  },
+  "verification_process": {
+    "step1": "Escolher tipo de verificação",
+    "step2": "Upload de documentos",
+    "step3": "Verificação facial",
+    "step4": "Revisão e envio",
+    "step5": "Aguardar aprovação"
+  },
+  "document_requirements": {
+    "formats": ["jpg", "png", "pdf"],
+    "max_size": "10MB",
+    "quality": "Alta resolução",
+    "validity": "Documento válido"
+  },
+  "security_measures": {
+    "encryption": "Documentos criptografados",
+    "secure_upload": "Upload seguro",
+    "data_retention": "Retenção limitada",
+    "access_control": "Acesso restrito"
+  },
+  "common_issues": [
+    "Qualidade de documentos",
+    "Falha na verificação facial",
+    "Documentos expirados",
+    "Tempo de aprovação"
+  ]
+}

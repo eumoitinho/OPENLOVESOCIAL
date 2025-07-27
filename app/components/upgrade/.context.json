@@ -1,0 +1,68 @@
+{
+  "module": "app/components/upgrade",
+  "description": "Componentes para upgrade de plano e monetização",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "framer-motion"
+  ],
+  "key_files": [
+    "app/components/upgrade/PlanUpgradeModal.tsx"
+  ],
+  "database_tables": [
+    "subscription_plans",
+    "user_subscriptions"
+  ],
+  "patterns": [
+    "upgrade-flow",
+    "pricing-display",
+    "conversion-optimization"
+  ],
+  "component_features": {
+    "PlanUpgradeModal": "Modal de upgrade com comparação de planos"
+  },
+  "modal_sections": {
+    "plan_comparison": "Tabela comparativa de features",
+    "pricing": "Preços e descontos",
+    "benefits": "Lista de benefícios",
+    "testimonials": "Depoimentos de usuários",
+    "cta": "Call-to-action para upgrade"
+  },
+  "pricing_display": {
+    "monthly": "Preço mensal",
+    "yearly": "Preço anual com desconto",
+    "savings": "Economia destacada",
+    "currency": "Múltiplas moedas"
+  },
+  "upgrade_triggers": {
+    "feature_limit": "Limite de feature atingido",
+    "premium_content": "Tentar acessar conteúdo premium",
+    "manual": "Clique em upgrade",
+    "promotional": "Campanhas promocionais"
+  },
+  "conversion_elements": {
+    "urgency": "Oferta por tempo limitado",
+    "social_proof": "X usuários já são premium",
+    "guarantee": "Garantia de satisfação",
+    "easy_cancel": "Cancele quando quiser"
+  },
+  "plan_features": {
+    "free_vs_gold": "Comparação free vs gold",
+    "gold_vs_diamond": "Comparação gold vs diamond",
+    "exclusive": "Features exclusivas destacadas",
+    "limits": "Limites claramente mostrados"
+  },
+  "payment_integration": {
+    "stripe": "Checkout com Stripe",
+    "local_methods": "Métodos locais (PIX, boleto)",
+    "saved_cards": "Cartões salvos",
+    "trial": "Período de trial"
+  },
+  "common_issues": [
+    "Price localization",
+    "Payment failures",
+    "Feature comparison accuracy",
+    "Mobile modal layout"
+  ]
+}

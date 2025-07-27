@@ -1,0 +1,74 @@
+{
+  "module": "types",
+  "description": "Definições de tipos TypeScript globais",
+  "dependencies": [
+    "typescript",
+    "@types/node",
+    "stripe",
+    "mercadopago"
+  ],
+  "key_files": [
+    "types/stripe.d.ts",
+    "types/mercadopago.d.ts",
+    "types/abacatepay.ts",
+    "types/post.ts",
+    "types/community.ts",
+    "types/analytics.ts",
+    "types/verification.ts"
+  ],
+  "patterns": [
+    "type-definitions",
+    "declaration-files",
+    "module-augmentation"
+  ],
+  "type_categories": {
+    "payments": {
+      "files": ["stripe.d.ts", "mercadopago.d.ts", "abacatepay.ts"],
+      "purpose": "Tipos para integrações de pagamento"
+    },
+    "features": {
+      "files": ["post.ts", "community.ts", "verification.ts"],
+      "purpose": "Tipos de features principais"
+    },
+    "analytics": {
+      "files": ["analytics.ts"],
+      "purpose": "Tipos para analytics e métricas"
+    }
+  },
+  "payment_types": {
+    "stripe": "Tipos e interfaces do Stripe",
+    "mercadopago": "Declarações do MercadoPago",
+    "abacatepay": "Tipos da API AbacatePay",
+    "unified": "Tipos unificados de pagamento"
+  },
+  "feature_types": {
+    "Post": "Interface completa de post",
+    "Community": "Tipos de comunidade",
+    "Verification": "Sistema de verificação",
+    "Analytics": "Eventos e métricas"
+  },
+  "declaration_files": {
+    "purpose": "Adicionar tipos a módulos sem tipos",
+    "extension": ".d.ts",
+    "global": "Declarações globais",
+    "module": "Augmentação de módulos"
+  },
+  "type_exports": {
+    "interfaces": "Contratos de objetos",
+    "types": "Aliases de tipo",
+    "enums": "Enumerações",
+    "namespaces": "Agrupamento de tipos"
+  },
+  "best_practices": [
+    "Evitar any",
+    "Documentar tipos complexos",
+    "Usar generics quando apropriado",
+    "Manter tipos próximos ao uso"
+  ],
+  "common_issues": [
+    "Module resolution",
+    "Type conflicts",
+    "Missing declarations",
+    "Import/export errors"
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "module": "app/open-dates",
+  "description": "Sistema de encontros e matchmaking baseado em disponibilidade",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "date-fns"
+  ],
+  "key_files": [
+    "app/open-dates/page.tsx"
+  ],
+  "database_tables": [
+    "date_availability",
+    "date_preferences",
+    "date_matches",
+    "date_proposals"
+  ],
+  "database_schema": {
+    "date_availability": {
+      "description": "Disponibilidade para encontros",
+      "columns": {
+        "id": "UUID PRIMARY KEY",
+        "user_id": "UUID REFERENCES users(id)",
+        "date": "DATE",
+        "time_slots": "JSONB",
+        "location_preference": "VARCHAR(100)",
+        "activity_types": "TEXT[]",
+        "is_available": "BOOLEAN DEFAULT true"
+      }
+    }
+  },
+  "patterns": [
+    "calendar-integration",
+    "matching-algorithm",
+    "preference-learning"
+  ],
+  "key_features": {
+    "availability_calendar": "Calendário de disponibilidade",
+    "preference_setup": "Configurar preferências",
+    "match_suggestions": "Sugestões de match",
+    "date_proposals": "Propostas de encontro",
+    "safety_features": "Recursos de segurança",
+    "activity_suggestions": "Sugestões de atividades"
+  },
+  "matching_criteria": [
+    "availability_overlap",
+    "location_proximity",
+    "shared_interests",
+    "age_compatibility",
+    "activity_preferences"
+  ],
+  "safety_features": {
+    "verified_profiles": "Apenas perfis verificados",
+    "public_places": "Sugerir locais públicos",
+    "share_location": "Compartilhar localização",
+    "emergency_contact": "Contato de emergência"
+  },
+  "premium_features": {
+    "unlimited_matches": "Matches ilimitados",
+    "advanced_filters": "Filtros avançados",
+    "see_who_liked": "Ver quem curtiu",
+    "boost_profile": "Impulsionar perfil"
+  },
+  "common_issues": [
+    "Sincronização de calendário",
+    "Algoritmo de matching justo",
+    "Privacidade de dados",
+    "Prevenção de spam/abuse"
+  ]
+}

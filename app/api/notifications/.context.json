@@ -1,0 +1,122 @@
+{
+  "module": "api/notifications",
+  "description": "Sistema de notificações em tempo real e histórico",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod",
+    "web-push"
+  ],
+  "key_files": [
+    "app/api/notifications/route.ts",
+    "app/api/notifications/mark-read/route.ts",
+    "app/api/notifications/settings/route.ts"
+  ],
+  "database_tables": [
+    "notifications",
+    "notification_settings",
+    "push_subscriptions",
+    "notification_templates"
+  ],
+  "database_schema": {
+    "notifications": {
+      "description": "Notificações dos usuários",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "type": "VARCHAR(50) NOT NULL",
+        "title": "VARCHAR(255)",
+        "message": "TEXT NOT NULL",
+        "data": "JSONB",
+        "actor_id": "UUID REFERENCES users(id)",
+        "entity_type": "VARCHAR(50)",
+        "entity_id": "UUID",
+        "is_read": "BOOLEAN DEFAULT false",
+        "read_at": "TIMESTAMP WITH TIME ZONE",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "notification_settings": {
+      "description": "Preferências de notificação por usuário",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id) UNIQUE",
+        "email_enabled": "BOOLEAN DEFAULT true",
+        "push_enabled": "BOOLEAN DEFAULT true",
+        "sms_enabled": "BOOLEAN DEFAULT false",
+        "in_app_enabled": "BOOLEAN DEFAULT true",
+        "preferences": "JSONB DEFAULT '{}'",
+        "quiet_hours": "JSONB",
+        "updated_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    },
+    "push_subscriptions": {
+      "description": "Inscrições para push notifications",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "user_id": "UUID REFERENCES users(id)",
+        "endpoint": "TEXT NOT NULL",
+        "keys": "JSONB NOT NULL",
+        "device_info": "JSONB",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()",
+        "last_used_at": "TIMESTAMP WITH TIME ZONE"
+      }
+    }
+  },
+  "patterns": [
+    "pub-sub",
+    "notification-aggregation",
+    "push-notification-service",
+    "email-batching"
+  ],
+  "notification_types": {
+    "social": ["like", "comment", "follow", "mention", "share"],
+    "messaging": ["new_message", "message_request"],
+    "friends": ["friend_request", "friend_accepted"],
+    "events": ["event_invite", "event_reminder", "event_update"],
+    "communities": ["new_post", "post_approved", "new_member"],
+    "payments": ["payment_received", "subscription_renewed"],
+    "system": ["security_alert", "profile_update", "achievement"]
+  },
+  "key_features": {
+    "real_time": "Notificações em tempo real via WebSocket",
+    "push_notifications": "Web Push API para notificações do navegador",
+    "email_digest": "Resumo diário/semanal por email",
+    "smart_grouping": "Agrupamento inteligente de notificações similares",
+    "quiet_hours": "Horário de silêncio configurável",
+    "priority_levels": "Níveis de prioridade para notificações",
+    "action_buttons": "Botões de ação rápida nas notificações"
+  },
+  "api_endpoints": {
+    "GET /api/notifications": "Listar notificações",
+    "POST /api/notifications/mark-read": "Marcar como lida",
+    "PUT /api/notifications/settings": "Atualizar preferências",
+    "POST /api/notifications/subscribe": "Inscrever para push",
+    "DELETE /api/notifications/[id]": "Deletar notificação"
+  },
+  "delivery_channels": {
+    "in_app": "Notificações dentro do app",
+    "push": "Push notifications (PWA)",
+    "email": "Email transacional/digest",
+    "sms": "SMS para notificações críticas",
+    "webhook": "Webhooks para integrações"
+  },
+  "preferences_granularity": {
+    "global": "Ativar/desativar todas",
+    "by_type": "Configurar por tipo de notificação",
+    "by_sender": "Silenciar usuários específicos",
+    "by_time": "Quiet hours e dias da semana"
+  },
+  "performance_optimizations": [
+    "Batch de notificações similares",
+    "Rate limiting por usuário",
+    "Deduplicação de notificações",
+    "Lazy loading de conteúdo",
+    "Indexação por tipo e status"
+  ],
+  "common_issues": [
+    "Sobrecarga de notificações",
+    "Entrega confiável de push",
+    "Sincronização entre dispositivos",
+    "Performance com alto volume"
+  ]
+}

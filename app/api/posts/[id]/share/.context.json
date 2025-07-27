@@ -1,0 +1,54 @@
+{
+  "module": "api/posts/[id]/share",
+  "description": "API para compartilhamento de posts",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod"
+  ],
+  "key_files": [
+    "app/api/posts/[id]/share/route.ts"
+  ],
+  "database_tables": [
+    "shares",
+    "share_stats"
+  ],
+  "database_schema": {
+    "shares": {
+      "description": "Registro de compartilhamentos",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "post_id": "UUID REFERENCES posts(id)",
+        "user_id": "UUID REFERENCES users(id)",
+        "share_type": "VARCHAR(20) CHECK (share_type IN ('timeline', 'story', 'message', 'external'))",
+        "message": "TEXT",
+        "visibility": "VARCHAR(20) DEFAULT 'public'",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    }
+  },
+  "patterns": [
+    "share-tracking",
+    "viral-distribution",
+    "privacy-preservation"
+  ],
+  "key_features": {
+    "share_types": "Timeline, story, mensagem direta, externo",
+    "quote_share": "Compartilhar com comentário",
+    "privacy_control": "Respeitar visibilidade original",
+    "analytics": "Tracking de alcance viral"
+  },
+  "api_endpoints": {
+    "POST /api/posts/[id]/share": "Compartilhar post"
+  },
+  "share_options": {
+    "timeline": "Compartilhar no próprio feed",
+    "story": "Compartilhar como story 24h",
+    "message": "Enviar via mensagem direta",
+    "external": "Copiar link para compartilhar fora"
+  },
+  "common_issues": [
+    "Loops de compartilhamento",
+    "Privacidade em cascata",
+    "Tracking de origem"
+  ]
+}

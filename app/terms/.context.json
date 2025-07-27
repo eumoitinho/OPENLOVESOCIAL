@@ -1,0 +1,59 @@
+{
+  "module": "app/terms",
+  "description": "Página de termos de uso e condições de serviço",
+  "dependencies": [
+    "react",
+    "@heroui/react"
+  ],
+  "key_files": [
+    "app/terms/page.tsx"
+  ],
+  "patterns": [
+    "legal-document",
+    "markdown-content",
+    "versioning"
+  ],
+  "key_sections": {
+    "acceptance": "Aceitação dos termos",
+    "service_description": "Descrição do serviço",
+    "user_obligations": "Obrigações do usuário",
+    "content_policy": "Política de conteúdo",
+    "intellectual_property": "Propriedade intelectual",
+    "payment_terms": "Termos de pagamento",
+    "termination": "Rescisão e suspensão",
+    "liability": "Limitação de responsabilidade",
+    "disputes": "Resolução de disputas"
+  },
+  "content_policies": {
+    "prohibited_content": "Conteúdo proibido",
+    "copyright": "Direitos autorais",
+    "user_conduct": "Conduta do usuário",
+    "spam_policy": "Política anti-spam",
+    "age_restrictions": "Restrições de idade"
+  },
+  "payment_section": {
+    "subscription_terms": "Termos de assinatura",
+    "refund_policy": "Política de reembolso",
+    "auto_renewal": "Renovação automática",
+    "price_changes": "Mudanças de preço"
+  },
+  "legal_compliance": {
+    "jurisdiction": "Jurisdição brasileira",
+    "applicable_law": "Lei aplicável",
+    "dispute_resolution": "Resolução de conflitos",
+    "class_action": "Ação coletiva"
+  },
+  "page_features": {
+    "table_of_contents": "Índice navegável",
+    "version_date": "Data da versão",
+    "print_version": "Versão para impressão",
+    "download_pdf": "Download em PDF",
+    "acceptance_log": "Log de aceitação"
+  },
+  "common_issues": [
+    "Clareza para usuários leigos",
+    "Atualização com mudanças legais",
+    "Tradução consistente",
+    "Conformidade internacional"
+  ]
+}

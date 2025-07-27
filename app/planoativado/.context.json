@@ -1,0 +1,60 @@
+{
+  "module": "app/planoativado",
+  "description": "Páginas de confirmação de ativação de planos premium",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "framer-motion"
+  ],
+  "subdirectories": [
+    "app/planoativado/gold",
+    "app/planoativado/diamante"
+  ],
+  "key_files": [
+    "app/planoativado/gold/page.tsx",
+    "app/planoativado/diamante/page.tsx"
+  ],
+  "patterns": [
+    "success-page",
+    "onboarding-flow",
+    "celebration-animation"
+  ],
+  "key_features": {
+    "success_message": "Mensagem de sucesso animada",
+    "plan_benefits": "Lista de benefícios desbloqueados",
+    "next_steps": "Próximos passos sugeridos",
+    "share_achievement": "Compartilhar conquista",
+    "tutorial_links": "Links para tutoriais"
+  },
+  "page_elements": {
+    "celebration": "Animação de celebração",
+    "welcome_message": "Mensagem de boas-vindas premium",
+    "benefits_list": "Lista de novos recursos",
+    "quick_actions": "Ações para começar",
+    "support_info": "Informações de suporte premium"
+  },
+  "plan_specific": {
+    "gold": {
+      "badge": "Badge dourado",
+      "features": "Features Gold desbloqueadas",
+      "limits": "Novos limites aumentados"
+    },
+    "diamond": {
+      "badge": "Badge diamante",
+      "features": "Todas features desbloqueadas",
+      "vip_status": "Status VIP"
+    }
+  },
+  "user_journey": {
+    "from": "Checkout completo",
+    "to": "Explorar features premium",
+    "retention": "Engajar com novos recursos"
+  },
+  "common_issues": [
+    "Sincronização de status premium",
+    "Animações pesadas no mobile",
+    "Redirect após visualização",
+    "Tracking de conversão"
+  ]
+}

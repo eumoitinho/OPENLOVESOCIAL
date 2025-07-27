@@ -1,0 +1,77 @@
+{
+  "module": "api/posts/audio",
+  "description": "API para criação de posts de áudio e podcasts",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "zod",
+    "ffmpeg",
+    "waveform-data"
+  ],
+  "key_files": [
+    "app/api/posts/audio/route.ts"
+  ],
+  "database_tables": [
+    "audio_posts",
+    "audio_transcriptions"
+  ],
+  "database_schema": {
+    "audio_posts": {
+      "description": "Metadados de posts de áudio",
+      "columns": {
+        "id": "UUID PRIMARY KEY DEFAULT uuid_generate_v4()",
+        "post_id": "UUID REFERENCES posts(id)",
+        "audio_url": "TEXT NOT NULL",
+        "duration": "INTEGER NOT NULL",
+        "waveform_data": "JSONB",
+        "transcript": "TEXT",
+        "language": "VARCHAR(10)",
+        "is_podcast": "BOOLEAN DEFAULT false",
+        "episode_number": "INTEGER",
+        "season_number": "INTEGER",
+        "created_at": "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"
+      }
+    }
+  },
+  "patterns": [
+    "audio-processing",
+    "real-time-transcription",
+    "waveform-visualization"
+  ],
+  "key_features": {
+    "voice_recording": "Gravação direta no app",
+    "audio_filters": "Filtros e efeitos de voz",
+    "transcription": "Transcrição automática (premium)",
+    "waveform": "Visualização de forma de onda",
+    "chapters": "Marcadores de capítulos",
+    "background_play": "Reprodução em background",
+    "podcast_series": "Séries de podcast"
+  },
+  "api_endpoints": {
+    "POST /api/posts/audio": "Criar post de áudio",
+    "POST /api/posts/audio/transcribe": "Transcrever áudio"
+  },
+  "audio_processing": {
+    "formats": ["mp3", "m4a", "ogg"],
+    "max_duration": {
+      "free": 60,
+      "gold": 300,
+      "diamond": 3600
+    },
+    "bitrate": "128kbps",
+    "noise_reduction": true,
+    "normalization": true
+  },
+  "podcast_features": [
+    "RSS feed generation",
+    "Episode scheduling",
+    "Show notes",
+    "Guest management",
+    "Analytics dashboard"
+  ],
+  "common_issues": [
+    "Processamento de áudio longo",
+    "Sincronização de transcrição",
+    "Consumo de armazenamento",
+    "Compatibilidade entre navegadores"
+  ]
+}

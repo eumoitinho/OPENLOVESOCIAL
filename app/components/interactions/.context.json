@@ -1,0 +1,80 @@
+{
+  "module": "app/components/interactions",
+  "description": "Componentes de interação social (curtir, seguir, compartilhar)",
+  "dependencies": [
+    "@supabase/supabase-js",
+    "react",
+    "@heroui/react",
+    "framer-motion"
+  ],
+  "key_files": [
+    "app/components/interactions/LikeButton.tsx",
+    "app/components/interactions/FollowButton.tsx",
+    "app/components/interactions/FriendshipButton.tsx",
+    "app/components/interactions/ShareButton.tsx",
+    "app/components/interactions/SaveButton.tsx",
+    "app/components/interactions/InteractionBar.tsx"
+  ],
+  "database_tables": [
+    "likes",
+    "follows",
+    "shares",
+    "saved_posts"
+  ],
+  "patterns": [
+    "optimistic-ui",
+    "interaction-tracking",
+    "real-time-sync"
+  ],
+  "component_features": {
+    "LikeButton": "Botão de curtir com animação",
+    "FollowButton": "Botão de seguir/deixar de seguir",
+    "FriendshipButton": "Botão de amizade complexo",
+    "ShareButton": "Opções de compartilhamento",
+    "SaveButton": "Salvar em coleções",
+    "InteractionBar": "Barra com todas interações"
+  },
+  "interaction_types": {
+    "like": {
+      "animation": "Heart burst animation",
+      "double_tap": "Double tap to like",
+      "undo": "Unlike capability"
+    },
+    "follow": {
+      "states": ["Follow", "Following", "Unfollow"],
+      "confirmation": "Unfollow confirmation"
+    },
+    "share": {
+      "options": ["Timeline", "Story", "Message", "External"],
+      "tracking": "Share analytics"
+    },
+    "save": {
+      "collections": "Save to collections",
+      "quick_save": "Quick save option"
+    }
+  },
+  "optimistic_updates": {
+    "immediate_feedback": "Update UI immediately",
+    "rollback": "Rollback on error",
+    "sync": "Sync with server",
+    "conflict_resolution": "Handle conflicts"
+  },
+  "animations": {
+    "like": "Scale and fade burst",
+    "follow": "Button state transition",
+    "share": "Modal slide up",
+    "save": "Bookmark fill animation"
+  },
+  "analytics_tracking": [
+    "Interaction counts",
+    "Engagement rates",
+    "Share destinations",
+    "Save collections usage"
+  ],
+  "common_issues": [
+    "Double click prevention",
+    "Network latency handling",
+    "State synchronization",
+    "Animation performance"
+  ]
+}
