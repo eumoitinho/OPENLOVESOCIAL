@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import React from "react"
 import { loadStripe } from "@stripe/stripe-js"
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js"
 import { Button } from "@/components/ui/button"
@@ -22,8 +23,16 @@ function CheckoutFormContent({ planType, userEmail, userId, isUpgrade = false, o
   const elements = useElements()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isReady, setIsReady] = useState(false)
 
   const plan = STRIPE_PRODUCTS[planType]
+
+  // Verificar se Stripe está carregado
+  useEffect(() => {
+    if (stripe) {
+      setIsReady(true)
+    }
+  }, [stripe])
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -123,25 +132,36 @@ function CheckoutFormContent({ planType, userEmail, userId, isUpgrade = false, o
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Informações do Cartão
           </label>
-          <div className="p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800">
+          <div className="p-4 border border-gray-300 dark:border-gray-600 rounded-md bg-white relative">
+            {!isReady && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white/80 rounded-md">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              </div>
+            )}
             <CardElement
               options={{
                 style: {
-                  base: {
-                    fontSize: '16px',
-                    color: '#424770',
-                    backgroundColor: 'transparent',
-                    '::placeholder': {
-                      color: '#aab7c4'
+                    base: {
+                      fontSize: '16px',
+                      color: '#32325d',
+                      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                      fontSmoothing: 'antialiased',
+                      '::placeholder': {
+                        color: '#a0aec0'
+                      },
+                      '::selection': {
+                        color: '#fff',
+                        backgroundColor: '#0070f3'
+                      }
                     },
-                    iconColor: '#666EE8'
-                  },
-                  invalid: {
-                    color: '#9e2146'
-                  }
+                    invalid: {
+                      color: '#e25950',
+                      iconColor: '#e25950'
+                    }
                 },
                 hidePostalCode: true
               }}
+              className="py-2"
             />
           </div>
         </div>

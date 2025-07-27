@@ -146,7 +146,7 @@ export function ExploreProfiles({
         Não encontramos perfis que correspondam aos seus filtros. Tente ajustar os critérios de busca.
       </p>
       <div className="flex gap-3 justify-center">
-        <Button onClick={resetFilters} variant="outline">
+        <Button onClick={resetFilters} variant="bordered">
           <RefreshCw className="w-4 h-4 mr-2" />
           Limpar Filtros
         </Button>
@@ -234,7 +234,7 @@ export function ExploreProfiles({
         
         <div className="flex items-center gap-2">
           <Button
-            variant="outline"
+            variant="bordered"
             size="sm"
             onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
           >
@@ -242,7 +242,7 @@ export function ExploreProfiles({
           </Button>
           
           <Button
-            variant="outline"
+            variant="bordered"
             size="sm"
             onClick={() => setShowFilters(!showFilters)}
           >
@@ -251,7 +251,7 @@ export function ExploreProfiles({
           </Button>
           
           <Button
-            variant="outline"
+            variant="bordered"
             size="sm"
             onClick={refresh}
             disabled={loading}
@@ -285,7 +285,7 @@ export function ExploreProfiles({
             <Users className="w-4 h-4" />
             Todos
             {profiles.length > 0 && (
-              <Badge variant="secondary" className="ml-1">
+              <Badge className="ml-1">
                 {profiles.length}
               </Badge>
             )}
@@ -295,7 +295,7 @@ export function ExploreProfiles({
             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
             Online
             {profiles.filter(p => p.isOnline).length > 0 && (
-              <Badge variant="secondary" className="ml-1">
+              <Badge className="ml-1">
                 {profiles.filter(p => p.isOnline).length}
               </Badge>
             )}
@@ -305,7 +305,7 @@ export function ExploreProfiles({
             <Sparkles className="w-4 h-4" />
             Verificados
             {profiles.filter(p => p.isVerified).length > 0 && (
-              <Badge variant="secondary" className="ml-1">
+              <Badge className="ml-1">
                 {profiles.filter(p => p.isVerified).length}
               </Badge>
             )}
@@ -315,7 +315,7 @@ export function ExploreProfiles({
             <TrendingUp className="w-4 h-4" />
             Compatíveis
             {profiles.filter(p => p.compatibilityScore >= 70).length > 0 && (
-              <Badge variant="secondary" className="ml-1">
+              <Badge className="ml-1">
                 {profiles.filter(p => p.compatibilityScore >= 70).length}
               </Badge>
             )}
@@ -325,7 +325,7 @@ export function ExploreProfiles({
             <MapPin className="w-4 h-4" />
             Próximos
             {profiles.filter(p => p.distance <= 10).length > 0 && (
-              <Badge variant="secondary" className="ml-1">
+              <Badge className="ml-1">
                 {profiles.filter(p => p.distance <= 10).length}
               </Badge>
             )}
@@ -345,7 +345,7 @@ export function ExploreProfiles({
               <Button
                 onClick={loadMore}
                 disabled={loading}
-                variant="outline"
+                variant="bordered"
                 size="lg"
               >
                 {loading ? (

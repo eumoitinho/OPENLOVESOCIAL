@@ -88,8 +88,8 @@ export default function CheckoutFormAbacatePay({
             {plan.name}
           </h3>
           <div className="text-3xl font-bold text-gray-900 mb-2">
-            R$ {plan.price.toFixed(2).replace('.', ',')}
-            <span className="text-lg font-normal text-gray-600">/mês</span>
+            R$ {(plan.price / 100).toFixed(2).replace('.', ',')}
+            <span className="text-lg font-normal text-gray-600">/{plan.interval === 'month' ? 'mês' : 'ano'}</span>
           </div>
           <p className="text-gray-600">
             {planType === 'gold' ? 'Mais recursos para quem quer se destacar' : 'Para quem quer o máximo de recursos'}
