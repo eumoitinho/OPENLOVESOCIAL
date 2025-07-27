@@ -7,7 +7,7 @@ import { Button, Card, CardBody, CardHeader, Chip, Divider, Image, Link, User, S
 import { useAuth } from "@/app/components/auth/AuthProvider"
 import { toast } from "sonner"
 import SimpleProfileFix from '@/app/components/profile/SimpleProfileFix'
-import { Tabs } from "@/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar } from "@/components/ui/avatar"
 
 interface Profile {
@@ -371,208 +371,27 @@ export default function UserProfile() {
 
         {/* Tabs */}
         <Tabs 
-          aria-label="Profile sections" 
-          className="mt-4"
-          color="primary"
-          variant="underlined"
-          selectedKey={activeTab}
-          onSelectionChange={(key) => setActiveTab(key as string)}
+          value={activeTab} 
+          onValueChange={(value) => setActiveTab(value)}
+          className="w-full"
         >
-          <Tab key="posts" title={
-            <div className="flex items-center gap-2">
-              <Icon icon="lucide:file-text" className="w-4 h-4" />
-              <span>Posts</span>
-            </div>
-          }>
-            <Card>
-              <CardBody>
-                {posts.length > 0 ? (
-                  <div className="space-y-4">
-                    {posts.map((post) => (
-                      <div key={post.id} className="border-b border-default-200 pb-4 last:border-b-0">
-                        <div className="flex items-start gap-3">
-                          <Avatar
-                            size="sm"
-                            src={profile.avatar_url}
-                            className="flex-shrink-0"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-medium text-sm">{profile.name}</span>
-                              <span className="text-xs text-default-500">
-                                {formatDate(post.created_at)}
-                              </span>
-                            </div>
-                            <p className="text-sm text-default-700 mb-2">{post.content}</p>
-                            {post.media_urls && post.media_urls.length > 0 && (
-                              <div className="mb-2">
-                                <Image
-                                  src={post.media_urls[0]}
-                                  alt="Post media"
-                                  className="rounded-lg max-h-64 object-cover"
-                                />
-                              </div>
-                            )}
-                            <div className="flex items-center gap-4 text-xs text-default-500">
-                              <span>{post.likes_count} curtidas</span>
-                              <span>{post.comments_count} comentários</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Icon icon="lucide:file-text" className="w-12 h-12 mx-auto text-default-400 mb-4" />
-                    <p className="text-default-500">Nenhum post ainda</p>
-                  </div>
-                )}
-              </CardBody>
-            </Card>
-          </Tab>
+          <TabsList>
+            <TabsTrigger value="posts">Posts</TabsTrigger>
+            <TabsTrigger value="photos">Fotos</TabsTrigger>
+            <TabsTrigger value="events">Eventos</TabsTrigger>
+          </TabsList>
           
-          <Tab key="events" title={
-            <div className="flex items-center gap-2">
-              <Icon icon="lucide:calendar" className="w-4 h-4" />
-              <span>Eventos</span>
-            </div>
-          }>
-            <Card>
-              <CardBody>
-                {events.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {events.map((event) => (
-                      <Card key={event.id} className="shadow-sm">
-                        <CardBody className="p-4">
-                          <div className="flex items-start gap-3">
-                            <div className="bg-primary-100 p-2 rounded-lg">
-                              <Icon icon="lucide:calendar-days" className="w-5 h-5 text-primary" />
-                            </div>
-                            <div className="flex-1">
-                              <h4 className="font-semibold text-sm">{event.title}</h4>
-                              <p className="text-xs text-default-500 mt-1">{event.description}</p>
-                              <div className="flex items-center gap-2 mt-2 text-xs text-default-400">
-                                <Icon icon="lucide:clock" className="w-3 h-3" />
-                                <span>{formatDate(event.date)}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </CardBody>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Icon icon="lucide:calendar" className="w-12 h-12 mx-auto text-default-400 mb-4" />
-                    <p className="text-default-500">Nenhum evento ainda</p>
-                  </div>
-                )}
-              </CardBody>
-            </Card>
-          </Tab>
+          <TabsContent value="posts">
+            {/* Conteúdo dos posts */}
+          </TabsContent>
           
-          <Tab key="communities" title={
-            <div className="flex items-center gap-2">
-              <Icon icon="lucide:users" className="w-4 h-4" />
-              <span>Comunidades</span>
-            </div>
-          }>
-            <Card>
-              <CardBody>
-                {communities.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {communities.map((community) => (
-                      <Card key={community.id} className="shadow-sm">
-                        <CardBody className="p-4">
-                          <div className="flex items-start gap-3">
-                            <Avatar
-                              size="sm"
-                              src={community.avatar}
-                              className="flex-shrink-0"
-                            />
-                            <div className="flex-1">
-                              <h4 className="font-semibold text-sm">{community.name}</h4>
-                              <p className="text-xs text-default-500 mt-1">{community.description}</p>
-                              <div className="flex items-center gap-2 mt-2 text-xs text-default-400">
-                                <Icon icon="lucide:users" className="w-3 h-3" />
-                                <span>{community.members_count} membros</span>
-                              </div>
-                            </div>
-                          </div>
-                        </CardBody>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Icon icon="lucide:users" className="w-12 h-12 mx-auto text-default-400 mb-4" />
-                    <p className="text-default-500">Nenhuma comunidade ainda</p>
-                  </div>
-                )}
-              </CardBody>
-            </Card>
-          </Tab>
+          <TabsContent value="photos">
+            {/* Conteúdo das fotos */}
+          </TabsContent>
           
-          <Tab key="friends" title={
-            <div className="flex items-center gap-2">
-              <Icon icon="lucide:user-heart" className="w-4 h-4" />
-              <span>Amigos</span>
-            </div>
-          }>
-            <Card>
-              <CardBody>
-                {friends.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    {friends.map((friend) => (
-                      <Card key={friend.id} className="shadow-sm">
-                        <CardBody className="p-4">
-                          <div className="flex flex-col items-center text-center">
-                            <Avatar
-                              size="md"
-                              src={friend.avatar_url}
-                              className="mb-3"
-                            />
-                            <h4 className="font-semibold text-sm mb-1">{friend.name}</h4>
-                            <p className="text-xs text-default-500">@{friend.username}</p>
-                            <Button
-                              size="sm"
-                              variant="bordered"
-                              className="mt-3"
-                              onPress={() => router.push(`/profile/${friend.username}`)}
-                            >
-                              Ver perfil
-                            </Button>
-                          </div>
-                        </CardBody>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Icon icon="lucide:user-heart" className="w-12 h-12 mx-auto text-default-400 mb-4" />
-                    <p className="text-default-500">Nenhum amigo ainda</p>
-                  </div>
-                )}
-              </CardBody>
-            </Card>
-          </Tab>
-          
-          <Tab key="media" title={
-            <div className="flex items-center gap-2">
-              <Icon icon="lucide:image" className="w-4 h-4" />
-              <span>Mídia</span>
-            </div>
-          }>
-            <Card>
-              <CardBody>
-                <div className="text-center py-8">
-                  <Icon icon="lucide:image" className="w-12 h-12 mx-auto text-default-400 mb-4" />
-                  <p className="text-default-500">Nenhuma mídia ainda</p>
-                </div>
-              </CardBody>
-            </Card>
-          </Tab>
+          <TabsContent value="events">
+            {/* Conteúdo dos eventos */}
+          </TabsContent>
         </Tabs>
       </div>
     </div>
