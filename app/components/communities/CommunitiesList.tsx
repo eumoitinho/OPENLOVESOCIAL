@@ -287,25 +287,30 @@ export default function CommunitiesList({ view = 'all' }: CommunitiesListProps) 
 
               <CardHeader className="pb-3">
                 <div className="flex items-start gap-3">
-                  <Avatar className="w-12 h-12">
-                    <AvatarImage src={community.avatar_url} />
-                    <AvatarFallback>
-                      {community.name.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
+                  <Avatar 
+                    src={community.avatar_url}
+                    className="w-12 h-12"
+                    showFallback
+                    name={community.name}
+                    fallback={
+                      <div className="w-full h-full bg-gradient-to-br from-pink-500 to-purple-500 text-white flex items-center justify-center">
+                        {community.name.charAt(0)}
+                      </div>
+                    }
+                  />
                   
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <CardTitle className="text-lg line-clamp-1">
+                      <h3 className="text-lg font-semibold line-clamp-1">
                         {community.name}
-                      </CardTitle>
+                      </h3>
                       {getCommunityTypeIcon(community.type)}
                     </div>
                     
                     <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="secondary" className="text-xs">
+                      <Chip variant="flat" className="text-xs">
                         {community.category}
-                      </Badge>
+                      </Chip>
                       {community.location && (
                         <div className="flex items-center gap-1 text-xs text-gray-500">
                           <MapPin className="w-3 h-3" />
@@ -317,7 +322,7 @@ export default function CommunitiesList({ view = 'all' }: CommunitiesListProps) 
                 </div>
               </CardHeader>
 
-              <CardContent className="pt-0">
+              <CardBody className="pt-0">
                 <p className="text-gray-600 text-sm line-clamp-2 mb-4">
                   {community.description}
                 </p>
@@ -338,12 +343,17 @@ export default function CommunitiesList({ view = 'all' }: CommunitiesListProps) 
                 {/* Creator Info */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Avatar className="w-6 h-6">
-                      <AvatarImage src={community.creator.avatar_url} />
-                      <AvatarFallback className="text-xs">
-                        {community.creator.full_name?.charAt(0) || community.creator.username.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
+                    <Avatar 
+                      src={community.creator.avatar_url}
+                      className="w-6 h-6"
+                      showFallback
+                      name={community.creator.full_name || community.creator.username}
+                      fallback={
+                        <div className="w-full h-full bg-gradient-to-br from-pink-500 to-purple-500 text-white flex items-center justify-center text-xs">
+                          {community.creator.full_name?.charAt(0) || community.creator.username.charAt(0)}
+                        </div>
+                      }
+                    />
                     <span className="text-sm text-gray-600">
                       por {community.creator.full_name || community.creator.username}
                     </span>
@@ -351,7 +361,7 @@ export default function CommunitiesList({ view = 'all' }: CommunitiesListProps) 
 
                   {getJoinButton(community)}
                 </div>
-              </CardContent>
+              </CardBody>
             </Card>
           ))}
         </div>
