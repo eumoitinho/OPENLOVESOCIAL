@@ -24,8 +24,7 @@ export default function CallButtons({
     <div className={`flex items-center gap-2 ${className}`}>
       {/* Botão de Chamada de Voz */}
       <PremiumLockBadge 
-        feature="canMakeVoiceCalls"
-        disabled={!features.canMakeVoiceCalls}
+        feature="voice_call"
       >
         <Button
           isIconOnly
@@ -41,8 +40,7 @@ export default function CallButtons({
 
       {/* Botão de Chamada de Vídeo */}
       <PremiumLockBadge 
-        feature="canMakeVideoCalls"
-        disabled={!features.canMakeVideoCalls}
+        feature="video_call"
       >
         <Button
           isIconOnly
