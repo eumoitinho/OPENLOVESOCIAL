@@ -212,8 +212,8 @@ export function TimelineRightSidebar({
 
   return (
     <aside className="hidden xl:block w-[350px] p-3 xs:p-4 sticky top-0 h-screen overflow-y-auto overflow-x-hidden scrollbar-hide space-y-4 xs:space-y-6">
-      {/* Plan Ad Card - Only show for free users */}
-      {canAccess.plan === 'free' && (
+      {/* Card de Plano - Mostrar apenas para usuários do plano gratuito */}
+      {canAccess.currentPlan === 'free' && (
         <PlanAdCard 
           plan="gold" 
           position="sidebar"
