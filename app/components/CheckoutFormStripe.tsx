@@ -132,11 +132,16 @@ function CheckoutFormContent({ planType, userEmail, userId, isUpgrade = false, o
                     color: '#424770',
                     backgroundColor: 'transparent',
                     '::placeholder': {
-                      color: '#aab7c4' },
-                    iconColor: '#666EE8' },
+                      color: '#aab7c4'
+                    },
+                    iconColor: '#666EE8'
+                  },
                   invalid: {
-                    color: '#9e2146' } },
-                hidePostalCode: true }}
+                    color: '#9e2146'
+                  }
+                },
+                hidePostalCode: true
+              }}
             />
           </div>
         </div>
