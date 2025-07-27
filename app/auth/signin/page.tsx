@@ -9,7 +9,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/app/lib/supabase-browser"
 import { toast } from "sonner"
-import { useAuth } from "@/app/components/auth/AuthProvider"
+import { useAuth } from "@/components/auth/AuthProvider"
 
 export default function SignInPage() {
   const [isDarkMode, setIsDarkMode] = useState(false)
