@@ -263,14 +263,13 @@ export default function CreateCommunity({ onClose, onCommunityCreated }: CreateC
   }
 
   return (
-    <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Users className="w-5 h-5" />
-            Criar Comunidade
-          </DialogTitle>
-        </DialogHeader>
+    <Modal isOpen={true} onClose={onClose} size="2xl">
+      <ModalContent className="max-h-[90vh] overflow-y-auto">
+        <ModalHeader className="flex items-center gap-2">
+          <Users className="w-5 h-5" />
+          Criar Comunidade
+        </ModalHeader>
+        <ModalBody>
 
         {/* Limitações de plano */}
         {monthlyUsage.limit > 0 && (
@@ -291,7 +290,7 @@ export default function CreateCommunity({ onClose, onCommunityCreated }: CreateC
           {/* Informações básicas */}
           <div className="space-y-4">
             <div>
-              <Label htmlFor="name">Nome da Comunidade *</Label>
+              <label htmlFor="name">Nome da Comunidade *</label>
               <Input
                 id="name"
                 value={formData.name}
@@ -303,7 +302,7 @@ export default function CreateCommunity({ onClose, onCommunityCreated }: CreateC
             </div>
 
             <div>
-              <Label htmlFor="description">Descrição *</Label>
+              <label htmlFor="description">Descrição *</label>
               <Textarea
                 id="description"
                 value={formData.description}
@@ -316,16 +315,21 @@ export default function CreateCommunity({ onClose, onCommunityCreated }: CreateC
             </div>
 
             <div>
-              <Label htmlFor="category">Categoria *</Label>
-              <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
-                <SelectTrigger className={errors.category ? 'border-red-500' : ''}>
-                  <SelectValue placeholder="Selecione uma categoria" />
-                </SelectTrigger>
-                <SelectContent>
-                  {COMMUNITY_CATEGORIES.map(category => (
-                    <SelectItem key={category} value={category}>{category}</SelectItem>
-                  ))}
-                </SelectContent>
+              <label htmlFor="category">Categoria *</label>
+              <Select 
+                selectedKeys={formData.category ? [formData.category] : []}
+                onSelectionChange={(keys) => {
+                  const value = Array.from(keys)[0] as string
+                  setFormData({ ...formData, category: value })
+                }}
+                placeholder="Selecione uma categoria"
+                className={errors.category ? 'border-red-500' : ''}
+              >
+                {COMMUNITY_CATEGORIES.map(category => (
+                  <SelectItem key={category}>
+                    {category}
+                  </SelectItem>
+                ))}
               </Select>
               {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category}</p>}
             </div>
@@ -335,7 +339,7 @@ export default function CreateCommunity({ onClose, onCommunityCreated }: CreateC
           <div className="grid grid-cols-2 gap-4">
             {/* Avatar */}
             <div>
-              <Label>Avatar da Comunidade</Label>
+              <label>Avatar da Comunidade</label>
               <div className="mt-2">
                 {avatarPreview ? (
                   <div className="relative">
@@ -346,7 +350,8 @@ export default function CreateCommunity({ onClose, onCommunityCreated }: CreateC
                     />
                     <Button
                       type="button"
-                      variant="destructive"
+                      variant="flat"
+                      color="danger"
                       size="sm"
                       onClick={() => {
                         setFormData({ ...formData, avatar_image: undefined })
@@ -360,7 +365,7 @@ export default function CreateCommunity({ onClose, onCommunityCreated }: CreateC
                 ) : (
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="bordered"
                     onClick={() => avatarInputRef.current?.click()}
                     className="w-full h-20 border-dashed"
                   >
@@ -383,7 +388,7 @@ export default function CreateCommunity({ onClose, onCommunityCreated }: CreateC
 
             {/* Cover */}
             <div>
-              <Label>Capa da Comunidade</Label>
+              <label>Capa da Comunidade</label>
               <div className="mt-2">
                 {coverPreview ? (
                   <div className="relative">
@@ -394,7 +399,8 @@ export default function CreateCommunity({ onClose, onCommunityCreated }: CreateC
                     />
                     <Button
                       type="button"
-                      variant="destructive"
+                      variant="flat"
+                      color="danger"
                       size="sm"
                       onClick={() => {
                         setFormData({ ...formData, cover_image: undefined })
@@ -408,7 +414,7 @@ export default function CreateCommunity({ onClose, onCommunityCreated }: CreateC
                 ) : (
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="bordered"
                     onClick={() => coverInputRef.current?.click()}
                     className="w-full h-20 border-dashed"
                   >
@@ -432,7 +438,7 @@ export default function CreateCommunity({ onClose, onCommunityCreated }: CreateC
 
           {/* Tipo de comunidade */}
           <div>
-            <Label>Tipo de Comunidade</Label>
+            <label>Tipo de Comunidade</label>
             <div className="grid grid-cols-3 gap-3 mt-2">
               {[
                 { type: 'public', label: 'Pública', desc: 'Qualquer um pode ver e participar' },
@@ -480,7 +486,7 @@ export default function CreateCommunity({ onClose, onCommunityCreated }: CreateC
 
           {/* Tags */}
           <div>
-            <Label>Tags</Label>
+            <label>Tags</label>
             <div className="flex gap-2 mt-2">
               <Input
                 value={currentTag}
@@ -528,7 +534,8 @@ export default function CreateCommunity({ onClose, onCommunityCreated }: CreateC
             </Button>
           </div>
         </form>
-      </DialogContent>
-    </Dialog>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
   )
 }
