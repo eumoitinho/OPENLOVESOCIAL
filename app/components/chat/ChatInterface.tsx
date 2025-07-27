@@ -300,21 +300,20 @@ export function ChatInterface({ className, isOpen = false, onClose }: ChatInterf
                   {/* Indicador de digitação */}
                   {isTyping && (
                     <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
                       className="flex justify-start"
                     >
                       <div className="flex items-end gap-2">
-                        <Avatar 
-                          className="h-6 w-6"
-                          showFallback
-                          name={activeConversationData?.participants[0]?.name}
-                          fallback={
-                            <div className="w-full h-full bg-gradient-to-br from-pink-500 to-purple-500 text-white flex items-center justify-center text-xs">
-                              {activeConversationData?.participants[0]?.name?.charAt(0).toUpperCase()}
-                            </div>
-                          }
-                        />
+                        <Avatar className="h-6 w-6">
+                          <AvatarImage 
+                            src={activeConversationData?.participants[0]?.avatar_url}
+                            alt={activeConversationData?.participants[0]?.name}
+                          />
+                          <AvatarFallback className="bg-gradient-to-br from-pink-500 to-purple-500 text-white text-xs">
+                            {activeConversationData?.participants[0]?.name?.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
                         <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-3 py-2">
                           <div className="flex space-x-1">
                             <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>

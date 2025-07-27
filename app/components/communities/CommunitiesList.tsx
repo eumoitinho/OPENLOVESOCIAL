@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils"
 import { useAuth } from "@/app/components/auth/AuthProvider"
 import { useCanAccess } from "@/lib/plans/hooks"
 import CreateCommunity from './CreateCommunity'
-import { Avatar } from "@/components/ui/avatar"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
 interface Community {
   id: string
@@ -288,17 +288,15 @@ export default function CommunitiesList({ view = 'all' }: CommunitiesListProps) 
 
               <CardHeader className="pb-3">
                 <div className="flex items-start gap-3">
-                  <Avatar 
-                    src={community.avatar_url}
-                    className="w-12 h-12"
-                    showFallback
-                    name={community.name}
-                    fallback={
-                      <div className="w-full h-full bg-gradient-to-br from-pink-500 to-purple-500 text-white flex items-center justify-center">
-                        {community.name.charAt(0)}
-                      </div>
-                    }
-                  />
+                  <Avatar className="w-12 h-12">
+                    <AvatarImage 
+                      src={community.avatar_url}
+                      alt={community.name}
+                    />
+                    <AvatarFallback className="bg-gradient-to-br from-pink-500 to-purple-500 text-white">
+                      {community.name.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
                   
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
@@ -344,17 +342,15 @@ export default function CommunitiesList({ view = 'all' }: CommunitiesListProps) 
                 {/* Creator Info */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Avatar 
-                      src={community.creator.avatar_url}
-                      className="w-6 h-6"
-                      showFallback
-                      name={community.creator.full_name || community.creator.username}
-                      fallback={
-                        <div className="w-full h-full bg-gradient-to-br from-pink-500 to-purple-500 text-white flex items-center justify-center text-xs">
-                          {community.creator.full_name?.charAt(0) || community.creator.username.charAt(0)}
-                        </div>
-                      }
-                    />
+                    <Avatar className="w-6 h-6">
+                      <AvatarImage 
+                        src={community.creator.avatar_url}
+                        alt={community.creator.full_name || community.creator.username}
+                      />
+                      <AvatarFallback className="bg-gradient-to-br from-pink-500 to-purple-500 text-white text-xs">
+                        {community.creator.full_name?.charAt(0) || community.creator.username.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
                     <span className="text-sm text-gray-600">
                       por {community.creator.full_name || community.creator.username}
                     </span>

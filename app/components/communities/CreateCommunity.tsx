@@ -15,7 +15,7 @@ import { useAuth } from "@/app/components/auth/AuthProvider"
 import { useCanAccess } from "@/lib/plans/hooks"
 import LocationPicker from '../location/LocationPicker'
 import PremiumLockBadge from '@/app/components/premium/PremiumLockBadge'
-import { SelectItem, Select } from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface CreateCommunityProps {
   onClose: () => void
@@ -318,19 +318,21 @@ export default function CreateCommunity({ onClose, onCommunityCreated }: CreateC
             <div>
               <label htmlFor="category">Categoria *</label>
               <Select 
-                selectedKeys={formData.category ? [formData.category] : []}
-                onSelectionChange={(keys) => {
-                  const value = Array.from(keys)[0] as string
+                value={formData.category}
+                onValueChange={(value) => {
                   setFormData({ ...formData, category: value })
                 }}
-                placeholder="Selecione uma categoria"
-                className={errors.category ? 'border-red-500' : ''}
               >
-                {COMMUNITY_CATEGORIES.map(category => (
-                  <SelectItem key={category}>
-                    {category}
-                  </SelectItem>
-                ))}
+                <SelectTrigger className={errors.category ? 'border-red-500' : ''}>
+                  <SelectValue placeholder="Selecione uma categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  {COMMUNITY_CATEGORIES.map(category => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
               </Select>
               {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category}</p>}
             </div>
