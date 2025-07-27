@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useAuth } from "@/components/auth/AuthProvider"
+import { useAuth } from "@/app/components/auth/AuthProvider"
 import PaymentProvider from "@/app/components/PaymentProvider"
 import { Shield, CreditCard, CheckCircle } from "lucide-react"
 

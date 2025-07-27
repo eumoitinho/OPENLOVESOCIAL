@@ -7,7 +7,7 @@ import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import PaymentProvider from "@/app/components/PaymentProvider"
-import { createClient } from "@/lib/supabase-browser"
+import { createClient } from "@/app/lib/supabase-browser"
 
 interface FormData {
   firstName: string
