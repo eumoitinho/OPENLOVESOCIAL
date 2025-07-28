@@ -45,7 +45,7 @@ export function usePostActions() {
       toast.success('Post atualizado com sucesso!')
       return post
     } catch (error) {
-      toast.error('Erro ao atualizar post. Tente novamente.')
+      toast.error('Erro ao atualizar post. Tente novamente mais tarde.')
       throw error
     }
   }, [updatePost])
